@@ -1,0 +1,43 @@
+name: Push
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Check if version has changed
+        id: check-version
+        run: |
+          CURRENT_VERSION=$(npm view @fingertip/react-grid-layout version)
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "VERSION_CHANGED=true" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION_CHANGED=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to npm
+        if: steps.check-version.outputs.VERSION_CHANGED == 'true'
+        run: |
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

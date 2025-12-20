@@ -17,7 +17,7 @@ A draggable and resizable grid layout for React.
 ## Installation
 
 ```bash
-npm install @dnd-grid/react react-draggable react-resizable
+npm install @dnd-grid/react
 ```
 
 ## Usage

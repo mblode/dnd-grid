@@ -1,0 +1,104 @@
+---
+title: API Overview
+description: Complete API reference for dnd-grid
+---
+
+## Exports
+
+dnd-grid provides the following exports:
+
+```tsx
+import {
+  DndGrid,
+  GridItem,
+  type Layout,
+  type LayoutItem,
+} from "@dnd-grid/react";
+```
+
+## Components
+
+| Component | Description |
+|-----------|-------------|
+| [`DndGrid`](/api-reference/dnd-grid) | Main grid layout component |
+| `GridItem` | Individual grid item (used internally) |
+
+## Types
+
+| Type | Description |
+|------|-------------|
+| [`Layout`](/api-reference/layout-item#layout) | Array of layout items (`LayoutItem[]`) |
+| [`LayoutItem`](/api-reference/layout-item) | Position and size of a single grid item |
+
+## CSS Classes
+
+The grid applies these CSS classes that you can style:
+
+| Class | Element |
+|-------|---------|
+| `.dnd-grid` | Grid container |
+| `.dnd-grid-item` | Each grid item |
+| `.dnd-grid-placeholder` | Placeholder during drag/resize |
+| `.dnd-draggable` | Draggable items |
+| `.dnd-draggable-dragging` | Item currently being dragged |
+| `.dnd-resizable` | Resizable items |
+| `.dnd-resizable-resizing` | Item currently being resized |
+
+## Quick Reference
+
+### Essential Props
+
+```tsx
+<DndGrid
+  // Required
+  layout={layout}           // Array of LayoutItem
+  width={1200}              // Container width in pixels
+
+  // Grid configuration
+  cols={12}                 // Number of columns
+  rowHeight={150}           // Row height in pixels
+  margin={[10, 10]}         // Gap between items [x, y]
+
+  // Behavior
+  isDraggable={true}        // Enable dragging
+  isResizable={true}        // Enable resizing
+  isBounded={false}         // Keep items in bounds
+
+  // Callbacks
+  onLayoutChange={(layout) => {}}
+  onDragStart={(layout, oldItem, newItem, placeholder, e, node) => {}}
+  onDrag={(layout, oldItem, newItem, placeholder, e, node) => {}}
+  onDragStop={(layout, oldItem, newItem, placeholder, e, node) => {}}
+>
+  {children}
+</DndGrid>
+```
+
+### LayoutItem Structure
+
+```tsx
+interface LayoutItem {
+  i: string;           // Unique identifier
+  x: number;           // X position (grid units)
+  y: number;           // Y position (grid units)
+  w: number;           // Width (grid units)
+  h: number;           // Height (grid units)
+  deg?: number;        // Rotation (degrees)
+  minW?: number;       // Min width
+  maxW?: number;       // Max width
+  minH?: number;       // Min height
+  maxH?: number;       // Max height
+  static?: boolean;    // Non-movable
+  isDraggable?: boolean;
+  isResizable?: boolean;
+  isBounded?: boolean;
+}
+```
+
+## Import Styles
+
+Don't forget to import the required CSS:
+
+```tsx
+import "@dnd-grid/react/dist/styles.css";
+```

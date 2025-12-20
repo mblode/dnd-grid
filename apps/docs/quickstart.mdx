@@ -1,80 +1,114 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick Start
+description: Get up and running with dnd-grid in 5 minutes
 ---
 
-## Get started in three steps
+## Installation
 
-Get your documentation site running locally and make your first customization.
+Install dnd-grid using your preferred package manager:
 
-### Step 1: Set up your local environment
+<CodeGroup>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+```bash npm
+npm install @dnd-grid/react
+```
 
-### Step 2: Deploy your changes
+```bash yarn
+yarn add @dnd-grid/react
+```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+```bash pnpm
+pnpm add @dnd-grid/react
+```
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+</CodeGroup>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Import Styles
 
-### Step 3: Go live
+Import the required CSS styles in your application:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+```tsx
+import "@dnd-grid/react/dist/styles.css";
+```
 
-## Next steps
+Or in your CSS file:
 
-Now that you have your docs running, explore these key features:
+```css
+@import "@dnd-grid/react/dist/styles.css";
+```
 
-<CardGroup cols={2}>
+## Basic Usage
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+Here's a minimal example to get you started:
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+```tsx
+import { useState } from "react";
+import { DndGrid, type Layout } from "@dnd-grid/react";
+import "@dnd-grid/react/dist/styles.css";
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+const initialLayout: Layout = [
+  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0 },
+  { i: "c", x: 4, y: 0, w: 2, h: 2, deg: 0 },
+];
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+function App() {
+  const [layout, setLayout] = useState(initialLayout);
 
-</CardGroup>
+  return (
+    <DndGrid
+      layout={layout}
+      cols={12}
+      rowHeight={30}
+      width={1200}
+      onLayoutChange={(newLayout) => setLayout(newLayout)}
+    >
+      <div key="a">Item A</div>
+      <div key="b">Item B</div>
+      <div key="c">Item C</div>
+    </DndGrid>
+  );
+}
+```
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Each child element must have a unique `key` prop that matches the `i` property in the layout item.
 </Note>
+
+## Understanding the Layout
+
+The layout is an array of objects describing each grid item's position and size:
+
+```tsx
+interface LayoutItem {
+  i: string;    // Unique identifier (must match child key)
+  x: number;    // X position in grid units (0-based)
+  y: number;    // Y position in grid units (0-based)
+  w: number;    // Width in grid units
+  h: number;    // Height in grid units
+  deg?: number; // Rotation in degrees (optional)
+}
+```
+
+## Grid Dimensions
+
+The grid is divided into columns. Each item's `x`, `y`, `w`, and `h` are expressed in grid units:
+
+- **cols** - Total number of columns (default: 12)
+- **rowHeight** - Height of each row in pixels (default: 150)
+- **width** - Total width of the container in pixels (required)
+
+<Frame>
+  <img src="/images/grid-units.png" alt="Grid units explanation" />
+</Frame>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Detailed installation options
+  </Card>
+  <Card title="Props Reference" icon="sliders" href="/api-reference/dnd-grid">
+    All available configuration options
+  </Card>
+</CardGroup>

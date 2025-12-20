@@ -1,0 +1,73 @@
+---
+title: Dynamic Add/Remove
+description: Dynamically add and remove items from the grid.
+---
+
+<iframe
+  src="https://dnd-grid.com/examples/dynamic-add-remove?embed=true"
+  width="100%"
+  height="450"
+  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
+/>
+
+## Code
+
+```tsx
+import { useState, useCallback } from "react";
+import { DndGrid, type Layout } from "@dnd-grid/react";
+import "@dnd-grid/react/dist/styles.css";
+
+export default function DynamicAddRemoveExample() {
+  const [counter, setCounter] = useState(5);
+  const [layout, setLayout] = useState<Layout>(
+    [0, 1, 2, 3, 4].map((i) => ({
+      i: i.toString(),
+      x: (i * 2) % 12,
+      y: 0,
+      w: 2,
+      h: 2,
+      deg: 0,
+    }))
+  );
+
+  const addItem = useCallback(() => {
+    setLayout((prev) => [
+      ...prev,
+      {
+        i: `n${counter}`,
+        x: (prev.length * 2) % 12,
+        y: Infinity, // Places at bottom
+        w: 2,
+        h: 2,
+        deg: 0,
+      },
+    ]);
+    setCounter((c) => c + 1);
+  }, [counter]);
+
+  const removeItem = (id: string) => {
+    setLayout((prev) => prev.filter((item) => item.i !== id));
+  };
+
+  return (
+    <div>
+      <button onClick={addItem}>Add Item</button>
+
+      <DndGrid
+        layout={layout}
+        cols={12}
+        rowHeight={50}
+        width={1200}
+        onLayoutChange={setLayout}
+      >
+        {layout.map((item) => (
+          <div key={item.i} className="grid-item">
+            <span>{item.i}</span>
+            <button onClick={() => removeItem(item.i)}>×</button>
+          </div>
+        ))}
+      </DndGrid>
+    </div>
+  );
+}
+```

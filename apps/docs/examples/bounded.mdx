@@ -1,0 +1,49 @@
+---
+title: Bounded
+description: Items cannot be dragged outside the grid bounds.
+---
+
+<iframe
+  src="https://dnd-grid.com/examples/bounded?embed=true"
+  width="100%"
+  height="450"
+  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
+/>
+
+## Code
+
+```tsx
+import { useState } from "react";
+import { DndGrid, type Layout } from "@dnd-grid/react";
+import "@dnd-grid/react/dist/styles.css";
+
+const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
+  i: i.toString(),
+  x: (i * 2) % 12,
+  y: Math.floor(i / 6) * 2,
+  w: 2,
+  h: 2,
+  deg: 0,
+}));
+
+export default function BoundedExample() {
+  const [layout, setLayout] = useState<Layout>(initialLayout);
+
+  return (
+    <DndGrid
+      layout={layout}
+      cols={12}
+      rowHeight={50}
+      width={1200}
+      isBounded // This enables bounding
+      onLayoutChange={setLayout}
+    >
+      {layout.map((item) => (
+        <div key={item.i} className="grid-item">
+          {item.i}
+        </div>
+      ))}
+    </DndGrid>
+  );
+}
+```

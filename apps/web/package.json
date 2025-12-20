@@ -7,22 +7,41 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --max-warnings 0",
+    "lint": "biome lint .",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "*",
+    "@dnd-grid/react": "*",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.562.0",
+    "motion": "^12.23.26",
     "next": "16.0.10",
+    "next-themes": "^0.4.6",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-draggable": "^4.5.0",
+    "react-resizable": "^3.0.5",
+    "react-resize-detector": "^11.0.1",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/lodash": "^4.17.12",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "eslint": "^9.39.1",
+    "tailwindcss": "^4.0.0",
+    "tw-animate-css": "^1.4.0",
     "typescript": "5.9.2"
   }
 }

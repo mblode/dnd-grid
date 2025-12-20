@@ -1,0 +1,74 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "dnd-grid",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/mblode/dnd-grid"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/installation"
+  },
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/mblode/dnd-grid"
+    },
+    {
+      "name": "npm",
+      "icon": "npm",
+      "url": "https://www.npmjs.com/package/@dnd-grid/react"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "installation", "quickstart"]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": ["concepts/layout", "concepts/grid-items"]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/overview",
+        "api-reference/dnd-grid",
+        "api-reference/layout-item",
+        "api-reference/callbacks"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "examples/basic",
+        "examples/static-elements",
+        "examples/dynamic-add-remove",
+        "examples/localstorage",
+        "examples/toolbox",
+        "examples/bounded",
+        "examples/resizable-handles"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/mblode/dnd-grid"
+  }
+}

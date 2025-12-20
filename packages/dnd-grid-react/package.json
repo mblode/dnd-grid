@@ -1,0 +1,77 @@
+{
+  "name": "@dnd-grid/react",
+  "version": "1.0.0",
+  "description": "A draggable and resizable grid layout with responsive breakpoints, for React.",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/main.umd.cjs",
+  "module": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/main.js",
+      "require": "./dist/main.umd.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "build": "tsc --p ./tsconfig.build.json && vite build",
+    "watch": "tsc --p ./tsconfig.build.json && vite build --watch",
+    "lint": "biome lint .",
+    "check-types": "tsc --noEmit",
+    "release": "npm run build && npm version patch && npm publish",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mblode/dnd-grid.git"
+  },
+  "keywords": [
+    "react",
+    "grid",
+    "drag",
+    "draggable",
+    "resize",
+    "resizable",
+    "fluid",
+    "responsive",
+    "dnd"
+  ],
+  "author": "Matthew Blode <mblode@users.noreply.github.com> (https://github.com/mblode)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mblode/dnd-grid/issues"
+  },
+  "homepage": "https://github.com/mblode/dnd-grid",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "fast-equals": "^5.0.1"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-draggable": "^4.5.0",
+    "react-resizable": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/react-resizable": "^3.0.8",
+    "@vitejs/plugin-react": "^4.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
+    "vite-plugin-dts": "^4.2.4",
+    "vite-plugin-lib-inject-css": "^2.1.1"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}

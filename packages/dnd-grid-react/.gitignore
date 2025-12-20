@@ -1,0 +1,11 @@
+.DS_Store
+node_modules
+dist
+npm-debug.log
+build/
+.idea
+coverage/
+.vscode
+*.tgz
+.turbo
+vite.config.ts.timestamp*

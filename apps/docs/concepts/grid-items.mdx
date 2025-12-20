@@ -1,0 +1,189 @@
+---
+title: Grid Items
+description: Working with individual grid items
+---
+
+## Basic Grid Items
+
+Each child of `DndGrid` represents a grid item. The child's `key` must match the `i` property in the layout:
+
+```tsx
+<DndGrid layout={layout}>
+  <div key="a">Content A</div>
+  <div key="b">Content B</div>
+  <div key="c">Content C</div>
+</DndGrid>
+```
+
+## Styling Grid Items
+
+Grid items are absolutely positioned with CSS transforms. Apply your own styles directly:
+
+```tsx
+<DndGrid layout={layout}>
+  <div key="widget" className="my-widget">
+    <h2>Dashboard Widget</h2>
+    <p>Widget content goes here</p>
+  </div>
+</DndGrid>
+```
+
+```css
+.my-widget {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  height: 100%;
+  overflow: auto;
+}
+```
+
+<Note>
+  Grid items receive `position: absolute` and transform styles from the grid. Use `height: 100%` to fill the allocated space.
+</Note>
+
+## Static Items
+
+Static items cannot be moved or resized:
+
+```tsx
+const layout: Layout = [
+  { i: "header", x: 0, y: 0, w: 12, h: 1, deg: 0, static: true },
+  { i: "content", x: 0, y: 1, w: 8, h: 4, deg: 0 },
+];
+```
+
+Static items:
+- Cannot be dragged
+- Cannot be resized
+- Don't move when other items are dragged
+- Other items will flow around them
+
+## Size Constraints
+
+Limit how small or large an item can be resized:
+
+```tsx
+const layout: Layout = [
+  {
+    i: "constrained",
+    x: 0, y: 0, w: 4, h: 2, deg: 0,
+    minW: 2,  // Minimum 2 columns
+    maxW: 6,  // Maximum 6 columns
+    minH: 1,  // Minimum 1 row
+    maxH: 4,  // Maximum 4 rows
+  },
+];
+```
+
+## Per-Item Overrides
+
+Override grid-level settings for individual items:
+
+```tsx
+const layout: Layout = [
+  {
+    i: "special",
+    x: 0, y: 0, w: 4, h: 2, deg: 0,
+    isDraggable: false,   // Can't drag this item
+    isResizable: true,    // Can resize (even if grid disables it)
+    isBounded: true,      // Keep within bounds
+  },
+];
+```
+
+## Resize Handles
+
+Configure which edges/corners show resize handles:
+
+```tsx
+// Grid-level (all items)
+<DndGrid resizeHandles={["se", "sw", "ne", "nw"]} />
+
+// Per-item override
+const layout: Layout = [
+  {
+    i: "custom-handles",
+    x: 0, y: 0, w: 4, h: 2, deg: 0,
+    resizeHandles: ["s", "e"],  // Only bottom and right edges
+  },
+];
+```
+
+Available handles:
+- `n` - North (top edge)
+- `e` - East (right edge)
+- `s` - South (bottom edge)
+- `w` - West (left edge)
+- `ne` - Northeast corner
+- `nw` - Northwest corner
+- `se` - Southeast corner (default)
+- `sw` - Southwest corner
+
+## Custom Components
+
+When using custom components as grid items, ensure they forward refs and spread props:
+
+```tsx
+import { forwardRef } from "react";
+
+interface WidgetProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const Widget = forwardRef<HTMLDivElement, WidgetProps>(
+  ({ title, children, ...props }, ref) => {
+    return (
+      <div ref={ref} {...props} className="widget">
+        <h3>{title}</h3>
+        {children}
+      </div>
+    );
+  }
+);
+
+// Usage
+<DndGrid layout={layout}>
+  <Widget key="a" title="Sales">
+    <Chart data={salesData} />
+  </Widget>
+</DndGrid>
+```
+
+<Warning>
+  Custom components must forward `ref`, `style`, `className`, and mouse event handlers for drag/resize to work.
+</Warning>
+
+## Drag Handles
+
+Limit dragging to specific elements within an item:
+
+```tsx
+<DndGrid
+  draggableHandle=".drag-handle"
+  layout={layout}
+>
+  <div key="a">
+    <div className="drag-handle">Drag here</div>
+    <div>Content (not draggable)</div>
+  </div>
+</DndGrid>
+```
+
+## Cancel Drag
+
+Prevent dragging when clicking specific elements:
+
+```tsx
+<DndGrid
+  draggableCancel=".no-drag"
+  layout={layout}
+>
+  <div key="a">
+    <button className="no-drag">Click me</button>
+    <div>Drag anywhere else</div>
+  </div>
+</DndGrid>
+```

@@ -4,12 +4,16 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check-types": "turbo run check-types",
+    "workers:dev": "npm run dev --workspace=docs-worker",
+    "workers:deploy": "npm run deploy --workspace=docs-worker"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
+    "@biomejs/biome": "^1.9.4",
     "turbo": "^2.7.0",
     "typescript": "5.9.2"
   },
@@ -17,8 +21,5 @@
     "node": ">=18"
   },
   "packageManager": "npm@10.9.3",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "workspaces": ["apps/*", "packages/*"]
 }

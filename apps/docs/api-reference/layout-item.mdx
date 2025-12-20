@@ -1,0 +1,188 @@
+---
+title: LayoutItem
+description: Layout item type definition
+---
+
+## Layout Type
+
+The `Layout` type is an array of `LayoutItem` objects:
+
+```tsx
+import { type Layout, type LayoutItem } from "@dnd-grid/react";
+
+const layout: Layout = [
+  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0 },
+];
+```
+
+## LayoutItem Interface
+
+```tsx
+interface LayoutItem {
+  // Required properties
+  i: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+
+  // Optional properties
+  deg?: number;
+  minW?: number;
+  maxW?: number;
+  minH?: number;
+  maxH?: number;
+  static?: boolean;
+  isDraggable?: boolean;
+  isResizable?: boolean;
+  isBounded?: boolean;
+  resizeHandles?: ResizeHandleAxis[];
+}
+```
+
+## Properties
+
+### Required Properties
+
+<ResponseField name="i" type="string" required>
+  Unique identifier for the item. Must match the `key` prop of the corresponding child element.
+
+  ```tsx
+  // Layout
+  { i: "widget-1", x: 0, y: 0, w: 2, h: 2, deg: 0 }
+
+  // Matching child
+  <div key="widget-1">Content</div>
+  ```
+</ResponseField>
+
+<ResponseField name="x" type="number" required>
+  X position in grid units (0-indexed from left).
+</ResponseField>
+
+<ResponseField name="y" type="number" required>
+  Y position in grid units (0-indexed from top).
+</ResponseField>
+
+<ResponseField name="w" type="number" required>
+  Width in grid units. Must be at least 1.
+</ResponseField>
+
+<ResponseField name="h" type="number" required>
+  Height in grid units. Must be at least 1.
+</ResponseField>
+
+### Optional Properties
+
+<ResponseField name="deg" type="number" default="0">
+  Rotation in degrees. Applied as a CSS transform.
+</ResponseField>
+
+<ResponseField name="minW" type="number">
+  Minimum width in grid units. Prevents resizing smaller than this.
+</ResponseField>
+
+<ResponseField name="maxW" type="number">
+  Maximum width in grid units. Prevents resizing larger than this.
+</ResponseField>
+
+<ResponseField name="minH" type="number">
+  Minimum height in grid units.
+</ResponseField>
+
+<ResponseField name="maxH" type="number">
+  Maximum height in grid units.
+</ResponseField>
+
+<ResponseField name="static" type="boolean" default="false">
+  If true, the item cannot be moved or resized. Other items will flow around it.
+</ResponseField>
+
+<ResponseField name="isDraggable" type="boolean">
+  Override the grid's `isDraggable` setting for this item only.
+</ResponseField>
+
+<ResponseField name="isResizable" type="boolean">
+  Override the grid's `isResizable` setting for this item only.
+</ResponseField>
+
+<ResponseField name="isBounded" type="boolean">
+  Override the grid's `isBounded` setting for this item only.
+</ResponseField>
+
+<ResponseField name="resizeHandles" type="ResizeHandleAxis[]">
+  Override the grid's `resizeHandles` for this item only.
+
+  Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
+</ResponseField>
+
+## Examples
+
+### Basic Layout
+
+```tsx
+const layout: Layout = [
+  { i: "a", x: 0, y: 0, w: 4, h: 2, deg: 0 },
+  { i: "b", x: 4, y: 0, w: 4, h: 2, deg: 0 },
+  { i: "c", x: 8, y: 0, w: 4, h: 2, deg: 0 },
+];
+```
+
+### With Size Constraints
+
+```tsx
+const layout: Layout = [
+  {
+    i: "constrained",
+    x: 0, y: 0, w: 4, h: 3, deg: 0,
+    minW: 2,
+    maxW: 8,
+    minH: 2,
+    maxH: 6,
+  },
+];
+```
+
+### Static Header
+
+```tsx
+const layout: Layout = [
+  // Static header that spans full width
+  { i: "header", x: 0, y: 0, w: 12, h: 1, deg: 0, static: true },
+
+  // Movable content below
+  { i: "content", x: 0, y: 1, w: 8, h: 4, deg: 0 },
+  { i: "sidebar", x: 8, y: 1, w: 4, h: 4, deg: 0 },
+];
+```
+
+### Mixed Behavior
+
+```tsx
+const layout: Layout = [
+  // Draggable but not resizable
+  { i: "drag-only", x: 0, y: 0, w: 4, h: 2, deg: 0, isResizable: false },
+
+  // Resizable but not draggable
+  { i: "resize-only", x: 4, y: 0, w: 4, h: 2, deg: 0, isDraggable: false },
+
+  // Bounded (can't leave container)
+  { i: "bounded", x: 8, y: 0, w: 4, h: 2, deg: 0, isBounded: true },
+];
+```
+
+## Pixel Calculation
+
+To convert grid units to pixels:
+
+```
+pixelWidth = (containerWidth / cols) * w - marginX
+pixelHeight = rowHeight * h - marginY
+pixelLeft = (containerWidth / cols) * x + marginX
+pixelTop = rowHeight * y + marginY
+```
+
+<Note>
+  The actual pixel calculation is handled internally by dnd-grid. You work with grid units in your layout.
+</Note>

@@ -15,7 +15,9 @@
       "import": "./dist/main.js",
       "require": "./dist/main.umd.cjs"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles/index.css",
+    "./base.css": "./dist/styles/base.css",
+    "./theme.css": "./dist/styles/theme.css"
   },
   "scripts": {
     "build": "tsc --p ./tsconfig.build.json && vite build",

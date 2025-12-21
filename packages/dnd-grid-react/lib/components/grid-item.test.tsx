@@ -8,10 +8,10 @@ vi.mock("react-draggable", () => ({
 	DraggableCore: ({
 		children,
 		disabled,
-	}: { children: React.ReactElement; disabled: boolean }) => {
+	}: { children: React.ReactElement<{ className?: string }>; disabled: boolean }) => {
 		return React.cloneElement(children, {
 			"data-draggable": !disabled,
-		});
+		} as React.HTMLAttributes<HTMLElement>);
 	},
 }));
 
@@ -20,11 +20,11 @@ vi.mock("react-resizable", () => ({
 	Resizable: ({
 		children,
 		className,
-	}: { children: React.ReactElement; className?: string }) => {
+	}: { children: React.ReactElement<{ className?: string }>; className?: string }) => {
 		return React.cloneElement(children, {
 			"data-resizable": true,
 			className: `${children.props.className || ""} ${className || ""}`.trim(),
-		});
+		} as React.HTMLAttributes<HTMLElement>);
 	},
 }));
 

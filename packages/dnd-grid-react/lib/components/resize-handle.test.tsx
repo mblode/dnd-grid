@@ -64,17 +64,16 @@ describe("ResizeHandle", () => {
 		expect(handle).toHaveClass("dnd-grid-resize-handle");
 	});
 
-	it("accepts custom className via rest props", () => {
+	it("accepts custom data attributes via rest props", () => {
 		render(
 			<ResizeHandle
 				handleAxis="se"
 				data-testid="handle"
-				className="custom-class"
+				data-custom="custom-value"
 			/>,
 		);
 		const handle = screen.getByTestId("handle");
-		// Note: className from restProps would override the component's className
-		// This tests the spread behavior
-		expect(handle).toBeInTheDocument();
+		// This tests the spread behavior for data attributes
+		expect(handle).toHaveAttribute("data-custom", "custom-value");
 	});
 });

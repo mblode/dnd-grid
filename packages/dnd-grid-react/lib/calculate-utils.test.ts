@@ -128,7 +128,6 @@ describe("calculate-utils", () => {
 
 		it("calculates position for item at x=1, y=1", () => {
 			const pos = calcGridItemPosition(defaultPositionParams, 1, 1, 1, 1, 0);
-			const colWidth = calcGridColWidth(defaultPositionParams);
 			// left = (colWidth + margin[3]) * x + containerPadding[3]
 			expect(pos.left).toBeGreaterThan(10);
 			expect(pos.top).toBeGreaterThan(10);

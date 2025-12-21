@@ -1,10 +1,8 @@
-import React from "react";
 import { describe, expect, it } from "vitest";
 import { createLayoutItem } from "./__tests__/test-utils";
 import {
 	collidingLayout,
 	complexLayout,
-	emptyLayout,
 	gappyLayout,
 	horizontalGappyLayout,
 	layoutWithStatic,

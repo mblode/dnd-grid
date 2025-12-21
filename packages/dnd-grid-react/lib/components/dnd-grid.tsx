@@ -898,6 +898,7 @@ export class DndGrid extends React.Component<Props, State> {
         ref={innerRef}
         className={mergedClassName}
         style={mergedStyle}
+        data-dnd-grid=""
         onDrop={isDroppable ? this.onDrop : noop}
         onDragLeave={isDroppable ? this.onDragLeave : noop}
         onDragEnter={isDroppable ? this.onDragEnter : noop}

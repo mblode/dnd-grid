@@ -74,8 +74,8 @@ export interface UseGridInteractionsOptions {
 export function useGridInteractions(
   options: UseGridInteractionsOptions = {},
 ): GridInteractionsHandlers {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [_hoveredId, setHoveredId] = useState<string | null>(null);
+  const [_selectedId, setSelectedId] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
 

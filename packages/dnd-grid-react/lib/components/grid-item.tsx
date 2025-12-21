@@ -25,11 +25,14 @@ import type {
   DroppingPosition,
   GridDragEvent,
   GridResizeEvent,
+  ItemState,
+  LayoutItem,
   Position,
   PositionParams,
   ResizeHandle,
   ResizeHandleAxis,
 } from "../types";
+import { DndGridItemContext } from "../use-item-state";
 import {
   fastPositionEqual,
   resizeItemInDirection,
@@ -1056,11 +1059,48 @@ export class GridItem extends React.Component<Props, State> {
         ...child.props.style,
         ...this.createStyle(pos),
       },
+      // Composable data attributes for state targeting
+      "data-dnd-grid-item": "",
+      "data-dragging": Boolean(this.state.dragging) || undefined,
+      "data-resizing": Boolean(this.state.resizing) || undefined,
+      "data-settling": this._isSettling || undefined,
+      "data-disabled": this.props.static || undefined,
+      "data-draggable": isDraggable || undefined,
+      "data-resizable": isResizable || undefined,
     });
     // Resizable support. This is usually on but the user can toggle it off.
     newChild = this.mixinResizable(newChild, pos, isResizable);
     // Draggable support. This is always on, except for with placeholders.
     newChild = this.mixinDraggable(newChild, isDraggable);
-    return newChild;
+
+    // Create context value for useDndGridItemState hook
+    const itemState: ItemState = {
+      dragging: Boolean(this.state.dragging),
+      resizing: Boolean(this.state.resizing),
+      settling: this._isSettling,
+      disabled: Boolean(this.props.static),
+    };
+
+    const layoutItem: LayoutItem = {
+      i: this.props.i,
+      x: this.props.x,
+      y: this.props.y,
+      w: this.props.w,
+      h: this.props.h,
+      deg: this.props.deg,
+      minW: this.props.minW,
+      minH: this.props.minH,
+      maxW: this.props.maxW,
+      maxH: this.props.maxH,
+      static: this.props.static,
+      isDraggable: this.props.isDraggable,
+      isResizable: this.props.isResizable,
+    };
+
+    return (
+      <DndGridItemContext.Provider value={{ item: layoutItem, state: itemState }}>
+        {newChild}
+      </DndGridItemContext.Provider>
+    );
   }
 }

@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { DraggableEvent } from "react-draggable";
 
 // util
@@ -12,6 +12,63 @@ export type ResizeHandle =
       resizeHandleAxis: ResizeHandleAxis,
       ref: ReactRef<HTMLElement>,
     ) => ReactElement<any>);
+
+export type ResizeHandleAxis =
+  | "s"
+  | "w"
+  | "e"
+  | "n"
+  | "sw"
+  | "nw"
+  | "se"
+  | "ne";
+
+export type LayoutItem = {
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  deg: number;
+  i: string;
+  minW?: number;
+  minH?: number;
+  maxW?: number;
+  maxH?: number;
+  moved?: boolean;
+  static?: boolean;
+  isDraggable?: boolean | null | undefined;
+  isResizable?: boolean | null | undefined;
+  resizeHandles?: Array<ResizeHandleAxis>;
+  isBounded?: boolean | null | undefined;
+};
+
+/**
+ * State of a grid item during interactions
+ */
+export type ItemState = {
+  dragging: boolean;
+  resizing: boolean;
+  settling: boolean;
+  disabled: boolean;
+};
+
+/**
+ * Slot props for customizing internal elements
+ */
+export type SlotProps = {
+  item?: {
+    className?: string | ((item: LayoutItem, state: ItemState) => string);
+    style?: CSSProperties | ((item: LayoutItem, state: ItemState) => CSSProperties);
+  };
+  placeholder?: {
+    className?: string;
+    style?: CSSProperties;
+  };
+  handle?: {
+    className?: string | ((axis: ResizeHandleAxis) => string);
+    style?: CSSProperties;
+  };
+};
 
 export type Props = {
   className: string;
@@ -39,6 +96,10 @@ export type Props = {
   resizeHandles: ResizeHandleAxis[];
   resizeHandle?: ResizeHandle;
   allowOverlap: boolean;
+  /**
+   * Customize styling of internal elements.
+   */
+  slotProps?: SlotProps;
   // Callbacks
   onLayoutChange: (arg0: Layout) => void;
   onDrag: EventCallback;
@@ -77,33 +138,6 @@ export type Props = {
 
 export type DefaultProps = Omit<Props, "children" | "width">;
 
-export type ResizeHandleAxis =
-  | "s"
-  | "w"
-  | "e"
-  | "n"
-  | "sw"
-  | "nw"
-  | "se"
-  | "ne";
-export type LayoutItem = {
-  w: number;
-  h: number;
-  x: number;
-  y: number;
-  deg: number;
-  i: string;
-  minW?: number;
-  minH?: number;
-  maxW?: number;
-  maxH?: number;
-  moved?: boolean;
-  static?: boolean;
-  isDraggable?: boolean | null | undefined;
-  isResizable?: boolean | null | undefined;
-  resizeHandles?: Array<ResizeHandleAxis>;
-  isBounded?: boolean | null | undefined;
-};
 export type Layout = ReadonlyArray<LayoutItem>;
 export type Position = {
   left: number;

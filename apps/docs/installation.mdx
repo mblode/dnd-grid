@@ -1,14 +1,11 @@
 ---
 title: Installation
-description: Install and configure dnd-grid in your React project
+description: Install and configure dnd-grid.
 ---
 
-## Requirements
+## Setup
 
-- React 19.0.0 or higher
-- React DOM 19.0.0 or higher
-
-## Package Installation
+Install the package and import the required styles.
 
 <CodeGroup>
 
@@ -26,101 +23,10 @@ pnpm add @dnd-grid/react
 
 </CodeGroup>
 
-## Styles
-
-dnd-grid requires CSS styles for proper functionality. Import them in your application entry point:
-
-### Option 1: JavaScript Import
-
 ```tsx
-// In your App.tsx or main entry file
-import "@dnd-grid/react/dist/styles.css";
+import "@dnd-grid/react/styles.css";
 ```
 
-### Option 2: CSS Import
-
-```css
-/* In your global CSS file */
-@import "@dnd-grid/react/dist/styles.css";
-```
-
-### Option 3: HTML Link
-
-```html
-<link rel="stylesheet" href="node_modules/@dnd-grid/react/dist/styles.css" />
-```
-
-## TypeScript
-
-dnd-grid is written in TypeScript and includes type definitions. No additional `@types` package is needed.
-
-```tsx
-import { DndGrid, type Layout, type LayoutItem } from "@dnd-grid/react";
-
-const layout: Layout = [
-  { i: "item-1", x: 0, y: 0, w: 2, h: 2, deg: 0 },
-];
-```
-
-## Bundler Configuration
-
-### Vite
-
-No additional configuration needed. Vite handles CSS imports automatically.
-
-### Next.js
-
-Import styles in your root layout or `_app.tsx`:
-
-```tsx
-// app/layout.tsx (App Router)
-import "@dnd-grid/react/dist/styles.css";
-
-// or pages/_app.tsx (Pages Router)
-import "@dnd-grid/react/dist/styles.css";
-```
-
-### Webpack
-
-Ensure you have `css-loader` and `style-loader` configured:
-
-```js
-module.exports = {
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
-  },
-};
-```
-
-## Verify Installation
-
-Create a simple test component:
-
-```tsx
-import { DndGrid } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
-
-function TestGrid() {
-  return (
-    <DndGrid
-      layout={[{ i: "test", x: 0, y: 0, w: 4, h: 2, deg: 0 }]}
-      cols={12}
-      rowHeight={50}
-      width={800}
-    >
-      <div key="test" style={{ background: "#e0e0e0", padding: 20 }}>
-        If you can drag this, installation was successful!
-      </div>
-    </DndGrid>
-  );
-}
-```
-
-<Check>
-  You should see a draggable and resizable box. If the styles look broken, ensure the CSS is properly imported.
-</Check>
+<Note>
+  **TypeScript:** Type definitions are included automatically. No `@types` package is needed.
+</Note>

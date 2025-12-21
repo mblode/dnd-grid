@@ -6,6 +6,6 @@ export const siteConfig = {
     docs: "https://dnd-grid.com/docs",
     author: "https://matthewblode.com",
   },
-}
+};
 
-export type SiteConfig = typeof siteConfig
+export type SiteConfig = typeof siteConfig;

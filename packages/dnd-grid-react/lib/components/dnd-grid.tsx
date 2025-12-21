@@ -1,8 +1,19 @@
 import clsx from "clsx";
 import { deepEqual } from "fast-equals";
-import * as React from "react";
 import type { ReactElement } from "react";
+import * as React from "react";
 import { calcXY } from "../calculate-utils";
+import type {
+  CompactType,
+  DefaultProps,
+  DroppingPosition,
+  GridDragEvent,
+  GridResizeEvent,
+  Layout,
+  LayoutItem,
+  PositionParams,
+  Props,
+} from "../types";
 import {
   bottom,
   childrenEqual,
@@ -17,18 +28,6 @@ import {
   withLayoutItem,
 } from "../utils";
 import { GridItem } from "./grid-item";
-
-import type {
-  CompactType,
-  DefaultProps,
-  DroppingPosition,
-  GridDragEvent,
-  GridResizeEvent,
-  Layout,
-  LayoutItem,
-  PositionParams,
-  Props,
-} from "../types";
 
 type State = {
   activeDrag: LayoutItem | null | undefined;
@@ -113,7 +112,7 @@ export class DndGrid extends React.Component<Props, State> {
       this.props.children as any,
       this.props.cols as any, // Legacy support for verticalCompact: false
       compactType(this.props),
-      this.props.allowOverlap
+      this.props.allowOverlap,
     ),
     mounted: false,
     oldDragItem: null,
@@ -134,7 +133,10 @@ export class DndGrid extends React.Component<Props, State> {
     this.onLayoutMaybeChanged(this.state.layout, this.props.layout);
   }
 
-  static getDerivedStateFromProps(nextProps: Props, prevState: State): Partial<State> | null {
+  static getDerivedStateFromProps(
+    nextProps: Props,
+    prevState: State,
+  ): Partial<State> | null {
     let newLayoutBase;
 
     if (prevState.activeDrag) {
@@ -162,7 +164,7 @@ export class DndGrid extends React.Component<Props, State> {
         nextProps.children as any,
         nextProps.cols as any,
         compactType(nextProps),
-        nextProps.allowOverlap
+        nextProps.allowOverlap,
       );
       return {
         layout: newLayout,
@@ -227,32 +229,28 @@ export class DndGrid extends React.Component<Props, State> {
   /**
    * When dragging starts
    */
-  onDragStart: (i: string, x: number, y: number, arg3: GridDragEvent) => void = (
-    i: string,
-    _x: number,
-    _y: number,
-    { e, node }: GridDragEvent
-  ) => {
-    const { layout } = this.state;
-    const l = getLayoutItem(layout, i);
-    if (!l) return;
-    // Create placeholder (display only)
-    const placeholder = {
-      w: l.w,
-      h: l.h,
-      x: l.x,
-      y: l.y,
-      deg: l.deg,
-      placeholder: true,
-      i: i,
+  onDragStart: (i: string, x: number, y: number, arg3: GridDragEvent) => void =
+    (i: string, _x: number, _y: number, { e, node }: GridDragEvent) => {
+      const { layout } = this.state;
+      const l = getLayoutItem(layout, i);
+      if (!l) return;
+      // Create placeholder (display only)
+      const placeholder = {
+        w: l.w,
+        h: l.h,
+        x: l.x,
+        y: l.y,
+        deg: l.deg,
+        placeholder: true,
+        i: i,
+      };
+      this.setState({
+        oldDragItem: cloneLayoutItem(l),
+        oldLayout: layout,
+        activeDrag: placeholder,
+      });
+      return this.props.onDragStart(layout, l, l, null, e, node);
     };
-    this.setState({
-      oldDragItem: cloneLayoutItem(l),
-      oldLayout: layout,
-      activeDrag: placeholder,
-    });
-    return this.props.onDragStart(layout, l, l, null, e, node);
-  };
 
   /**
    * Each drag movement create a new dragelement and move the element to the dragged location
@@ -261,7 +259,7 @@ export class DndGrid extends React.Component<Props, State> {
     i,
     x,
     y,
-    { e, node }
+    { e, node },
   ) => {
     const { oldDragItem } = this.state;
     let { layout } = this.state;
@@ -289,11 +287,13 @@ export class DndGrid extends React.Component<Props, State> {
       preventCollision,
       compactType(this.props),
       cols as number,
-      allowOverlap
+      allowOverlap,
     );
     this.props.onDrag(layout, oldDragItem, l, placeholder, e, node);
     this.setState({
-      layout: allowOverlap ? layout : compact(layout, compactType(this.props), cols as number),
+      layout: allowOverlap
+        ? layout
+        : compact(layout, compactType(this.props), cols as number),
       activeDrag: placeholder,
     });
   };
@@ -305,7 +305,7 @@ export class DndGrid extends React.Component<Props, State> {
     i,
     x,
     y,
-    { e, node }
+    { e, node },
   ) => {
     if (!this.state.activeDrag) return;
     const { oldDragItem } = this.state;
@@ -324,7 +324,7 @@ export class DndGrid extends React.Component<Props, State> {
       preventCollision,
       compactType(this.props),
       cols as number,
-      allowOverlap
+      allowOverlap,
     );
     // Set state
     const newLayout = allowOverlap
@@ -356,7 +356,10 @@ export class DndGrid extends React.Component<Props, State> {
     }
   };
 
-  onLayoutMaybeChanged(newLayout: Layout, oldLayout: Layout | null | undefined) {
+  onLayoutMaybeChanged(
+    newLayout: Layout,
+    oldLayout: Layout | null | undefined,
+  ) {
     if (!oldLayout) oldLayout = this.state.layout;
 
     if (!deepEqual(oldLayout, newLayout)) {
@@ -364,12 +367,12 @@ export class DndGrid extends React.Component<Props, State> {
     }
   }
 
-  onResizeStart: (i: string, w: number, h: number, arg3: GridResizeEvent) => void = (
-    i,
-    _w,
-    _h,
-    { e, node }
-  ) => {
+  onResizeStart: (
+    i: string,
+    w: number,
+    h: number,
+    arg3: GridResizeEvent,
+  ) => void = (i, _w, _h, { e, node }) => {
     const { layout } = this.state;
     const l = getLayoutItem(layout, i);
     if (!l) return;
@@ -384,7 +387,7 @@ export class DndGrid extends React.Component<Props, State> {
     i,
     w,
     h,
-    { e, node, handle }
+    { e, node, handle },
   ) => {
     const { oldResizeItem } = this.state;
     const { layout } = this.state;
@@ -457,7 +460,7 @@ export class DndGrid extends React.Component<Props, State> {
         this.props.preventCollision,
         compactType(this.props),
         cols as number,
-        allowOverlap
+        allowOverlap,
       );
     }
 
@@ -480,12 +483,12 @@ export class DndGrid extends React.Component<Props, State> {
       activeDrag: placeholder,
     });
   };
-  onResizeStop: (i: string, w: number, h: number, arg3: GridResizeEvent) => void = (
-    i,
-    _w,
-    _h,
-    { e, node }
-  ) => {
+  onResizeStop: (
+    i: string,
+    w: number,
+    h: number,
+    arg3: GridResizeEvent,
+  ) => void = (i, _w, _h, { e, node }) => {
     const { layout, oldResizeItem } = this.state;
     const { cols, allowOverlap } = this.props;
     const l = getLayoutItem(layout, i);
@@ -551,7 +554,7 @@ export class DndGrid extends React.Component<Props, State> {
    */
   processGridItem(
     child: ReactElement<any>,
-    isDroppingItem?: boolean
+    isDroppingItem?: boolean,
   ): ReactElement<any> | null | undefined {
     if (!child || !child.key) return;
     const l = getLayoutItem(this.state.layout, String(child.key));
@@ -577,8 +580,14 @@ export class DndGrid extends React.Component<Props, State> {
     // Determine user manipulations possible.
     // If an item is static, it can't be manipulated by default.
     // Any properties defined directly on the grid item will take precedence.
-    const draggable = typeof l.isDraggable === "boolean" ? l.isDraggable : !l.static && isDraggable;
-    const resizable = typeof l.isResizable === "boolean" ? l.isResizable : !l.static && isResizable;
+    const draggable =
+      typeof l.isDraggable === "boolean"
+        ? l.isDraggable
+        : !l.static && isDraggable;
+    const resizable =
+      typeof l.isResizable === "boolean"
+        ? l.isResizable
+        : !l.static && isResizable;
     const resizeHandlesOptions = l.resizeHandles || resizeHandles;
     // isBounded set on child if set on parent, and child is not explicitly false
     const bounded = draggable && isBounded && l.isBounded !== false;
@@ -689,7 +698,7 @@ export class DndGrid extends React.Component<Props, State> {
         layerY,
         layerX,
         finalDroppingItem.w as number,
-        finalDroppingItem.h as number
+        finalDroppingItem.h as number,
       );
       this.setState({
         droppingDOMNode: <div key={finalDroppingItem.i} />,
@@ -731,7 +740,7 @@ export class DndGrid extends React.Component<Props, State> {
           height: number;
         }
       | null
-      | undefined
+      | undefined,
   ) => {
     if (!dndRect || !e) {
       const { droppingItem } = this.props;
@@ -796,7 +805,7 @@ export class DndGrid extends React.Component<Props, State> {
         layerY,
         layerX,
         finalDroppingItem.w as number,
-        finalDroppingItem.h as number
+        finalDroppingItem.h as number,
       );
       this.setState({
         droppingDOMNode: <div key={finalDroppingItem.i} />,
@@ -831,7 +840,7 @@ export class DndGrid extends React.Component<Props, State> {
       layout.filter((l) => l.i !== droppingItem.i),
       compactType(this.props),
       cols as number,
-      this.props.allowOverlap
+      this.props.allowOverlap,
     );
     this.setState({
       layout: newLayout,
@@ -894,7 +903,9 @@ export class DndGrid extends React.Component<Props, State> {
         onDragEnter={isDroppable ? this.onDragEnter : noop}
         onDragOver={isDroppable ? this.onDragOver : noop}
       >
-        {React.Children.map(this.props.children as any, (child) => this.processGridItem(child))}
+        {React.Children.map(this.props.children as any, (child) =>
+          this.processGridItem(child),
+        )}
         {isDroppable &&
           this.state.droppingDOMNode &&
           this.processGridItem(this.state.droppingDOMNode, true)}

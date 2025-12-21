@@ -1,25 +1,25 @@
 import "./styles.css";
 
-export { GridItem } from "./components/grid-item";
 export { DndGrid, DndGrid as ReactGridLayout } from "./components/dnd-grid";
+export { GridItem } from "./components/grid-item";
 export { ResizeHandle } from "./components/resize-handle";
-export type {
-  LayoutItem,
-  Layout,
-  Props as DndGridProps,
-  EventCallback,
-  ResizeHandleAxis,
-  CompactType,
-  Position,
-  DroppingPosition,
-} from "./types";
+export type { PointWithTimestamp, SpringConfig, SpringState } from "./spring";
 export {
-  createLiveSpring,
   calculateVelocityFromHistory,
-  velocityToRotation,
-  SPRING_DEFAULTS,
-  VELOCITY_WINDOW_MS,
-  VELOCITY_SCALE,
+  createLiveSpring,
   MAX_ROTATION,
+  SPRING_DEFAULTS,
+  VELOCITY_SCALE,
+  VELOCITY_WINDOW_MS,
+  velocityToRotation,
 } from "./spring";
-export type { SpringConfig, SpringState, PointWithTimestamp } from "./spring";
+export type {
+  CompactType,
+  DroppingPosition,
+  EventCallback,
+  Layout,
+  LayoutItem,
+  Position,
+  Props as DndGridProps,
+  ResizeHandleAxis,
+} from "./types";

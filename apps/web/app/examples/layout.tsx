@@ -8,18 +8,10 @@ function ExamplesLayoutContent({ children }: { children: React.ReactNode }) {
   const isEmbed = searchParams.get("embed") === "true";
 
   if (isEmbed) {
-    return (
-      <div className="p-4 bg-background min-h-screen">
-        {children}
-      </div>
-    );
+    return <div className="p-4 bg-background min-h-screen">{children}</div>;
   }
 
-  return (
-    <div className="container-wrapper p-8">
-      {children}
-    </div>
-  );
+  return <div className="container-wrapper p-8">{children}</div>;
 }
 
 export default function ExamplesLayout({

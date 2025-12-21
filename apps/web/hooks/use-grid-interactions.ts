@@ -1,18 +1,10 @@
-import { useCallback, useState } from "react";
 import type { Layout, LayoutItem } from "@dnd-grid/react";
+import { useCallback, useState } from "react";
 
 export interface ResizeState {
   id: string;
   w: number;
   h: number;
-}
-
-export interface GridInteractionsState {
-  hoveredId: string | null;
-  selectedId: string | null;
-  dragId: string | null;
-  resizeState: ResizeState | null;
-  transition: boolean;
 }
 
 export interface GridInteractionsHandlers {
@@ -22,7 +14,7 @@ export interface GridInteractionsHandlers {
     newItem: LayoutItem | null | undefined,
     placeholder: LayoutItem | null | undefined,
     event: Event,
-    node: HTMLElement | null | undefined
+    node: HTMLElement | null | undefined,
   ) => void;
   handleDrag: (
     layout: Layout,
@@ -30,7 +22,7 @@ export interface GridInteractionsHandlers {
     newItem: LayoutItem | null | undefined,
     placeholder: LayoutItem | null | undefined,
     event: Event,
-    node: HTMLElement | null | undefined
+    node: HTMLElement | null | undefined,
   ) => void;
   handleDragStop: (
     layout: Layout,
@@ -38,7 +30,7 @@ export interface GridInteractionsHandlers {
     newItem: LayoutItem | null | undefined,
     placeholder: LayoutItem | null | undefined,
     event: Event,
-    node: HTMLElement | null | undefined
+    node: HTMLElement | null | undefined,
   ) => void;
   handleResizeStart: (
     layout: Layout,
@@ -46,7 +38,7 @@ export interface GridInteractionsHandlers {
     newItem: LayoutItem | null | undefined,
     placeholder: LayoutItem | null | undefined,
     event: Event,
-    node: HTMLElement | null | undefined
+    node: HTMLElement | null | undefined,
   ) => void;
   handleResize: (
     layout: Layout,
@@ -54,7 +46,7 @@ export interface GridInteractionsHandlers {
     newItem: LayoutItem | null | undefined,
     placeholder: LayoutItem | null | undefined,
     event: Event,
-    node: HTMLElement | null | undefined
+    node: HTMLElement | null | undefined,
   ) => void;
   handleResizeStop: (
     layout: Layout,
@@ -62,22 +54,12 @@ export interface GridInteractionsHandlers {
     newItem: LayoutItem | null | undefined,
     placeholder: LayoutItem | null | undefined,
     event: Event,
-    node: HTMLElement | null | undefined
+    node: HTMLElement | null | undefined,
   ) => void;
   handleSelect: (id: string) => void;
   handleHover: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
   setSelectedId: (id: string | null) => void;
-  setTransition: (value: boolean) => void;
-  isHovered: (id: string) => boolean;
-  isSelected: (id: string) => boolean;
-  isDragging: (id: string) => boolean;
-  isResizing: (id: string) => boolean;
-}
-
-export interface UseGridInteractionsReturn {
-  state: GridInteractionsState;
-  handlers: GridInteractionsHandlers;
 }
 
 export interface UseGridInteractionsOptions {
@@ -90,100 +72,92 @@ export interface UseGridInteractionsOptions {
 }
 
 export function useGridInteractions(
-  options: UseGridInteractionsOptions = {}
-): UseGridInteractionsReturn {
+  options: UseGridInteractionsOptions = {},
+): GridInteractionsHandlers {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
-  const [transition, setTransition] = useState(true);
 
   const handleDragStart = useCallback(
-    (
-      _layout: Layout,
-      oldItem: LayoutItem | null | undefined
-    ) => {
+    (_layout: Layout, oldItem: LayoutItem | null | undefined) => {
       const id = oldItem?.i ?? null;
       setHoveredId(id);
-      setTransition(false);
       setDragId(id);
       if (id) {
         options.onDragStart?.(id);
       }
     },
-    [options]
+    [options],
   );
 
   const handleDrag = useCallback(
     (
       _layout: Layout,
       _oldItem: LayoutItem | null | undefined,
-      _newItem: LayoutItem | null | undefined
+      _newItem: LayoutItem | null | undefined,
     ) => {
       // Can be extended for edge scroll or other drag-time behaviors
     },
-    []
+    [],
   );
 
   const handleDragStop = useCallback(
     (
       _layout: Layout,
       _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined
+      newItem: LayoutItem | null | undefined,
     ) => {
-      setTransition(true);
       setDragId(null);
       if (newItem?.i) {
         options.onDragStop?.(newItem.i);
       }
     },
-    [options]
+    [options],
   );
 
   const handleResizeStart = useCallback(
     (
       _layout: Layout,
       _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined
+      newItem: LayoutItem | null | undefined,
     ) => {
       const id = newItem?.i ?? null;
       setHoveredId(id);
       setSelectedId(id);
-      setTransition(false);
       if (newItem) {
         setResizeState({ id: newItem.i, w: newItem.w, h: newItem.h });
         options.onResizeStart?.(newItem.i);
       }
     },
-    [options]
+    [options],
   );
 
   const handleResize = useCallback(
     (
       _layout: Layout,
       _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined
+      newItem: LayoutItem | null | undefined,
     ) => {
       if (newItem) {
         setResizeState({ id: newItem.i, w: newItem.w, h: newItem.h });
       }
     },
-    []
+    [],
   );
 
   const handleResizeStop = useCallback(
     (
       _layout: Layout,
       _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined
+      newItem: LayoutItem | null | undefined,
     ) => {
       setResizeState(null);
-      setTransition(true);
       if (newItem?.i) {
         options.onResizeStop?.(newItem.i);
       }
     },
-    [options]
+    [options],
   );
 
   const handleSelect = useCallback(
@@ -191,7 +165,7 @@ export function useGridInteractions(
       setSelectedId(id);
       options.onSelect?.(id);
     },
-    [options]
+    [options],
   );
 
   const handleHover = useCallback(
@@ -202,53 +176,21 @@ export function useGridInteractions(
         options.onHover?.(id);
       }
     },
-    [resizeState, dragId, options]
-  );
-
-  const isHovered = useCallback(
-    (id: string) => hoveredId === id,
-    [hoveredId]
-  );
-
-  const isSelected = useCallback(
-    (id: string) => selectedId === id,
-    [selectedId]
-  );
-
-  const isDragging = useCallback(
-    (id: string) => dragId === id,
-    [dragId]
-  );
-
-  const isResizing = useCallback(
-    (id: string) => resizeState?.id === id,
-    [resizeState]
+    [resizeState, dragId, options],
   );
 
   return {
-    state: {
-      hoveredId,
-      selectedId,
-      dragId,
-      resizeState,
-      transition,
-    },
-    handlers: {
-      handleDragStart: handleDragStart as GridInteractionsHandlers["handleDragStart"],
-      handleDrag: handleDrag as GridInteractionsHandlers["handleDrag"],
-      handleDragStop: handleDragStop as GridInteractionsHandlers["handleDragStop"],
-      handleResizeStart: handleResizeStart as GridInteractionsHandlers["handleResizeStart"],
-      handleResize: handleResize as GridInteractionsHandlers["handleResize"],
-      handleResizeStop: handleResizeStop as GridInteractionsHandlers["handleResizeStop"],
-      handleSelect,
-      handleHover,
-      setHoveredId,
-      setSelectedId,
-      setTransition,
-      isHovered,
-      isSelected,
-      isDragging,
-      isResizing,
-    },
+    handleDragStart: handleDragStart as GridInteractionsHandlers["handleDragStart"],
+    handleDrag: handleDrag as GridInteractionsHandlers["handleDrag"],
+    handleDragStop: handleDragStop as GridInteractionsHandlers["handleDragStop"],
+    handleResizeStart:
+      handleResizeStart as GridInteractionsHandlers["handleResizeStart"],
+    handleResize: handleResize as GridInteractionsHandlers["handleResize"],
+    handleResizeStop:
+      handleResizeStop as GridInteractionsHandlers["handleResizeStop"],
+    handleSelect,
+    handleHover,
+    setHoveredId,
+    setSelectedId,
   };
 }

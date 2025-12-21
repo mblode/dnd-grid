@@ -6,7 +6,11 @@ export function calcGridColWidth(positionParams: PositionParams): number {
   // Guard against division by zero
   if (cols <= 0) return 0;
   return (
-    (containerWidth - margin[1] * (cols - 1) - containerPadding[1] - containerPadding[3]) / cols
+    (containerWidth -
+      margin[1] * (cols - 1) -
+      containerPadding[1] -
+      containerPadding[3]) /
+    cols
   );
 }
 // This can either be called:
@@ -16,11 +20,13 @@ export function calcGridColWidth(positionParams: PositionParams): number {
 export function calcGridItemWHPx(
   gridUnits: number,
   colOrRowSize: number,
-  marginPx: number
+  marginPx: number,
 ): number {
   // 0 * Infinity === NaN, which causes problems with resize contraints
   if (!Number.isFinite(gridUnits)) return gridUnits;
-  return Math.round(colOrRowSize * gridUnits + Math.max(0, gridUnits - 1) * marginPx);
+  return Math.round(
+    colOrRowSize * gridUnits + Math.max(0, gridUnits - 1) * marginPx,
+  );
 }
 
 /**
@@ -34,7 +40,7 @@ export function calcGridItemPosition(
   w: number,
   h: number,
   deg: number,
-  state?: Record<string, any> | null | undefined
+  state?: Record<string, any> | null | undefined,
 ): Position {
   const { margin, containerPadding, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
@@ -88,7 +94,7 @@ export function calcXY(
   top: number,
   left: number,
   w: number,
-  h: number
+  h: number,
 ): {
   x: number;
   y: number;
@@ -122,7 +128,7 @@ export function calcWH(
   height: number,
   x: number,
   y: number,
-  handle: string
+  handle: string,
 ): {
   w: number;
   h: number;
@@ -155,6 +161,10 @@ export function calcWH(
   };
 }
 // Similar to _.clamp
-export function clamp(num: number, lowerBound: number, upperBound: number): number {
+export function clamp(
+  num: number,
+  lowerBound: number,
+  upperBound: number,
+): number {
   return Math.max(Math.min(num, upperBound), lowerBound);
 }

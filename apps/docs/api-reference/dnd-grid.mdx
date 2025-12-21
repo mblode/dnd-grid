@@ -9,41 +9,20 @@ description: The main grid layout component
 import { DndGrid } from "@dnd-grid/react";
 ```
 
-## Basic Usage
-
-```tsx
-<DndGrid
-  layout={layout}
-  cols={12}
-  rowHeight={30}
-  width={1200}
-  onLayoutChange={setLayout}
->
-  <div key="a">A</div>
-  <div key="b">B</div>
-</DndGrid>
-```
-
 ## Props
 
-### Required Props
+### Required
 
 <ResponseField name="layout" type="Layout" required>
-  Array of layout items defining position and size of each grid item.
-
-```tsx
-const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }];
-```
-
+  The state of the grid. Array of layout items defining position and size.
 </ResponseField>
 
 <ResponseField name="width" type="number" required>
-  Width of the grid container in pixels. Used to calculate item positions.
+  Width of the grid container in pixels.
 </ResponseField>
 
 <ResponseField name="children" type="ReactNode" required>
-  Grid items. Each child must have a unique `key` matching a layout item's `i`
-  property.
+  Grid items. Each child **must** have a unique `key` matching a layout item's `i` property.
 </ResponseField>
 
 ### Grid Configuration
@@ -69,8 +48,7 @@ const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }];
   type="[number, number, number, number] | null"
   default="null"
 >
-  Padding inside the container: `[top, right, bottom, left]`. If null, uses
-  margin values.
+  Padding inside the container: `[top, right, bottom, left]`. If null, uses margin values.
 </ResponseField>
 
 <ResponseField name="autoSize" type="boolean" default="true">
@@ -108,55 +86,31 @@ const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }];
   type='"vertical" | "horizontal" | null'
   default='"vertical"'
 >
-  Direction to compact items after drag/resize. - `"vertical"` - Compact upward
-  - `"horizontal"` - Compact leftward - `null` - No compaction
+  Direction to compact items after drag/resize.
+  - `"vertical"` - Compact upward
+  - `"horizontal"` - Compact leftward
+  - `null` - No compaction
 </ResponseField>
 
 ### Drag Configuration
 
 <ResponseField name="draggableHandle" type="string">
-  CSS selector for elements that trigger drag. If set, only matching elements can start a drag.
-
-```tsx
-<DndGrid draggableHandle=".handle">
-  <div key="a">
-    <div className="handle">Drag here</div>
-    <div>Content</div>
-  </div>
-</DndGrid>
-```
-
+  CSS selector for elements that trigger drag.
 </ResponseField>
 
 <ResponseField name="draggableCancel" type="string">
   CSS selector for elements that should not trigger drag.
-
-```tsx
-<DndGrid draggableCancel=".no-drag">
-  <div key="a">
-    <button className="no-drag">Click me</button>
-  </div>
-</DndGrid>
-```
-
 </ResponseField>
 
 <ResponseField name="dragTouchDelayDuration" type="number" default="250">
-  Milliseconds to wait before drag starts on touch devices. Helps distinguish
-  scroll from drag.
+  Milliseconds to wait before drag starts on touch devices.
 </ResponseField>
 
 ### Resize Configuration
 
 <ResponseField name="resizeHandles" type="ResizeHandleAxis[]" default='["se"]'>
   Which edges/corners show resize handles.
-
-Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
-
-```tsx
-<DndGrid resizeHandles={["se", "sw", "ne", "nw"]} />
-```
-
+  Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
 </ResponseField>
 
 <ResponseField
@@ -179,8 +133,7 @@ Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
 ### Transform
 
 <ResponseField name="transformScale" type="number" default="1">
-  Scale factor for CSS transforms. Use when the grid is inside a scaled
-  container.
+  Scale factor for CSS transforms.
 </ResponseField>
 
 ### Styling
@@ -199,52 +152,14 @@ Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
 
 ## Callbacks
 
-See [Callbacks](/api-reference/callbacks) for detailed callback documentation.
-
-| Callback         | Description                                       |
-| ---------------- | ------------------------------------------------- |
-| `onLayoutChange` | Layout changed (drag, resize, or external update) |
-| `onDragStart`    | Drag started                                      |
-| `onDrag`         | Dragging in progress                              |
-| `onDragStop`     | Drag ended                                        |
-| `onResizeStart`  | Resize started                                    |
-| `onResize`       | Resizing in progress                              |
-| `onResizeStop`   | Resize ended                                      |
-| `onDrop`         | External item dropped                             |
-| `onDropDragOver` | External item dragged over grid                   |
-
-## Example
-
-```tsx
-import { useState } from "react";
-import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
-
-function Dashboard() {
-  const [layout, setLayout] = useState<Layout>([
-    { i: "sales", x: 0, y: 0, w: 6, h: 4, deg: 0, minW: 3 },
-    { i: "chart", x: 6, y: 0, w: 6, h: 4, deg: 0 },
-    { i: "stats", x: 0, y: 4, w: 12, h: 2, deg: 0, static: true },
-  ]);
-
-  return (
-    <DndGrid
-      layout={layout}
-      cols={12}
-      rowHeight={50}
-      width={1200}
-      margin={[16, 16, 16, 16]}
-      isDraggable
-      isResizable
-      isBounded
-      compactType="vertical"
-      resizeHandles={["se", "sw"]}
-      onLayoutChange={setLayout}
-    >
-      <div key="sales">Sales Widget</div>
-      <div key="chart">Chart Widget</div>
-      <div key="stats">Stats (Static)</div>
-    </DndGrid>
-  );
-}
-```
+| Callback | Description |
+| -------- | ----------- |
+| `onLayoutChange` | Called when the layout changes (drag, resize, or external update). |
+| `onDragStart` | Called when dragging starts. |
+| `onDrag` | Called while dragging. |
+| `onDragStop` | Called when dragging stops. |
+| `onResizeStart` | Called when resizing starts. |
+| `onResize` | Called while resizing. |
+| `onResizeStop` | Called when resizing stops. |
+| `onDrop` | Called when an external item is dropped. |
+| `onDropDragOver` | Called when an external item is dragged over the grid. |

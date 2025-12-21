@@ -25,13 +25,13 @@ export default function StaticElementsExample() {
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
-            <div
-              key={item.i}
-              className={`border border-border rounded-widget flex items-center justify-center text-sm ${item.static ? "bg-muted-foreground/20" : "bg-muted cursor-grab"}`}
-            >
-              {item.i} {item.static ? "(static)" : ""}
-            </div>
-          ))}
+          <div
+            key={item.i}
+            className={`border border-border rounded-widget flex items-center justify-center text-sm ${item.static ? "bg-muted-foreground/20" : "bg-muted cursor-grab"}`}
+          >
+            {item.i} {item.static ? "(static)" : ""}
+          </div>
+        ))}
       </DndGrid>
     </div>
   );

@@ -26,8 +26,8 @@ export default function ToolboxExample() {
   const toggleItem = (id: string) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.i === id ? { ...item, visible: !item.visible } : item
-      )
+        item.i === id ? { ...item, visible: !item.visible } : item,
+      ),
     );
   };
 
@@ -39,7 +39,7 @@ export default function ToolboxExample() {
       prev.map((item) => {
         const updated = newLayout.find((l) => l.i === item.i);
         return updated ? { ...item, ...updated } : item;
-      })
+      }),
     );
   };
 
@@ -50,6 +50,7 @@ export default function ToolboxExample() {
         <div className="flex gap-2">
           {hiddenItems.map((item) => (
             <button
+              type="button"
               key={item.i}
               onClick={() => toggleItem(item.i)}
               className="px-3 py-1 bg-background border border-border rounded text-sm hover:bg-accent"
@@ -71,22 +72,22 @@ export default function ToolboxExample() {
         onLayoutChange={handleLayoutChange}
       >
         {visibleItems.map((item) => (
-            <div
-              key={item.i}
-              className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center relative cursor-grab"
+          <div
+            key={item.i}
+            className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center relative cursor-grab"
+                      >
+                        <span className="text-lg font-semibold">{item.i}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleItem(item.i);
+                          }}              className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
             >
-              <span className="text-lg font-semibold">{item.i}</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleItem(item.i);
-                }}
-                className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+              ×
+            </button>
+          </div>
+        ))}
       </DndGrid>
     </div>
   );

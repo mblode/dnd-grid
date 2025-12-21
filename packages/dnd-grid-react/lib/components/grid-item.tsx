@@ -1,9 +1,8 @@
 import clsx from "clsx";
-import React from "react";
 import type { ReactElement, ReactNode, RefObject } from "react";
+import React from "react";
 import { DraggableCore, type DraggableEventHandler } from "react-draggable";
 import { Resizable } from "react-resizable";
-import { ResizeHandle as DefaultResizeHandle } from "./resize-handle";
 import {
   calcGridColWidth,
   calcGridItemPosition,
@@ -13,14 +12,14 @@ import {
   clamp,
 } from "../calculate-utils";
 import {
-  createLiveSpring,
   calculateVelocityFromHistory,
-  velocityToRotation,
-  VELOCITY_WINDOW_MS,
-  SCALE_SPRING_CONFIG,
-  SPRING_DEFAULTS,
+  createLiveSpring,
   POSITION_SPRING_CONFIG,
   type PointWithTimestamp,
+  SCALE_SPRING_CONFIG,
+  SPRING_DEFAULTS,
+  VELOCITY_WINDOW_MS,
+  velocityToRotation,
 } from "../spring";
 import type {
   DroppingPosition,
@@ -31,7 +30,12 @@ import type {
   ResizeHandle,
   ResizeHandleAxis,
 } from "../types";
-import { fastPositionEqual, resizeItemInDirection, setTransform } from "../utils";
+import {
+  fastPositionEqual,
+  resizeItemInDirection,
+  setTransform,
+} from "../utils";
+import { ResizeHandle as DefaultResizeHandle } from "./resize-handle";
 
 const gridContainerClassName = "dnd-grid";
 
@@ -45,7 +49,7 @@ type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
   i: string,
   w: number,
   h: number,
-  arg3: Data
+  arg3: Data,
 ) => void;
 
 type ResizeCallbackData = {
@@ -54,7 +58,11 @@ type ResizeCallbackData = {
   handle: ResizeHandleAxis;
 };
 
-type GridItemResizeCallback = (e: Event, data: ResizeCallbackData, position: Position) => void;
+type GridItemResizeCallback = (
+  e: Event,
+  data: ResizeCallbackData,
+  position: Position,
+) => void;
 
 type State = {
   resizing:
@@ -175,7 +183,8 @@ export class GridItem extends React.Component<Props, State> {
     animatedX: 0,
     animatedY: 0,
   };
-  elementRef: RefObject<HTMLDivElement> = React.createRef() as RefObject<HTMLDivElement>;
+  elementRef: RefObject<HTMLDivElement> =
+    React.createRef() as RefObject<HTMLDivElement>;
   springAnimationFrame: number | null = null;
   // Synchronous flag to avoid race condition with async setState
   _isSettling = false;
@@ -211,7 +220,7 @@ export class GridItem extends React.Component<Props, State> {
     if (this.state.animatedX !== nextState.animatedX) return true;
     if (this.state.animatedY !== nextState.animatedY) return true;
     if (this.state.isAnimating !== nextState.isAnimating) return true;
-    
+
     const oldPosition = calcGridItemPosition(
       this.getPositionParams(this.props),
       this.props.x,
@@ -219,7 +228,7 @@ export class GridItem extends React.Component<Props, State> {
       this.props.w,
       this.props.h,
       this.props.deg,
-      this.state
+      this.state,
     );
     const newPosition = calcGridItemPosition(
       this.getPositionParams(nextProps),
@@ -228,7 +237,7 @@ export class GridItem extends React.Component<Props, State> {
       nextProps.w,
       nextProps.h,
       nextProps.deg,
-      nextState
+      nextState,
     );
     return !fastPositionEqual(oldPosition, newPosition);
   }
@@ -286,7 +295,7 @@ export class GridItem extends React.Component<Props, State> {
           node,
           deltaX: droppingPosition.left,
           deltaY: droppingPosition.top,
-        } as any
+        } as any,
       );
     } else if (shouldDrag) {
       const deltaX = droppingPosition.left - dragging.left;
@@ -297,7 +306,7 @@ export class GridItem extends React.Component<Props, State> {
           node,
           deltaX,
           deltaY,
-        } as any
+        } as any,
       );
     }
   }
@@ -338,8 +347,8 @@ export class GridItem extends React.Component<Props, State> {
     // We compensate so visual position = logical position regardless of scale
     // This is the "shadow element at scale 1" concept
     if (!isStatic && scale !== 1) {
-      const scaleCompX = (scale - 1) * pos.width / 2;
-      const scaleCompY = (scale - 1) * pos.height / 2;
+      const scaleCompX = ((scale - 1) * pos.width) / 2;
+      const scaleCompY = ((scale - 1) * pos.height) / 2;
       finalPos = {
         ...finalPos,
         left: finalPos.left + scaleCompX,
@@ -352,6 +361,7 @@ export class GridItem extends React.Component<Props, State> {
 
   // Check if device is touch-capable.
   isTouchCapable(): boolean {
+    if (typeof window === "undefined" || typeof navigator === "undefined") return false;
     return "ontouchstart" in window || navigator.maxTouchPoints > 0;
   }
 
@@ -377,7 +387,10 @@ export class GridItem extends React.Component<Props, State> {
         onDrag={this.onDrag}
         onStop={this.onDragStop}
         handle={this.props.handle}
-        cancel={".react-resizable-handle" + (this.props.cancel ? "," + this.props.cancel : "")}
+        cancel={
+          ".react-resizable-handle" +
+          (this.props.cancel ? "," + this.props.cancel : "")
+        }
         scale={this.props.transformScale}
         nodeRef={this.elementRef}
         ref={this.draggableCoreRef as any}
@@ -393,10 +406,12 @@ export class GridItem extends React.Component<Props, State> {
    */
   curryResizeHandler(
     position: Position,
-    handler: (...args: Array<any>) => any
+    handler: (...args: Array<any>) => any,
   ): (...args: Array<any>) => any {
-    return (e: Event, data: ResizeCallbackData): ((...args: Array<any>) => any) =>
-      handler(e, data, position);
+    return (
+      e: Event,
+      data: ResizeCallbackData,
+    ): ((...args: Array<any>) => any) => handler(e, data, position);
   }
 
   /**
@@ -405,17 +420,35 @@ export class GridItem extends React.Component<Props, State> {
   mixinResizable(
     child: ReactElement<any>,
     position: Position,
-    isResizable: boolean
+    isResizable: boolean,
   ): ReactElement<any> {
-    const { cols, minW, minH, maxW, maxH, transformScale, resizeHandles, resizeHandle } =
-      this.props;
+    const {
+      cols,
+      minW,
+      minH,
+      maxW,
+      maxH,
+      transformScale,
+      resizeHandles,
+      resizeHandle,
+    } = this.props;
     const positionParams = this.getPositionParams();
     // This is the max possible width - doesn't go to infinity because of the width of the window
-    const maxWidth = calcGridItemPosition(positionParams, 0, 0, cols, 0, 0).width;
+    const maxWidth = calcGridItemPosition(
+      positionParams,
+      0,
+      0,
+      cols,
+      0,
+      0,
+    ).width;
     // Calculate min/max constraints using our min & maxes
     const mins = calcGridItemPosition(positionParams, 0, 0, minW, minH, 0);
     const maxes = calcGridItemPosition(positionParams, 0, 0, maxW, maxH, 0);
-    const minConstraints: [width: number, height: number] = [mins.width, mins.height];
+    const minConstraints: [width: number, height: number] = [
+      mins.width,
+      mins.height,
+    ];
     const maxConstraints: [width: number, height: number] = [
       Math.min(maxes.width, maxWidth),
       Math.min(maxes.height, Number.POSITIVE_INFINITY),
@@ -425,7 +458,10 @@ export class GridItem extends React.Component<Props, State> {
     const handleRenderer =
       resizeHandle ??
       ((axis: ResizeHandleAxis, ref: React.RefObject<HTMLElement>) => (
-        <DefaultResizeHandle ref={ref as React.RefObject<HTMLDivElement>} handleAxis={axis} />
+        <DefaultResizeHandle
+          ref={ref as React.RefObject<HTMLDivElement>}
+          handleAxis={axis}
+        />
       ));
 
     return (
@@ -460,11 +496,11 @@ export class GridItem extends React.Component<Props, State> {
    * Add an event listener to the grid item.
    * The event will also be added to childEvents array for future use.
    */
-  addChildEvent: (type: string, event: (e: Event) => void, passive?: boolean) => void = (
-    type,
-    event,
-    passive = true
-  ) => {
+  addChildEvent: (
+    type: string,
+    event: (e: Event) => void,
+    passive?: boolean,
+  ) => void = (type, event, passive = true) => {
     if ((this?.elementRef as any)?.current) {
       (this.elementRef as any).current.addEventListener(type, event, {
         passive,
@@ -505,7 +541,10 @@ export class GridItem extends React.Component<Props, State> {
    */
   startDragDelayTimeout: (arg0: Event) => void = (e) => {
     // Prevent text selection while dragging.
-    if (document.body.style.userSelect === "" || document.body.style.webkitUserSelect === "") {
+    if (
+      document.body.style.userSelect === "" ||
+      document.body.style.webkitUserSelect === ""
+    ) {
       document.body.style.webkitUserSelect = "none";
       document.body.style.userSelect = "none";
     }
@@ -526,8 +565,8 @@ export class GridItem extends React.Component<Props, State> {
       this.dragDelayTimeout = setTimeout(() => {
         this.dragDelayTimeout = undefined;
 
-        // vibrate api is not available on safari, so we need to check it
-        if (navigator.vibrate && !this.props.static) {
+        // vibrate api is not available on safari or SSR, so we need to check it
+        if (typeof navigator !== "undefined" && navigator.vibrate && !this.props.static) {
           // vibrate device for 80ms
           navigator.vibrate(80);
         }
@@ -585,8 +624,14 @@ export class GridItem extends React.Component<Props, State> {
     if (!onDragStart) return;
 
     // For touch events with delay enabled, block if delay hasn't elapsed
-    const isTouchEvent = e instanceof TouchEvent || (e as any).touches !== undefined;
-    if (isTouchEvent && dragTouchDelayDuration && this.isTouchCapable() && !this.state.allowedToDrag) {
+    const isTouchEvent =
+      e instanceof TouchEvent || (e as any).touches !== undefined;
+    if (
+      isTouchEvent &&
+      dragTouchDelayDuration &&
+      this.isTouchCapable() &&
+      !this.state.allowedToDrag
+    ) {
       return false; // Block the drag, let onMouseDown handle the delay
     }
     const newPosition: PartialPosition = {
@@ -621,20 +666,23 @@ export class GridItem extends React.Component<Props, State> {
     this.startSpringAnimation();
 
     // Set grabbing cursor on body during drag
-    document.body.classList.add('dnd-grid-dragging');
+    document.body.classList.add("dnd-grid-dragging");
 
     // Animate shadow on drag start
     if (this.elementRef.current) {
       this.elementRef.current.animate(
         [
           { boxShadow: "0 2px 4px rgba(0,0,0,.04)" },
-          { boxShadow: "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)" },
+          {
+            boxShadow:
+              "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)",
+          },
         ],
         {
           duration: 200,
           easing: "cubic-bezier(.2, 0, 0, 1)",
           fill: "forwards",
-        }
+        },
       );
     }
 
@@ -644,7 +692,7 @@ export class GridItem extends React.Component<Props, State> {
       newPosition.top,
       newPosition.left,
       this.props.w,
-      this.props.h
+      this.props.h,
     );
     return onDragStart.call(this, this.props.i, x, y, {
       e,
@@ -701,7 +749,7 @@ export class GridItem extends React.Component<Props, State> {
 
     // Keep only last 100ms of history
     positionHistory = positionHistory.filter(
-      (entry) => now - entry.timestamp < VELOCITY_WINDOW_MS
+      (entry) => now - entry.timestamp < VELOCITY_WINDOW_MS,
     );
 
     // Calculate velocity from history using Bento algorithm
@@ -722,10 +770,12 @@ export class GridItem extends React.Component<Props, State> {
       if (container) {
         const { margin, rowHeight } = this.props;
         const bottomBoundary =
-          (container as HTMLElement).clientHeight - calcGridItemWHPx(h, rowHeight, margin[0]);
+          (container as HTMLElement).clientHeight -
+          calcGridItemWHPx(h, rowHeight, margin[0]);
         top = clamp(top, 0, bottomBoundary);
         const colWidth = calcGridColWidth(positionParams);
-        const rightBoundary = containerWidth - calcGridItemWHPx(w, colWidth, margin[1]);
+        const rightBoundary =
+          containerWidth - calcGridItemWHPx(w, colWidth, margin[1]);
         left = clamp(left, 0, rightBoundary);
       }
     }
@@ -781,7 +831,8 @@ export class GridItem extends React.Component<Props, State> {
       });
 
       // Check if ALL springs are done
-      const allSpringsDone = rotationState.done && scaleState.done && xState.done && yState.done;
+      const allSpringsDone =
+        rotationState.done && scaleState.done && xState.done && yState.done;
 
       // Continue animation while dragging or if settling after drag
       // Use _isSettling (synchronous) to avoid race condition with async setState
@@ -840,7 +891,7 @@ export class GridItem extends React.Component<Props, State> {
       w,
       h,
       deg,
-      null // No state override - get the actual grid position
+      null, // No state override - get the actual grid position
     );
 
     // Initialize position springs: animate from current drag position to grid slot
@@ -876,20 +927,23 @@ export class GridItem extends React.Component<Props, State> {
     });
 
     // Remove grabbing cursor from body
-    document.body.classList.remove('dnd-grid-dragging');
+    document.body.classList.remove("dnd-grid-dragging");
 
     // Animate shadow off on drag stop
     if (this.elementRef.current) {
       this.elementRef.current.animate(
         [
-          { boxShadow: "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)" },
+          {
+            boxShadow:
+              "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)",
+          },
           { boxShadow: "0 2px 4px rgba(0,0,0,.04)" },
         ],
         {
           duration: 200,
           easing: "ease-out",
           fill: "forwards",
-        }
+        },
       );
     }
 
@@ -920,7 +974,7 @@ export class GridItem extends React.Component<Props, State> {
     e: Event,
     { node, size, handle }: ResizeCallbackData, // 'size' is updated position
     position: Position, // existing position
-    handlerName: keyof Props
+    handlerName: keyof Props,
   ): void {
     const handler = this.props[handlerName];
     if (!handler) return;
@@ -930,7 +984,12 @@ export class GridItem extends React.Component<Props, State> {
     let updatedSize = size;
 
     if (node) {
-      updatedSize = resizeItemInDirection(handle, position, size, containerWidth);
+      updatedSize = resizeItemInDirection(
+        handle,
+        position,
+        size,
+        containerWidth,
+      );
       this.setState({
         resizing: handlerName === "onResizeStop" ? null : updatedSize,
       });
@@ -943,7 +1002,7 @@ export class GridItem extends React.Component<Props, State> {
       updatedSize.height,
       x,
       y,
-      handle
+      handle,
     );
     // Min/max capping with safe defaults in case optional bounds are missing.
     const normalizedMinW = typeof minW === "number" ? Math.max(minW, 1) : 1;
@@ -963,20 +1022,34 @@ export class GridItem extends React.Component<Props, State> {
   }
 
   render(): ReactNode {
-    const { x, y, w, h, deg, isDraggable, isResizable, droppingPosition } = this.props;
-    const pos = calcGridItemPosition(this.getPositionParams(), x, y, w, h, deg, this.state);
+    const { x, y, w, h, deg, isDraggable, isResizable, droppingPosition } =
+      this.props;
+    const pos = calcGridItemPosition(
+      this.getPositionParams(),
+      x,
+      y,
+      w,
+      h,
+      deg,
+      this.state,
+    );
     const child = React.Children.only(this.props.children);
     // Create the child element. We clone the existing element but modify its className and style.
     let newChild = React.cloneElement(child, {
       ref: this.elementRef,
-      className: clsx("dnd-grid-item", child.props.className, this.props.className, {
-        static: this.props.static,
-        resizing: Boolean(this.state.resizing),
-        "dnd-draggable": isDraggable,
-        "dnd-draggable-dragging": Boolean(this.state.dragging),
-        "dnd-grid-animating": this._isSettling, // Use sync flag - set BEFORE async setState to avoid race condition
-        dropping: Boolean(droppingPosition),
-      }),
+      className: clsx(
+        "dnd-grid-item",
+        child.props.className,
+        this.props.className,
+        {
+          static: this.props.static,
+          resizing: Boolean(this.state.resizing),
+          "dnd-draggable": isDraggable,
+          "dnd-draggable-dragging": Boolean(this.state.dragging),
+          "dnd-grid-animating": this._isSettling, // Use sync flag - set BEFORE async setState to avoid race condition
+          dropping: Boolean(droppingPosition),
+        },
+      ),
       // We can set the width and height on the child, but unfortunately we can't set the position.
       style: {
         ...this.props.style,

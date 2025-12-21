@@ -1,7 +1,7 @@
-import { BlocksGrid } from "@/components/blocks-grid"
-import { CopyButton } from "@/components/animate-ui/components/buttons/copy"
-import { SiteHeader } from "@/components/site-header"
-import { Button } from "@/components/ui/button"
+import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
+import { BlocksGrid } from "@/components/blocks-grid";
+import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -19,7 +19,9 @@ export default function Home() {
                 A draggable and resizable grid layout for React.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
-                <Button asChild size="lg"><a href="https://dnd-grid.com/docs">Get started</a></Button>
+                <Button asChild size="lg">
+                  <a href="https://dnd-grid.com/docs">Get started</a>
+                </Button>
                 <code className="relative rounded-lg bg-muted px-3 py-2 font-mono text-sm inline-flex items-center gap-2">
                   npm install @dnd-grid/react
                   <CopyButton
@@ -56,5 +58,5 @@ export default function Home() {
         </div>
       </main>
     </>
-  )
+  );
 }

@@ -1,83 +1,40 @@
 ---
 title: Introduction
-description: A draggable and resizable grid layout with responsive breakpoints for React
+description: A responsive, draggable, and resizable grid layout for React.
 ---
 
 # dnd-grid
 
-A powerful, flexible grid layout system for React with drag-and-drop and resize capabilities.
+A lightweight, performant grid layout for React. Drag, resize, and auto-scale with zero external dependencies.
 
-## Features
-
-<CardGroup cols={2}>
-  <Card title="100% React" icon="react">
-    No jQuery or external dependencies. Pure React implementation with full TypeScript support.
-  </Card>
-  <Card title="Draggable & Resizable" icon="arrows-up-down-left-right">
-    Drag items to reposition and resize from any edge or corner with configurable handles.
-  </Card>
-  <Card title="Responsive Breakpoints" icon="display">
-    Define different layouts for different screen sizes with automatic breakpoint switching.
-  </Card>
-  <Card title="Server-Side Ready" icon="server">
-    Compatible with server-rendered applications including Next.js and Remix.
-  </Card>
-</CardGroup>
-
-## Why dnd-grid?
-
-Unlike other grid systems, dnd-grid is designed specifically for React with modern patterns:
-
-- **CSS Transforms** - Smooth animations using GPU-accelerated transforms
-- **Configurable Compaction** - Vertical, horizontal, or no compaction
-- **Collision Detection** - Intelligent item pushing or overlap prevention
-- **Static Items** - Lock specific items in place
-- **Layout Persistence** - Serialize and restore layouts easily
-
-## Quick Example
+## Usage
 
 ```tsx
-import { DndGrid, type Layout } from "@dnd-grid/react";
-import { useState } from "react";
+import { DndGrid } from "@dnd-grid/react";
+import "@dnd-grid/react/styles.css";
 
-const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "c", x: 4, y: 0, w: 2, h: 2, deg: 0 },
-];
-
-function MyGrid() {
-  const [layout, setLayout] = useState(initialLayout);
-
+export default function Dashboard() {
   return (
     <DndGrid
-      layout={layout}
       cols={12}
-      rowHeight={30}
+      rowHeight={50}
       width={1200}
-      onLayoutChange={setLayout}
+      layout={[
+        { i: "a", x: 0, y: 0, w: 4, h: 2 },
+        { i: "b", x: 4, y: 0, w: 4, h: 2 },
+      ]}
     >
-      <div key="a">A</div>
-      <div key="b">B</div>
-      <div key="c">C</div>
+      <div key="a">Item A</div>
+      <div key="b">Item B</div>
     </DndGrid>
   );
 }
 ```
 
-## Next Steps
+## Features
 
-<CardGroup cols={2}>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Get up and running in 5 minutes
-  </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/overview">
-    Explore all available props and options
-  </Card>
-  <Card title="Examples" icon="grid" href="/examples/overview">
-    See interactive examples and demos
-  </Card>
-  <Card title="GitHub" icon="github" href="https://github.com/mblode/dnd-grid">
-    View source code and contribute
-  </Card>
-</CardGroup>
+- **Performance:** GPU-accelerated CSS transforms and minimal re-renders.
+- **Zero Dependencies:** Pure React implementation. No jQuery.
+- **Reliability:** First-class TypeScript support with strict definitions.
+- **Flexibility:** Custom compaction modes (vertical/horizontal) and collision handling.
+- **SSR Ready:** Compatible with Next.js, Remix, and other server-side frameworks.

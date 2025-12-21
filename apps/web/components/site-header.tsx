@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { siteConfig } from "@/lib/config"
+import Link from "next/link";
+import { siteConfig } from "@/lib/config";
 
 export function SiteHeader() {
   return (
@@ -26,5 +26,5 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -56,7 +56,7 @@
 
 .dnd-grid-item.dnd-grid-placeholder {
   background-color: var(--dnd-grid-placeholder);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   transition-duration: 100ms;
   z-index: 2;
   user-select: none;
@@ -194,7 +194,13 @@
   width: 16px;
   height: 16px;
   border-radius: 9999px;
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.06), 0 9px 9px rgba(0, 0, 0, 0.04), 0 5.83333px 5.27083px rgba(0, 0, 0, 0.03), 0 3.46667px 2.86667px rgba(0, 0, 0, 0.024), 0 1.8px 1.4625px rgba(0, 0, 0, 0.02), 0 0.733333px 0.733333px rgba(0, 0, 0, 0.016);
+  box-shadow:
+    0 0 1px 1px rgba(0, 0, 0, 0.06),
+    0 9px 9px rgba(0, 0, 0, 0.04),
+    0 5.83333px 5.27083px rgba(0, 0, 0, 0.03),
+    0 3.46667px 2.86667px rgba(0, 0, 0, 0.024),
+    0 1.8px 1.4625px rgba(0, 0, 0, 0.02),
+    0 0.733333px 0.733333px rgba(0, 0, 0, 0.016);
 }
 
 .dnd-grid-item {

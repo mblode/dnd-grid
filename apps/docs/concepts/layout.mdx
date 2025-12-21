@@ -1,135 +1,106 @@
 ---
 title: Layout
-description: Understanding the layout system in dnd-grid
+description: How the grid system works.
 ---
 
-## Layout Structure
+## The Layout Object
 
-The layout is an array of `LayoutItem` objects that define the position and size of each grid item.
+The layout is the core state of your grid. It is an array of objects where each object represents an item's position and dimensions.
 
-```tsx
+```ts
 import { type Layout } from "@dnd-grid/react";
 
 const layout: Layout = [
-  { i: "widget-1", x: 0, y: 0, w: 4, h: 2, deg: 0 },
-  { i: "widget-2", x: 4, y: 0, w: 4, h: 2, deg: 0 },
-  { i: "widget-3", x: 8, y: 0, w: 4, h: 2, deg: 0 },
+  { i: "a", x: 0, y: 0, w: 4, h: 2 },
+  { i: "b", x: 4, y: 0, w: 4, h: 2 },
 ];
 ```
 
-## LayoutItem Properties
+### Properties
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `i` | `string` | Yes | Unique identifier (must match child's `key`) |
-| `x` | `number` | Yes | X position in grid units |
-| `y` | `number` | Yes | Y position in grid units |
-| `w` | `number` | Yes | Width in grid units |
-| `h` | `number` | Yes | Height in grid units |
-| `deg` | `number` | No | Rotation in degrees (default: 0) |
-| `minW` | `number` | No | Minimum width |
-| `maxW` | `number` | No | Maximum width |
-| `minH` | `number` | No | Minimum height |
-| `maxH` | `number` | No | Maximum height |
-| `static` | `boolean` | No | If true, item cannot be moved or resized |
-| `isDraggable` | `boolean` | No | Override grid's `isDraggable` |
-| `isResizable` | `boolean` | No | Override grid's `isResizable` |
-| `isBounded` | `boolean` | No | Override grid's `isBounded` |
+| Prop | Type | Description |
+|------|------|-------------|
+| `i` | `string` | **Required.** Unique identifier. Must match the child's `key`. |
+| `x` | `number` | **Required.** Horizontal position (column index, 0-based). |
+| `y` | `number` | **Required.** Vertical position (row index, 0-based). |
+| `w` | `number` | **Required.** Width (in columns). |
+| `h` | `number` | **Required.** Height (in rows). |
+| `minW` | `number` | Minimum width constraint. |
+| `maxW` | `number` | Maximum width constraint. |
+| `minH` | `number` | Minimum height constraint. |
+| `maxH` | `number` | Maximum height constraint. |
+| `static` | `boolean` | If `true`, the item is locked in place. |
+| `isDraggable` | `boolean` | Override grid-level drag setting. |
+| `isResizable` | `boolean` | Override grid-level resize setting. |
 
-## Grid Units
+## Grid System
 
-Grid positions and sizes are expressed in **grid units**, not pixels.
+The grid is a coordinate system based on columns and rows.
+
+- **Columns (`x`)**: Determined by the `cols` prop (default: 12).
+- **Rows (`y`)**: Infinite vertical space. Height is fixed by `rowHeight`.
+- **Width (`w`)**: Number of columns an item spans.
+- **Height (`h`)**: Number of rows an item spans.
+
+### Visualization
 
 ```
-┌───────────────────────────────────────────┐
-│ cols = 12                                 │
-├───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┤
-│ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │ 8 │ 9 │...│
-├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
-│                                           │
-│  ┌───────────────┐                        │
-│  │ x=0, y=0      │  w=4, h=2              │
-│  │               │                        │
-│  └───────────────┘                        │
-│                                           │
-└───────────────────────────────────────────┘
+cols = 12
+┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+│ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │ 8 │ 9 │...│...│
+├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
+│                                               │
+│  ┌───────────────┐                            │
+│  │ x=0, y=0      │  w=4, h=2                  │
+│  │               │                            │
+│  └───────────────┘                            │
+│                                               │
+└───────────────────────────────────────────────┘
 ```
 
 ## Compaction
 
-By default, items are compacted vertically to fill gaps. You can configure this behavior:
+Compaction determines how items rearrange when space becomes available.
+
+```tsx
+// Vertical compaction (default)
+// Items float up to fill gaps
+<DndGrid compactType="vertical" />
+
+// Horizontal compaction
+// Items float left to fill gaps
+<DndGrid compactType="horizontal" />
+
+// No compaction
+// Items stay where you put them
+<DndGrid compactType={null} />
+```
+
+## Collisions
+
+Control what happens when a dragged item hits another item.
+
+- **Push (Default):** The dragged item pushes others out of the way.
+- **Prevent Collision:** The dragged item is blocked by others.
+- **Allow Overlap:** Items can be placed on top of each other.
 
 ```tsx
 <DndGrid
-  compactType="vertical"   // Default: compact upward
-  // compactType="horizontal" // Compact leftward
-  // compactType={null}       // No compaction
+  // Block movement if it hits another item
+  preventCollision={true}
+  // Allow items to stack (disables compaction)
+  allowOverlap={true}
 />
 ```
 
-## Collision Handling
+## Persistence
 
-When items collide during drag, the grid can:
-
-1. **Push items** (default) - Move other items out of the way
-2. **Prevent collision** - Block movement into occupied space
+Since the layout is just a JSON-serializable array, saving it is trivial.
 
 ```tsx
-<DndGrid
-  preventCollision={false}  // Default: push items
-  // preventCollision={true} // Block movement
-/>
+// Save to localStorage
+const onLayoutChange = (newLayout) => {
+  saveToDb(newLayout);
+  localStorage.setItem("grid", JSON.stringify(newLayout));
+};
 ```
-
-## Overlap Mode
-
-Allow items to stack on top of each other:
-
-```tsx
-<DndGrid
-  allowOverlap={true}  // Items can overlap
-/>
-```
-
-<Warning>
-  When `allowOverlap` is true, compaction is automatically disabled.
-</Warning>
-
-## Updating Layout
-
-The layout is controlled by your component state. Update it via the `onLayoutChange` callback:
-
-```tsx
-function MyGrid() {
-  const [layout, setLayout] = useState(initialLayout);
-
-  return (
-    <DndGrid
-      layout={layout}
-      onLayoutChange={(newLayout) => {
-        setLayout(newLayout);
-        // Optionally persist to server
-        saveLayout(newLayout);
-      }}
-    >
-      {/* children */}
-    </DndGrid>
-  );
-}
-```
-
-## Layout Persistence
-
-To save and restore layouts, serialize the layout array to JSON:
-
-```tsx
-// Save
-localStorage.setItem("grid-layout", JSON.stringify(layout));
-
-// Restore
-const savedLayout = JSON.parse(localStorage.getItem("grid-layout") || "[]");
-```
-
-<Tip>
-  See the [LocalStorage example](/examples/localstorage) for a complete implementation.
-</Tip>

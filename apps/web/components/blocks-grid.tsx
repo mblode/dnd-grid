@@ -1,7 +1,7 @@
 "use client";
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
 
 export const BLOCK_GAP = 16;
@@ -23,7 +23,7 @@ const initialLayout: Layout = [
 
 export const BlocksGrid = () => {
   const [layout, setLayout] = useState<Layout>(initialLayout);
-  const { state, handlers } = useGridInteractions();
+  const handlers = useGridInteractions();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(DEFAULT_WIDTH);
 

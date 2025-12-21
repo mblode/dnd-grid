@@ -24,5 +24,5 @@ export function Logo({ className }: { className?: string }) {
         className="fill-background"
       />
     </svg>
-  )
+  );
 }

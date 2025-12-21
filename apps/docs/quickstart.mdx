@@ -1,114 +1,43 @@
 ---
 title: Quick Start
-description: Get up and running with dnd-grid in 5 minutes
+description: Build your first grid in minutes.
 ---
 
-## Installation
-
-Install dnd-grid using your preferred package manager:
-
-<CodeGroup>
-
-```bash npm
-npm install @dnd-grid/react
-```
-
-```bash yarn
-yarn add @dnd-grid/react
-```
-
-```bash pnpm
-pnpm add @dnd-grid/react
-```
-
-</CodeGroup>
-
-## Import Styles
-
-Import the required CSS styles in your application:
-
-```tsx
-import "@dnd-grid/react/dist/styles.css";
-```
-
-Or in your CSS file:
-
-```css
-@import "@dnd-grid/react/dist/styles.css";
-```
-
-## Basic Usage
-
-Here's a minimal example to get you started:
+## Basic Example
 
 ```tsx
 import { useState } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
+import "@dnd-grid/react/styles.css";
 
+// 1. Define the initial state
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "c", x: 4, y: 0, w: 2, h: 2, deg: 0 },
+  { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2 },
 ];
 
-function App() {
+export default function App() {
   const [layout, setLayout] = useState(initialLayout);
 
   return (
     <DndGrid
       layout={layout}
+      onLayoutChange={setLayout}
       cols={12}
-      rowHeight={30}
-      width={1200}
-      onLayoutChange={(newLayout) => setLayout(newLayout)}
+      rowHeight={40}
+      width={800}
     >
-      <div key="a">Item A</div>
-      <div key="b">Item B</div>
-      <div key="c">Item C</div>
+      <div key="a" style={{ background: "#eee" }}>A</div>
+      <div key="b" style={{ background: "#eee" }}>B</div>
     </DndGrid>
   );
 }
 ```
 
-<Note>
-  Each child element must have a unique `key` prop that matches the `i` property in the layout item.
-</Note>
+## The Mental Model
 
-## Understanding the Layout
+`dnd-grid` is **controlled**. The `layout` prop is the single source of truth.
 
-The layout is an array of objects describing each grid item's position and size:
-
-```tsx
-interface LayoutItem {
-  i: string;    // Unique identifier (must match child key)
-  x: number;    // X position in grid units (0-based)
-  y: number;    // Y position in grid units (0-based)
-  w: number;    // Width in grid units
-  h: number;    // Height in grid units
-  deg?: number; // Rotation in degrees (optional)
-}
-```
-
-## Grid Dimensions
-
-The grid is divided into columns. Each item's `x`, `y`, `w`, and `h` are expressed in grid units:
-
-- **cols** - Total number of columns (default: 12)
-- **rowHeight** - Height of each row in pixels (default: 150)
-- **width** - Total width of the container in pixels (required)
-
-<Frame>
-  <img src="/images/grid-units.png" alt="Grid units explanation" />
-</Frame>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Installation" icon="download" href="/installation">
-    Detailed installation options
-  </Card>
-  <Card title="Props Reference" icon="sliders" href="/api-reference/dnd-grid">
-    All available configuration options
-  </Card>
-</CardGroup>
+1.  **Layout State:** An array of objects defining position (`x`, `y`) and size (`w`, `h`).
+2.  **Unique Keys:** The `i` property in the layout **must** match the child's `key`.
+3.  **Grid Units:** All dimensions are in columns/rows, not pixels.

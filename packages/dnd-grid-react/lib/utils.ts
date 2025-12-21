@@ -1,7 +1,13 @@
 import { deepEqual } from "fast-equals";
-import React from "react";
 import type { ReactElement, ReactNode } from "react";
-import type { CompactType, Layout, LayoutItem, Position, ResizeHandleAxis } from "./types";
+import React from "react";
+import type {
+  CompactType,
+  Layout,
+  LayoutItem,
+  Position,
+  ResizeHandleAxis,
+} from "./types";
 
 /**
  * Return the bottom coordinate of the layout.
@@ -33,7 +39,7 @@ export function cloneLayout(layout: Layout): Layout {
 export function withLayoutItem(
   layout: Layout,
   itemKey: string,
-  cb: (arg0: LayoutItem) => LayoutItem
+  cb: (arg0: LayoutItem) => LayoutItem,
 ): [Layout, LayoutItem | null | undefined] {
   let item: LayoutItem | null = null;
   let itemIndex = -1;
@@ -88,11 +94,13 @@ export function childrenEqual(a: ReactNode, b: ReactNode): boolean {
   // Since React.Children.map can return undefined or null,
   // ensure the results are arrays before passing to deepEqual.
   const mapChildrenKeys = (children: ReactNode) =>
-    React.Children.map(children, (c) => (React.isValidElement(c) ? c.key : null)) || [];
+    React.Children.map(children, (c) =>
+      React.isValidElement(c) ? c.key : null,
+    ) || [];
 
   const mapChildrenDataGrid = (children: ReactNode) =>
     React.Children.map(children, (c) =>
-      React.isValidElement(c) ? (c as any).props["data-grid"] : null
+      React.isValidElement(c) ? (c as any).props["data-grid"] : null,
     ) || [];
 
   return (
@@ -139,7 +147,7 @@ export function compact(
   layout: Layout,
   compactType: CompactType,
   cols: number,
-  allowOverlap?: boolean | null | undefined
+  allowOverlap?: boolean | null | undefined,
 ): Layout {
   // Statics go in the compareWith array right away so items flow around them.
   const compareWith = getStatics(layout);
@@ -189,7 +197,7 @@ function resolveCompactionCollision(
   layout: Layout,
   item: LayoutItem,
   moveToCoord: number,
-  axis: "x" | "y"
+  axis: "x" | "y",
 ) {
   const sizeProp = heightWidth[axis];
   item[axis] += 1;
@@ -209,7 +217,12 @@ function resolveCompactionCollision(
     if (otherItem.y > item.y + item.h) break;
 
     if (collides(item, otherItem)) {
-      resolveCompactionCollision(layout, otherItem, moveToCoord + (item as any)[sizeProp], axis);
+      resolveCompactionCollision(
+        layout,
+        otherItem,
+        moveToCoord + (item as any)[sizeProp],
+        axis,
+      );
     }
   }
 
@@ -228,7 +241,7 @@ export function compactItem(
   compactType: CompactType,
   cols: number,
   fullLayout: Layout,
-  allowOverlap?: boolean | null | undefined
+  allowOverlap?: boolean | null | undefined,
 ): LayoutItem {
   const compactV = compactType === "vertical";
   const compactH = compactType === "horizontal";
@@ -291,7 +304,7 @@ export function correctBounds(
   layout: Layout,
   bounds: {
     cols: number;
-  }
+  },
 ): Layout {
   const collidesWith = getStatics(layout);
 
@@ -322,7 +335,10 @@ export function correctBounds(
 /**
  * Get a layout item by ID. Used so we can override later on if necessary.
  */
-export function getLayoutItem(layout: Layout, id: string): LayoutItem | null | undefined {
+export function getLayoutItem(
+  layout: Layout,
+  id: string,
+): LayoutItem | null | undefined {
   for (let i = 0, len = layout.length; i < len; i++) {
     if (layout[i].i === id) return layout[i];
   }
@@ -335,13 +351,16 @@ export function getLayoutItem(layout: Layout, id: string): LayoutItem | null | u
  */
 export function getFirstCollision(
   layout: Layout,
-  layoutItem: LayoutItem
+  layoutItem: LayoutItem,
 ): LayoutItem | null | undefined {
   for (let i = 0, len = layout.length; i < len; i++) {
     if (collides(layout[i], layoutItem)) return layout[i];
   }
 }
-export function getAllCollisions(layout: Layout, layoutItem: LayoutItem): Array<LayoutItem> {
+export function getAllCollisions(
+  layout: Layout,
+  layoutItem: LayoutItem,
+): Array<LayoutItem> {
   return layout.filter((l) => collides(l, layoutItem));
 }
 
@@ -366,7 +385,7 @@ export function moveElement(
   preventCollision: boolean | null | undefined,
   compactType: CompactType,
   cols: number,
-  allowOverlap?: boolean | null | undefined
+  allowOverlap?: boolean | null | undefined,
 ): Layout {
   // If this is static and not explicitly enabled as draggable,
   // no move is possible, so we can short-circuit this immediately.
@@ -419,9 +438,23 @@ export function moveElement(
 
     // Don't move static items - we have to move *this* element away
     if (collision.static) {
-      layout = moveElementAwayFromCollision(layout, collision, l, isUserAction, compactType, cols);
+      layout = moveElementAwayFromCollision(
+        layout,
+        collision,
+        l,
+        isUserAction,
+        compactType,
+        cols,
+      );
     } else {
-      layout = moveElementAwayFromCollision(layout, l, collision, isUserAction, compactType, cols);
+      layout = moveElementAwayFromCollision(
+        layout,
+        l,
+        collision,
+        isUserAction,
+        compactType,
+        cols,
+      );
     }
   }
 
@@ -438,7 +471,7 @@ export function moveElementAwayFromCollision(
   itemToMove: LayoutItem,
   isUserAction: boolean | null | undefined,
   compactType: CompactType,
-  cols: number
+  cols: number,
 ): Layout {
   const compactH = compactType === "horizontal";
   // Compact vertically if not set to horizontal
@@ -461,8 +494,10 @@ export function moveElementAwayFromCollision(
       i: "-1",
     };
     const firstCollision = getFirstCollision(layout, fakeItem);
-    const collisionNorth = firstCollision && firstCollision.y + firstCollision.h > collidesWith.y;
-    const collisionWest = firstCollision && collidesWith.x + collidesWith.w > firstCollision.x;
+    const collisionNorth =
+      firstCollision && firstCollision.y + firstCollision.h > collidesWith.y;
+    const collisionWest =
+      firstCollision && collidesWith.x + collidesWith.w > firstCollision.x;
 
     // No collision? If so, we can go up there; otherwise, we'll end up moving down as normal
     if (!firstCollision) {
@@ -474,7 +509,7 @@ export function moveElementAwayFromCollision(
         isUserAction,
         preventCollision,
         compactType,
-        cols
+        cols,
       );
     } else if (collisionNorth && compactV) {
       return moveElement(
@@ -485,7 +520,7 @@ export function moveElementAwayFromCollision(
         isUserAction,
         preventCollision,
         compactType,
-        cols
+        cols,
       );
     } else if (collisionNorth && compactType == null) {
       collidesWith.y = itemToMove.y;
@@ -500,7 +535,7 @@ export function moveElementAwayFromCollision(
         isUserAction,
         preventCollision,
         compactType,
-        cols
+        cols,
       );
     }
   }
@@ -520,7 +555,7 @@ export function moveElementAwayFromCollision(
     isUserAction,
     preventCollision,
     compactType,
-    cols
+    cols,
   );
 }
 
@@ -531,12 +566,16 @@ const constrainWidth = (
   left: number,
   currentWidth: number,
   newWidth: number,
-  containerWidth: number
+  containerWidth: number,
 ) => {
   return left + newWidth > containerWidth ? currentWidth : newWidth;
 };
 
-const constrainHeight = (top: number, currentHeight: number, newHeight: number) => {
+const constrainHeight = (
+  top: number,
+  currentHeight: number,
+  newHeight: number,
+) => {
   return top < 0 ? currentHeight : newHeight;
 };
 
@@ -544,7 +583,11 @@ const constrainLeft = (left: number) => Math.max(0, left);
 
 const constrainTop = (top: number) => Math.max(0, top);
 
-const resizeNorth = (currentSize: any, { left, height, width }: any, _containerWidth: any) => {
+const resizeNorth = (
+  currentSize: any,
+  { left, height, width }: any,
+  _containerWidth: any,
+) => {
   const top = currentSize.top - (height - currentSize.height);
   return {
     left,
@@ -554,21 +597,39 @@ const resizeNorth = (currentSize: any, { left, height, width }: any, _containerW
   };
 };
 
-const resizeEast = (currentSize: any, { top, left, height, width }: any, containerWidth: any) => ({
+const resizeEast = (
+  currentSize: any,
+  { top, left, height, width }: any,
+  containerWidth: any,
+) => ({
   top,
   height,
-  width: constrainWidth(currentSize.left, currentSize.width, width, containerWidth),
+  width: constrainWidth(
+    currentSize.left,
+    currentSize.width,
+    width,
+    containerWidth,
+  ),
   left: constrainLeft(left),
 });
 
-const resizeWest = (currentSize: any, { top, height, width }: any, containerWidth: any) => {
+const resizeWest = (
+  currentSize: any,
+  { top, height, width }: any,
+  containerWidth: any,
+) => {
   const left = currentSize.left - (width - currentSize.width);
   return {
     height,
     width:
       left < 0
         ? currentSize.width
-        : constrainWidth(currentSize.left, currentSize.width, width, containerWidth),
+        : constrainWidth(
+            currentSize.left,
+            currentSize.width,
+            width,
+            containerWidth,
+          ),
     top: constrainTop(top),
     left: constrainLeft(left),
   };
@@ -577,7 +638,7 @@ const resizeWest = (currentSize: any, { top, height, width }: any, containerWidt
 const resizeSouth = (
   currentSize: any,
   { top, left, height, width }: any,
-  _containerWidth: any
+  _containerWidth: any,
 ) => ({
   width,
   left,
@@ -586,22 +647,22 @@ const resizeSouth = (
 });
 
 const resizeNorthEast = (...args: any) => {
-  //@ts-ignore
+  //@ts-expect-error
   return resizeNorth(args[0], resizeEast(...args), args[2]);
 };
 
 const resizeNorthWest = (...args: any) => {
-  //@ts-ignore
+  //@ts-expect-error
   return resizeNorth(args[0], resizeWest(...args), args[2]);
 };
 
 const resizeSouthEast = (...args: any) => {
-  //@ts-ignore
+  //@ts-expect-error
   return resizeSouth(args[0], resizeEast(...args), args[2]);
 };
 
 const resizeSouthWest = (...args: any) => {
-  //@ts-ignore
+  //@ts-expect-error
   return resizeSouth(args[0], resizeWest(...args), args[2]);
 };
 
@@ -623,16 +684,20 @@ export function resizeItemInDirection(
   direction: ResizeHandleAxis,
   currentSize: Position,
   newSize: Position,
-  containerWidth: number
+  containerWidth: number,
 ): Position {
   const ordinalHandler = ordinalResizeHandlerMap[direction];
   // Shouldn't be possible given types; that said, don't fail hard
   if (!ordinalHandler) return newSize;
-  return ordinalHandler(currentSize, { ...currentSize, ...newSize }, containerWidth);
+  return ordinalHandler(
+    currentSize,
+    { ...currentSize, ...newSize },
+    containerWidth,
+  );
 }
 export function setTransform(
   { top, left, width, height, deg }: Position,
-  scale = 1
+  scale = 1,
 ): Record<string, any> {
   // Replace unitless items with px
   const transform = `translate(${left}px,${top}px) scale(${scale}) rotate(${deg || 0}deg)`;
@@ -650,7 +715,10 @@ export function setTransform(
 /**
  * Get layout items sorted from top left to right and down.
  */
-export function sortLayoutItems(layout: Layout, compactType: CompactType): Layout {
+export function sortLayoutItems(
+  layout: Layout,
+  compactType: CompactType,
+): Layout {
   if (compactType === "horizontal") return sortLayoutItemsByColRow(layout);
   if (compactType === "vertical") return sortLayoutItemsByRowCol(layout);
   else return layout;
@@ -701,7 +769,7 @@ export function synchronizeLayoutWithChildren(
   children: ReactElement<any>,
   cols: number,
   compactType: CompactType,
-  allowOverlap?: boolean | null | undefined
+  allowOverlap?: boolean | null | undefined,
 ): Layout {
   initialLayout = initialLayout || [];
   // Generate one layout item per child.
@@ -732,7 +800,7 @@ export function synchronizeLayoutWithChildren(
             y: bottom(layout),
             deg: 0,
             i: String(child.key),
-          })
+          }),
         );
       }
     }
@@ -741,7 +809,9 @@ export function synchronizeLayoutWithChildren(
   const correctedLayout = correctBounds(layout, {
     cols: cols,
   });
-  return allowOverlap ? correctedLayout : compact(correctedLayout, compactType, cols);
+  return allowOverlap
+    ? correctedLayout
+    : compact(correctedLayout, compactType, cols);
 }
 
 // Legacy support for verticalCompact: false
@@ -752,7 +822,7 @@ export function compactType(
         compactType: CompactType;
       }
     | null
-    | undefined
+    | undefined,
 ): CompactType {
   const { verticalCompact, compactType } = props || {};
   return verticalCompact === false ? null : compactType;

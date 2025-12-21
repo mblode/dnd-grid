@@ -44,7 +44,7 @@
     },
     {
       "group": "Core Concepts",
-      "pages": ["concepts/layout", "concepts/grid-items"]
+      "pages": ["concepts/layout", "concepts/grid-items", "concepts/styling"]
     },
     {
       "group": "API Reference",

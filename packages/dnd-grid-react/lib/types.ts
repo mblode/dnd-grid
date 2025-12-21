@@ -8,7 +8,10 @@ export type ReactRef<T extends HTMLElement> = {
 
 export type ResizeHandle =
   | ReactElement<any>
-  | ((resizeHandleAxis: ResizeHandleAxis, ref: ReactRef<HTMLElement>) => ReactElement<any>);
+  | ((
+      resizeHandleAxis: ResizeHandleAxis,
+      ref: ReactRef<HTMLElement>,
+    ) => ReactElement<any>);
 
 export type Props = {
   className: string;
@@ -54,7 +57,11 @@ export type Props = {
       )
     | null
     | undefined;
-  onDrop: (layout: Layout, item: LayoutItem | null | undefined, e: Event) => void;
+  onDrop: (
+    layout: Layout,
+    item: LayoutItem | null | undefined,
+    e: Event,
+  ) => void;
   children: ReactNode;
   innerRef?: any;
   dndRect?: {
@@ -70,7 +77,15 @@ export type Props = {
 
 export type DefaultProps = Omit<Props, "children" | "width">;
 
-export type ResizeHandleAxis = "s" | "w" | "e" | "n" | "sw" | "nw" | "se" | "ne";
+export type ResizeHandleAxis =
+  | "s"
+  | "w"
+  | "e"
+  | "n"
+  | "sw"
+  | "nw"
+  | "se"
+  | "ne";
 export type LayoutItem = {
   w: number;
   h: number;
@@ -144,7 +159,7 @@ export type EventCallback = (
   newItem: LayoutItem | null | undefined,
   placeholder: LayoutItem | null | undefined,
   arg4: Event,
-  arg5: HTMLElement | null | undefined
+  arg5: HTMLElement | null | undefined,
 ) => void;
 export type CompactType = ("horizontal" | "vertical") | null | undefined;
 

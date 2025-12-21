@@ -75,13 +75,15 @@ export interface PointWithTimestamp {
  * This mimics Framer Motion's useSpring behavior where the target can change
  * and the spring smoothly adjusts to the new target.
  */
-export function createLiveSpring(config: {
-  stiffness?: number;
-  damping?: number;
-  mass?: number;
-  restSpeed?: number;
-  restDistance?: number;
-} = {}) {
+export function createLiveSpring(
+  config: {
+    stiffness?: number;
+    damping?: number;
+    mass?: number;
+    restSpeed?: number;
+    restDistance?: number;
+  } = {},
+) {
   const {
     stiffness = SPRING_DEFAULTS.stiffness,
     damping = SPRING_DEFAULTS.damping,
@@ -178,9 +180,10 @@ export function createLiveSpring(config: {
  * The velocity is calculated from the difference between the latest position
  * and a sample older than 100ms.
  */
-export function calculateVelocityFromHistory(
-  history: PointWithTimestamp[]
-): { x: number; y: number } {
+export function calculateVelocityFromHistory(history: PointWithTimestamp[]): {
+  x: number;
+  y: number;
+} {
   if (history.length < 2) {
     return { x: 0, y: 0 };
   }

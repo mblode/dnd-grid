@@ -1,0 +1,91 @@
+---
+title: Styling
+description: Customize the look and feel of your grid.
+---
+
+## Why are styles required?
+
+The `@dnd-grid/react/styles.css` file contains critical layout and interaction logic. Without it:
+
+- **Layout will break:** Grid items won't be positioned correctly.
+- **No Animations:** Items won't slide into place when others are moved.
+- **Invisible Handles:** Resize handles will be missing or misplaced.
+- **Broken Placeholders:** The "shadow" box during drag won't be visible.
+
+```tsx
+import "@dnd-grid/react/styles.css";
+```
+
+## CSS Variables
+
+`dnd-grid` uses CSS variables for easy theming. You can override these in your global CSS or on a specific grid container.
+
+```css
+:root {
+  --widget-border-radius: 24px;
+  --dnd-grid-placeholder: rgba(0, 0, 0, 0.05);
+  --dnd-grid-resize-handle: #ffffff;
+}
+```
+
+### Reference
+
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `--widget-border-radius` | `24px` | Border radius for grid items and the placeholder. |
+| `--dnd-grid-placeholder` | `rgba(0,0,0,0.012)` | Background color of the drop placeholder. |
+| `--dnd-grid-resize-handle` | `#ffffff` | Color of the default resize handle. |
+
+## Customizing Items
+
+Grid items are given the `.dnd-grid-item` class. You can style them directly in your CSS:
+
+```css
+/* Custom item styling */
+.dnd-grid-item:not(.dnd-grid-placeholder) {
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Style items while they are being dragged */
+.dnd-grid-item.dnd-draggable-dragging {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+```
+
+## Theming Tips
+
+### Dark Mode
+
+You can use a media query or a class-based approach (like Tailwind) to update variables for dark mode.
+
+```css
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dnd-grid-placeholder: rgba(255, 255, 255, 0.05);
+    --dnd-grid-resize-handle: #1a202c;
+  }
+}
+```
+
+### Item States
+
+Use these classes to target specific states of a grid item:
+
+- `.dnd-draggable-dragging`: Active when an item is being moved.
+- `.resizing`: Active when an item is being resized.
+- `.dnd-grid-placeholder`: The preview box that appears during drag/resize.
+- `.is-hovered`: Active when the mouse is over an item.
+
+### Custom Resize Handles
+
+If you want to completely replace the resize handle UI, you can pass a custom component to the `resizeHandle` prop on `DndGrid`:
+
+```tsx
+<DndGrid
+  resizeHandle={<div className="my-custom-handle" />}
+  // ...
+/>
+```

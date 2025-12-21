@@ -5,6 +5,7 @@
 ### Added
 
 - GitHub Actions workflow to publish `@dnd-grid/react` to npm on version tags.
+- Trusted publishing via npm OIDC in GitHub Actions (no long-lived tokens).
 
 ## 1.0.0 (Dec 20, 2025)
 

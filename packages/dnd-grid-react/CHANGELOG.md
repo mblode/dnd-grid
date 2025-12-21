@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- GitHub Actions workflow to publish `@dnd-grid/react` to npm on version tags.
+
 ## 1.0.0 (Dec 20, 2025)
 
 Initial release of `dnd-grid`, a draggable and resizable grid layout library for React.

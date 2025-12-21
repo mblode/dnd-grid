@@ -3,8 +3,6 @@ import React from "react";
 import type { ReactElement, ReactNode } from "react";
 import type { CompactType, Layout, LayoutItem, Position, ResizeHandleAxis } from "./types";
 
-const DEBUG = false;
-
 /**
  * Return the bottom coordinate of the layout.
  */
@@ -30,19 +28,6 @@ export function cloneLayout(layout: Layout): Layout {
 }
 // Modify a layoutItem inside a layout. Returns a new Layout,
 // does not mutate. Carries over all other LayoutItems unmodified.
-export function modifyLayout(layout: Layout, layoutItem: LayoutItem): Layout {
-  const newLayout = Array(layout.length);
-
-  for (let i = 0, len = layout.length; i < len; i++) {
-    if (layoutItem.i === layout[i].i) {
-      newLayout[i] = layoutItem;
-    } else {
-      newLayout[i] = layout[i];
-    }
-  }
-
-  return newLayout;
-}
 // Function to be called to modify a layout item.
 // Does defensive clones to ensure the layout is not modified.
 export function withLayoutItem(
@@ -50,13 +35,27 @@ export function withLayoutItem(
   itemKey: string,
   cb: (arg0: LayoutItem) => LayoutItem
 ): [Layout, LayoutItem | null | undefined] {
-  let item = getLayoutItem(layout, itemKey);
-  if (!item) return [layout, null];
-  item = cb(cloneLayoutItem(item)); // defensive clone then modify
+  let item: LayoutItem | null = null;
+  let itemIndex = -1;
 
-  // FIXME could do this faster if we already knew the index
-  layout = modifyLayout(layout, item);
-  return [layout, item];
+  for (let i = 0, len = layout.length; i < len; i++) {
+    if (layout[i].i === itemKey) {
+      item = layout[i];
+      itemIndex = i;
+      break;
+    }
+  }
+
+  if (!item) return [layout, null];
+
+  const nextItem = cb(cloneLayoutItem(item)); // defensive clone then modify
+  const nextLayout = Array(layout.length);
+
+  for (let i = 0, len = layout.length; i < len; i++) {
+    nextLayout[i] = i === itemIndex ? nextItem : layout[i];
+  }
+
+  return [nextLayout, nextItem];
 }
 // Fast path to cloning, since this is monomorphic
 export function cloneLayoutItem(layoutItem: LayoutItem): LayoutItem {
@@ -374,7 +373,6 @@ export function moveElement(
   if (l.static && l.isDraggable !== true) return layout;
   // Short-circuit if nothing to do.
   if (l.y === y && l.x === x) return layout;
-  log(`Moving element ${l.i} to [${String(x)},${String(y)}] from [${l.x},${l.y}]`);
   const oldX = l.x;
   const oldY = l.y;
   // This is quite a bit faster than extending the object
@@ -407,7 +405,6 @@ export function moveElement(
     // If we are preventing collision but not allowing overlap, we need to
     // revert the position of this element so it goes to where it came from, rather
     // than the user's desired location.
-    log(`Collision prevented on ${l.i}, reverting.`);
     l.x = oldX;
     l.y = oldY;
     l.moved = false;
@@ -417,9 +414,6 @@ export function moveElement(
   // Move each item that collides away from this element.
   for (let i = 0, len = collisions.length; i < len; i++) {
     const collision = collisions[i];
-    log(
-      `Resolving collision between ${l.i} at [${l.x},${l.y}] and ${collision.i} at [${collision.x},${collision.y}]`
-    );
     // Short circuit so we can't infinite loop
     if (collision.moved) continue;
 
@@ -472,7 +466,6 @@ export function moveElementAwayFromCollision(
 
     // No collision? If so, we can go up there; otherwise, we'll end up moving down as normal
     if (!firstCollision) {
-      log(`Doing reverse collision on ${itemToMove.i} up to [${fakeItem.x},${fakeItem.y}].`);
       return moveElement(
         layout,
         itemToMove,
@@ -529,13 +522,6 @@ export function moveElementAwayFromCollision(
     compactType,
     cols
   );
-}
-
-/**
- * Helper to convert a number to a percentage string.
- */
-export function perc(num: number): string {
-  return num * 100 + "%";
 }
 
 /**
@@ -661,25 +647,6 @@ export function setTransform(
     position: "absolute",
   };
 }
-export function setTopLeft(
-  { top, left, width, height, deg }: Position,
-  scale = 1
-): Record<string, any> {
-  const transform = `scale(${scale}) rotate(${deg || 0}deg)`;
-  return {
-    transform: transform,
-    WebkitTransform: transform,
-    MozTransform: transform,
-    msTransform: transform,
-    OTransform: transform,
-    top: `${top}px`,
-    left: `${left}px`,
-    width: `${width}px`,
-    height: `${height}px`,
-    position: "absolute",
-  };
-}
-
 /**
  * Get layout items sorted from top left to right and down.
  */
@@ -752,11 +719,11 @@ export function synchronizeLayoutWithChildren(
     } else {
       // Hey, this item has a data-grid property, use it.
       if (g) {
-        // FIXME clone not really necessary here
+        // Normalize booleans and ensure a consistent layout item shape.
         layout.push(cloneLayoutItem({ ...g, i: child.key }));
       } else {
         // Nothing provided: ensure this is added to the bottom
-        // FIXME clone not really necessary here
+        // Normalize booleans and ensure a consistent layout item shape.
         layout.push(
           cloneLayoutItem({
             w: 1,
@@ -777,25 +744,6 @@ export function synchronizeLayoutWithChildren(
   return allowOverlap ? correctedLayout : compact(correctedLayout, compactType, cols);
 }
 
-/**
- * Validate a layout. Throws errors.
- */
-export function validateLayout(layout: Layout, contextName = "Layout"): void {
-  const subProps = ["x", "y", "w", "h"];
-  if (!Array.isArray(layout)) throw new Error(contextName + " must be an array!");
-
-  for (let i = 0, len = layout.length; i < len; i++) {
-    const item = layout[i];
-
-    for (let j = 0; j < subProps.length; j++) {
-      if (typeof item[subProps[j]] !== "number") {
-        throw new Error(
-          "ReactGridLayout: " + contextName + "[" + i + "]." + subProps[j] + " must be a number!"
-        );
-      }
-    }
-  }
-}
 // Legacy support for verticalCompact: false
 export function compactType(
   props:
@@ -808,11 +756,6 @@ export function compactType(
 ): CompactType {
   const { verticalCompact, compactType } = props || {};
   return verticalCompact === false ? null : compactType;
-}
-
-function log(...args: any) {
-  if (!DEBUG) return;
-  console.log(...args);
 }
 
 export const noop = () => {};

@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { deepEqual } from "fast-equals";
 import * as React from "react";
 import type { ReactElement } from "react";
-import { calcXY } from "../calculateUtils";
+import { calcXY } from "../calculate-utils";
 import {
   bottom,
   childrenEqual,
@@ -62,7 +62,6 @@ try {
  */
 
 export class DndGrid extends React.Component<Props, State> {
-  // TODO publish internal ReactClass displayName transform
   static displayName = "DndGrid";
   // Refactored to another module to make way for preval
   static defaultProps: DefaultProps = {
@@ -632,9 +631,7 @@ export class DndGrid extends React.Component<Props, State> {
 
     e.stopPropagation();
 
-    // we should ignore events from layout's children in Firefox
-    // to avoid unpredictable jumping of a dropping placeholder
-    // FIXME remove this hack
+    // Ignore events from layout's children in Firefox to prevent placeholder jumping.
     if (
       isFirefox && // $FlowIgnore can't figure this out
       !(e.nativeEvent.target as any)?.classList.contains(layoutClassName)
@@ -758,7 +755,6 @@ export class DndGrid extends React.Component<Props, State> {
       containerPadding,
       transformScale,
     } = this.props;
-    // return;
     // Allow user to customize the dropping item or short-circuit the drop based on the results
     // of the `onDragOver(e: Event)` callback.
     const onDragOverResult = onDropDragOver?.();

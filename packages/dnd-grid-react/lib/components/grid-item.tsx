@@ -11,7 +11,7 @@ import {
   calcWH,
   calcXY,
   clamp,
-} from "../calculateUtils";
+} from "../calculate-utils";
 import {
   createLiveSpring,
   calculateVelocityFromHistory,
@@ -32,6 +32,8 @@ import type {
   ResizeHandleAxis,
 } from "../types";
 import { fastPositionEqual, resizeItemInDirection, setTransform } from "../utils";
+
+const gridContainerClassName = "dnd-grid";
 
 type PartialPosition = {
   top: number;
@@ -209,7 +211,7 @@ export class GridItem extends React.Component<Props, State> {
     if (this.state.animatedX !== nextState.animatedX) return true;
     if (this.state.animatedY !== nextState.animatedY) return true;
     if (this.state.isAnimating !== nextState.isAnimating) return true;
-    // TODO memoize these calculations so they don't take so long?
+    
     const oldPosition = calcGridItemPosition(
       this.getPositionParams(this.props),
       this.props.x,
@@ -251,6 +253,12 @@ export class GridItem extends React.Component<Props, State> {
       cancelAnimationFrame(this.springAnimationFrame);
       this.springAnimationFrame = null;
     }
+  }
+
+  getGridContainer(node: HTMLElement | null): HTMLElement | null {
+    if (!node) return null;
+    const container = node.closest(`.${gridContainerClassName}`);
+    return container instanceof HTMLElement ? container : null;
   }
 
   // When a droppingPosition is present, this means we should fire a move event, as if we had moved
@@ -586,17 +594,18 @@ export class GridItem extends React.Component<Props, State> {
       left: 0,
       deg: 0,
     };
-    // TODO: this wont work on nested parents
-    const { offsetParent } = node;
-    if (!offsetParent) return;
-    const parentRect = offsetParent.getBoundingClientRect();
+    const container = this.getGridContainer(node) || node.offsetParent;
+    if (!container) return;
+    const parentRect = (container as HTMLElement).getBoundingClientRect();
     const clientRect = node.getBoundingClientRect();
     const cLeft = clientRect.left / transformScale;
     const pLeft = parentRect.left / transformScale;
     const cTop = clientRect.top / transformScale;
     const pTop = parentRect.top / transformScale;
-    newPosition.left = cLeft - pLeft + offsetParent.scrollLeft;
-    newPosition.top = cTop - pTop + offsetParent.scrollTop;
+    const scrollLeft = (container as HTMLElement).scrollLeft ?? 0;
+    const scrollTop = (container as HTMLElement).scrollTop ?? 0;
+    newPosition.left = cLeft - pLeft + scrollLeft;
+    newPosition.top = cTop - pTop + scrollTop;
     this.setState({
       dragging: newPosition,
       targetScale: 1.04, // Match swing-card.tsx handleDragStart: scaleRaw.set(1.04)
@@ -708,11 +717,12 @@ export class GridItem extends React.Component<Props, State> {
     // Boundary calculations; keeps items within the grid
     if (isBounded) {
       const { offsetParent } = node;
+      const container = this.getGridContainer(node) || offsetParent;
 
-      if (offsetParent) {
+      if (container) {
         const { margin, rowHeight } = this.props;
         const bottomBoundary =
-          offsetParent.clientHeight - calcGridItemWHPx(h, rowHeight, margin[0]);
+          (container as HTMLElement).clientHeight - calcGridItemWHPx(h, rowHeight, margin[0]);
         top = clamp(top, 0, bottomBoundary);
         const colWidth = calcGridColWidth(positionParams);
         const rightBoundary = containerWidth - calcGridItemWHPx(w, colWidth, margin[1]);
@@ -935,10 +945,15 @@ export class GridItem extends React.Component<Props, State> {
       y,
       handle
     );
-    // Min/max capping.
-    // minW should be at least 1 (TODO propTypes validation?)
-    w = clamp(w, Math.max(minW, 1), maxW);
-    h = clamp(h, minH, maxH);
+    // Min/max capping with safe defaults in case optional bounds are missing.
+    const normalizedMinW = typeof minW === "number" ? Math.max(minW, 1) : 1;
+    const normalizedMinH = typeof minH === "number" ? minH : 1;
+    const normalizedMaxW =
+      typeof maxW === "number" ? maxW : Number.POSITIVE_INFINITY;
+    const normalizedMaxH =
+      typeof maxH === "number" ? maxH : Number.POSITIVE_INFINITY;
+    w = clamp(w, normalizedMinW, normalizedMaxW);
+    h = clamp(h, normalizedMinH, normalizedMaxH);
     (handler as any).call(this, i, w, h, {
       e,
       node,

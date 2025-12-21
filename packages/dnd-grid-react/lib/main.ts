@@ -14,10 +14,9 @@ export type {
   DroppingPosition,
 } from "./types";
 export {
-  createSpring,
+  createLiveSpring,
   calculateVelocityFromHistory,
   velocityToRotation,
-  calcDampingRatio,
   SPRING_DEFAULTS,
   VELOCITY_WINDOW_MS,
   VELOCITY_SCALE,

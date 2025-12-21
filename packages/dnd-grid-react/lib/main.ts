@@ -2,6 +2,7 @@ import "./styles.css";
 
 export { GridItem } from "./components/grid-item";
 export { DndGrid, DndGrid as ReactGridLayout } from "./components/dnd-grid";
+export { ResizeHandle } from "./components/resize-handle";
 export type {
   LayoutItem,
   Layout,

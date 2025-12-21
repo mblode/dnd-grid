@@ -3,6 +3,7 @@ import React from "react";
 import type { ReactElement, ReactNode, RefObject } from "react";
 import { DraggableCore, type DraggableEventHandler } from "react-draggable";
 import { Resizable } from "react-resizable";
+import { ResizeHandle as DefaultResizeHandle } from "./resize-handle";
 import {
   calcGridColWidth,
   calcGridItemPosition,
@@ -18,6 +19,7 @@ import {
   VELOCITY_WINDOW_MS,
   SCALE_SPRING_CONFIG,
   SPRING_DEFAULTS,
+  POSITION_SPRING_CONFIG,
   type PointWithTimestamp,
 } from "../spring";
 import type {
@@ -29,7 +31,7 @@ import type {
   ResizeHandle,
   ResizeHandleAxis,
 } from "../types";
-import { fastPositionEqual, perc, resizeItemInDirection, setTopLeft, setTransform } from "../utils";
+import { fastPositionEqual, resizeItemInDirection, setTransform } from "../utils";
 
 type PartialPosition = {
   top: number;
@@ -79,6 +81,10 @@ type State = {
   targetRotation: number;
   currentScale: number;
   targetScale: number;
+  // Position spring animation state (for smooth settling after drag)
+  isAnimating: boolean;
+  animatedX: number;
+  animatedY: number;
 };
 
 type Props = {
@@ -93,8 +99,6 @@ type Props = {
   isResizable: boolean;
   isBounded: boolean;
   static?: boolean;
-  useCSSTransforms?: boolean;
-  usePercentages?: boolean;
   transformScale: number;
   droppingPosition?: DroppingPosition;
   className: string;
@@ -121,6 +125,7 @@ type Props = {
   onResize?: GridItemCallback<GridResizeEvent>;
   onResizeStart?: GridItemCallback<GridResizeEvent>;
   onResizeStop?: GridItemCallback<GridResizeEvent>;
+  onSettleComplete?: (i: string) => void;
 };
 
 type DefaultProps = {
@@ -163,9 +168,15 @@ export class GridItem extends React.Component<Props, State> {
     targetRotation: 0,
     currentScale: 1,
     targetScale: 1,
+    // Position spring animation state (for smooth settling after drag)
+    isAnimating: false,
+    animatedX: 0,
+    animatedY: 0,
   };
   elementRef: RefObject<HTMLDivElement> = React.createRef() as RefObject<HTMLDivElement>;
   springAnimationFrame: number | null = null;
+  // Synchronous flag to avoid race condition with async setState
+  _isSettling = false;
 
   // Live spring instances for continuous animation (like Framer Motion's useSpring)
   rotationSpring = createLiveSpring({
@@ -181,6 +192,9 @@ export class GridItem extends React.Component<Props, State> {
     restSpeed: SCALE_SPRING_CONFIG.restSpeed,
     restDistance: 0.001, // Scale changes by 0.02, need tiny restDistance (not 0.5 default)
   });
+  // Position springs for smooth settling animation after drag (underdamped for bounce)
+  xSpring = createLiveSpring(POSITION_SPRING_CONFIG);
+  ySpring = createLiveSpring(POSITION_SPRING_CONFIG);
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     // We can't deeply compare children. If the developer memoizes them, we can
@@ -191,6 +205,10 @@ export class GridItem extends React.Component<Props, State> {
     // Re-render when spring-animated values change (for swing effect)
     if (this.state.currentRotation !== nextState.currentRotation) return true;
     if (this.state.currentScale !== nextState.currentScale) return true;
+    // Re-render when position animation state changes
+    if (this.state.animatedX !== nextState.animatedX) return true;
+    if (this.state.animatedY !== nextState.animatedY) return true;
+    if (this.state.isAnimating !== nextState.isAnimating) return true;
     // TODO memoize these calculations so they don't take so long?
     const oldPosition = calcGridItemPosition(
       this.getPositionParams(this.props),
@@ -210,10 +228,7 @@ export class GridItem extends React.Component<Props, State> {
       nextProps.deg,
       nextState
     );
-    return (
-      !fastPositionEqual(oldPosition, newPosition) ||
-      this.props.useCSSTransforms !== nextProps.useCSSTransforms
-    );
+    return !fastPositionEqual(oldPosition, newPosition);
   }
 
   componentDidMount() {
@@ -291,36 +306,40 @@ export class GridItem extends React.Component<Props, State> {
   }
 
   /**
-   * This is where we set the grid item's absolute placement. It gets a little tricky because we want to do it
-   * well when server rendering, and the only way to do that properly is to use percentage width/left because
-   * we don't know exactly what the browser viewport is.
-   * Unfortunately, CSS Transforms, which are great for performance, break in this instance because a percentage
-   * left is relative to the item itself, not its container! So we cannot use them on the server rendering pass.
+   * Create the style object for positioning the grid item using CSS transforms.
    */
   createStyle(pos: Position): Record<string, string | null | undefined> {
-    const { static: isStatic, usePercentages, containerWidth, useCSSTransforms } = this.props;
+    const { static: isStatic } = this.props;
     // Use spring-animated scale and rotation (matches swing-card.tsx useSpring behavior)
     const scale = isStatic ? 1 : this.state.currentScale;
     // Override pos.deg with spring-animated currentRotation during drag/animation
     const rotation = isStatic ? pos.deg : this.state.currentRotation;
-    const posWithSpringRotation = { ...pos, deg: rotation };
-    let style;
 
-    // CSS Transforms support (default)
-    if (useCSSTransforms) {
-      style = setTransform(posWithSpringRotation, scale);
-    } else {
-      // top,left (slow)
-      style = setTopLeft(posWithSpringRotation, scale);
-
-      // This is used for server rendering.
-      if (usePercentages) {
-        style.left = perc(pos.left / containerWidth);
-        style.width = perc(pos.width / containerWidth);
-      }
+    // Use animated position when isAnimating (settling after drag)
+    let finalPos = { ...pos, deg: rotation };
+    if (!isStatic && this.state.isAnimating) {
+      finalPos = {
+        ...finalPos,
+        left: this.state.animatedX,
+        top: this.state.animatedY,
+      };
     }
 
-    return style;
+    // COMPENSATE FOR CENTER-ORIGIN SCALE
+    // With center origin, scale(s) shifts visual top-left by -(s-1) * dimensions / 2
+    // We compensate so visual position = logical position regardless of scale
+    // This is the "shadow element at scale 1" concept
+    if (!isStatic && scale !== 1) {
+      const scaleCompX = (scale - 1) * pos.width / 2;
+      const scaleCompY = (scale - 1) * pos.height / 2;
+      finalPos = {
+        ...finalPos,
+        left: finalPos.left + scaleCompX,
+        top: finalPos.top + scaleCompY,
+      };
+    }
+
+    return setTransform(finalPos, scale);
   }
 
   // Check if device is touch-capable.
@@ -393,6 +412,14 @@ export class GridItem extends React.Component<Props, State> {
       Math.min(maxes.width, maxWidth),
       Math.min(maxes.height, Number.POSITIVE_INFINITY),
     ];
+
+    // Use the default resize handle if none is provided
+    const handleRenderer =
+      resizeHandle ??
+      ((axis: ResizeHandleAxis, ref: React.RefObject<HTMLElement>) => (
+        <DefaultResizeHandle ref={ref as React.RefObject<HTMLDivElement>} handleAxis={axis} />
+      ));
+
     return (
       <Resizable // These are opts for the resize handle itself
         draggableOpts={{
@@ -408,7 +435,7 @@ export class GridItem extends React.Component<Props, State> {
         onResize={this.curryResizeHandler(position, this.onResize)}
         transformScale={transformScale}
         resizeHandles={resizeHandles}
-        handle={resizeHandle}
+        handle={handleRenderer}
       >
         {child}
       </Resizable>
@@ -572,23 +599,27 @@ export class GridItem extends React.Component<Props, State> {
     newPosition.top = cTop - pTop + offsetParent.scrollTop;
     this.setState({
       dragging: newPosition,
-      targetScale: 1.02, // Match swing-card.tsx handleDragStart: scaleRaw.set(1.02)
+      targetScale: 1.04, // Match swing-card.tsx handleDragStart: scaleRaw.set(1.04)
+      isAnimating: false, // Clear any pending settling animation
     });
 
     // Set scale spring target directly (setState is async, so we can't rely on state being updated)
-    // This matches swing-card.tsx handleDragStart: scaleRaw.set(1.02)
-    this.scaleSpring.setTarget(1.02);
+    // This matches swing-card.tsx handleDragStart: scaleRaw.set(1.04)
+    this.scaleSpring.setTarget(1.04);
     // Note: Don't set rotation target here - let onDrag set it based on velocity
 
     // Start continuous spring animation (matches swing-card.tsx useSpring behavior)
     this.startSpringAnimation();
 
+    // Set grabbing cursor on body during drag
+    document.body.classList.add('dnd-grid-dragging');
+
     // Animate shadow on drag start
     if (this.elementRef.current) {
       this.elementRef.current.animate(
         [
-          { boxShadow: "0 0 0 0 rgba(0,0,0,0)" },
-          { boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15), 0 12px 24px -8px rgba(0,0,0,0.1)" },
+          { boxShadow: "0 2px 4px rgba(0,0,0,.04)" },
+          { boxShadow: "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)" },
         ],
         {
           duration: 200,
@@ -697,7 +728,7 @@ export class GridItem extends React.Component<Props, State> {
 
     // Update spring targets - spring will smoothly animate toward targetRotation
     // This matches swing-card.tsx: rotateRaw.set(targetRotation)
-    this.updateSpringTargets(targetRotation, 1.02);
+    this.updateSpringTargets(targetRotation, 1.04);
 
     this.setState({
       dragging: newPosition,
@@ -727,20 +758,38 @@ export class GridItem extends React.Component<Props, State> {
       const now = performance.now();
       const rotationState = this.rotationSpring.step(now);
       const scaleState = this.scaleSpring.step(now);
+      const xState = this.xSpring.step(now);
+      const yState = this.ySpring.step(now);
 
       // Update state with current spring values - React will re-render with new transform
       // This matches swing-card.tsx where useSpring values are used in style prop
       this.setState({
         currentRotation: rotationState.value,
         currentScale: scaleState.value,
+        animatedX: xState.value,
+        animatedY: yState.value,
       });
 
-      // Continue animation while dragging OR if either spring is not at rest
-      // Must keep running during drag so rotation responds to velocity changes
-      if (this.state.dragging || !rotationState.done || !scaleState.done) {
+      // Check if ALL springs are done
+      const allSpringsDone = rotationState.done && scaleState.done && xState.done && yState.done;
+
+      // Continue animation while dragging or if settling after drag
+      // Use _isSettling (synchronous) to avoid race condition with async setState
+      if (this.state.dragging || (this._isSettling && !allSpringsDone)) {
         this.springAnimationFrame = requestAnimationFrame(animate);
       } else {
+        // All springs finished - exit animation mode
+        const wasSettling = this._isSettling;
+        this._isSettling = false;
+        if (this.state.isAnimating) {
+          this.setState({ isAnimating: false });
+        }
         this.springAnimationFrame = null;
+
+        // Notify parent that settling animation is complete
+        if (wasSettling && this.props.onSettleComplete) {
+          this.props.onSettleComplete(this.props.i);
+        }
       }
     };
 
@@ -770,8 +819,25 @@ export class GridItem extends React.Component<Props, State> {
       return;
     }
 
-    const { w, h, i } = this.props;
+    const { w, h, i, x, y, deg } = this.props;
     const { left, top } = this.state.dragging;
+
+    // Calculate target grid position (where the item will settle)
+    const targetPos = calcGridItemPosition(
+      this.getPositionParams(),
+      x,
+      y,
+      w,
+      h,
+      deg,
+      null // No state override - get the actual grid position
+    );
+
+    // Initialize position springs: animate from current drag position to grid slot
+    this.xSpring.setCurrent(left);
+    this.xSpring.setTarget(targetPos.left);
+    this.ySpring.setCurrent(top);
+    this.ySpring.setTarget(targetPos.top);
 
     // Set spring targets to 0 (rotation) and 1 (scale)
     // This matches swing-card.tsx handleDragEnd: rotateRaw.set(0), scaleRaw.set(1)
@@ -782,19 +848,32 @@ export class GridItem extends React.Component<Props, State> {
     const newPosition: PartialPosition = {
       top,
       left,
-      deg: 0, // Target is 0, spring will animate there
+      deg: 0,
     };
+
+    // Set synchronous flag BEFORE async setState to avoid race condition
+    // This ensures animation loop continues while settling
+    this._isSettling = true;
+
+    // Clear dragging state but enter animation mode
+    // Springs will animate position, rotation, scale together
     this.setState({
       dragging: null,
-      positionHistory: [], // Clear history
+      positionHistory: [],
+      isAnimating: true,
+      animatedX: left,
+      animatedY: top,
     });
+
+    // Remove grabbing cursor from body
+    document.body.classList.remove('dnd-grid-dragging');
 
     // Animate shadow off on drag stop
     if (this.elementRef.current) {
       this.elementRef.current.animate(
         [
-          { boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15), 0 12px 24px -8px rgba(0,0,0,0.1)" },
-          { boxShadow: "0 0 0 0 rgba(0,0,0,0)" },
+          { boxShadow: "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)" },
+          { boxShadow: "0 2px 4px rgba(0,0,0,.04)" },
         ],
         {
           duration: 200,
@@ -804,8 +883,8 @@ export class GridItem extends React.Component<Props, State> {
       );
     }
 
-    const { x, y } = calcXY(this.getPositionParams(), top, left, w, h);
-    return onDragStop.call(this, i, x, y, {
+    const gridPos = calcXY(this.getPositionParams(), top, left, w, h);
+    return onDragStop.call(this, i, gridPos.x, gridPos.y, {
       e,
       node,
       newPosition,
@@ -869,8 +948,7 @@ export class GridItem extends React.Component<Props, State> {
   }
 
   render(): ReactNode {
-    const { x, y, w, h, deg, isDraggable, isResizable, droppingPosition, useCSSTransforms } =
-      this.props;
+    const { x, y, w, h, deg, isDraggable, isResizable, droppingPosition } = this.props;
     const pos = calcGridItemPosition(this.getPositionParams(), x, y, w, h, deg, this.state);
     const child = React.Children.only(this.props.children);
     // Create the child element. We clone the existing element but modify its className and style.
@@ -881,8 +959,8 @@ export class GridItem extends React.Component<Props, State> {
         resizing: Boolean(this.state.resizing),
         "dnd-draggable": isDraggable,
         "dnd-draggable-dragging": Boolean(this.state.dragging),
+        "dnd-grid-animating": this._isSettling, // Use sync flag - set BEFORE async setState to avoid race condition
         dropping: Boolean(droppingPosition),
-        cssTransforms: useCSSTransforms,
       }),
       // We can set the width and height on the child, but unfortunately we can't set the position.
       style: {

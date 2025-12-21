@@ -82,7 +82,7 @@ export const BlockItem = forwardRef<HTMLDivElement, Props>(function BlockItem(
       ref={ref}
       className={clsx(
         className,
-        "block-item group cursor-move",
+        "block-item group cursor-grab",
         isHovered && "is-hovered-block",
         isSelected && "is-selected-block"
       )}

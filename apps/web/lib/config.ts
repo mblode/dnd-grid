@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "dnd-grid",
+  name: "dnd grid",
   description: "A draggable and resizable grid layout for React",
   links: {
     github: "https://github.com/mblode/dnd-grid",

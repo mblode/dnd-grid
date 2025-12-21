@@ -30,6 +30,14 @@ export const SCALE_SPRING_CONFIG = {
   restSpeed: 10,
 };
 
+/** Position spring config - subtle underdamped bounce (ζ=0.7, ~5% overshoot) */
+export const POSITION_SPRING_CONFIG = {
+  stiffness: 200,
+  damping: 20,
+  restSpeed: 1,
+  restDistance: 0.5,
+};
+
 // ============================================================================
 // Types
 // ============================================================================

@@ -31,11 +31,10 @@ import { DndGrid } from "@dnd-grid/react";
 <ResponseField name="layout" type="Layout" required>
   Array of layout items defining position and size of each grid item.
 
-  ```tsx
-  const layout: Layout = [
-    { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }
-  ];
-  ```
+```tsx
+const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }];
+```
+
 </ResponseField>
 
 <ResponseField name="width" type="number" required>
@@ -43,7 +42,8 @@ import { DndGrid } from "@dnd-grid/react";
 </ResponseField>
 
 <ResponseField name="children" type="ReactNode" required>
-  Grid items. Each child must have a unique `key` matching a layout item's `i` property.
+  Grid items. Each child must have a unique `key` matching a layout item's `i`
+  property.
 </ResponseField>
 
 ### Grid Configuration
@@ -56,12 +56,21 @@ import { DndGrid } from "@dnd-grid/react";
   Height of a single row in pixels.
 </ResponseField>
 
-<ResponseField name="margin" type="[number, number, number, number]" default="[10, 10, 10, 10]">
+<ResponseField
+  name="margin"
+  type="[number, number, number, number]"
+  default="[10, 10, 10, 10]"
+>
   Margin around items in pixels: `[top, right, bottom, left]`.
 </ResponseField>
 
-<ResponseField name="containerPadding" type="[number, number, number, number] | null" default="null">
-  Padding inside the container: `[top, right, bottom, left]`. If null, uses margin values.
+<ResponseField
+  name="containerPadding"
+  type="[number, number, number, number] | null"
+  default="null"
+>
+  Padding inside the container: `[top, right, bottom, left]`. If null, uses
+  margin values.
 </ResponseField>
 
 <ResponseField name="autoSize" type="boolean" default="true">
@@ -94,11 +103,13 @@ import { DndGrid } from "@dnd-grid/react";
   Block movement into occupied space instead of pushing items.
 </ResponseField>
 
-<ResponseField name="compactType" type='"vertical" | "horizontal" | null' default='"vertical"'>
-  Direction to compact items after drag/resize.
-  - `"vertical"` - Compact upward
-  - `"horizontal"` - Compact leftward
-  - `null` - No compaction
+<ResponseField
+  name="compactType"
+  type='"vertical" | "horizontal" | null'
+  default='"vertical"'
+>
+  Direction to compact items after drag/resize. - `"vertical"` - Compact upward
+  - `"horizontal"` - Compact leftward - `null` - No compaction
 </ResponseField>
 
 ### Drag Configuration
@@ -106,30 +117,33 @@ import { DndGrid } from "@dnd-grid/react";
 <ResponseField name="draggableHandle" type="string">
   CSS selector for elements that trigger drag. If set, only matching elements can start a drag.
 
-  ```tsx
-  <DndGrid draggableHandle=".handle">
-    <div key="a">
-      <div className="handle">Drag here</div>
-      <div>Content</div>
-    </div>
-  </DndGrid>
-  ```
+```tsx
+<DndGrid draggableHandle=".handle">
+  <div key="a">
+    <div className="handle">Drag here</div>
+    <div>Content</div>
+  </div>
+</DndGrid>
+```
+
 </ResponseField>
 
 <ResponseField name="draggableCancel" type="string">
   CSS selector for elements that should not trigger drag.
 
-  ```tsx
-  <DndGrid draggableCancel=".no-drag">
-    <div key="a">
-      <button className="no-drag">Click me</button>
-    </div>
-  </DndGrid>
-  ```
+```tsx
+<DndGrid draggableCancel=".no-drag">
+  <div key="a">
+    <button className="no-drag">Click me</button>
+  </div>
+</DndGrid>
+```
+
 </ResponseField>
 
-<ResponseField name="dragTouchDelayDuration" type="number" default="0">
-  Milliseconds to wait before drag starts on touch devices. Helps distinguish scroll from drag.
+<ResponseField name="dragTouchDelayDuration" type="number" default="250">
+  Milliseconds to wait before drag starts on touch devices. Helps distinguish
+  scroll from drag.
 </ResponseField>
 
 ### Resize Configuration
@@ -137,14 +151,18 @@ import { DndGrid } from "@dnd-grid/react";
 <ResponseField name="resizeHandles" type="ResizeHandleAxis[]" default='["se"]'>
   Which edges/corners show resize handles.
 
-  Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
+Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
 
-  ```tsx
-  <DndGrid resizeHandles={["se", "sw", "ne", "nw"]} />
-  ```
+```tsx
+<DndGrid resizeHandles={["se", "sw", "ne", "nw"]} />
+```
+
 </ResponseField>
 
-<ResponseField name="resizeHandle" type="ReactNode | ((axis, ref) => ReactNode)">
+<ResponseField
+  name="resizeHandle"
+  type="ReactNode | ((axis, ref) => ReactNode)"
+>
   Custom resize handle component.
 </ResponseField>
 
@@ -161,11 +179,8 @@ import { DndGrid } from "@dnd-grid/react";
 ### Transform
 
 <ResponseField name="transformScale" type="number" default="1">
-  Scale factor for CSS transforms. Use when the grid is inside a scaled container.
-</ResponseField>
-
-<ResponseField name="useCSSTransforms" type="boolean" default="true">
-  Use CSS transforms for positioning. Set to false for top/left positioning.
+  Scale factor for CSS transforms. Use when the grid is inside a scaled
+  container.
 </ResponseField>
 
 ### Styling
@@ -186,17 +201,17 @@ import { DndGrid } from "@dnd-grid/react";
 
 See [Callbacks](/api-reference/callbacks) for detailed callback documentation.
 
-| Callback | Description |
-|----------|-------------|
+| Callback         | Description                                       |
+| ---------------- | ------------------------------------------------- |
 | `onLayoutChange` | Layout changed (drag, resize, or external update) |
-| `onDragStart` | Drag started |
-| `onDrag` | Dragging in progress |
-| `onDragStop` | Drag ended |
-| `onResizeStart` | Resize started |
-| `onResize` | Resizing in progress |
-| `onResizeStop` | Resize ended |
-| `onDrop` | External item dropped |
-| `onDropDragOver` | External item dragged over grid |
+| `onDragStart`    | Drag started                                      |
+| `onDrag`         | Dragging in progress                              |
+| `onDragStop`     | Drag ended                                        |
+| `onResizeStart`  | Resize started                                    |
+| `onResize`       | Resizing in progress                              |
+| `onResizeStop`   | Resize ended                                      |
+| `onDrop`         | External item dropped                             |
+| `onDropDragOver` | External item dragged over grid                   |
 
 ## Example
 

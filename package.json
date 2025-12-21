@@ -13,13 +13,16 @@
     "workers:deploy": "npm run deploy --workspace=docs-worker"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "turbo": "^2.7.0",
-    "typescript": "5.9.2"
+    "@biomejs/biome": "^2.3.10",
+    "turbo": "^2.7.1",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18"
   },
   "packageManager": "npm@10.9.3",
-  "workspaces": ["apps/*", "packages/*"]
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }

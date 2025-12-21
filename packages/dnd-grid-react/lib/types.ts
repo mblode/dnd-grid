@@ -31,7 +31,6 @@ export type Props = {
   isResizable: boolean;
   isDroppable: boolean;
   preventCollision: boolean;
-  useCSSTransforms: boolean;
   transformScale: number;
   droppingItem: Partial<LayoutItem>;
   resizeHandles: ResizeHandleAxis[];

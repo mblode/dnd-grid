@@ -1,9 +1,8 @@
 "use client";
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import { ResizeHandle } from "@/components/resize-handle";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const STORAGE_KEY = "dnd-grid-example-layout";
 
@@ -16,19 +15,21 @@ const defaultLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   deg: 0,
 }));
 
-export default function LocalStorageExample() {
-  const [layout, setLayout] = useState<Layout>(defaultLayout);
-
-  useEffect(() => {
+function getInitialLayout(): Layout {
+  if (typeof window === "undefined") return defaultLayout;
+  try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try {
-        setLayout(JSON.parse(saved));
-      } catch {
-        // Invalid JSON, use default
-      }
+      return JSON.parse(saved);
     }
-  }, []);
+  } catch {
+    // Invalid JSON, use default
+  }
+  return defaultLayout;
+}
+
+export default function LocalStorageExample() {
+  const [layout, setLayout] = useState<Layout>(getInitialLayout);
 
   const handleLayoutChange = (newLayout: Layout) => {
     setLayout(newLayout);
@@ -42,10 +43,6 @@ export default function LocalStorageExample() {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">LocalStorage Persistence</h2>
-      <p className="text-muted-foreground mb-4">
-        Layout is saved to localStorage. Refresh the page to see it persist.
-      </p>
       <Button variant="destructive" onClick={resetLayout} className="mb-4">
         Reset Layout
       </Button>
@@ -56,16 +53,15 @@ export default function LocalStorageExample() {
         rowHeight={40}
         width={600}
         onLayoutChange={handleLayoutChange}
-        resizeHandle={(handleAxis, ref) => <ResizeHandle ref={ref as any} handleAxis={handleAxis} />}
       >
         {layout.map((item) => (
-          <div
-            key={item.i}
-            className="bg-muted border border-border rounded-md flex items-center justify-center text-lg font-semibold"
-          >
-            {item.i}
-          </div>
-        ))}
+            <div
+              key={item.i}
+              className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center text-lg font-semibold cursor-grab"
+            >
+              {item.i}
+            </div>
+          ))}
       </DndGrid>
     </div>
   );

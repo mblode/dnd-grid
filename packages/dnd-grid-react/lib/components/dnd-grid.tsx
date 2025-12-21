@@ -32,6 +32,7 @@ import type {
 
 type State = {
   activeDrag: LayoutItem | null | undefined;
+  settlingItem: string | null; // ID of item currently settling after drag
   layout: Layout;
   mounted: boolean;
   oldDragItem: LayoutItem | null | undefined;
@@ -47,6 +48,7 @@ type State = {
 };
 
 const layoutClassName = "dnd-grid";
+const DRAG_TOUCH_DELAY_DURATION = 250;
 let isFirefox = false;
 
 // Try...catch will protect from navigator not existing (e.g. node) or a bad implementation of navigator
@@ -69,9 +71,7 @@ export class DndGrid extends React.Component<Props, State> {
     className: "",
     style: {},
     draggableHandle: "",
-    // TODO [>=2.0.0] Make this default duration 250ms
-    // By default, this is off. Set to ~250ms for touch devices
-    dragTouchDelayDuration: 0,
+    dragTouchDelayDuration: DRAG_TOUCH_DELAY_DURATION,
     draggableCancel: "",
     containerPadding: null,
     rowHeight: 150,
@@ -84,7 +84,6 @@ export class DndGrid extends React.Component<Props, State> {
     isResizable: true,
     allowOverlap: false,
     isDroppable: false,
-    useCSSTransforms: true,
     transformScale: 1,
     verticalCompact: true,
     compactType: "vertical",
@@ -109,6 +108,7 @@ export class DndGrid extends React.Component<Props, State> {
   };
   state: State = {
     activeDrag: null,
+    settlingItem: null,
     layout: synchronizeLayoutWithChildren(
       this.props.layout,
       this.props.children as any,
@@ -333,13 +333,28 @@ export class DndGrid extends React.Component<Props, State> {
       : compact(layout, compactType(this.props), cols as number);
     this.props.onDragStop(newLayout, oldDragItem, l, null, e, node);
     const { oldLayout } = this.state;
+    // Keep activeDrag (placeholder) visible until item settles
+    // settlingItem tracks which item is animating to final position
     this.setState({
-      activeDrag: null,
+      settlingItem: i,
       layout: newLayout,
       oldDragItem: null,
       oldLayout: null,
     });
     this.onLayoutMaybeChanged(newLayout, oldLayout);
+  };
+
+  /**
+   * Called when a grid item finishes its settling animation
+   */
+  onSettleComplete = (i: string) => {
+    // Only clear if this is the item we're waiting for
+    if (this.state.settlingItem === i) {
+      this.setState({
+        activeDrag: null,
+        settlingItem: null,
+      });
+    }
   };
 
   onLayoutMaybeChanged(newLayout: Layout, oldLayout: Layout | null | undefined) {
@@ -504,7 +519,6 @@ export class DndGrid extends React.Component<Props, State> {
       containerPadding,
       rowHeight,
       maxRows,
-      useCSSTransforms,
       transformScale,
     } = this.props;
     // {...this.state.activeDrag} is pretty slow, actually
@@ -526,7 +540,6 @@ export class DndGrid extends React.Component<Props, State> {
         isDraggable={false}
         isResizable={false}
         isBounded={false}
-        useCSSTransforms={useCSSTransforms}
         transformScale={transformScale}
       >
         <div />
@@ -555,14 +568,13 @@ export class DndGrid extends React.Component<Props, State> {
       dragTouchDelayDuration,
       isResizable,
       isBounded,
-      useCSSTransforms,
       transformScale,
       draggableCancel,
       draggableHandle,
       resizeHandles,
       resizeHandle,
     } = this.props;
-    const { mounted, droppingPosition } = this.state;
+    const { droppingPosition } = this.state;
     // Determine user manipulations possible.
     // If an item is static, it can't be manipulated by default.
     // Any properties defined directly on the grid item will take precedence.
@@ -587,12 +599,11 @@ export class DndGrid extends React.Component<Props, State> {
         onResizeStart={this.onResizeStart}
         onResize={this.onResize}
         onResizeStop={this.onResizeStop}
+        onSettleComplete={this.onSettleComplete}
         isDraggable={draggable}
         dragTouchDelayDuration={dragTouchDelayDuration}
         isResizable={resizable}
         isBounded={bounded}
-        useCSSTransforms={useCSSTransforms && mounted}
-        usePercentages={!mounted}
         transformScale={transformScale}
         w={l.w}
         h={l.h}

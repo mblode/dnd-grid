@@ -1,7 +1,6 @@
 "use client";
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import { ResizeHandle } from "@/components/resize-handle";
 import { useState } from "react";
 
 interface ToolboxItem {
@@ -46,11 +45,6 @@ export default function ToolboxExample() {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">Toolbox Pattern</h2>
-      <p className="text-muted-foreground mb-4">
-        Click items in the toolbox to add them, click × to remove.
-      </p>
-
       <div className="mb-4 p-3 bg-muted rounded-md">
         <div className="text-sm font-medium mb-2">Toolbox (click to add)</div>
         <div className="flex gap-2">
@@ -75,22 +69,24 @@ export default function ToolboxExample() {
         rowHeight={40}
         width={600}
         onLayoutChange={handleLayoutChange}
-        resizeHandle={(handleAxis, ref) => <ResizeHandle ref={ref as any} handleAxis={handleAxis} />}
       >
         {visibleItems.map((item) => (
-          <div
-            key={item.i}
-            className="bg-muted border border-border rounded-md flex items-center justify-center relative"
-          >
-            <span className="text-lg font-semibold">{item.i}</span>
-            <button
-              onClick={() => toggleItem(item.i)}
-              className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
+            <div
+              key={item.i}
+              className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center relative cursor-grab"
             >
-              ×
-            </button>
-          </div>
-        ))}
+              <span className="text-lg font-semibold">{item.i}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleItem(item.i);
+                }}
+                className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
+              >
+                ×
+              </button>
+            </div>
+          ))}
       </DndGrid>
     </div>
   );

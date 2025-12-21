@@ -1,9 +1,9 @@
 "use client";
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import { ResizeHandle } from "@/components/resize-handle";
 import { Button } from "@/components/ui/button";
 import { useState, useCallback } from "react";
+import { X } from "lucide-react";
 
 export default function DynamicAddRemoveExample() {
   const [counter, setCounter] = useState(5);
@@ -17,7 +17,6 @@ export default function DynamicAddRemoveExample() {
       deg: 0,
     }))
   );
-
   const addItem = useCallback(() => {
     setLayout((prev) => [
       ...prev,
@@ -39,10 +38,6 @@ export default function DynamicAddRemoveExample() {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">Dynamic Add/Remove</h2>
-      <p className="text-muted-foreground mb-4">
-        Click the button to add items, click × to remove.
-      </p>
       <Button onClick={addItem} className="mb-4">
         Add Item
       </Button>
@@ -53,22 +48,24 @@ export default function DynamicAddRemoveExample() {
         rowHeight={40}
         width={600}
         onLayoutChange={setLayout}
-        resizeHandle={(handleAxis, ref) => <ResizeHandle ref={ref as any} handleAxis={handleAxis} />}
       >
         {layout.map((item) => (
-          <div
-            key={item.i}
-            className="bg-muted border border-border rounded-md flex items-center justify-center relative"
-          >
-            <span className="text-lg font-semibold">{item.i}</span>
-            <button
-              onClick={() => removeItem(item.i)}
-              className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
+            <div
+              key={item.i}
+              className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center relative cursor-grab"
             >
-              ×
-            </button>
-          </div>
-        ))}
+              <span className="text-lg font-semibold">{item.i}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeItem(item.i);
+                }}
+                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
       </DndGrid>
     </div>
   );

@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
-import { SiteHeader } from "@/components/site-header"
+import "@dnd-grid/react/styles.css"
 
 const albra = localFont({
   src: [
@@ -21,7 +21,7 @@ const albra = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "dnd-grid - React Grid Layout",
+  title: "dnd grid - React Grid Layout",
   description: "A draggable and resizable grid layout for React",
 }
 
@@ -33,10 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${albra.variable} font-sans antialiased`}>
       <body className="min-h-screen">
-        <SiteHeader />
-        <main className="flex-1">
-          {children}
-        </main>
+        {children}
       </body>
     </html>
   )

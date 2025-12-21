@@ -1,4 +1,4 @@
-const DOCS_URL = "dnd-grid.mintlify.dev";
+const DOCS_URL = "matthewblode.mintlify.dev";
 const CUSTOM_URL = "dnd-grid.com";
 const LANDING_URL = "landing.dnd-grid.com";
 

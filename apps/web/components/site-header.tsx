@@ -6,19 +6,19 @@ export function SiteHeader() {
     <header className="w-full py-6">
       <div className="container-wrapper">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-4xl font-medium">
-            dnd grid
+          <Link href="/" className="text-lg underline-offset-2 hover:underline">
+            dnd-grid
           </Link>
           <nav className="flex items-center gap-6 text-lg">
             <a
               href={siteConfig.links.docs}
-              className="underline-offset-2 hover:text-foreground transition-colors hover:underline"
+              className="underline-offset-2 hover:underline"
             >
               Docs
             </a>
             <a
               href={siteConfig.links.github}
-              className="underline-offset-2 hover:text-foreground transition-colors hover:underline"
+              className="underline-offset-2 hover:underline"
             >
               GitHub
             </a>

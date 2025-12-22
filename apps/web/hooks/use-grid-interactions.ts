@@ -180,9 +180,11 @@ export function useGridInteractions(
   );
 
   return {
-    handleDragStart: handleDragStart as GridInteractionsHandlers["handleDragStart"],
+    handleDragStart:
+      handleDragStart as GridInteractionsHandlers["handleDragStart"],
     handleDrag: handleDrag as GridInteractionsHandlers["handleDrag"],
-    handleDragStop: handleDragStop as GridInteractionsHandlers["handleDragStop"],
+    handleDragStop:
+      handleDragStop as GridInteractionsHandlers["handleDragStop"],
     handleResizeStart:
       handleResizeStart as GridInteractionsHandlers["handleResizeStart"],
     handleResize: handleResize as GridInteractionsHandlers["handleResize"],

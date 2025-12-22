@@ -1,7 +1,8 @@
 import { deepEqual } from "fast-equals";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 import React from "react";
 import type {
+  Compactor,
   CompactType,
   Layout,
   LayoutItem,
@@ -12,9 +13,9 @@ import type {
 /**
  * Return the bottom coordinate of the layout.
  */
-export function bottom(layout: Layout): number {
-  let max = 0,
-    bottomY;
+export const bottom = (layout: Layout): number => {
+  let max = 0;
+  let bottomY: number;
 
   for (let i = 0, len = layout.length; i < len; i++) {
     bottomY = layout[i].y + layout[i].h;
@@ -22,8 +23,8 @@ export function bottom(layout: Layout): number {
   }
 
   return max;
-}
-export function cloneLayout(layout: Layout): Layout {
+};
+export const cloneLayout = (layout: Layout): Layout => {
   const newLayout = Array(layout.length);
 
   for (let i = 0, len = layout.length; i < len; i++) {
@@ -31,16 +32,16 @@ export function cloneLayout(layout: Layout): Layout {
   }
 
   return newLayout;
-}
+};
 // Modify a layoutItem inside a layout. Returns a new Layout,
 // does not mutate. Carries over all other LayoutItems unmodified.
 // Function to be called to modify a layout item.
 // Does defensive clones to ensure the layout is not modified.
-export function withLayoutItem(
+export const withLayoutItem = (
   layout: Layout,
   itemKey: string,
   cb: (arg0: LayoutItem) => LayoutItem,
-): [Layout, LayoutItem | null | undefined] {
+): [Layout, LayoutItem | null | undefined] => {
   let item: LayoutItem | null = null;
   let itemIndex = -1;
 
@@ -62,80 +63,62 @@ export function withLayoutItem(
   }
 
   return [nextLayout, nextItem];
-}
+};
 // Fast path to cloning, since this is monomorphic
-export function cloneLayoutItem(layoutItem: LayoutItem): LayoutItem {
-  return {
-    w: layoutItem.w,
-    h: layoutItem.h,
-    x: layoutItem.x,
-    y: layoutItem.y,
-    i: layoutItem.i,
-    deg: layoutItem.deg,
-    minW: layoutItem.minW,
-    maxW: layoutItem.maxW,
-    minH: layoutItem.minH,
-    maxH: layoutItem.maxH,
-    moved: Boolean(layoutItem.moved),
-    static: Boolean(layoutItem.static),
-    // These can be null/undefined
-    isDraggable: layoutItem.isDraggable,
-    isResizable: layoutItem.isResizable,
-    resizeHandles: layoutItem.resizeHandles,
-    isBounded: layoutItem.isBounded,
-  };
-}
+export const cloneLayoutItem = (layoutItem: LayoutItem): LayoutItem => ({
+  w: layoutItem.w,
+  h: layoutItem.h,
+  x: layoutItem.x,
+  y: layoutItem.y,
+  i: layoutItem.i,
+  deg: layoutItem.deg,
+  minW: layoutItem.minW,
+  maxW: layoutItem.maxW,
+  minH: layoutItem.minH,
+  maxH: layoutItem.maxH,
+  constraints: layoutItem.constraints,
+  moved: Boolean(layoutItem.moved),
+  static: Boolean(layoutItem.static),
+  // These can be null/undefined
+  isDraggable: layoutItem.isDraggable,
+  isResizable: layoutItem.isResizable,
+  resizeHandles: layoutItem.resizeHandles,
+  isBounded: layoutItem.isBounded,
+});
 
 /**
  * Comparing React `children` is a bit difficult. This is a good way to compare them.
  * This will catch differences in keys, order, and length.
  */
-export function childrenEqual(a: ReactNode, b: ReactNode): boolean {
+export const childrenEqual = (a: ReactNode, b: ReactNode): boolean => {
   // Since React.Children.map can return undefined or null,
   // ensure the results are arrays before passing to deepEqual.
   const mapChildrenKeys = (children: ReactNode) =>
     React.Children.map(children, (c) =>
       React.isValidElement(c) ? c.key : null,
     ) || [];
-
-  const mapChildrenDataGrid = (children: ReactNode) =>
-    React.Children.map(children, (c) =>
-      React.isValidElement(c) ? (c as any).props["data-grid"] : null,
-    ) || [];
-
-  return (
-    deepEqual(mapChildrenKeys(a), mapChildrenKeys(b)) &&
-    deepEqual(mapChildrenDataGrid(a), mapChildrenDataGrid(b))
-  );
-}
+  return deepEqual(mapChildrenKeys(a), mapChildrenKeys(b));
+};
 
 // Like the above, but a lot simpler.
-export function fastPositionEqual(a: Position, b: Position): boolean {
-  return (
-    a.left === b.left &&
-    a.top === b.top &&
-    a.width === b.width &&
-    a.height === b.height &&
-    a.deg === b.deg
-  );
-}
+export const fastPositionEqual = (a: Position, b: Position): boolean =>
+  a.left === b.left &&
+  a.top === b.top &&
+  a.width === b.width &&
+  a.height === b.height &&
+  a.deg === b.deg;
 
 /**
  * Given two layoutitems, check if they collide.
  */
-export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
+export const collides = (l1: LayoutItem, l2: LayoutItem): boolean => {
   if (l1.i === l2.i) return false; // same element
-
   if (l1.x + l1.w <= l2.x) return false; // l1 is left of l2
-
   if (l1.x >= l2.x + l2.w) return false; // l1 is right of l2
-
   if (l1.y + l1.h <= l2.y) return false; // l1 is above l2
-
   if (l1.y >= l2.y + l2.h) return false; // l1 is below l2
-
   return true; // boxes overlap
-}
+};
 
 /**
  * Given a layout, compact it. This involves going down each y coordinate and removing gaps
@@ -143,12 +126,12 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
  *
  * Does not modify layout items (clones). Creates a new layout array.
  */
-export function compact(
+export const compact = (
   layout: Layout,
   compactType: CompactType,
   cols: number,
   allowOverlap?: boolean | null | undefined,
-): Layout {
+): Layout => {
   // Statics go in the compareWith array right away so items flow around them.
   const compareWith = getStatics(layout);
   // We go through the items by row and column.
@@ -184,65 +167,63 @@ export function compact(
   }
 
   return out;
-}
+};
 const heightWidth = {
   x: "w",
   y: "h",
-};
+} as const;
 
 /**
  * Before moving item down, it will check if the movement will cause collisions and move those items down before.
  */
-function resolveCompactionCollision(
+const resolveCompactionCollision = (
   layout: Layout,
   item: LayoutItem,
   moveToCoord: number,
   axis: "x" | "y",
-) {
+  hasStatics?: boolean,
+) => {
   const sizeProp = heightWidth[axis];
   item[axis] += 1;
-  const itemIndex = layout
-    .map((layoutItem) => {
-      return layoutItem.i;
-    })
-    .indexOf(item.i);
+  const itemIndex = layout.map((layoutItem) => layoutItem.i).indexOf(item.i);
+  const layoutHasStatics = hasStatics ?? getStatics(layout).length > 0;
 
   // Go through each item we collide with.
   for (let i = itemIndex + 1; i < layout.length; i++) {
     const otherItem = layout[i];
     // Ignore static items
     if (otherItem.static) continue;
-    // Optimization: we can break early if we know we're past this el
-    // We can do this b/c it's a sorted layout
-    if (otherItem.y > item.y + item.h) break;
+    // Optimization: we can break early if we know we're past this el,
+    // but only when there are no static items scattered throughout.
+    if (!layoutHasStatics && otherItem.y > item.y + item.h) break;
 
     if (collides(item, otherItem)) {
       resolveCompactionCollision(
         layout,
         otherItem,
-        moveToCoord + (item as any)[sizeProp],
+        moveToCoord + item[sizeProp],
         axis,
+        layoutHasStatics,
       );
     }
   }
 
   item[axis] = moveToCoord;
-}
+};
 
 /**
  * Compact an item in the layout.
  *
  * Modifies item.
- *
  */
-export function compactItem(
+export const compactItem = (
   compareWith: Layout,
   l: LayoutItem,
   compactType: CompactType,
   cols: number,
   fullLayout: Layout,
   allowOverlap?: boolean | null | undefined,
-): LayoutItem {
+): LayoutItem => {
   const compactV = compactType === "vertical";
   const compactH = compactType === "horizontal";
 
@@ -264,17 +245,16 @@ export function compactItem(
   }
 
   // Move it down, and keep moving it down if it's colliding.
-  let collides;
+  let collision: LayoutItem | null | undefined;
 
   // Checking the compactType null value to avoid breaking the layout when overlapping is allowed.
-  while (
-    (collides = getFirstCollision(compareWith, l)) &&
-    !(compactType === null && allowOverlap)
-  ) {
+  while (true) {
+    collision = getFirstCollision(compareWith, l);
+    if (!collision || (compactType === null && allowOverlap)) break;
     if (compactH) {
-      resolveCompactionCollision(fullLayout, l, collides.x + collides.w, "x");
+      resolveCompactionCollision(fullLayout, l, collision.x + collision.w, "x");
     } else {
-      resolveCompactionCollision(fullLayout, l, collides.y + collides.h, "y");
+      resolveCompactionCollision(fullLayout, l, collision.y + collision.h, "y");
     }
 
     // Since we can't grow without bounds horizontally, if we've overflown, let's move it down and try again.
@@ -282,7 +262,7 @@ export function compactItem(
       l.x = cols - l.w;
       l.y++;
 
-      // ALso move element as left as we can
+      // Also move element as left as we can
       while (l.x > 0 && !getFirstCollision(compareWith, l)) {
         l.x--;
       }
@@ -293,19 +273,17 @@ export function compactItem(
   l.y = Math.max(l.y, 0);
   l.x = Math.max(l.x, 0);
   return l;
-}
+};
 
 /**
  * Given a layout, make sure all elements fit within its bounds.
  *
  * Modifies layout items.
  */
-export function correctBounds(
+export const correctBounds = (
   layout: Layout,
-  bounds: {
-    cols: number;
-  },
-): Layout {
+  bounds: { cols: number },
+): Layout => {
   const collidesWith = getStatics(layout);
 
   for (let i = 0, len = layout.length; i < len; i++) {
@@ -330,53 +308,51 @@ export function correctBounds(
   }
 
   return layout;
-}
+};
 
 /**
  * Get a layout item by ID. Used so we can override later on if necessary.
  */
-export function getLayoutItem(
+export const getLayoutItem = (
   layout: Layout,
   id: string,
-): LayoutItem | null | undefined {
+): LayoutItem | null | undefined => {
   for (let i = 0, len = layout.length; i < len; i++) {
     if (layout[i].i === id) return layout[i];
   }
-}
+};
 
 /**
  * Returns the first item this layout collides with.
  * It doesn't appear to matter which order we approach this from, although
  * perhaps that is the wrong thing to do.
  */
-export function getFirstCollision(
+export const getFirstCollision = (
   layout: Layout,
   layoutItem: LayoutItem,
-): LayoutItem | null | undefined {
+): LayoutItem | null | undefined => {
   for (let i = 0, len = layout.length; i < len; i++) {
     if (collides(layout[i], layoutItem)) return layout[i];
   }
-}
-export function getAllCollisions(
+};
+
+export const getAllCollisions = (
   layout: Layout,
   layoutItem: LayoutItem,
-): Array<LayoutItem> {
-  return layout.filter((l) => collides(l, layoutItem));
-}
+): LayoutItem[] => layout.filter((l) => collides(l, layoutItem));
 
 /**
  * Get all static elements.
  */
-export function getStatics(layout: Layout): Array<LayoutItem> {
-  return layout.filter((l) => l.static);
-}
+export const getStatics = (layout: Layout): LayoutItem[] =>
+  layout.filter((l) => l.static);
 
 /**
  * Move an element. Responsible for doing cascading movements of other elements.
  *
  * Modifies layout items.
  */
-export function moveElement(
+export const moveElement = (
   layout: Layout,
   l: LayoutItem,
   x: number | null | undefined,
@@ -386,7 +362,7 @@ export function moveElement(
   compactType: CompactType,
   cols: number,
   allowOverlap?: boolean | null | undefined,
-): Layout {
+): Layout => {
   // If this is static and not explicitly enabled as draggable,
   // no move is possible, so we can short-circuit this immediately.
   if (l.static && l.isDraggable !== true) return layout;
@@ -409,8 +385,7 @@ export function moveElement(
       : compactType === "horizontal" && typeof x === "number"
         ? oldX >= x
         : false;
-  // $FlowIgnore acceptable modification of read-only array as it was recently cloned
-  if (movingUp) sorted = (sorted as any).reverse();
+  if (movingUp) sorted = sorted.slice().reverse();
   const collisions = getAllCollisions(sorted, l);
   const hasCollisions = collisions.length > 0;
 
@@ -459,20 +434,20 @@ export function moveElement(
   }
 
   return layout;
-}
+};
 
 /**
  * This is where the magic needs to happen - given a collision, move an element away from the collision.
  * We attempt to move it up if there's room, otherwise it goes below.
  */
-export function moveElementAwayFromCollision(
+export const moveElementAwayFromCollision = (
   layout: Layout,
   collidesWith: LayoutItem,
   itemToMove: LayoutItem,
   isUserAction: boolean | null | undefined,
   compactType: CompactType,
   cols: number,
-): Layout {
+): Layout => {
   const compactH = compactType === "horizontal";
   // Compact vertically if not set to horizontal
   const compactV = compactType === "vertical";
@@ -557,7 +532,7 @@ export function moveElementAwayFromCollision(
     compactType,
     cols,
   );
-}
+};
 
 /**
  * Helper functions to constrain dimensions of a GridItem
@@ -583,10 +558,17 @@ const constrainLeft = (left: number) => Math.max(0, left);
 
 const constrainTop = (top: number) => Math.max(0, top);
 
-const resizeNorth = (
-  currentSize: any,
-  { left, height, width }: any,
-  _containerWidth: any,
+type SizePosition = Pick<Position, "top" | "left" | "width" | "height">;
+type ResizeHandler = (
+  currentSize: SizePosition,
+  nextSize: SizePosition,
+  containerWidth: number,
+) => SizePosition;
+
+const resizeNorth: ResizeHandler = (
+  currentSize,
+  { left, height, width },
+  _containerWidth,
 ) => {
   const top = currentSize.top - (height - currentSize.height);
   return {
@@ -597,10 +579,10 @@ const resizeNorth = (
   };
 };
 
-const resizeEast = (
-  currentSize: any,
-  { top, left, height, width }: any,
-  containerWidth: any,
+const resizeEast: ResizeHandler = (
+  currentSize,
+  { top, left, height, width },
+  containerWidth,
 ) => ({
   top,
   height,
@@ -613,10 +595,10 @@ const resizeEast = (
   left: constrainLeft(left),
 });
 
-const resizeWest = (
-  currentSize: any,
-  { top, height, width }: any,
-  containerWidth: any,
+const resizeWest: ResizeHandler = (
+  currentSize,
+  { top, height, width },
+  containerWidth,
 ) => {
   const left = currentSize.left - (width - currentSize.width);
   return {
@@ -635,10 +617,10 @@ const resizeWest = (
   };
 };
 
-const resizeSouth = (
-  currentSize: any,
-  { top, left, height, width }: any,
-  _containerWidth: any,
+const resizeSouth: ResizeHandler = (
+  currentSize,
+  { top, left, height, width },
+  _containerWidth,
 ) => ({
   width,
   left,
@@ -646,27 +628,51 @@ const resizeSouth = (
   top: constrainTop(top),
 });
 
-const resizeNorthEast = (...args: any) => {
-  //@ts-expect-error
-  return resizeNorth(args[0], resizeEast(...args), args[2]);
-};
+const resizeNorthEast: ResizeHandler = (
+  currentSize,
+  nextSize,
+  containerWidth,
+) =>
+  resizeNorth(
+    currentSize,
+    resizeEast(currentSize, nextSize, containerWidth),
+    containerWidth,
+  );
 
-const resizeNorthWest = (...args: any) => {
-  //@ts-expect-error
-  return resizeNorth(args[0], resizeWest(...args), args[2]);
-};
+const resizeNorthWest: ResizeHandler = (
+  currentSize,
+  nextSize,
+  containerWidth,
+) =>
+  resizeNorth(
+    currentSize,
+    resizeWest(currentSize, nextSize, containerWidth),
+    containerWidth,
+  );
 
-const resizeSouthEast = (...args: any) => {
-  //@ts-expect-error
-  return resizeSouth(args[0], resizeEast(...args), args[2]);
-};
+const resizeSouthEast: ResizeHandler = (
+  currentSize,
+  nextSize,
+  containerWidth,
+) =>
+  resizeSouth(
+    currentSize,
+    resizeEast(currentSize, nextSize, containerWidth),
+    containerWidth,
+  );
 
-const resizeSouthWest = (...args: any) => {
-  //@ts-expect-error
-  return resizeSouth(args[0], resizeWest(...args), args[2]);
-};
+const resizeSouthWest: ResizeHandler = (
+  currentSize,
+  nextSize,
+  containerWidth,
+) =>
+  resizeSouth(
+    currentSize,
+    resizeWest(currentSize, nextSize, containerWidth),
+    containerWidth,
+  );
 
-const ordinalResizeHandlerMap = {
+const ordinalResizeHandlerMap: Record<ResizeHandleAxis, ResizeHandler> = {
   n: resizeNorth,
   ne: resizeNorthEast,
   e: resizeEast,
@@ -680,29 +686,30 @@ const ordinalResizeHandlerMap = {
 /**
  * Helper for clamping width and position when resizing an item.
  */
-export function resizeItemInDirection(
+export const resizeItemInDirection = (
   direction: ResizeHandleAxis,
   currentSize: Position,
-  newSize: Position,
+  newSize: Partial<Position>,
   containerWidth: number,
-): Position {
+): Position => {
   const ordinalHandler = ordinalResizeHandlerMap[direction];
   // Shouldn't be possible given types; that said, don't fail hard
-  if (!ordinalHandler) return newSize;
+  if (!ordinalHandler) return { ...currentSize, ...newSize };
   return ordinalHandler(
     currentSize,
     { ...currentSize, ...newSize },
     containerWidth,
   );
-}
-export function setTransform(
+};
+
+export const setTransform = (
   { top, left, width, height, deg }: Position,
   scale = 1,
-): Record<string, any> {
+): Record<string, string> => {
   // Replace unitless items with px
   const transform = `translate(${left}px,${top}px) scale(${scale}) rotate(${deg || 0}deg)`;
   return {
-    transform: transform,
+    transform,
     WebkitTransform: transform,
     MozTransform: transform,
     msTransform: transform,
@@ -711,52 +718,41 @@ export function setTransform(
     height: `${height}px`,
     position: "absolute",
   };
-}
+};
 /**
  * Get layout items sorted from top left to right and down.
  */
-export function sortLayoutItems(
+export const sortLayoutItems = (
   layout: Layout,
   compactType: CompactType,
-): Layout {
+): Layout => {
   if (compactType === "horizontal") return sortLayoutItemsByColRow(layout);
   if (compactType === "vertical") return sortLayoutItemsByRowCol(layout);
-  else return layout;
-}
+  return layout;
+};
 
 /**
  * Sort layout items by row ascending and column ascending.
  *
  * Does not modify Layout.
  */
-export function sortLayoutItemsByRowCol(layout: Layout): Layout {
-  // Slice to clone array as sort modifies
-  return layout.slice(0).sort((a, b) => {
-    if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
-      return 1;
-    } else if (a.y === b.y && a.x === b.x) {
-      // Without this, we can get different sort results in IE vs. Chrome/FF
-      return 0;
-    }
-
+export const sortLayoutItemsByRowCol = (layout: Layout): Layout =>
+  layout.slice(0).sort((a, b) => {
+    if (a.y > b.y || (a.y === b.y && a.x > b.x)) return 1;
+    if (a.y === b.y && a.x === b.x) return 0;
     return -1;
   });
-}
 
 /**
  * Sort layout items by column ascending then row ascending.
  *
  * Does not modify Layout.
  */
-export function sortLayoutItemsByColRow(layout: Layout): Layout {
-  return layout.slice(0).sort((a, b) => {
-    if (a.x > b.x || (a.x === b.x && a.y > b.y)) {
-      return 1;
-    }
-
+export const sortLayoutItemsByColRow = (layout: Layout): Layout =>
+  layout.slice(0).sort((a, b) => {
+    if (a.x > b.x || (a.x === b.x && a.y > b.y)) return 1;
     return -1;
   });
-}
 
 /**
  * Generate a layout using the initialLayout and children as a template.
@@ -764,68 +760,44 @@ export function sortLayoutItemsByColRow(layout: Layout): Layout {
  *
  * Does not modify initialLayout.
  */
-export function synchronizeLayoutWithChildren(
+export const synchronizeLayoutWithChildren = (
   initialLayout: Layout,
-  children: ReactElement<any>,
+  children: ReactNode,
   cols: number,
-  compactType: CompactType,
-  allowOverlap?: boolean | null | undefined,
-): Layout {
-  initialLayout = initialLayout || [];
+  compactor: Compactor,
+): Layout => {
+  const initial = initialLayout || [];
   // Generate one layout item per child.
   const layout: LayoutItem[] = [];
-  React.Children.forEach(children, (child: ReactElement<any>) => {
+  React.Children.forEach(children, (child) => {
     // Child may not exist
-    if (child?.key == null) return;
-    const exists = getLayoutItem(initialLayout, String(child.key));
-    const g = child.props["data-grid"];
+    if (!React.isValidElement(child) || child.key == null) return;
+    const childKey = String(child.key);
+    const exists = getLayoutItem(initial, childKey);
 
     // Don't overwrite the layout item if it's already in the initial layout.
-    // If it has a `data-grid` property, prefer that over what's in the layout.
-    if (exists && g == null) {
+    if (exists) {
       layout.push(cloneLayoutItem(exists));
     } else {
-      // Hey, this item has a data-grid property, use it.
-      if (g) {
-        // Normalize booleans and ensure a consistent layout item shape.
-        layout.push(cloneLayoutItem({ ...g, i: child.key }));
-      } else {
-        // Nothing provided: ensure this is added to the bottom
-        // Normalize booleans and ensure a consistent layout item shape.
-        layout.push(
-          cloneLayoutItem({
-            w: 1,
-            h: 1,
-            x: 0,
-            y: bottom(layout),
-            deg: 0,
-            i: String(child.key),
-          }),
-        );
-      }
+      // Nothing provided: ensure this is added to the bottom
+      // Normalize booleans and ensure a consistent layout item shape.
+      layout.push(
+        cloneLayoutItem({
+          w: 1,
+          h: 1,
+          x: 0,
+          y: bottom(layout),
+          deg: 0,
+          i: childKey,
+        }),
+      );
     }
   });
   // Correct the layout.
-  const correctedLayout = correctBounds(layout, {
-    cols: cols,
-  });
-  return allowOverlap
+  const correctedLayout = correctBounds(layout, { cols });
+  return compactor.allowOverlap
     ? correctedLayout
-    : compact(correctedLayout, compactType, cols);
-}
-
-// Legacy support for verticalCompact: false
-export function compactType(
-  props:
-    | {
-        verticalCompact: boolean;
-        compactType: CompactType;
-      }
-    | null
-    | undefined,
-): CompactType {
-  const { verticalCompact, compactType } = props || {};
-  return verticalCompact === false ? null : compactType;
-}
+    : compactor.compact(correctedLayout, cols);
+};
 
 export const noop = () => {};

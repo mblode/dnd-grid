@@ -25,12 +25,7 @@ export default function BoundedExample() {
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (
-        <div
-          key={item.i}
-          className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center text-lg font-semibold cursor-grab"
-        >
-          {item.i}
-        </div>
+        <div key={item.i}>{item.i}</div>
       ))}
     </DndGrid>
   );

@@ -1,13 +1,17 @@
 @layer dnd-grid-base {
   .dnd-grid {
     position: relative;
-    transition: height 200ms ease;
+    transition: height var(--dnd-grid-transition-duration, 200ms)
+      var(--dnd-grid-transition-easing, ease);
   }
 
   .dnd-grid-item {
     position: absolute;
     box-sizing: border-box;
-    transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+    transition: transform var(--dnd-grid-transition-duration, 200ms)
+      var(--dnd-grid-transition-easing, cubic-bezier(0.2, 0, 0, 1));
+    --dnd-grid-radius-value: var(--dnd-grid-radius, 24px);
+    --dnd-grid-scale-value: var(--dnd-grid-scale, 1);
   }
 
   .dnd-grid-item img {
@@ -30,13 +34,13 @@
   }
 
   .dnd-grid-item.dnd-draggable-dragging > .react-resizable-handle {
-    opacity: 0 !important;
+    opacity: 0;
     pointer-events: none;
   }
 
   /* Settling items use JS springs, not CSS transitions */
   .dnd-grid-item.dnd-grid-animating {
-    transition: none !important;
+    transition: none;
     z-index: 3;
     will-change: transform;
   }
@@ -77,8 +81,14 @@
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-sw {
-    bottom: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
-    left: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    bottom: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
+    left: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     cursor: sw-resize;
     transform: translate(-50%, 50%);
   }
@@ -89,8 +99,14 @@
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-se {
-    bottom: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
-    right: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    bottom: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
+    right: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     cursor: se-resize;
     transform: translate(50%, 50%);
   }
@@ -101,8 +117,14 @@
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-nw {
-    top: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
-    left: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    top: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
+    left: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     cursor: nw-resize;
     transform: translate(-50%, -50%);
   }
@@ -113,8 +135,14 @@
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-ne {
-    top: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
-    right: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    top: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
+    right: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     cursor: ne-resize;
     transform: translate(50%, -50%);
   }
@@ -131,12 +159,18 @@
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-w {
-    left: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    left: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     transform: translate(-50%, -50%);
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-e {
-    right: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    right: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     transform: translate(50%, -50%);
   }
 
@@ -147,12 +181,18 @@
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-n {
-    top: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    top: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     transform: translate(-50%, -50%);
   }
 
   .dnd-grid-item > .react-resizable-handle.react-resizable-handle-s {
-    bottom: calc((var(--widget-border-radius) * 0.29) * var(--scale-factor));
+    bottom: calc(
+      (var(--dnd-grid-radius-value) * 0.29) *
+      var(--dnd-grid-scale-value)
+    );
     transform: translate(-50%, 50%);
   }
 
@@ -165,7 +205,7 @@
     background-repeat: no-repeat;
     background-origin: content-box;
     box-sizing: border-box;
-    background-image: none !important;
+    background-image: none;
     background-position: bottom right;
     padding: 0 3px 3px 0;
   }
@@ -182,7 +222,12 @@
 
   body.dnd-grid-dragging,
   body.dnd-grid-dragging * {
-    cursor: grabbing !important;
+    cursor: grabbing;
+  }
+
+  body.dnd-grid-resizing,
+  body.dnd-grid-resizing * {
+    cursor: var(--dnd-grid-resize-cursor, se-resize);
   }
 
   /* Demo/example content positioning */

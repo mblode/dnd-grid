@@ -2,41 +2,48 @@
 
 ## Unreleased
 
+- Added edge auto-scrolling during drag via the `autoScroll` prop and `useEdgeScroll`.
+
+## 1.0.2 (Dec 21, 2025)
+
 ### Added
 
 - GitHub Actions workflow to publish `@dnd-grid/react` to npm on version tags.
+- `useDndGridItemState` hook (and `DndGridItemContext` export) for per-item state access.
+- `data-*` attributes on the grid, items, and resize handles for stateful styling.
+- Split styles into layered `base.css` and `theme.css`, with new `@dnd-grid/react` CSS exports.
 - Trusted publishing via npm OIDC in GitHub Actions (no long-lived tokens).
 
 ## 1.0.0 (Dec 20, 2025)
 
-Initial release of `dnd-grid`, a draggable and resizable grid layout library for React.
+Initial release of `dnd-grid`, a drag-and-drop, resizable grid layout library for React.
 
 ### Features
 
-- **Drag and Drop**: Fully draggable grid items with smooth animations
+- **Drag-and-drop**: fully draggable grid items with smooth animations
 - **Resizable**: 8-direction resize handles (n, s, e, w, ne, nw, se, sw)
-- **Rotation Support**: Items can be rotated with the `deg` property
-- **Touch Support**: Mobile-friendly with configurable touch delay (`dragTouchDelayDuration`)
-- **Collision Detection**: Automatic collision handling and item displacement
-- **Compaction**: Vertical, horizontal, or no compaction modes
-- **Static Items**: Mark items as static to prevent dragging/resizing
-- **Bounds Checking**: Keep items within container bounds with `isBounded`
-- **Overlap Support**: Allow items to overlap with `allowOverlap`
-- **CSS Transforms**: GPU-accelerated positioning via CSS transforms
-- **TypeScript**: Full TypeScript support with exported types
+- **Rotation support**: items can be rotated with the `deg` property
+- **Touch support**: mobile-friendly with configurable touch delay (`dragTouchDelayDuration`)
+- **Collision detection**: automatic collision handling and item displacement
+- **Compaction**: vertical, horizontal, or no compaction modes
+- **Static items**: mark items as static to prevent dragging/resizing
+- **Bounds checking**: keep items within container bounds with `isBounded`
+- **Overlap support**: allow items to overlap with `allowOverlap`
+- **CSS transforms**: GPU-accelerated positioning via CSS transforms
+- **TypeScript**: full TypeScript support with exported types
 
-### Exported Types
+### Exported types
 
-- `DndGrid` - Main grid component
-- `GridItem` - Individual grid item component
-- `Layout` - Array of layout items
-- `LayoutItem` - Single layout item definition
-- `DndGridProps` - Props for DndGrid component
-- `EventCallback` - Callback type for drag/resize events
-- `ResizeHandleAxis` - Resize handle position type
-- `CompactType` - Compaction mode type
-- `Position` - Position object type
-- `DroppingPosition` - Drop position type
+- `DndGrid` - main grid component
+- `GridItem` - individual grid item component
+- `Layout` - array of layout items
+- `LayoutItem` - single layout item definition
+- `DndGridProps` - props for DndGrid component
+- `EventCallback` - callback type for drag/resize events
+- `ResizeHandleAxis` - resize handle position type
+- `CompactType` - compaction mode type
+- `Position` - position object type
+- `DroppingPosition` - drop position type
 
 ### Acknowledgements
 
@@ -48,5 +55,5 @@ Key modifications from the original:
 - React 19 support
 - Added rotation (`deg`) support for grid items
 - Added touch delay duration for mobile
-- Modernized build system (Vite)
+- Modernised build system (Vite)
 - Reduced bundle size by removing unused dependencies

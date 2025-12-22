@@ -11,8 +11,19 @@ dnd-grid provides the following exports:
 import {
   DndGrid,
   GridItem,
+  useContainerWidth,
+  useDndGridResponsiveLayout,
+  useEdgeScroll,
+  AutoScrollActivator,
+  TraversalOrder,
+  verticalCompactor,
+  defaultConstraints,
+  type AutoScrollOptions,
+  type Compactor,
+  type LayoutConstraint,
   type Layout,
   type LayoutItem,
+  type ResponsiveLayouts,
 } from "@dnd-grid/react";
 ```
 
@@ -23,12 +34,26 @@ import {
 | [`DndGrid`](/api-reference/dnd-grid) | Main grid layout component |
 | `GridItem` | Individual grid item (used internally) |
 
+## Hooks
+
+| Hook | Description |
+|------|-------------|
+| `useContainerWidth` | Measure container width with ResizeObserver |
+| `useDndGridResponsiveLayout` | Manage responsive breakpoints + layout state |
+| `useEdgeScroll` | Auto-scroll while dragging near scroll edges |
+
 ## Types
 
 | Type | Description |
 |------|-------------|
 | [`Layout`](/api-reference/layout-item#layout) | Array of layout items (`LayoutItem[]`) |
 | [`LayoutItem`](/api-reference/layout-item) | Position and size of a single grid item |
+| `ResponsiveLayouts` | Breakpoint → layout map |
+| `Compactor` | Pluggable compaction strategy |
+| `LayoutConstraint` | Drag/resize constraint definition |
+| `AutoScrollOptions` | Configuration for edge auto-scrolling |
+| `AutoScrollActivator` | Choose pointer or draggable-rect activation |
+| `TraversalOrder` | Control scroll ancestor traversal order |
 
 ## CSS Classes
 
@@ -38,6 +63,7 @@ The grid applies these CSS classes that you can style:
 |-------|---------|
 | `.dnd-grid` | Grid container |
 | `.dnd-grid-item` | Each grid item |
+| `.dnd-grid-item-content` | Non-placeholder grid items |
 | `.dnd-grid-placeholder` | Placeholder during drag/resize |
 | `.dnd-draggable` | Draggable items |
 | `.dnd-draggable-dragging` | Item currently being dragged |
@@ -57,12 +83,15 @@ The grid applies these CSS classes that you can style:
   // Grid configuration
   cols={12}                 // Number of columns
   rowHeight={150}           // Row height in pixels
-  margin={[10, 10]}         // Gap between items [x, y]
+  margin={10}               // Gap between items (number or { top, right, bottom, left })
 
   // Behavior
   isDraggable={true}        // Enable dragging
   isResizable={true}        // Enable resizing
+  autoScroll={true}         // Edge auto-scroll while dragging
   isBounded={false}         // Keep items in bounds
+  compactor={verticalCompactor} // Compaction strategy
+  constraints={defaultConstraints} // Drag/resize constraints
 
   // Callbacks
   onLayoutChange={(layout) => {}}

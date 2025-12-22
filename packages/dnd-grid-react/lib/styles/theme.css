@@ -1,19 +1,13 @@
 @layer dnd-grid-theme {
   :root {
-    /* Legacy variable names (backwards compatibility) */
-    --scale-factor: 1;
-    --widget-border-radius: 24px;
-    --dnd-grid-placeholder: rgba(0, 0, 0, 0.012);
-    --dnd-grid-resize-handle: rgb(255, 255, 255);
-
-    /* New variable names (preferred) */
-    --dnd-grid-scale: var(--scale-factor);
-    --dnd-grid-radius: var(--widget-border-radius);
-    --dnd-grid-placeholder-bg: var(--dnd-grid-placeholder);
+    --dnd-grid-scale: 1;
+    --dnd-grid-radius: 24px;
+    --dnd-grid-placeholder-bg: rgba(0, 0, 0, 0.012);
     --dnd-grid-placeholder-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
     --dnd-grid-handle-size: 16px;
-    --dnd-grid-handle-bg: var(--dnd-grid-resize-handle);
-    --dnd-grid-handle-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.06),
+    --dnd-grid-handle-bg: rgb(255, 255, 255);
+    --dnd-grid-handle-shadow:
+      0 0 1px 1px rgba(0, 0, 0, 0.06),
       0 9px 9px rgba(0, 0, 0, 0.04),
       0 5.83333px 5.27083px rgba(0, 0, 0, 0.03),
       0 3.46667px 2.86667px rgba(0, 0, 0, 0.024),
@@ -21,27 +15,52 @@
       0 0.733333px 0.733333px rgba(0, 0, 0, 0.016);
     --dnd-grid-transition-duration: 200ms;
     --dnd-grid-transition-easing: cubic-bezier(0.2, 0, 0, 1);
+    --dnd-grid-item-bg: var(--background, #fff);
+    --dnd-grid-item-color: var(--foreground, #111);
+    --dnd-grid-item-border-width: 1px;
+    --dnd-grid-item-border-color: var(--border, rgba(0, 0, 0, 0.08));
+    --dnd-grid-item-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --dnd-grid-item-font-size: 1.125rem;
+    --dnd-grid-item-font-weight: 600;
+    --dnd-grid-item-cursor: grab;
+    --dnd-grid-item-dragging-cursor: grabbing;
+  }
 
-    @media (prefers-color-scheme: dark) {
-      --dnd-grid-placeholder: rgba(255, 255, 255, 0.02);
-      --dnd-grid-resize-handle: rgb(255, 255, 255);
-
-      /* Update derived variables for dark mode */
-      --dnd-grid-placeholder-bg: var(--dnd-grid-placeholder);
-      --dnd-grid-handle-bg: var(--dnd-grid-resize-handle);
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --dnd-grid-placeholder-bg: rgba(255, 255, 255, 0.02);
+      --dnd-grid-handle-bg: rgb(255, 255, 255);
     }
   }
 
   /* Grid item visual styles */
-  .dnd-grid-item:not(.dnd-grid-placeholder) {
-    border-radius: calc(var(--widget-border-radius) * var(--scale-factor));
+  .dnd-grid-item-content {
+    background-color: var(--dnd-grid-item-bg);
+    color: var(--dnd-grid-item-color);
+    border: var(--dnd-grid-item-border-width) solid
+      var(--dnd-grid-item-border-color);
+    border-radius: calc(var(--dnd-grid-radius) * var(--dnd-grid-scale));
+    box-shadow: var(--dnd-grid-item-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--dnd-grid-item-font-size);
+    font-weight: var(--dnd-grid-item-font-weight);
   }
 
   /* Placeholder visual styles */
   .dnd-grid-item.dnd-grid-placeholder {
-    background-color: var(--dnd-grid-placeholder);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-    border-radius: calc(var(--widget-border-radius) * var(--scale-factor));
+    background-color: var(--dnd-grid-placeholder-bg);
+    box-shadow: var(--dnd-grid-placeholder-shadow);
+    border-radius: calc(var(--dnd-grid-radius) * var(--dnd-grid-scale));
+  }
+
+  .dnd-grid-item[data-draggable] {
+    cursor: var(--dnd-grid-item-cursor);
+  }
+
+  .dnd-grid-item[data-dragging] {
+    cursor: var(--dnd-grid-item-dragging-cursor);
   }
 
   /* Resize handle visibility on hover */
@@ -53,17 +72,11 @@
   /* Default resize handle visual styles */
   .dnd-grid-resize-handle {
     z-index: 10;
-    background-color: var(--dnd-grid-resize-handle);
+    background-color: var(--dnd-grid-handle-bg);
     padding: 0;
-    width: 16px;
-    height: 16px;
+    width: var(--dnd-grid-handle-size);
+    height: var(--dnd-grid-handle-size);
     border-radius: 9999px;
-    box-shadow:
-      0 0 1px 1px rgba(0, 0, 0, 0.06),
-      0 9px 9px rgba(0, 0, 0, 0.04),
-      0 5.83333px 5.27083px rgba(0, 0, 0, 0.03),
-      0 3.46667px 2.86667px rgba(0, 0, 0, 0.024),
-      0 1.8px 1.4625px rgba(0, 0, 0, 0.02),
-      0 0.733333px 0.733333px rgba(0, 0, 0, 0.016);
+    box-shadow: var(--dnd-grid-handle-shadow);
   }
 }

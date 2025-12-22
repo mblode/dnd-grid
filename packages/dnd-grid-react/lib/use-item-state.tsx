@@ -15,17 +15,17 @@ export const DndGridItemContext = createContext<ItemContext | null>(null);
  * ```tsx
  * import { useDndGridItemState } from '@dnd-grid/react';
  *
- * function MyCard() {
+ * const MyCard = () => {
  *   const { item, state } = useDndGridItemState();
  *   return (
  *     <div className={state.dragging ? 'opacity-80' : ''}>
  *       {state.dragging ? 'Moving...' : `Item ${item.i}`}
  *     </div>
  *   );
- * }
+ * };
  * ```
  */
-export function useDndGridItemState(): ItemContext {
+export const useDndGridItemState = (): ItemContext => {
   const context = useContext(DndGridItemContext);
   if (!context) {
     throw new Error(
@@ -34,4 +34,4 @@ export function useDndGridItemState(): ItemContext {
     );
   }
   return context;
-}
+};

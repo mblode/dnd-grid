@@ -2,6 +2,7 @@
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const initialLayout: Layout = [
   { i: "0", x: 0, y: 0, w: 2, h: 2, deg: 0, static: true },
@@ -27,7 +28,10 @@ export default function StaticElementsExample() {
         {layout.map((item) => (
           <div
             key={item.i}
-            className={`border border-border rounded-widget flex items-center justify-center text-sm ${item.static ? "bg-muted-foreground/20" : "bg-muted cursor-grab"}`}
+            className={cn(
+              "text-sm font-normal",
+              item.static ? "bg-muted-foreground/20" : "bg-muted",
+            )}
           >
             {item.i} {item.static ? "(static)" : ""}
           </div>

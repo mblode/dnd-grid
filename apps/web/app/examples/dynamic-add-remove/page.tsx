@@ -50,11 +50,8 @@ export default function DynamicAddRemoveExample() {
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
-          <div
-            key={item.i}
-            className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center relative cursor-grab"
-          >
-            <span className="text-lg font-semibold">{item.i}</span>
+          <div key={item.i} className="relative">
+            <span>{item.i}</span>
             <button
               type="button"
               onClick={(e) => {

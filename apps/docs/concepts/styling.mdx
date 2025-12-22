@@ -22,9 +22,9 @@ import "@dnd-grid/react/styles.css";
 
 ```css
 :root {
-  --widget-border-radius: 24px;
-  --dnd-grid-placeholder: rgba(0, 0, 0, 0.05);
-  --dnd-grid-resize-handle: #ffffff;
+  --dnd-grid-radius: 24px;
+  --dnd-grid-placeholder-bg: rgba(0, 0, 0, 0.05);
+  --dnd-grid-handle-bg: #ffffff;
 }
 ```
 
@@ -32,17 +32,18 @@ import "@dnd-grid/react/styles.css";
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `--widget-border-radius` | `24px` | Border radius for grid items and the placeholder. |
-| `--dnd-grid-placeholder` | `rgba(0,0,0,0.012)` | Background color of the drop placeholder. |
-| `--dnd-grid-resize-handle` | `#ffffff` | Color of the default resize handle. |
+| `--dnd-grid-radius` | `24px` | Border radius for grid items and the placeholder. |
+| `--dnd-grid-placeholder-bg` | `rgba(0,0,0,0.012)` | Background color of the drop placeholder. |
+| `--dnd-grid-handle-bg` | `#ffffff` | Color of the default resize handle. |
 
 ## Customizing Items
 
-Grid items are given the `.dnd-grid-item` class. You can style them directly in your CSS:
+Grid items use `.dnd-grid-item` for layout. Non-placeholder items also include
+`.dnd-grid-item-content` so you can target visual styling without affecting the placeholder:
 
 ```css
 /* Custom item styling */
-.dnd-grid-item:not(.dnd-grid-placeholder) {
+.dnd-grid-item-content {
   background: white;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
@@ -64,8 +65,8 @@ You can use a media query or a class-based approach (like Tailwind) to update va
 ```css
 @media (prefers-color-scheme: dark) {
   :root {
-    --dnd-grid-placeholder: rgba(255, 255, 255, 0.05);
-    --dnd-grid-resize-handle: #1a202c;
+    --dnd-grid-placeholder-bg: rgba(255, 255, 255, 0.05);
+    --dnd-grid-handle-bg: #1a202c;
   }
 }
 ```

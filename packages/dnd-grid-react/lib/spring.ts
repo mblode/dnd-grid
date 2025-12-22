@@ -42,7 +42,7 @@ export const POSITION_SPRING_CONFIG = {
 // Types
 // ============================================================================
 
-export interface SpringConfig {
+export type SpringConfig = {
   stiffness?: number;
   damping?: number;
   mass?: number;
@@ -51,20 +51,20 @@ export interface SpringConfig {
   velocity?: number;
   restSpeed?: number;
   restDistance?: number;
-}
+};
 
-export interface SpringState {
+export type SpringState = {
   done: boolean;
   hasReachedTarget: boolean;
   current: number;
   target: number;
-}
+};
 
-export interface PointWithTimestamp {
+export type PointWithTimestamp = {
   x: number;
   y: number;
   timestamp: number;
-}
+};
 
 // ============================================================================
 // Spring Physics
@@ -75,7 +75,7 @@ export interface PointWithTimestamp {
  * This mimics Framer Motion's useSpring behavior where the target can change
  * and the spring smoothly adjusts to the new target.
  */
-export function createLiveSpring(
+export const createLiveSpring = (
   config: {
     stiffness?: number;
     damping?: number;
@@ -83,7 +83,7 @@ export function createLiveSpring(
     restSpeed?: number;
     restDistance?: number;
   } = {},
-) {
+) => {
   const {
     stiffness = SPRING_DEFAULTS.stiffness,
     damping = SPRING_DEFAULTS.damping,
@@ -167,7 +167,7 @@ export function createLiveSpring(
       return targetValue;
     },
   };
-}
+};
 
 // ============================================================================
 // Velocity Calculation
@@ -180,10 +180,9 @@ export function createLiveSpring(
  * The velocity is calculated from the difference between the latest position
  * and a sample older than 100ms.
  */
-export function calculateVelocityFromHistory(history: PointWithTimestamp[]): {
-  x: number;
-  y: number;
-} {
+export const calculateVelocityFromHistory = (
+  history: PointWithTimestamp[],
+): { x: number; y: number } => {
   if (history.length < 2) {
     return { x: 0, y: 0 };
   }
@@ -223,14 +222,14 @@ export function calculateVelocityFromHistory(history: PointWithTimestamp[]): {
   if (velocity.y === Infinity) velocity.y = 0;
 
   return velocity;
-}
+};
 
 /**
  * Convert velocity to rotation using Bento formula
  *
  * INVERTED: drag right = tilt left (negative rotation) due to inertia
  */
-export function velocityToRotation(velocityX: number): number {
+export const velocityToRotation = (velocityX: number): number => {
   const rawRotation = -velocityX * VELOCITY_SCALE;
   return Math.sign(rawRotation) * Math.min(Math.abs(rawRotation), MAX_ROTATION);
-}
+};

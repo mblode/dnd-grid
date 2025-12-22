@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement, ReactNode } from "react";
+import type { CSSProperties, ReactElement, ReactNode, Ref } from "react";
 import type { DraggableEvent } from "react-draggable";
 
 // util
@@ -7,11 +7,11 @@ export type ReactRef<T extends HTMLElement> = {
 };
 
 export type ResizeHandle =
-  | ReactElement<any>
+  | ReactElement
   | ((
       resizeHandleAxis: ResizeHandleAxis,
       ref: ReactRef<HTMLElement>,
-    ) => ReactElement<any>);
+    ) => ReactElement);
 
 export type ResizeHandleAxis =
   | "s"
@@ -22,6 +22,35 @@ export type ResizeHandleAxis =
   | "nw"
   | "se"
   | "ne";
+
+export enum AutoScrollActivator {
+  Pointer = 0,
+  DraggableRect = 1,
+}
+
+export enum TraversalOrder {
+  TreeOrder = 0,
+  ReversedTreeOrder = 1,
+}
+
+export type AutoScrollOptions = {
+  acceleration?: number;
+  activator?: AutoScrollActivator;
+  canScroll?: (element: Element) => boolean;
+  enabled?: boolean;
+  interval?: number;
+  layoutShiftCompensation?:
+    | boolean
+    | {
+        x: boolean;
+        y: boolean;
+      };
+  order?: TraversalOrder;
+  threshold?: {
+    x: number;
+    y: number;
+  };
+};
 
 export type LayoutItem = {
   w: number;
@@ -34,6 +63,7 @@ export type LayoutItem = {
   minH?: number;
   maxW?: number;
   maxH?: number;
+  constraints?: LayoutConstraint[];
   moved?: boolean;
   static?: boolean;
   isDraggable?: boolean | null | undefined;
@@ -41,6 +71,16 @@ export type LayoutItem = {
   resizeHandles?: Array<ResizeHandleAxis>;
   isBounded?: boolean | null | undefined;
 };
+
+export type SpacingObject = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
+export type SpacingArray = [number, number, number, number];
+export type Spacing = number | SpacingObject;
 
 /**
  * State of a grid item during interactions
@@ -55,47 +95,57 @@ export type ItemState = {
 /**
  * Slot props for customizing internal elements
  */
+type SlotClassName<T> = string | ((data: T, state: ItemState) => string);
+type SlotStyle<T> =
+  | CSSProperties
+  | ((data: T, state: ItemState) => CSSProperties);
+type HandleSlotClassName =
+  | string
+  | ((axis: ResizeHandleAxis, state?: ItemState) => string);
+type HandleSlotStyle =
+  | CSSProperties
+  | ((axis: ResizeHandleAxis, state?: ItemState) => CSSProperties);
+
 export type SlotProps = {
   item?: {
-    className?: string | ((item: LayoutItem, state: ItemState) => string);
-    style?: CSSProperties | ((item: LayoutItem, state: ItemState) => CSSProperties);
+    className?: SlotClassName<LayoutItem>;
+    style?: SlotStyle<LayoutItem>;
   };
   placeholder?: {
-    className?: string;
-    style?: CSSProperties;
+    className?: SlotClassName<LayoutItem>;
+    style?: SlotStyle<LayoutItem>;
   };
   handle?: {
-    className?: string | ((axis: ResizeHandleAxis) => string);
-    style?: CSSProperties;
+    className?: HandleSlotClassName;
+    style?: HandleSlotStyle;
   };
 };
 
 export type Props = {
   className: string;
-  style: Record<string, any>;
+  style: CSSProperties;
   width: number;
   autoSize: boolean;
+  autoScroll?: boolean | AutoScrollOptions;
   cols: number;
   dragTouchDelayDuration: number;
   draggableCancel: string;
   draggableHandle: string;
-  verticalCompact: boolean;
-  compactType: CompactType;
+  compactor?: Compactor;
   layout: Layout;
-  margin: [number, number, number, number];
-  containerPadding: [number, number, number, number] | null;
+  margin: Spacing;
+  containerPadding: Spacing | null;
   rowHeight: number;
   maxRows: number;
   isBounded: boolean;
   isDraggable: boolean;
   isResizable: boolean;
   isDroppable: boolean;
-  preventCollision: boolean;
   transformScale: number;
   droppingItem: Partial<LayoutItem>;
   resizeHandles: ResizeHandleAxis[];
   resizeHandle?: ResizeHandle;
-  allowOverlap: boolean;
+  constraints?: LayoutConstraint[];
   /**
    * Customize styling of internal elements.
    */
@@ -124,7 +174,7 @@ export type Props = {
     e: Event,
   ) => void;
   children: ReactNode;
-  innerRef?: any;
+  innerRef?: Ref<HTMLDivElement>;
   dndRect?: {
     top: number;
     right: number;
@@ -139,6 +189,45 @@ export type Props = {
 export type DefaultProps = Omit<Props, "children" | "width">;
 
 export type Layout = ReadonlyArray<LayoutItem>;
+export type ConstraintContext = {
+  cols: number;
+  maxRows: number;
+  containerWidth: number;
+  containerHeight: number;
+  rowHeight: number;
+  margin: SpacingArray;
+  containerPadding: SpacingArray;
+  layout: Layout;
+};
+export type LayoutConstraint = {
+  name: string;
+  constrainPosition?: (
+    item: LayoutItem,
+    x: number,
+    y: number,
+    context: ConstraintContext,
+  ) => { x: number; y: number };
+  constrainSize?: (
+    item: LayoutItem,
+    w: number,
+    h: number,
+    handle: ResizeHandleAxis,
+    context: ConstraintContext,
+  ) => { w: number; h: number };
+};
+export type Compactor = {
+  type: "vertical" | "horizontal" | null | string;
+  allowOverlap: boolean;
+  preventCollision?: boolean;
+  compact: (layout: Layout, cols: number) => Layout;
+  onMove: (
+    layout: Layout,
+    item: LayoutItem,
+    x: number,
+    y: number,
+    cols: number,
+  ) => Layout;
+};
 export type Position = {
   left: number;
   top: number;
@@ -199,9 +288,26 @@ export type CompactType = ("horizontal" | "vertical") | null | undefined;
 
 export type OnLayoutChangeCallback = (arg0: Layout) => void;
 
+export type Breakpoint = string;
+export type Breakpoints<B extends Breakpoint = Breakpoint> = Record<B, number>;
+export type BreakpointCols<B extends Breakpoint = Breakpoint> = Record<
+  B,
+  number
+>;
+export type ResponsiveLayouts<B extends Breakpoint = Breakpoint> = Partial<
+  Record<B, Layout>
+>;
+export type ResponsiveSpacing<B extends Breakpoint = Breakpoint> =
+  | Spacing
+  | Partial<Record<B, Spacing>>;
+export type OnBreakpointChangeCallback<B extends Breakpoint = Breakpoint> = (
+  newBreakpoint: B,
+  cols: number,
+) => void;
+
 export type PositionParams = {
-  margin: [number, number, number, number];
-  containerPadding: [number, number, number, number];
+  margin: SpacingArray;
+  containerPadding: SpacingArray;
   containerWidth: number;
   cols: number;
   rowHeight: number;

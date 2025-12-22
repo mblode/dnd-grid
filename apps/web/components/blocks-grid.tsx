@@ -1,7 +1,7 @@
 "use client";
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
 
 export const BLOCK_GAP = 16;
@@ -26,6 +26,14 @@ export const BlocksGrid = () => {
   const handlers = useGridInteractions();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(DEFAULT_WIDTH);
+  // Prevent ResizeObserver feedback loops while grid items are being resized.
+  const isResizingRef = useRef(false);
+  const pendingWidthRef = useRef<number | null>(null);
+  const resizeRafRef = useRef<number | null>(null);
+
+  const commitContainerWidth = useCallback((nextWidth: number) => {
+    setContainerWidth((prev) => (prev === nextWidth ? prev : nextWidth));
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -33,19 +41,56 @@ export const BlocksGrid = () => {
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width);
+        const nextWidth = Math.round(entry.contentRect.width);
+        pendingWidthRef.current = nextWidth;
+
+        if (isResizingRef.current) {
+          continue;
+        }
+
+        if (resizeRafRef.current !== null) {
+          cancelAnimationFrame(resizeRafRef.current);
+        }
+        resizeRafRef.current = requestAnimationFrame(() => {
+          resizeRafRef.current = null;
+          if (pendingWidthRef.current === null) return;
+          commitContainerWidth(pendingWidthRef.current);
+        });
       }
     });
 
     resizeObserver.observe(container);
-    return () => resizeObserver.disconnect();
-  }, []);
+    return () => {
+      resizeObserver.disconnect();
+      if (resizeRafRef.current !== null) {
+        cancelAnimationFrame(resizeRafRef.current);
+        resizeRafRef.current = null;
+      }
+    };
+  }, [commitContainerWidth]);
 
   const scaleFactor = useMemo(() => {
     return Math.min(containerWidth, MAX_WIDTH) / DEFAULT_WIDTH;
   }, [containerWidth]);
 
   const margin = BLOCK_GAP * scaleFactor;
+  const handleResizeStart: typeof handlers.handleResizeStart = useCallback(
+    (...args) => {
+      isResizingRef.current = true;
+      handlers.handleResizeStart(...args);
+    },
+    [handlers],
+  );
+  const handleResizeStop: typeof handlers.handleResizeStop = useCallback(
+    (...args) => {
+      handlers.handleResizeStop(...args);
+      isResizingRef.current = false;
+      if (pendingWidthRef.current !== null) {
+        commitContainerWidth(pendingWidthRef.current);
+      }
+    },
+    [handlers, commitContainerWidth],
+  );
 
   return (
     <div ref={containerRef}>
@@ -55,21 +100,20 @@ export const BlocksGrid = () => {
           cols={BLOCK_COLUMNS}
           rowHeight={BLOCK_HEIGHT * scaleFactor}
           width={containerWidth}
-          margin={[margin, margin, margin, margin]}
+          margin={margin}
           onLayoutChange={setLayout}
           resizeHandles={["ne", "nw", "se", "sw"]}
           onDragStart={handlers.handleDragStart}
           onDrag={handlers.handleDrag}
           onDragStop={handlers.handleDragStop}
-          onResizeStart={handlers.handleResizeStart}
+          onResizeStart={handleResizeStart}
           onResize={handlers.handleResize}
-          onResizeStop={handlers.handleResizeStop}
+          onResizeStop={handleResizeStop}
         >
           {layout.map((item) => {
             return (
               <div
                 key={item.i}
-                className="bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,.04)] border border-border rounded-widget flex items-center justify-center text-lg font-semibold cursor-grab"
                 onPointerEnter={() => handlers.handleHover(item.i)}
                 onPointerLeave={() => handlers.handleHover(null)}
                 onClick={() => handlers.handleSelect(item.i)}

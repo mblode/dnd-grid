@@ -33,6 +33,7 @@ interface LayoutItem {
   maxW?: number;
   minH?: number;
   maxH?: number;
+  constraints?: LayoutConstraint[];
   static?: boolean;
   isDraggable?: boolean;
   isResizable?: boolean;
@@ -81,6 +82,10 @@ interface LayoutItem {
 
 <ResponseField name="maxH" type="number">
   Maximum height constraint.
+</ResponseField>
+
+<ResponseField name="constraints" type="LayoutConstraint[]">
+  Per-item constraints applied during drag/resize.
 </ResponseField>
 
 <ResponseField name="static" type="boolean" default="false">

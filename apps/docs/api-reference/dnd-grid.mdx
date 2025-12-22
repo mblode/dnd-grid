@@ -37,18 +37,20 @@ import { DndGrid } from "@dnd-grid/react";
 
 <ResponseField
   name="margin"
-  type="[number, number, number, number]"
-  default="[10, 10, 10, 10]"
+  type="number | { top: number; right: number; bottom: number; left: number }"
+  default="10"
 >
-  Margin around items in pixels: `[top, right, bottom, left]`.
+  Margin around items in pixels. Use a number for all sides or a `{ top, right,
+  bottom, left }` object.
 </ResponseField>
 
 <ResponseField
   name="containerPadding"
-  type="[number, number, number, number] | null"
+  type="number | { top: number; right: number; bottom: number; left: number } | null"
   default="null"
 >
-  Padding inside the container: `[top, right, bottom, left]`. If null, uses margin values.
+  Padding inside the container. Use a number for all sides or a `{ top, right,
+  bottom, left }` object. If null, uses the margin value.
 </ResponseField>
 
 <ResponseField name="autoSize" type="boolean" default="true">
@@ -69,27 +71,26 @@ import { DndGrid } from "@dnd-grid/react";
   Enable resizing for all items. Can be overridden per-item.
 </ResponseField>
 
+<ResponseField
+  name="autoScroll"
+  type="boolean | AutoScrollOptions"
+  default="true"
+>
+  Auto-scroll when dragging near scroll edges. Set `true` for defaults or pass
+  options to tune thresholds, acceleration, interval, activator, order, or
+  scrollable ancestor filtering.
+</ResponseField>
+
 <ResponseField name="isBounded" type="boolean" default="false">
   Keep items within the grid container bounds during drag.
 </ResponseField>
 
-<ResponseField name="allowOverlap" type="boolean" default="false">
-  Allow items to overlap each other. Disables compaction.
+<ResponseField name="compactor" type="Compactor">
+  Custom compaction strategy. Determines overlap and collision behavior.
 </ResponseField>
 
-<ResponseField name="preventCollision" type="boolean" default="false">
-  Block movement into occupied space instead of pushing items.
-</ResponseField>
-
-<ResponseField
-  name="compactType"
-  type='"vertical" | "horizontal" | null'
-  default='"vertical"'
->
-  Direction to compact items after drag/resize.
-  - `"vertical"` - Compact upward
-  - `"horizontal"` - Compact leftward
-  - `null` - No compaction
+<ResponseField name="constraints" type="LayoutConstraint[]">
+  Constraints applied during drag and resize. Defaults to `defaultConstraints`.
 </ResponseField>
 
 ### Drag Configuration

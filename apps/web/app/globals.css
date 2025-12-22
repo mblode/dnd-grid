@@ -51,46 +51,48 @@
   --color-code-foreground: var(--code-foreground);
   --color-code-highlight: var(--code-highlight);
   --color-code-number: var(--code-number);
-  --radius-widget: var(--widget-border-radius);
+  --radius-widget: var(--dnd-grid-radius, 24px);
 }
 
 :root {
   --header-height: 3.5rem;
   --footer-height: 3rem;
   --widget-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --widget-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --widget-shadow-hover:
+    0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
   --widget-background: rgba(255, 255, 255, 0.95);
   --widget-border: rgba(0, 0, 0, 0.06);
   --primary-color: #3b82f6;
   --danger-color: #ef4444;
 
-  /* Fluid spacing - scales with --scale-factor */
+  /* Fluid spacing - scales with --dnd-grid-scale */
+  --spacing-scale: var(--dnd-grid-scale, 1);
   --spacing-fluid-0: 0px;
-  --spacing-fluid-0_5: calc(2px * var(--scale-factor));
-  --spacing-fluid-1: calc(4px * var(--scale-factor));
-  --spacing-fluid-1_5: calc(6px * var(--scale-factor));
-  --spacing-fluid-2: calc(8px * var(--scale-factor));
-  --spacing-fluid-2_5: calc(10px * var(--scale-factor));
-  --spacing-fluid-3: calc(12px * var(--scale-factor));
-  --spacing-fluid-3_5: calc(14px * var(--scale-factor));
-  --spacing-fluid-4: calc(16px * var(--scale-factor));
-  --spacing-fluid-4_5: calc(18px * var(--scale-factor));
-  --spacing-fluid-5: calc(20px * var(--scale-factor));
-  --spacing-fluid-6: calc(24px * var(--scale-factor));
-  --spacing-fluid-7: calc(28px * var(--scale-factor));
-  --spacing-fluid-7_25: calc(29px * var(--scale-factor));
-  --spacing-fluid-8: calc(32px * var(--scale-factor));
-  --spacing-fluid-9: calc(36px * var(--scale-factor));
-  --spacing-fluid-10: calc(40px * var(--scale-factor));
-  --spacing-fluid-11: calc(44px * var(--scale-factor));
-  --spacing-fluid-12: calc(48px * var(--scale-factor));
-  --spacing-fluid-14: calc(56px * var(--scale-factor));
-  --spacing-fluid-16: calc(64px * var(--scale-factor));
-  --spacing-fluid-18: calc(72px * var(--scale-factor));
-  --spacing-fluid-20: calc(80px * var(--scale-factor));
-  --spacing-fluid-24: calc(96px * var(--scale-factor));
-  --spacing-fluid-28: calc(112px * var(--scale-factor));
-  --spacing-fluid-32: calc(128px * var(--scale-factor));
+  --spacing-fluid-0_5: calc(2px * var(--spacing-scale));
+  --spacing-fluid-1: calc(4px * var(--spacing-scale));
+  --spacing-fluid-1_5: calc(6px * var(--spacing-scale));
+  --spacing-fluid-2: calc(8px * var(--spacing-scale));
+  --spacing-fluid-2_5: calc(10px * var(--spacing-scale));
+  --spacing-fluid-3: calc(12px * var(--spacing-scale));
+  --spacing-fluid-3_5: calc(14px * var(--spacing-scale));
+  --spacing-fluid-4: calc(16px * var(--spacing-scale));
+  --spacing-fluid-4_5: calc(18px * var(--spacing-scale));
+  --spacing-fluid-5: calc(20px * var(--spacing-scale));
+  --spacing-fluid-6: calc(24px * var(--spacing-scale));
+  --spacing-fluid-7: calc(28px * var(--spacing-scale));
+  --spacing-fluid-7_25: calc(29px * var(--spacing-scale));
+  --spacing-fluid-8: calc(32px * var(--spacing-scale));
+  --spacing-fluid-9: calc(36px * var(--spacing-scale));
+  --spacing-fluid-10: calc(40px * var(--spacing-scale));
+  --spacing-fluid-11: calc(44px * var(--spacing-scale));
+  --spacing-fluid-12: calc(48px * var(--spacing-scale));
+  --spacing-fluid-14: calc(56px * var(--spacing-scale));
+  --spacing-fluid-16: calc(64px * var(--spacing-scale));
+  --spacing-fluid-18: calc(72px * var(--spacing-scale));
+  --spacing-fluid-20: calc(80px * var(--spacing-scale));
+  --spacing-fluid-24: calc(96px * var(--spacing-scale));
+  --spacing-fluid-28: calc(112px * var(--spacing-scale));
+  --spacing-fluid-32: calc(128px * var(--spacing-scale));
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -189,4 +191,13 @@
 
 @utility container-wrapper {
   @apply mx-auto w-full max-w-screen-2xl px-4 lg:px-8;
+}
+
+.dnd-grid-item {
+  @apply flex items-center justify-center text-lg font-semibold;
+}
+
+.dnd-grid-item-content {
+  @apply bg-background!;
+  box-shadow: var(--dnd-grid-item-shadow, 0 2px 4px rgba(0, 0, 0, 0.04));
 }

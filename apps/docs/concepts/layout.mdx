@@ -63,17 +63,28 @@ cols = 12
 Compaction determines how items rearrange when space becomes available.
 
 ```tsx
+import {
+  verticalCompactor,
+  horizontalCompactor,
+  noCompactor,
+  wrapCompactor,
+  fastVerticalCompactor,
+} from "@dnd-grid/react";
+
 // Vertical compaction (default)
-// Items float up to fill gaps
-<DndGrid compactType="vertical" />
+<DndGrid compactor={verticalCompactor} />
 
 // Horizontal compaction
-// Items float left to fill gaps
-<DndGrid compactType="horizontal" />
+<DndGrid compactor={horizontalCompactor} />
 
 // No compaction
-// Items stay where you put them
-<DndGrid compactType={null} />
+<DndGrid compactor={noCompactor} />
+
+// Wrap compaction for flow layouts
+<DndGrid compactor={wrapCompactor} />
+
+// Fast compaction for large layouts
+<DndGrid compactor={fastVerticalCompactor} />
 ```
 
 ## Collisions
@@ -85,12 +96,13 @@ Control what happens when a dragged item hits another item.
 - **Allow Overlap:** Items can be placed on top of each other.
 
 ```tsx
-<DndGrid
-  // Block movement if it hits another item
-  preventCollision={true}
-  // Allow items to stack (disables compaction)
-  allowOverlap={true}
-/>
+import { getCompactor, verticalOverlapCompactor } from "@dnd-grid/react";
+
+// Block movement if it hits another item
+<DndGrid compactor={getCompactor("vertical", false, true)} />
+
+// Allow items to stack (disables compaction)
+<DndGrid compactor={verticalOverlapCompactor} />
 ```
 
 ## Persistence

@@ -1,7 +1,7 @@
 {
   "name": "@dnd-grid/react",
-  "version": "1.0.1",
-  "description": "A draggable and resizable grid layout with responsive breakpoints, for React.",
+  "version": "1.0.3",
+  "description": "A drag-and-drop (DnD), resizable grid layout for React",
   "type": "module",
   "files": [
     "dist"
@@ -69,6 +69,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/react-resizable": "^3.0.8",
     "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^4.0.16",
     "jsdom": "^27.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

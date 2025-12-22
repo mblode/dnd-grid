@@ -1,6 +1,6 @@
 {
-  "name": "dnd grid",
-  "short_name": "dnd grid",
+  "name": "dnd-grid",
+  "short_name": "dnd-grid",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

@@ -1,6 +1,6 @@
 {
   "name": "@dnd-grid/react",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A drag-and-drop (DnD), resizable grid layout for React",
   "type": "module",
   "files": [

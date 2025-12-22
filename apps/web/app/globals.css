@@ -183,10 +183,6 @@
     text-rendering: optimizeLegibility;
     @apply bg-background text-foreground;
   }
-  a:active,
-  button:active {
-    @apply opacity-60 md:opacity-100;
-  }
 }
 
 @utility container-wrapper {

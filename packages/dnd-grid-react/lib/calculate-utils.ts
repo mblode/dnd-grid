@@ -39,7 +39,7 @@ export const calcGridItemPosition = (
   y: number,
   w: number,
   h: number,
-  deg: number,
+  deg?: number,
   state?:
     | {
         resizing?: {
@@ -59,6 +59,7 @@ export const calcGridItemPosition = (
 ): Position => {
   const { margin, containerPadding, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
+  const rotation = deg ?? 0;
   const out: Position = {
     width: 0,
     height: 0,
@@ -89,12 +90,12 @@ export const calcGridItemPosition = (
   ) {
     out.top = Math.round(state.resizing.top);
     out.left = Math.round(state.resizing.left);
-    out.deg = deg;
+    out.deg = rotation;
   } // Otherwise, calculate from grid units.
   else {
     out.top = Math.round((rowHeight + margin[0]) * y + containerPadding[0]);
     out.left = Math.round((colWidth + margin[1]) * x + containerPadding[3]);
-    out.deg = deg;
+    out.deg = rotation;
   }
 
   if (!state?.dragging && !state?.resizing) {
@@ -164,39 +165,6 @@ export const calcXY = (
 /**
  * Given a height and width in pixel values, calculate grid units.
  */
-export const calcWH = (
-  positionParams: PositionParams,
-  width: number,
-  height: number,
-  x: number,
-  y: number,
-  handle: string,
-): {
-  w: number;
-  h: number;
-} => {
-  const { maxRows, cols } = positionParams;
-  const raw = calcWHRaw(positionParams, width, height);
-
-  // Capping - ensure upper bound is at least 0
-  let _w = clamp(raw.w, 0, Math.max(0, cols - x));
-
-  let _h = clamp(raw.h, 0, Math.max(0, maxRows - y));
-
-  if (handle === "sw" || handle === "w" || handle === "nw") {
-    _w = clamp(raw.w, 0, cols);
-  }
-
-  if (handle === "nw" || handle === "n" || handle === "ne") {
-    _h = clamp(raw.h, 0, maxRows);
-  }
-
-  return {
-    w: _w,
-    h: _h,
-  };
-};
-
 export const calcWHRaw = (
   positionParams: PositionParams,
   width: number,

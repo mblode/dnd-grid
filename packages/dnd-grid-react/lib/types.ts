@@ -57,7 +57,6 @@ export type LayoutItem = {
   h: number;
   x: number;
   y: number;
-  deg: number;
   i: string;
   minW?: number;
   minH?: number;
@@ -235,15 +234,6 @@ export type Position = {
   height: number;
   deg?: number;
 };
-export type ReactDraggableCallbackData = {
-  node: HTMLElement;
-  x?: number;
-  y?: number;
-  deltaX: number;
-  deltaY: number;
-  lastX?: number;
-  lastY?: number;
-};
 export type PartialPosition = {
   left: number;
   top: number;
@@ -286,8 +276,6 @@ export type EventCallback = (
 ) => void;
 export type CompactType = ("horizontal" | "vertical") | null | undefined;
 
-export type OnLayoutChangeCallback = (arg0: Layout) => void;
-
 export type Breakpoint = string;
 export type Breakpoints<B extends Breakpoint = Breakpoint> = Record<B, number>;
 export type BreakpointCols<B extends Breakpoint = Breakpoint> = Record<
@@ -300,11 +288,6 @@ export type ResponsiveLayouts<B extends Breakpoint = Breakpoint> = Partial<
 export type ResponsiveSpacing<B extends Breakpoint = Breakpoint> =
   | Spacing
   | Partial<Record<B, Spacing>>;
-export type OnBreakpointChangeCallback<B extends Breakpoint = Breakpoint> = (
-  newBreakpoint: B,
-  cols: number,
-) => void;
-
 export type PositionParams = {
   margin: SpacingArray;
   containerPadding: SpacingArray;

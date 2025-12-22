@@ -16,9 +16,9 @@ import { DndGrid, type Layout } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "c", x: 4, y: 0, w: 2, h: 2, deg: 0 },
+  { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+  { i: "c", x: 4, y: 0, w: 2, h: 2 },
 ];
 
 function MyGrid() {
@@ -63,6 +63,8 @@ function MyGrid() {
 | `cols` | `number` | `12` | Number of columns |
 | `rowHeight` | `number` | `150` | Height of a row in pixels |
 | `width` | `number` | required | Width of the grid container |
+| `autoSize` | `boolean` | `true` | Auto-size the container height |
+| `maxRows` | `number` | `Infinity` | Maximum number of rows |
 | `margin` | `number \| { top: number; right: number; bottom: number; left: number }` | `10` | Margin around items |
 | `containerPadding` | `number \| { top: number; right: number; bottom: number; left: number } \| null` | `null` | Container padding (null uses margin) |
 | `isDraggable` | `boolean` | `true` | Enable dragging |
@@ -74,7 +76,7 @@ function MyGrid() {
 | `constraints` | `LayoutConstraint[]` | `defaultConstraints` | Constraints applied during drag/resize |
 | `resizeHandles` | `ResizeHandleAxis[]` | `["se"]` | Resize handle positions |
 | `transformScale` | `number` | `1` | Scale factor for CSS transforms |
-| `dragTouchDelayDuration` | `number` | `0` | Touch delay before drag starts (ms) |
+| `dragTouchDelayDuration` | `number` | `250` | Touch delay before drag starts (ms) |
 
 Layout must be defined via the `layout` prop; `data-grid` on children is not supported.
 
@@ -86,8 +88,8 @@ Compose responsive behavior with hooks:
 import { DndGrid, useContainerWidth, useDndGridResponsiveLayout } from "@dnd-grid/react";
 
 const layouts = {
-  lg: [{ i: "a", x: 0, y: 0, w: 3, h: 2, deg: 0 }],
-  md: [{ i: "a", x: 0, y: 0, w: 4, h: 2, deg: 0 }],
+  lg: [{ i: "a", x: 0, y: 0, w: 3, h: 2 }],
+  md: [{ i: "a", x: 0, y: 0, w: 4, h: 2 }],
 };
 
 function ResponsiveGrid() {
@@ -126,7 +128,6 @@ interface LayoutItem {
   y: number;      // Y position in grid units
   w: number;      // Width in grid units
   h: number;      // Height in grid units
-  deg: number;    // Rotation in degrees
   minW?: number;  // Minimum width
   maxW?: number;  // Maximum width
   minH?: number;  // Minimum height
@@ -239,7 +240,7 @@ The hook must be used inside a `DndGrid` item (it throws if rendered elsewhere).
 
 ## CSS classes
 
-The grid uses the following CSS classes:
+Common CSS classes include:
 
 - `.dnd-grid` - Grid container
 - `.dnd-grid-item` - Grid item
@@ -247,6 +248,13 @@ The grid uses the following CSS classes:
 - `.dnd-grid-placeholder` - Placeholder during drag/resize
 - `.dnd-draggable` - Draggable item
 - `.dnd-draggable-dragging` - Item being dragged
+- `.resizing` - Item currently being resized
+- `.static` - Static (locked) item
+- `.dnd-grid-animating` - Item settling after drag
+- `.dropping` - Dropping placeholder item
+- `.dnd-grid-resize-handle` - Resize handle element
+- `body.dnd-grid-dragging` - Global dragging state
+- `body.dnd-grid-resizing` - Global resizing state
 
 ## Data attributes
 

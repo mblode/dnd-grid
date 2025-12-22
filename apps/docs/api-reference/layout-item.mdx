@@ -28,7 +28,6 @@ interface LayoutItem {
   h: number;
 
   // Optional
-  deg?: number;
   minW?: number;
   maxW?: number;
   minH?: number;
@@ -102,10 +101,6 @@ interface LayoutItem {
 
 <ResponseField name="isBounded" type="boolean">
   Override grid-level bounded setting.
-</ResponseField>
-
-<ResponseField name="deg" type="number" default="0">
-  Rotation in degrees.
 </ResponseField>
 
 <ResponseField name="resizeHandles" type="ResizeHandleAxis[]">

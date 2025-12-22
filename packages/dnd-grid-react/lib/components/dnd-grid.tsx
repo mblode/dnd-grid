@@ -326,7 +326,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           h: l.h,
           x: l.x,
           y: l.y,
-          deg: l.deg,
           placeholder: true,
           i: i,
         };
@@ -365,7 +364,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           h: l.h,
           x: l.x,
           y: l.y,
-          deg: l.deg,
           placeholder: true,
           i: i,
         };
@@ -527,7 +525,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           h: l.h,
           x: l.x,
           y: l.y,
-          deg: l.deg,
           static: true,
           i: i,
         };
@@ -631,7 +628,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           x={activeDrag.x}
           y={activeDrag.y}
           i={activeDrag.i}
-          deg={activeDrag.deg}
           className={placeholderClassName}
           containerWidth={width}
           cols={cols as number}
@@ -723,7 +719,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           x={l.x}
           y={l.y}
           i={l.i}
-          deg={l.deg}
           minH={l.minH}
           minW={l.minW}
           maxH={l.maxH}

@@ -136,32 +136,12 @@ type GridItemResizeCallback = (
 ) => void;
 
 type State = {
-  resizing:
-    | {
-        top: number;
-        left: number;
-        width: number;
-        height: number;
-      }
-    | null
-    | undefined;
-  dragging:
-    | {
-        top: number;
-        left: number;
-        deg: number;
-      }
-    | null
-    | undefined;
+  resizing: boolean;
+  dragging: boolean;
   allowedToDrag: boolean;
-  className: string;
-  dragEnabled: boolean;
-  positionHistory: PointWithTimestamp[];
   // Continuous spring animation state (matches swing-card.tsx useSpring behavior)
   currentRotation: number;
-  targetRotation: number;
   currentScale: number;
-  targetScale: number;
   // Position spring animation state (for smooth settling after drag)
   isAnimating: boolean;
   animatedX: number;
@@ -195,7 +175,6 @@ type Props = {
   y: number;
   w: number;
   h: number;
-  deg: number;
   minW: number;
   maxW: number;
   minH: number;
@@ -301,17 +280,12 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
   (incomingProps, ref) => {
     const props = { ...defaultProps, ...incomingProps } as Props;
     const [state, setState] = React.useState<State>(() => ({
-      dragEnabled: false,
       allowedToDrag: false,
-      resizing: null,
-      dragging: null,
-      className: "",
-      positionHistory: [],
+      resizing: false,
+      dragging: false,
       // Spring animation state (matches swing-card.tsx useSpring behavior)
       currentRotation: 0,
-      targetRotation: 0,
       currentScale: 1,
-      targetScale: 1,
       // Position spring animation state (for smooth settling after drag)
       isAnimating: false,
       animatedX: 0,
@@ -332,6 +306,9 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     const settleStartTimeRef = React.useRef<number | null>(null);
     const settleFrameCountRef = React.useRef(0);
     const dragPositionRef = React.useRef<PartialPosition | null>(null);
+    const resizePositionRef = React.useRef<Position | null>(null);
+    const positionHistoryRef = React.useRef<PointWithTimestamp[]>([]);
+    const isDraggingRef = React.useRef(false);
     const childEventsRef = React.useRef<
       {
         type: keyof HTMLElementEventMap;
@@ -434,7 +411,6 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         y,
         w,
         h,
-        deg,
         minW,
         minH,
         maxW,
@@ -451,7 +427,6 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         y,
         w,
         h,
-        deg,
         minW,
         minH,
         maxW,
@@ -471,14 +446,17 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     const createStyle = React.useCallback(
       (pos: Position): Record<string, string | null | undefined> => {
         const { static: isStatic } = propsRef.current;
+        const isResizing = stateRef.current.resizing;
         // Use spring-animated scale and rotation (matches swing-card.tsx useSpring behavior)
-        const scale = isStatic ? 1 : stateRef.current.currentScale;
+        const scale =
+          isStatic || isResizing ? 1 : stateRef.current.currentScale;
         // Override pos.deg with spring-animated currentRotation during drag/animation
-        const rotation = isStatic ? pos.deg : stateRef.current.currentRotation;
+        const rotation =
+          isStatic || isResizing ? pos.deg : stateRef.current.currentRotation;
 
         // Use animated position when isAnimating (settling after drag)
         let finalPos = { ...pos, deg: rotation };
-        if (!isStatic && stateRef.current.isAnimating) {
+        if (!isStatic && !isResizing && stateRef.current.isAnimating) {
           finalPos = {
             ...finalPos,
             left: stateRef.current.animatedX,
@@ -490,7 +468,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         // With center origin, scale(s) shifts visual top-left by -(s-1) * dimensions / 2
         // We compensate so visual position = logical position regardless of scale
         // This is the "shadow element at scale 1" concept
-        if (!isStatic && scale !== 1) {
+        if (!isStatic && !isResizing && scale !== 1) {
           const scaleCompX = ((scale - 1) * pos.width) / 2;
           const scaleCompY = ((scale - 1) * pos.height) / 2;
           finalPos = {
@@ -665,10 +643,8 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
      * This matches swing-card.tsx useSpring behavior - continuously smoothing values
      */
     const startSpringAnimation = React.useCallback(() => {
-      // Cancel any existing animation to prevent multiple loops running simultaneously
       if (springAnimationFrameRef.current !== null) {
-        cancelAnimationFrame(springAnimationFrameRef.current);
-        springAnimationFrameRef.current = null;
+        return;
       }
 
       const rotationSpring = rotationSpringRef.current;
@@ -678,9 +654,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
       // Initialize springs with current state
       rotationSpring.setCurrent(stateRef.current.currentRotation);
-      rotationSpring.setTarget(stateRef.current.targetRotation);
       scaleSpring.setCurrent(stateRef.current.currentScale);
-      scaleSpring.setTarget(stateRef.current.targetScale);
 
       // Safety guard: maximum settling duration (2 seconds at 60fps = 120 frames)
       // This prevents infinite loops if springs never settle
@@ -743,7 +717,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         // Continue animation while dragging or if settling after drag
         // Use _isSettling (synchronous) to avoid race condition with async setState
         if (
-          stateRef.current.dragging ||
+          isDraggingRef.current ||
           (isSettlingRef.current && !allSpringsDone)
         ) {
           springAnimationFrameRef.current = requestAnimationFrame(animate);
@@ -779,14 +753,31 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       (targetRotation: number, targetScale: number) => {
         rotationSpringRef.current.setTarget(targetRotation);
         scaleSpringRef.current.setTarget(targetScale);
-        setState((prevState) => ({
-          ...prevState,
-          targetRotation,
-          targetScale,
-        }));
       },
       [],
     );
+
+    const resetSpringState = React.useCallback(() => {
+      if (springAnimationFrameRef.current !== null) {
+        cancelAnimationFrame(springAnimationFrameRef.current);
+        springAnimationFrameRef.current = null;
+      }
+      isSettlingRef.current = false;
+      settleStartTimeRef.current = null;
+      settleFrameCountRef.current = 0;
+      rotationSpringRef.current.setCurrent(0);
+      rotationSpringRef.current.setTarget(0);
+      scaleSpringRef.current.setCurrent(1);
+      scaleSpringRef.current.setTarget(1);
+      xSpringRef.current.reset();
+      ySpringRef.current.reset();
+      setState((prevState) => ({
+        ...prevState,
+        isAnimating: false,
+        currentRotation: 0,
+        currentScale: 1,
+      }));
+    }, []);
 
     /**
      * onDragStart event handler
@@ -824,12 +815,13 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         newPosition.left = cLeft - pLeft + scrollLeft;
         newPosition.top = cTop - pTop + scrollTop;
         dragPositionRef.current = newPosition;
+        isDraggingRef.current = true;
+        positionHistoryRef.current = [];
         settleStartTimeRef.current = null;
         settleFrameCountRef.current = 0;
         setState((prevState) => ({
           ...prevState,
-          dragging: newPosition,
-          targetScale: 1.04, // Match swing-card.tsx handleDragStart: scaleRaw.set(1.04)
+          dragging: true,
           isAnimating: false, // Clear any pending settling animation
         }));
 
@@ -903,8 +895,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         const { onDrag } = propsRef.current;
         if (!onDrag) return;
 
-        const dragPosition =
-          stateRef.current.dragging ?? dragPositionRef.current;
+        const dragPosition = dragPositionRef.current;
         // Guard against onDrag being called before onDragStart
         if (!dragPosition) {
           return;
@@ -935,7 +926,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
         // Track pointer position history for velocity calculation (100ms sliding window)
         let positionHistory: PointWithTimestamp[] = [
-          ...stateRef.current.positionHistory,
+          ...positionHistoryRef.current,
           {
             x: pointerX,
             y: pointerY,
@@ -988,11 +979,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         updateSpringTargets(targetRotation, 1.04);
 
         dragPositionRef.current = newPosition;
-        setState((prevState) => ({
-          ...prevState,
-          dragging: newPosition,
-          positionHistory,
-        }));
+        positionHistoryRef.current = positionHistory;
         // Call callback with this data
         const constraints = propsRef.current.constraints ?? defaultConstraints;
         const rawPos = calcXYRaw(positionParams, top, left);
@@ -1026,14 +1013,13 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         resetDelayTimeout();
         const { onDragStop } = propsRef.current;
 
-        const dragPosition =
-          stateRef.current.dragging ?? dragPositionRef.current;
+        const dragPosition = dragPositionRef.current;
         // Guard against onDragStop being called before onDragStart
         if (!dragPosition) {
           return;
         }
 
-        const { w, h, x, y, deg } = propsRef.current;
+        const { w, h, x, y } = propsRef.current;
         const { left, top } = dragPosition;
 
         // Calculate target grid position (where the item will settle)
@@ -1043,7 +1029,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
           y,
           w,
           h,
-          deg,
+          0,
           null, // No state override - get the actual grid position
         );
 
@@ -1075,13 +1061,14 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         // Springs will animate position, rotation, scale together
         setState((prevState) => ({
           ...prevState,
-          dragging: null,
-          positionHistory: [],
+          dragging: false,
           isAnimating: true,
           animatedX: left,
           animatedY: top,
         }));
+        isDraggingRef.current = false;
         dragPositionRef.current = null;
+        positionHistoryRef.current = [];
 
         // Remove grabbing cursor from body
         setGlobalDragActive(interactionIdRef.current, false);
@@ -1115,7 +1102,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
             rawPos.y,
             getConstraintContext(node),
           );
-          return onDragStop.call(
+          onDragStop.call(
             handleRef.current,
             propsRef.current.i,
             gridPos.x,
@@ -1127,6 +1114,8 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
             },
           );
         }
+        handleRef.current?.startSpringAnimation?.();
+        return;
       },
       [
         getPositionParams,
@@ -1150,9 +1139,10 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
           left: 0,
           top: 0,
         };
-        const { dragging } = stateRef.current;
+        const dragging = isDraggingRef.current;
         const shouldDrag =
           dragging &&
+          dragPositionRef.current &&
           (droppingPosition.left !== prevDroppingPosition.left ||
             droppingPosition.top !== prevDroppingPosition.top);
 
@@ -1168,17 +1158,17 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
             lastY: 0,
           };
           onDragStart(dragEvent, dragData);
-        } else if (shouldDrag) {
-          const deltaX = droppingPosition.left - dragging.left;
-          const deltaY = droppingPosition.top - dragging.top;
+        } else if (shouldDrag && dragPositionRef.current) {
+          const deltaX = droppingPosition.left - dragPositionRef.current.left;
+          const deltaY = droppingPosition.top - dragPositionRef.current.top;
           const dragData: DraggableData = {
             node,
             x: droppingPosition.left,
             y: droppingPosition.top,
             deltaX,
             deltaY,
-            lastX: dragging.left,
-            lastY: dragging.top,
+            lastX: dragPositionRef.current.left,
+            lastY: dragPositionRef.current.top,
           };
           onDrag(dragEvent, dragData);
         }
@@ -1214,10 +1204,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
             size,
             containerWidth,
           );
-          setState((prevState) => ({
-            ...prevState,
-            resizing: handlerName === "onResizeStop" ? null : updatedSize,
-          }));
+          resizePositionRef.current = updatedSize;
         }
 
         // Get new XY based on pixel size
@@ -1276,6 +1263,11 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     const onResizeStop: GridItemResizeCallback = React.useCallback(
       (e, callbackData, position) => {
         clearResizeCursorActive();
+        resizePositionRef.current = null;
+        setState((prevState) => ({
+          ...prevState,
+          resizing: false,
+        }));
         onResizeHandler(e, callbackData, position, "onResizeStop");
       },
       [clearResizeCursorActive, onResizeHandler],
@@ -1285,9 +1277,21 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     const onResizeStart: GridItemResizeCallback = React.useCallback(
       (e, callbackData, position) => {
         setResizeCursorActive(callbackData.handle);
+        if (isDraggingRef.current) {
+          isDraggingRef.current = false;
+          setGlobalDragActive(interactionIdRef.current, false);
+        }
+        dragPositionRef.current = null;
+        positionHistoryRef.current = [];
+        resetSpringState();
+        setState((prevState) => ({
+          ...prevState,
+          resizing: true,
+          dragging: false,
+        }));
         onResizeHandler(e, callbackData, position, "onResizeStart");
       },
-      [onResizeHandler, setResizeCursorActive],
+      [onResizeHandler, resetSpringState, setResizeCursorActive],
     );
 
     // onResize event handler
@@ -1359,36 +1363,17 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         itemState: ItemState,
         slotProps?: SlotProps,
       ): GridChildElement => {
-        const {
-          cols,
-          minW,
-          minH,
-          maxW,
-          maxH,
-          transformScale,
-          resizeHandles,
-          resizeHandle,
-        } = propsRef.current;
+        const { transformScale, resizeHandles, resizeHandle } =
+          propsRef.current;
         const positionParams = getPositionParams();
-        // This is the max possible width - doesn't go to infinity because of the width of the window
-        const maxWidth = calcGridItemPosition(
-          positionParams,
-          0,
-          0,
-          cols,
-          0,
-          0,
-        ).width;
-        // Calculate min/max constraints using our min & maxes
-        const mins = calcGridItemPosition(positionParams, 0, 0, minW, minH, 0);
-        const maxes = calcGridItemPosition(positionParams, 0, 0, maxW, maxH, 0);
+        const minGridUnit = calcGridItemPosition(positionParams, 0, 0, 1, 1, 0);
         const minConstraints: [width: number, height: number] = [
-          mins.width,
-          mins.height,
+          minGridUnit.width,
+          minGridUnit.height,
         ];
         const maxConstraints: [width: number, height: number] = [
-          Math.min(maxes.width, maxWidth),
-          Math.min(maxes.height, Number.POSITIVE_INFINITY),
+          Number.POSITIVE_INFINITY,
+          Number.POSITIVE_INFINITY,
         ];
 
         // Use the default resize handle if none is provided
@@ -1545,14 +1530,17 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       [],
     );
 
-    const { x, y, w, h, deg, isDraggable, isResizable, droppingPosition } =
-      props;
+    const { x, y, w, h, isDraggable, isResizable, droppingPosition } = props;
     const slotProps = props.slotProps;
     const positionState =
       state.resizing || state.dragging
         ? {
-            resizing: state.resizing || undefined,
-            dragging: state.dragging || undefined,
+            resizing: state.resizing
+              ? resizePositionRef.current || undefined
+              : undefined,
+            dragging: state.dragging
+              ? dragPositionRef.current || undefined
+              : undefined,
           }
         : undefined;
     const pos = calcGridItemPosition(
@@ -1561,7 +1549,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       y,
       w,
       h,
-      deg,
+      0,
       positionState,
     );
     // Create context value for useDndGridItemState hook
@@ -1579,7 +1567,6 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       y: props.y,
       w: props.w,
       h: props.h,
-      deg: props.deg,
       minW: props.minW,
       minH: props.minH,
       maxW: props.maxW,

@@ -14,7 +14,7 @@ const TestConsumer = () => {
 
 describe("useDndGridItemState", () => {
   it("returns context values when used within provider", () => {
-    const item: LayoutItem = { i: "a", x: 0, y: 0, w: 1, h: 1, deg: 0 };
+    const item: LayoutItem = { i: "a", x: 0, y: 0, w: 1, h: 1 };
     const state: ItemState = {
       dragging: true,
       resizing: false,

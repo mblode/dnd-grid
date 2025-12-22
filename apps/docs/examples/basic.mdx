@@ -15,7 +15,7 @@ description: Simple draggable and resizable grid layout.
 ```tsx
 import { useState } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
+import "@dnd-grid/react/styles.css";
 
 const generateLayout = (count: number): Layout => {
   return Array.from({ length: count }, (_, i) => ({
@@ -24,7 +24,6 @@ const generateLayout = (count: number): Layout => {
     y: Math.floor(i / 6) * 2,
     w: 2,
     h: 2,
-    deg: 0,
   }));
 };
 

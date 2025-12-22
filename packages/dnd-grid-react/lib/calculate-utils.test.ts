@@ -4,7 +4,6 @@ import {
   calcGridColWidth,
   calcGridItemPosition,
   calcGridItemWHPx,
-  calcWH,
   calcWHRaw,
   calcXY,
   calcXYRaw,
@@ -271,66 +270,6 @@ describe("calculate-utils", () => {
       const { x, y } = calcXYRaw(defaultPositionParams, 10000, 10000);
       expect(x).toBeGreaterThan(11);
       expect(y).toBeGreaterThan(4);
-    });
-  });
-
-  describe("calcWH", () => {
-    it("converts pixel dimensions to grid units", () => {
-      const colWidth = calcGridColWidth(defaultPositionParams);
-      const { w, h } = calcWH(defaultPositionParams, colWidth, 150, 0, 0, "se");
-      expect(w).toBe(1);
-      expect(h).toBe(1);
-    });
-
-    it("handles west-side resize handles", () => {
-      const { w } = calcWH(defaultPositionParams, 200, 150, 5, 0, "w");
-      expect(w).toBeGreaterThanOrEqual(0);
-    });
-
-    it("handles north-side resize handles", () => {
-      const { h } = calcWH(defaultPositionParams, 100, 300, 0, 5, "n");
-      expect(h).toBeGreaterThanOrEqual(0);
-    });
-
-    it("clamps to grid bounds for se handle", () => {
-      const { w, h } = calcWH(defaultPositionParams, 5000, 5000, 10, 0, "se");
-      expect(w).toBeLessThanOrEqual(2); // cols - x = 12 - 10
-      expect(h).toBeGreaterThanOrEqual(0);
-    });
-
-    it("allows full width for sw handle", () => {
-      const { w } = calcWH(defaultPositionParams, 5000, 150, 10, 0, "sw");
-      expect(w).toBeLessThanOrEqual(12); // cols
-    });
-
-    it("allows full height for nw handle", () => {
-      const params = { ...defaultPositionParams, maxRows: 10 };
-      const { h } = calcWH(params, 100, 5000, 0, 5, "nw");
-      expect(h).toBeLessThanOrEqual(10); // maxRows
-    });
-
-    it("handles all cardinal handles", () => {
-      const handles = ["s", "n", "e", "w"];
-      for (const handle of handles) {
-        const { w, h } = calcWH(defaultPositionParams, 200, 300, 0, 0, handle);
-        expect(w).toBeGreaterThanOrEqual(0);
-        expect(h).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it("handles all corner handles", () => {
-      const handles = ["se", "sw", "ne", "nw"];
-      for (const handle of handles) {
-        const { w, h } = calcWH(defaultPositionParams, 200, 300, 0, 0, handle);
-        expect(w).toBeGreaterThanOrEqual(0);
-        expect(h).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it("returns zero when dimensions are zero", () => {
-      const { w, h } = calcWH(defaultPositionParams, 0, 0, 0, 0, "se");
-      expect(w).toBe(0);
-      expect(h).toBe(0);
     });
   });
 

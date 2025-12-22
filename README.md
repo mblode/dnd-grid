@@ -36,14 +36,13 @@ import "@dnd-grid/react/theme.css";
 ## Basic usage
 
 ```tsx
-import { useState } from "react";
 import { DndGrid } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0 },
-  { i: "c", x: 4, y: 0, w: 2, h: 2, deg: 0 },
+  { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+  { i: "c", x: 4, y: 0, w: 2, h: 2 },
 ];
 
 export default function App() {
@@ -60,12 +59,13 @@ export default function App() {
 ## Controlled layout
 
 ```tsx
+import { useState } from "react";
 import { DndGrid } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 export default function App() {
   const [layout, setLayout] = useState([
-    { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 },
+    { i: "a", x: 0, y: 0, w: 2, h: 2 },
   ]);
 
   return (
@@ -89,7 +89,6 @@ Each item in `layout` maps to a child by `key` and defines position + size:
 - `i` - Stable id, must match the child key
 - `x`, `y` - Column and row position
 - `w`, `h` - Width and height in grid units
-- `deg` - Rotation in degrees (use `0` for none)
 
 ## Styles
 

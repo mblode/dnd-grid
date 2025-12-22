@@ -2,12 +2,28 @@ import { act, render } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AutoScrollOptions } from "./types";
-import { TraversalOrder } from "./types";
+import { AutoScrollActivator, TraversalOrder } from "./types";
 import { type EdgeScrollHandlers, useEdgeScroll } from "./use-edge-scroll";
 
 type HarnessProps = {
   options?: AutoScrollOptions;
   onReady: (handlers: EdgeScrollHandlers) => void;
+};
+
+const mockRaf = () => {
+  const originalRequest = window.requestAnimationFrame;
+  const originalCancel = window.cancelAnimationFrame;
+
+  window.requestAnimationFrame = (callback) =>
+    window.setTimeout(() => callback(0), 0);
+  window.cancelAnimationFrame = (id) => {
+    clearTimeout(id);
+  };
+
+  return () => {
+    window.requestAnimationFrame = originalRequest;
+    window.cancelAnimationFrame = originalCancel;
+  };
 };
 
 const EdgeScrollHarness = ({ options, onReady }: HarnessProps) => {
@@ -78,7 +94,11 @@ const createScrollableContainer = () => {
 };
 
 describe("useEdgeScroll", () => {
+  let restoreRaf: (() => void) | null = null;
+
   afterEach(() => {
+    restoreRaf?.();
+    restoreRaf = null;
     vi.useRealTimers();
     document.body.innerHTML = "";
   });
@@ -136,6 +156,144 @@ describe("useEdgeScroll", () => {
     const scrolled = container.scrollTop;
     act(() => {
       handlers?.handleDragStop();
+      vi.advanceTimersByTime(20);
+    });
+
+    expect(container.scrollTop).toBe(scrolled);
+  });
+
+  it("compensates for layout shift on drag start", () => {
+    vi.useFakeTimers();
+    restoreRaf = mockRaf();
+    let handlers: EdgeScrollHandlers | null = null;
+
+    render(
+      <EdgeScrollHarness
+        options={{ interval: 5 }}
+        onReady={(value) => {
+          handlers = value;
+        }}
+      />,
+    );
+
+    act(() => {});
+    if (!handlers) {
+      throw new Error("Edge scroll handlers were not initialized.");
+    }
+
+    const { container, node } = createScrollableContainer();
+    const scrollBySpy = vi.fn(
+      (arg1?: number | ScrollToOptions, arg2?: number) => {
+        const left = typeof arg1 === "object" ? (arg1.left ?? 0) : (arg1 ?? 0);
+        const top = typeof arg1 === "object" ? (arg1.top ?? 0) : (arg2 ?? 0);
+        container.scrollTop += top;
+        container.scrollLeft += left;
+      },
+    );
+    container.scrollBy = scrollBySpy as typeof container.scrollBy;
+
+    let rectTop = 10;
+    node.getBoundingClientRect = () =>
+      ({
+        top: rectTop,
+        left: 10,
+        right: 20,
+        bottom: rectTop + 10,
+        width: 10,
+        height: 10,
+        x: 10,
+        y: rectTop,
+        toJSON: () => "",
+      }) as DOMRect;
+
+    const startEvent = new MouseEvent("mousedown", {
+      clientX: 50,
+      clientY: 50,
+    });
+
+    act(() => {
+      handlers?.handleDragStart(startEvent, node, { left: 0, top: 0 });
+    });
+
+    rectTop = 30;
+
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(scrollBySpy).toHaveBeenCalled();
+    const [scrollArg] = scrollBySpy.mock.calls[0] ?? [];
+    expect(scrollArg).toMatchObject({ top: 20, left: 0 });
+  });
+
+  it("re-evaluates auto scroll when scroll containers move", () => {
+    vi.useFakeTimers();
+    restoreRaf = mockRaf();
+    let handlers: EdgeScrollHandlers | null = null;
+
+    render(
+      <EdgeScrollHarness
+        options={{
+          activator: AutoScrollActivator.DraggableRect,
+          interval: 5,
+        }}
+        onReady={(value) => {
+          handlers = value;
+        }}
+      />,
+    );
+
+    act(() => {});
+    if (!handlers) {
+      throw new Error("Edge scroll handlers were not initialized.");
+    }
+
+    const { container, node } = createScrollableContainer();
+    let rectTop = 85;
+    node.getBoundingClientRect = () =>
+      ({
+        top: rectTop,
+        left: 10,
+        right: 20,
+        bottom: rectTop + 10,
+        width: 10,
+        height: 10,
+        x: 10,
+        y: rectTop,
+        toJSON: () => "",
+      }) as DOMRect;
+
+    const startEvent = new MouseEvent("mousedown", {
+      clientX: 50,
+      clientY: 50,
+    });
+
+    act(() => {
+      handlers?.handleDragStart(startEvent, node, { left: 0, top: 0 });
+    });
+
+    const moveEvent = new MouseEvent("mousemove", {
+      clientX: 50,
+      clientY: 95,
+    });
+    act(() => {
+      handlers?.handleDrag(moveEvent, node, { left: 0, top: 20 });
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(20);
+    });
+
+    expect(container.scrollTop).toBeGreaterThan(0);
+
+    rectTop = 10;
+    act(() => {
+      container.dispatchEvent(new Event("scroll"));
+      vi.runOnlyPendingTimers();
+    });
+
+    const scrolled = container.scrollTop;
+    act(() => {
       vi.advanceTimersByTime(20);
     });
 

@@ -22,7 +22,6 @@ export function createLayoutItem(
     y: 0,
     w: 1,
     h: 1,
-    deg: 0,
     ...overrides,
   };
 }

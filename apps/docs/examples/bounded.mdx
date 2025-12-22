@@ -15,7 +15,7 @@ description: Items cannot be dragged outside the grid bounds.
 ```tsx
 import { useState } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
+import "@dnd-grid/react/styles.css";
 
 const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   i: i.toString(),
@@ -23,7 +23,6 @@ const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   y: Math.floor(i / 6) * 2,
   w: 2,
   h: 2,
-  deg: 0,
 }));
 
 export default function BoundedExample() {

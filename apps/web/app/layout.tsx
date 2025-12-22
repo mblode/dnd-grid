@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import type React from "react";
-import "@dnd-grid/react/styles.css";
 import "./globals.css";
+import "@dnd-grid/react/styles.css";
 
 const albra = localFont({
   src: [
@@ -31,7 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${albra.variable} font-sans antialiased min-h-screen`}>
+    <html
+      lang="en"
+      className={`${albra.variable} font-sans antialiased min-h-screen`}
+    >
       <body className="flex min-h-screen flex-col">{children}</body>
     </html>
   );

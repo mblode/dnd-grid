@@ -1,8 +1,14 @@
 # Changelog
 
-## Unreleased
+## 1.0.3 (Unreleased)
 
-- Added edge auto-scrolling during drag via the `autoScroll` prop and `useEdgeScroll`.
+### Breaking
+
+- Removed `deg` from the public `LayoutItem` API (rotation is internal only).
+
+### Added
+
+- Edge auto-scrolling during drag via the `autoScroll` prop and `useEdgeScroll`.
 
 ## 1.0.2 (Dec 21, 2025)
 

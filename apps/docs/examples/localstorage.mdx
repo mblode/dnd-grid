@@ -15,7 +15,7 @@ description: Persist layout to localStorage and restore on page load.
 ```tsx
 import { useState, useEffect } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
+import "@dnd-grid/react/styles.css";
 
 const STORAGE_KEY = "dnd-grid-layout";
 
@@ -25,7 +25,6 @@ const defaultLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   y: Math.floor(i / 6) * 2,
   w: 2,
   h: 2,
-  deg: 0,
 }));
 
 export default function LocalStorageExample() {

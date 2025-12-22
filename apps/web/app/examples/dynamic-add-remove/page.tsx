@@ -14,7 +14,6 @@ export default function DynamicAddRemoveExample() {
       y: 0,
       w: 2,
       h: 2,
-      deg: 0,
     })),
   );
   const addItem = useCallback(() => {
@@ -26,7 +25,6 @@ export default function DynamicAddRemoveExample() {
         y: Infinity,
         w: 2,
         h: 2,
-        deg: 0,
       },
     ]);
     setCounter((c) => c + 1);

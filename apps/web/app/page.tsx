@@ -13,9 +13,7 @@ export default function Home() {
         <div className="flex flex-1 flex-col">
           <section className="py-16 md:py-24 text-center">
             <div className="container-wrapper">
-              <h1 className="text-7xl font-light tracking-tight">
-                dnd-grid
-              </h1>
+              <h1 className="text-7xl font-light tracking-tight">dnd-grid</h1>
               <p className="mt-8 text-4xl text-balance mx-auto text-center text-foreground/60 max-w-125">
                 A drag-and-drop (DnD), resizable grid layout for React
               </p>

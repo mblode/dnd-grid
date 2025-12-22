@@ -53,8 +53,8 @@ Static items cannot be moved or resized:
 
 ```tsx
 const layout: Layout = [
-  { i: "header", x: 0, y: 0, w: 12, h: 1, deg: 0, static: true },
-  { i: "content", x: 0, y: 1, w: 8, h: 4, deg: 0 },
+  { i: "header", x: 0, y: 0, w: 12, h: 1, static: true },
+  { i: "content", x: 0, y: 1, w: 8, h: 4 },
 ];
 ```
 
@@ -72,7 +72,7 @@ Limit how small or large an item can be resized:
 const layout: Layout = [
   {
     i: "constrained",
-    x: 0, y: 0, w: 4, h: 2, deg: 0,
+    x: 0, y: 0, w: 4, h: 2,
     minW: 2,  // Minimum 2 columns
     maxW: 6,  // Maximum 6 columns
     minH: 1,  // Minimum 1 row
@@ -89,7 +89,7 @@ Override grid-level settings for individual items:
 const layout: Layout = [
   {
     i: "special",
-    x: 0, y: 0, w: 4, h: 2, deg: 0,
+    x: 0, y: 0, w: 4, h: 2,
     isDraggable: false,   // Can't drag this item
     isResizable: true,    // Can resize (even if grid disables it)
     isBounded: true,      // Keep within bounds
@@ -109,7 +109,7 @@ Configure which edges/corners show resize handles:
 const layout: Layout = [
   {
     i: "custom-handles",
-    x: 0, y: 0, w: 4, h: 2, deg: 0,
+    x: 0, y: 0, w: 4, h: 2,
     resizeHandles: ["s", "e"],  // Only bottom and right edges
   },
 ];

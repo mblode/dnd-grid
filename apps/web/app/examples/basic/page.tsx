@@ -10,7 +10,6 @@ const generateLayout = (count: number): Layout => {
     y: Math.floor(i / 6) * 2,
     w: 2,
     h: 2,
-    deg: 0,
   }));
 };
 

@@ -85,7 +85,6 @@ const buildLayoutFromChildren = (children: React.ReactNode): Layout => {
         y: 0,
         w: 1,
         h: 1,
-        deg: 0,
         ...dataGrid,
       });
       return;
@@ -97,7 +96,6 @@ const buildLayoutFromChildren = (children: React.ReactNode): Layout => {
       y: bottom(layout),
       w: 1,
       h: 1,
-      deg: 0,
     });
   });
 
@@ -168,7 +166,7 @@ describe("DndGrid", () => {
     it("renders container with dnd-grid class", () => {
       renderGrid(
         <DndGrid {...defaultProps}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -179,10 +177,10 @@ describe("DndGrid", () => {
     it("renders children as grid items", () => {
       renderGrid(
         <DndGrid {...defaultProps}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
-          <div key="b" data-grid={{ x: 2, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="b" data-grid={{ x: 2, y: 0, w: 2, h: 2 }}>
             B
           </div>
         </DndGrid>,
@@ -194,7 +192,7 @@ describe("DndGrid", () => {
     it("applies custom className", () => {
       renderGrid(
         <DndGrid {...defaultProps} className="custom-grid">
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -207,7 +205,7 @@ describe("DndGrid", () => {
     it("applies custom style", () => {
       renderGrid(
         <DndGrid {...defaultProps} style={{ backgroundColor: "red" }}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -219,7 +217,7 @@ describe("DndGrid", () => {
 
   describe("layout synchronization", () => {
     it("synchronizes layout with children", () => {
-      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 4, h: 2, deg: 0 }];
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 4, h: 2 }];
       renderGrid(
         <DndGrid {...defaultProps} layout={layout}>
           <div key="a">A</div>
@@ -246,7 +244,7 @@ describe("DndGrid", () => {
       const onLayoutChange = vi.fn();
       const { rerender } = renderGrid(
         <DndGrid {...defaultProps} onLayoutChange={onLayoutChange}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -255,10 +253,10 @@ describe("DndGrid", () => {
       // Trigger a layout change by updating children
       rerender(
         <DndGrid {...defaultProps} onLayoutChange={onLayoutChange}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
-          <div key="b" data-grid={{ x: 2, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="b" data-grid={{ x: 2, y: 0, w: 2, h: 2 }}>
             B
           </div>
         </DndGrid>,
@@ -270,8 +268,8 @@ describe("DndGrid", () => {
 
   describe("derived state", () => {
     it("recomputes layout when layout prop changes", () => {
-      const prevLayout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1, deg: 0 }];
-      const nextLayout: Layout = [{ i: "a", x: 2, y: 0, w: 1, h: 1, deg: 0 }];
+      const prevLayout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
+      const nextLayout: Layout = [{ i: "a", x: 2, y: 0, w: 1, h: 1 }];
       const prevState = {
         activeDrag: null,
         settlingItem: null,
@@ -300,7 +298,7 @@ describe("DndGrid", () => {
     });
 
     it("recomputes layout when children change", () => {
-      const prevLayout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1, deg: 0 }];
+      const prevLayout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
       const prevState = {
         activeDrag: null,
         settlingItem: null,
@@ -333,7 +331,7 @@ describe("DndGrid", () => {
     it("calculates container height when autoSize is true", () => {
       renderGrid(
         <DndGrid {...defaultProps} autoSize={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -345,7 +343,7 @@ describe("DndGrid", () => {
     it("does not set height when autoSize is false", () => {
       renderGrid(
         <DndGrid {...defaultProps} autoSize={false}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -358,7 +356,7 @@ describe("DndGrid", () => {
   describe("containerHeight", () => {
     it("uses containerPadding when provided", () => {
       const ref = React.createRef<DndGrid>();
-      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 2, deg: 0 }];
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 2 }];
       renderGrid(
         <DndGrid
           {...defaultProps}
@@ -377,7 +375,7 @@ describe("DndGrid", () => {
 
     it("falls back to margin when containerPadding is null", () => {
       const ref = React.createRef<DndGrid>();
-      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1, deg: 0 }];
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
       renderGrid(
         <DndGrid
           {...defaultProps}
@@ -399,7 +397,7 @@ describe("DndGrid", () => {
     it("compacts vertically by default", () => {
       renderGrid(
         <DndGrid {...defaultProps}>
-          <div key="a" data-grid={{ x: 0, y: 5, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 5, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -411,7 +409,7 @@ describe("DndGrid", () => {
     it("respects horizontal compactor", () => {
       renderGrid(
         <DndGrid {...defaultProps} compactor={horizontalCompactor}>
-          <div key="a" data-grid={{ x: 5, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 5, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -423,10 +421,10 @@ describe("DndGrid", () => {
     it("allows overlap when compactor allows overlap", () => {
       renderGrid(
         <DndGrid {...defaultProps} compactor={verticalOverlapCompactor}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
-          <div key="b" data-grid={{ x: 1, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="b" data-grid={{ x: 1, y: 0, w: 2, h: 2 }}>
             B
           </div>
         </DndGrid>,
@@ -440,7 +438,7 @@ describe("DndGrid", () => {
     it("passes isDraggable to grid items", () => {
       renderGrid(
         <DndGrid {...defaultProps} isDraggable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -452,7 +450,7 @@ describe("DndGrid", () => {
     it("passes isResizable to grid items", () => {
       renderGrid(
         <DndGrid {...defaultProps} isResizable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -463,7 +461,7 @@ describe("DndGrid", () => {
 
     it("respects static items", () => {
       const layout: Layout = [
-        { i: "static", x: 0, y: 0, w: 2, h: 2, deg: 0, static: true },
+        { i: "static", x: 0, y: 0, w: 2, h: 2, static: true },
       ];
       renderGrid(
         <DndGrid {...defaultProps} layout={layout} isDraggable={true}>
@@ -476,7 +474,7 @@ describe("DndGrid", () => {
 
     it("respects item-level isDraggable override", () => {
       const layout: Layout = [
-        { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0, isDraggable: false },
+        { i: "a", x: 0, y: 0, w: 2, h: 2, isDraggable: false },
       ];
       renderGrid(
         <DndGrid {...defaultProps} layout={layout} isDraggable={true}>
@@ -493,7 +491,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -510,7 +508,7 @@ describe("DndGrid", () => {
       const onDrop = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} isDroppable={true} onDrop={onDrop}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -523,7 +521,7 @@ describe("DndGrid", () => {
     it("increments dragEnterCounter on dragEnter", () => {
       renderGrid(
         <DndGrid {...defaultProps} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -536,7 +534,7 @@ describe("DndGrid", () => {
     it("decrements dragEnterCounter on dragLeave", () => {
       renderGrid(
         <DndGrid {...defaultProps} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -552,7 +550,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true} onDrop={onDrop}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -597,7 +595,7 @@ describe("DndGrid", () => {
           isDroppable={true}
           onDropDragOver={onDropDragOver}
         >
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -626,7 +624,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -653,7 +651,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -684,7 +682,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true} onDrop={onDrop}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -710,7 +708,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -739,7 +737,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
         <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -769,7 +767,7 @@ describe("DndGrid", () => {
       const onDragStart = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} onDragStart={onDragStart}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -781,7 +779,7 @@ describe("DndGrid", () => {
       const onDrag = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} onDrag={onDrag}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -793,7 +791,7 @@ describe("DndGrid", () => {
       const onDragStop = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} onDragStop={onDragStop}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -805,7 +803,7 @@ describe("DndGrid", () => {
       const onResizeStart = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} onResizeStart={onResizeStart}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -817,7 +815,7 @@ describe("DndGrid", () => {
       const onResize = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} onResize={onResize}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -829,7 +827,7 @@ describe("DndGrid", () => {
       const onResizeStop = vi.fn();
       renderGrid(
         <DndGrid {...defaultProps} onResizeStop={onResizeStop}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -840,7 +838,7 @@ describe("DndGrid", () => {
 
   describe("drag and resize handlers", () => {
     it("updates layout during drag lifecycle", () => {
-      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }];
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
       const onDragStart = vi.fn();
       const onDrag = vi.fn();
       const onDragStop = vi.fn();
@@ -907,7 +905,7 @@ describe("DndGrid", () => {
     });
 
     it("updates layout during resize lifecycle", () => {
-      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }];
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
       const onResize = vi.fn();
       const onResizeStop = vi.fn();
       const ref = React.createRef<DndGrid>();
@@ -967,7 +965,7 @@ describe("DndGrid", () => {
       const ref = React.createRef<HTMLDivElement>();
       renderGrid(
         <DndGrid {...defaultProps} innerRef={ref}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -980,7 +978,7 @@ describe("DndGrid", () => {
     it("uses default cols of 12", () => {
       renderGrid(
         <DndGrid width={1200}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -991,7 +989,7 @@ describe("DndGrid", () => {
     it("uses default rowHeight of 150", () => {
       renderGrid(
         <DndGrid width={1200}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1002,7 +1000,7 @@ describe("DndGrid", () => {
     it("uses default margin", () => {
       renderGrid(
         <DndGrid width={1200}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1027,8 +1025,8 @@ describe("DndGrid", () => {
     it("ignores children without keys", () => {
       renderGrid(
         <DndGrid {...defaultProps}>
-          <div data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>No Key</div>
-          <div key="a" data-grid={{ x: 2, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>No Key</div>
+          <div key="a" data-grid={{ x: 2, y: 0, w: 2, h: 2 }}>
             With Key
           </div>
         </DndGrid>,
@@ -1045,7 +1043,7 @@ describe("DndGrid", () => {
           {...defaultProps}
           compactor={getCompactor("vertical", false, true)}
         >
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1058,7 +1056,7 @@ describe("DndGrid", () => {
     it("passes isBounded to grid items", () => {
       renderGrid(
         <DndGrid {...defaultProps} isBounded={true}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1071,7 +1069,7 @@ describe("DndGrid", () => {
     it("accepts transformScale prop", () => {
       renderGrid(
         <DndGrid {...defaultProps} transformScale={1.5}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1087,7 +1085,7 @@ describe("DndGrid", () => {
           {...defaultProps}
           containerPadding={{ top: 20, right: 20, bottom: 20, left: 20 }}
         >
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1098,7 +1096,7 @@ describe("DndGrid", () => {
     it("uses margin as fallback for containerPadding", () => {
       renderGrid(
         <DndGrid {...defaultProps} containerPadding={null}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1111,7 +1109,7 @@ describe("DndGrid", () => {
     it("accepts maxRows prop", () => {
       renderGrid(
         <DndGrid {...defaultProps} maxRows={10}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1124,7 +1122,7 @@ describe("DndGrid", () => {
     it("accepts resizeHandles prop", () => {
       renderGrid(
         <DndGrid {...defaultProps} resizeHandles={["se", "ne", "sw", "nw"]}>
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1141,7 +1139,7 @@ describe("DndGrid", () => {
           isDroppable={true}
           droppingItem={{ i: "custom-drop", w: 2, h: 2 }}
         >
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1154,7 +1152,7 @@ describe("DndGrid", () => {
     it("accepts draggableHandle prop", () => {
       renderGrid(
         <DndGrid {...defaultProps} draggableHandle=".handle">
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,
@@ -1165,7 +1163,7 @@ describe("DndGrid", () => {
     it("accepts draggableCancel prop", () => {
       renderGrid(
         <DndGrid {...defaultProps} draggableCancel=".no-drag">
-          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2, deg: 0 }}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
         </DndGrid>,

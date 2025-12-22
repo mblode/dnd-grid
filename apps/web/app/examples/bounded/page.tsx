@@ -9,7 +9,6 @@ const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   y: Math.floor(i / 6) * 2,
   w: 2,
   h: 2,
-  deg: 0,
 }));
 
 export default function BoundedExample() {

@@ -34,8 +34,8 @@ const TestComponent = ({ width, layouts, margin }: TestProps) => {
 describe("useDndGridResponsiveLayout", () => {
   it("returns layout for the active breakpoint", () => {
     const layouts: ResponsiveLayouts = {
-      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }],
-      md: [{ i: "a", x: 1, y: 0, w: 3, h: 2, deg: 0 }],
+      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
+      md: [{ i: "a", x: 1, y: 0, w: 3, h: 2 }],
     };
     render(<TestComponent width={1200} layouts={layouts} />);
 
@@ -50,8 +50,8 @@ describe("useDndGridResponsiveLayout", () => {
 
   it("updates breakpoint and cols when width changes", () => {
     const layouts: ResponsiveLayouts = {
-      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0 }],
-      md: [{ i: "a", x: 1, y: 0, w: 3, h: 2, deg: 0 }],
+      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
+      md: [{ i: "a", x: 1, y: 0, w: 3, h: 2 }],
     };
     const margin = {
       lg: 16,

@@ -11,14 +11,14 @@ export const DEFAULT_WIDTH = 480;
 export const MAX_WIDTH = 643;
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 6, deg: 0 },
-  { i: "b", x: 2, y: 0, w: 1, h: 3, deg: 0 },
-  { i: "c", x: 3, y: 0, w: 1, h: 3, deg: 0 },
-  { i: "d", x: 2, y: 3, w: 2, h: 4, deg: 0 },
-  { i: "e", x: 0, y: 6, w: 1, h: 4, deg: 0 },
-  { i: "f", x: 1, y: 6, w: 1, h: 4, deg: 0 },
-  { i: "g", x: 2, y: 7, w: 2, h: 3, deg: 0 },
-  { i: "h", x: 0, y: 10, w: 4, h: 2, deg: 0 },
+  { i: "a", x: 0, y: 0, w: 2, h: 6 },
+  { i: "b", x: 2, y: 0, w: 1, h: 3 },
+  { i: "c", x: 3, y: 0, w: 1, h: 3 },
+  { i: "d", x: 2, y: 3, w: 2, h: 4 },
+  { i: "e", x: 0, y: 6, w: 1, h: 4 },
+  { i: "f", x: 1, y: 6, w: 1, h: 4 },
+  { i: "g", x: 2, y: 7, w: 2, h: 3 },
+  { i: "h", x: 0, y: 10, w: 4, h: 2 },
 ];
 
 export const BlocksGrid = () => {
@@ -112,14 +112,16 @@ export const BlocksGrid = () => {
         >
           {layout.map((item) => {
             return (
-              <div
+              <button
                 key={item.i}
                 onPointerEnter={() => handlers.handleHover(item.i)}
                 onPointerLeave={() => handlers.handleHover(null)}
                 onClick={() => handlers.handleSelect(item.i)}
+                type="button"
+                className="p-0"
               >
                 {item.i}
-              </div>
+              </button>
             );
           })}
         </DndGrid>

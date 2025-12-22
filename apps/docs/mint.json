@@ -59,6 +59,7 @@
       "group": "Examples",
       "pages": [
         "examples/basic",
+        "examples/responsive",
         "examples/static-elements",
         "examples/dynamic-add-remove",
         "examples/localstorage",

@@ -20,7 +20,6 @@ import {
   compact,
   compactItem,
   correctBounds,
-  fastPositionEqual,
   getAllCollisions,
   getFirstCollision,
   getLayoutItem,
@@ -50,7 +49,6 @@ describe("utils", () => {
       expect(cloned.y).toBe(item.y);
       expect(cloned.w).toBe(item.w);
       expect(cloned.h).toBe(item.h);
-      expect(cloned.deg).toBe(item.deg);
       expect(cloned).not.toBe(item);
     });
 
@@ -661,44 +659,6 @@ describe("utils", () => {
     it("returns original for undefined compactType", () => {
       const layout = simpleLayout;
       expect(sortLayoutItems(layout, undefined)).toBe(layout);
-    });
-  });
-
-  // --- EQUALITY CHECKS ---
-  describe("fastPositionEqual", () => {
-    it("returns true for equal positions", () => {
-      const pos = { left: 0, top: 0, width: 100, height: 100, deg: 0 };
-      expect(fastPositionEqual(pos, { ...pos })).toBe(true);
-    });
-
-    it("returns false for different left", () => {
-      const a = { left: 0, top: 0, width: 100, height: 100, deg: 0 };
-      const b = { left: 1, top: 0, width: 100, height: 100, deg: 0 };
-      expect(fastPositionEqual(a, b)).toBe(false);
-    });
-
-    it("returns false for different top", () => {
-      const a = { left: 0, top: 0, width: 100, height: 100, deg: 0 };
-      const b = { left: 0, top: 1, width: 100, height: 100, deg: 0 };
-      expect(fastPositionEqual(a, b)).toBe(false);
-    });
-
-    it("returns false for different width", () => {
-      const a = { left: 0, top: 0, width: 100, height: 100, deg: 0 };
-      const b = { left: 0, top: 0, width: 101, height: 100, deg: 0 };
-      expect(fastPositionEqual(a, b)).toBe(false);
-    });
-
-    it("returns false for different height", () => {
-      const a = { left: 0, top: 0, width: 100, height: 100, deg: 0 };
-      const b = { left: 0, top: 0, width: 100, height: 101, deg: 0 };
-      expect(fastPositionEqual(a, b)).toBe(false);
-    });
-
-    it("returns false for different deg", () => {
-      const a = { left: 0, top: 0, width: 100, height: 100, deg: 0 };
-      const b = { left: 0, top: 0, width: 100, height: 100, deg: 45 };
-      expect(fastPositionEqual(a, b)).toBe(false);
     });
   });
 

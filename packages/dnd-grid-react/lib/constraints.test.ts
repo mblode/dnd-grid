@@ -14,7 +14,6 @@ const baseItem: LayoutItem = {
   y: 0,
   w: 2,
   h: 2,
-  deg: 0,
 };
 
 const baseContext: ConstraintContext = {

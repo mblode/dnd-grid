@@ -15,7 +15,7 @@ description: Dynamically add and remove items from the grid.
 ```tsx
 import { useState, useCallback } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/dist/styles.css";
+import "@dnd-grid/react/styles.css";
 
 export default function DynamicAddRemoveExample() {
   const [counter, setCounter] = useState(5);
@@ -26,7 +26,6 @@ export default function DynamicAddRemoveExample() {
       y: 0,
       w: 2,
       h: 2,
-      deg: 0,
     }))
   );
 
@@ -39,7 +38,6 @@ export default function DynamicAddRemoveExample() {
         y: Infinity, // Places at bottom
         w: 2,
         h: 2,
-        deg: 0,
       },
     ]);
     setCounter((c) => c + 1);

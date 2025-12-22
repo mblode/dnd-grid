@@ -45,7 +45,7 @@ vi.mock("react-resizable", () => ({
 
 const defaultProps = {
   children: <div data-testid="child">Content</div>,
-  layout: [{ i: "test-item", x: 0, y: 0, w: 2, h: 2, deg: 0 }],
+  layout: [{ i: "test-item", x: 0, y: 0, w: 2, h: 2 }],
   cols: 12,
   containerWidth: 1200,
   margin: 10,
@@ -64,7 +64,6 @@ const defaultProps = {
   y: 0,
   w: 2,
   h: 2,
-  deg: 0,
   minW: 1,
   maxW: 12,
   minH: 1,
@@ -387,7 +386,7 @@ describe("GridItem", () => {
 
       expect(result).toBe(false);
       expect(onDragStart).not.toHaveBeenCalled();
-      expect(handle.state.dragging).toBeNull();
+      expect(handle.state.dragging).toBe(false);
       setNavigatorMaxTouchPoints(originalMaxTouchPoints);
     });
 
@@ -410,7 +409,7 @@ describe("GridItem", () => {
       });
 
       expect(onDrag).not.toHaveBeenCalled();
-      expect(handle.state.dragging).toBeNull();
+      expect(handle.state.dragging).toBe(false);
     });
 
     it("uses pointer coordinates for non-mouse drag events", () => {
@@ -462,7 +461,7 @@ describe("GridItem", () => {
       });
 
       expect(onDragStop).not.toHaveBeenCalled();
-      expect(handle.state.dragging).toBeNull();
+      expect(handle.state.dragging).toBe(false);
     });
 
     it("clamps drag movement when bounded", () => {
@@ -505,8 +504,10 @@ describe("GridItem", () => {
         );
       });
 
-      expect(handle.state.dragging?.left).toBe(200);
-      expect(handle.state.dragging?.top).toBe(100);
+      expect(onDrag).toHaveBeenCalled();
+      const dragEvent = onDrag.mock.calls[0][3];
+      expect(dragEvent.newPosition.left).toBe(200);
+      expect(dragEvent.newPosition.top).toBe(100);
     });
 
     it("enters settling state on drag stop", () => {
@@ -539,7 +540,7 @@ describe("GridItem", () => {
       });
 
       expect(onDragStop).toHaveBeenCalled();
-      expect(handle.state.dragging).toBeNull();
+      expect(handle.state.dragging).toBe(false);
       expect(handle._isSettling).toBe(true);
       expect(handle.state.isAnimating).toBe(true);
       expect(document.body.classList.contains("dnd-grid-dragging")).toBe(false);
@@ -611,7 +612,7 @@ describe("GridItem", () => {
       const handle = getHandle(ref);
 
       act(() => {
-        handle.setState({ isAnimating: true, dragging: null });
+        handle.setState({ isAnimating: true, dragging: false });
         handle.startSpringAnimation();
       });
       act(() => {
@@ -635,18 +636,11 @@ describe("GridItem", () => {
         </div>,
       );
       const handle = getHandle(ref);
-
-      handle._isSettling = true;
+      const node = screen.getByTestId("child");
       act(() => {
-        handle.setState({
-          isAnimating: true,
-          currentRotation: 0,
-          targetRotation: 0,
-          currentScale: 1,
-          targetScale: 1,
-        });
-        handle.startSpringAnimation();
-        vi.advanceTimersByTime(32);
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
+        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        vi.advanceTimersByTime(2000);
       });
 
       expect(onSettleComplete).toHaveBeenCalledWith("test-item");
@@ -669,12 +663,9 @@ describe("GridItem", () => {
       );
       const handle = getHandle(ref);
 
+      const node = screen.getByTestId("child");
       act(() => {
-        handle.setState({
-          dragging: { top: 10, left: 10, deg: 0 },
-          isAnimating: true,
-        });
-        handle.startSpringAnimation();
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
       });
       act(() => {
         vi.advanceTimersByTime(2500);
@@ -682,12 +673,11 @@ describe("GridItem", () => {
 
       expect(handle.springAnimationFrame).not.toBeNull();
 
-      const node = screen.getByTestId("child");
       act(() => {
         handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
       });
       act(() => {
-        vi.advanceTimersByTime(64);
+        vi.advanceTimersByTime(2000);
       });
 
       expect(onSettleComplete).toHaveBeenCalledWith("test-item");
@@ -872,18 +862,22 @@ describe("GridItem", () => {
       const node = screen.getByTestId("child");
 
       act(() => {
-        handle.onResizeHandler(
+        handle.onResizeStart(
           new Event("resize"),
           createResizeData(node, size, "se"),
           position,
-          "onResize",
+        );
+        handle.onResize(
+          new Event("resize"),
+          createResizeData(node, size, "se"),
+          position,
         );
       });
 
       expect(onResize).toHaveBeenCalled();
       expect(onResize.mock.calls[0][1]).toBe(2);
       expect(onResize.mock.calls[0][2]).toBe(2);
-      expect(handle.state.resizing).not.toBeNull();
+      expect(handle.state.resizing).toBe(true);
     });
 
     it("sets the resize cursor on the body during resize", () => {
@@ -970,7 +964,7 @@ describe("GridItem", () => {
       expect(onResizeStart).toHaveBeenCalled();
       expect(onResize).toHaveBeenCalled();
       expect(onResizeStop).toHaveBeenCalled();
-      expect(handle.state.resizing).toBeNull();
+      expect(handle.state.resizing).toBe(false);
     });
   });
 
@@ -1009,19 +1003,6 @@ describe("GridItem", () => {
       const { maxW: _maxW, maxH: _maxH, ...propsWithoutMinMax } = defaultProps;
       render(<GridItem {...propsWithoutMinMax} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
-    });
-  });
-
-  describe("rotation (deg)", () => {
-    it("accepts deg prop", () => {
-      render(<GridItem {...defaultProps} deg={45} />);
-      expect(screen.getByTestId("child")).toBeInTheDocument();
-    });
-
-    it("defaults deg to 0", () => {
-      render(<GridItem {...defaultProps} deg={0} />);
-      const element = screen.getByTestId("child");
-      expect(element.style.transform).toContain("rotate(0deg)");
     });
   });
 });

@@ -71,7 +71,6 @@ export const cloneLayoutItem = (layoutItem: LayoutItem): LayoutItem => ({
   x: layoutItem.x,
   y: layoutItem.y,
   i: layoutItem.i,
-  deg: layoutItem.deg,
   minW: layoutItem.minW,
   maxW: layoutItem.maxW,
   minH: layoutItem.minH,
@@ -99,14 +98,6 @@ export const childrenEqual = (a: ReactNode, b: ReactNode): boolean => {
     ) || [];
   return deepEqual(mapChildrenKeys(a), mapChildrenKeys(b));
 };
-
-// Like the above, but a lot simpler.
-export const fastPositionEqual = (a: Position, b: Position): boolean =>
-  a.left === b.left &&
-  a.top === b.top &&
-  a.width === b.width &&
-  a.height === b.height &&
-  a.deg === b.deg;
 
 /**
  * Given two layoutitems, check if they collide.
@@ -465,7 +456,6 @@ export const moveElementAwayFromCollision = (
       y: compactV ? Math.max(collidesWith.y - itemToMove.h, 0) : itemToMove.y,
       w: itemToMove.w,
       h: itemToMove.h,
-      deg: itemToMove.deg,
       i: "-1",
     };
     const firstCollision = getFirstCollision(layout, fakeItem);
@@ -598,20 +588,12 @@ const resizeEast: ResizeHandler = (
 const resizeWest: ResizeHandler = (
   currentSize,
   { top, height, width },
-  containerWidth,
+  _containerWidth,
 ) => {
-  const left = currentSize.left - (width - currentSize.width);
+  const left = currentSize.left + currentSize.width - width;
   return {
     height,
-    width:
-      left < 0
-        ? currentSize.width
-        : constrainWidth(
-            currentSize.left,
-            currentSize.width,
-            width,
-            containerWidth,
-          ),
+    width: left < 0 ? currentSize.left + currentSize.width : width,
     top: constrainTop(top),
     left: constrainLeft(left),
   };
@@ -787,7 +769,6 @@ export const synchronizeLayoutWithChildren = (
           h: 1,
           x: 0,
           y: bottom(layout),
-          deg: 0,
           i: childKey,
         }),
       );

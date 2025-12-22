@@ -7,6 +7,11 @@ type Coordinates = {
   y: number;
 };
 
+type FrameHandle = {
+  id: number;
+  type: "raf" | "timeout";
+};
+
 type ClientRect = {
   top: number;
   right: number;
@@ -44,6 +49,33 @@ const defaultScrollIntent: ScrollIntent = {
 
 const canUseDOM =
   typeof window !== "undefined" && typeof document !== "undefined";
+
+const scheduleFrame = (callback: FrameRequestCallback): FrameHandle | null => {
+  if (!canUseDOM) return null;
+  if (typeof window.requestAnimationFrame === "function") {
+    return { id: window.requestAnimationFrame(callback), type: "raf" };
+  }
+  return {
+    id: window.setTimeout(
+      () =>
+        callback(typeof performance !== "undefined" ? performance.now() : 0),
+      16,
+    ),
+    type: "timeout",
+  };
+};
+
+const cancelFrame = (handle: FrameHandle | null) => {
+  if (!handle) return;
+  if (
+    handle.type === "raf" &&
+    typeof window.cancelAnimationFrame === "function"
+  ) {
+    window.cancelAnimationFrame(handle.id);
+    return;
+  }
+  clearTimeout(handle.id);
+};
 
 const getWindow = (node?: Element | null): Window => {
   if (node?.ownerDocument?.defaultView) {
@@ -134,8 +166,25 @@ const getScrollableAncestors = (
   return findScrollableAncestors(element);
 };
 
+const getFirstScrollableAncestor = (
+  element: Element | null,
+): Element | null => {
+  const [firstAncestor] = getScrollableAncestors(element, 1);
+  return firstAncestor ?? null;
+};
+
 const isDocumentScrollingElement = (element: Element): boolean =>
   canUseDOM && element === document.scrollingElement;
+
+const getScrollEventTarget = (
+  element: Element,
+): HTMLElement | Window | null => {
+  if (!canUseDOM) return null;
+  if (isDocumentScrollingElement(element)) {
+    return getWindow(element);
+  }
+  return element as HTMLElement;
+};
 
 const getScrollPosition = (scrollContainer: Element) => {
   const minScroll = { x: 0, y: 0 };
@@ -154,6 +203,19 @@ const getScrollPosition = (scrollContainer: Element) => {
     isRight: scrollElement.scrollLeft >= maxScroll.x,
     maxScroll,
     minScroll,
+  };
+};
+
+const getRectDelta = (
+  rect: ClientRect | null,
+  initialRect: ClientRect | null,
+): Coordinates => {
+  if (!rect || !initialRect) {
+    return { x: 0, y: 0 };
+  }
+  return {
+    x: rect.left - initialRect.left,
+    y: rect.top - initialRect.top,
   };
 };
 
@@ -278,6 +340,21 @@ const normalizeAutoScrollOptions = (
   return { enabled: true };
 };
 
+const resolveLayoutShiftCompensation = (
+  config: AutoScrollOptions["layoutShiftCompensation"],
+) => {
+  if (typeof config === "boolean") {
+    return { x: config, y: config };
+  }
+  if (config) {
+    return {
+      x: config.x !== false,
+      y: config.y !== false,
+    };
+  }
+  return { x: true, y: true };
+};
+
 export type EdgeScrollHandlers = {
   handleDragStart: (
     event?: Event | null,
@@ -300,6 +377,10 @@ export const useEdgeScroll = (
   const optionsRef = useRef<AutoScrollOptions>({});
   const scrollContainerRef = useRef<Element | null>(null);
   const intervalRef = useRef<number | null>(null);
+  const layoutShiftRectRef = useRef<ClientRect | null>(null);
+  const layoutShiftFrameRef = useRef<FrameHandle | null>(null);
+  const scrollUpdateFrameRef = useRef<FrameHandle | null>(null);
+  const scrollListenerTargetsRef = useRef<Set<HTMLElement | Window>>(new Set());
   const scrollSpeedRef = useRef({ x: 0, y: 0 });
   const scrollDirectionRef = useRef({ x: 0, y: 0 });
   const scrollableAncestorsRef = useRef<Element[]>([]);
@@ -311,6 +392,16 @@ export const useEdgeScroll = (
 
   const normalizedOptions = normalizeAutoScrollOptions(autoScroll);
   optionsRef.current = normalizedOptions;
+
+  const cancelLayoutShiftCompensation = useCallback(() => {
+    cancelFrame(layoutShiftFrameRef.current);
+    layoutShiftFrameRef.current = null;
+  }, []);
+
+  const cancelScrollUpdateFrame = useCallback(() => {
+    cancelFrame(scrollUpdateFrameRef.current);
+    scrollUpdateFrameRef.current = null;
+  }, []);
 
   const clearAutoScrollInterval = useCallback(() => {
     if (intervalRef.current !== null) {
@@ -481,6 +572,104 @@ export const useEdgeScroll = (
     setAutoScrollInterval,
   ]);
 
+  const updateDraggingRect = useCallback(() => {
+    if (!dragNodeRef.current || dragNodeRef.current.isConnected === false) {
+      return;
+    }
+    draggingRectRef.current = dragNodeRef.current.getBoundingClientRect();
+  }, []);
+
+  const scheduleScrollUpdate = useCallback(() => {
+    if (!canUseDOM || scrollUpdateFrameRef.current) return;
+    scrollUpdateFrameRef.current = scheduleFrame(() => {
+      scrollUpdateFrameRef.current = null;
+      if (optionsRef.current.activator === AutoScrollActivator.DraggableRect) {
+        updateDraggingRect();
+      }
+      updateAutoScroll();
+    });
+  }, [updateAutoScroll, updateDraggingRect]);
+
+  const handleScroll = useCallback(() => {
+    scheduleScrollUpdate();
+  }, [scheduleScrollUpdate]);
+
+  const updateScrollListeners = useCallback(
+    (scrollableAncestors: Element[]) => {
+      if (!canUseDOM) return;
+      const nextTargets = new Set<HTMLElement | Window>();
+
+      for (const ancestor of scrollableAncestors) {
+        const target = getScrollEventTarget(ancestor);
+        if (target) {
+          nextTargets.add(target);
+        }
+      }
+
+      for (const target of scrollListenerTargetsRef.current) {
+        if (!nextTargets.has(target)) {
+          target.removeEventListener("scroll", handleScroll);
+        }
+      }
+
+      for (const target of nextTargets) {
+        if (!scrollListenerTargetsRef.current.has(target)) {
+          target.addEventListener("scroll", handleScroll, { passive: true });
+        }
+      }
+
+      scrollListenerTargetsRef.current = nextTargets;
+    },
+    [handleScroll],
+  );
+
+  const clearScrollListeners = useCallback(() => {
+    for (const target of scrollListenerTargetsRef.current) {
+      target.removeEventListener("scroll", handleScroll);
+    }
+    scrollListenerTargetsRef.current.clear();
+  }, [handleScroll]);
+
+  const scheduleLayoutShiftCompensation = useCallback(
+    (node: HTMLElement) => {
+      const { x, y } = resolveLayoutShiftCompensation(
+        optionsRef.current.layoutShiftCompensation,
+      );
+      if (!x && !y) {
+        return;
+      }
+
+      cancelLayoutShiftCompensation();
+      layoutShiftRectRef.current = node.getBoundingClientRect();
+      layoutShiftFrameRef.current = scheduleFrame(() => {
+        layoutShiftFrameRef.current = null;
+        if (!dragNodeRef.current || dragNodeRef.current.isConnected === false) {
+          return;
+        }
+
+        const rect = dragNodeRef.current.getBoundingClientRect();
+        const rectDelta = getRectDelta(rect, layoutShiftRectRef.current);
+
+        if (!x) rectDelta.x = 0;
+        if (!y) rectDelta.y = 0;
+
+        if (Math.abs(rectDelta.x) > 0 || Math.abs(rectDelta.y) > 0) {
+          const scrollContainer =
+            scrollableAncestorsRef.current[0] ??
+            getFirstScrollableAncestor(dragNodeRef.current);
+
+          if (scrollContainer) {
+            (scrollContainer as HTMLElement).scrollBy({
+              left: rectDelta.x,
+              top: rectDelta.y,
+            });
+          }
+        }
+      });
+    },
+    [cancelLayoutShiftCompensation],
+  );
+
   const resolveDragNode = useCallback(
     (node?: HTMLElement | null, event?: Event | null) => {
       if (node) return node;
@@ -498,10 +687,13 @@ export const useEdgeScroll = (
       newPosition?: { left: number; top: number },
       pointerCoordinates?: Coordinates | null,
     ): Coordinates | null => {
+      if (pointerCoordinates) {
+        return pointerCoordinates;
+      }
       if (newPosition) {
         return { x: newPosition.left, y: newPosition.top };
       }
-      return pointerCoordinates ?? null;
+      return null;
     },
     [],
   );
@@ -518,8 +710,11 @@ export const useEdgeScroll = (
       const resolvedNode = resolveDragNode(node, event);
       if (resolvedNode) {
         dragNodeRef.current = resolvedNode;
-        scrollableAncestorsRef.current = getScrollableAncestors(resolvedNode);
+        const scrollableAncestors = getScrollableAncestors(resolvedNode);
+        scrollableAncestorsRef.current = scrollableAncestors;
+        updateScrollListeners(scrollableAncestors);
         draggingRectRef.current = resolvedNode.getBoundingClientRect();
+        scheduleLayoutShiftCompensation(resolvedNode);
       }
 
       pointerCoordinatesRef.current = getEventCoordinates(event);
@@ -527,7 +722,14 @@ export const useEdgeScroll = (
       updateScrollIntent(delta, enabled);
       updateAutoScroll();
     },
-    [resolveDragNode, resolveDelta, updateAutoScroll, updateScrollIntent],
+    [
+      resolveDragNode,
+      resolveDelta,
+      updateAutoScroll,
+      updateScrollIntent,
+      updateScrollListeners,
+      scheduleLayoutShiftCompensation,
+    ],
   );
 
   const handleDrag = useCallback(
@@ -542,7 +744,9 @@ export const useEdgeScroll = (
       const resolvedNode = resolveDragNode(node, event);
       if (resolvedNode && dragNodeRef.current !== resolvedNode) {
         dragNodeRef.current = resolvedNode;
-        scrollableAncestorsRef.current = getScrollableAncestors(resolvedNode);
+        const scrollableAncestors = getScrollableAncestors(resolvedNode);
+        scrollableAncestorsRef.current = scrollableAncestors;
+        updateScrollListeners(scrollableAncestors);
       }
 
       if (dragNodeRef.current) {
@@ -554,11 +758,20 @@ export const useEdgeScroll = (
       updateScrollIntent(delta, enabled);
       updateAutoScroll();
     },
-    [resolveDragNode, resolveDelta, updateAutoScroll, updateScrollIntent],
+    [
+      resolveDragNode,
+      resolveDelta,
+      updateAutoScroll,
+      updateScrollIntent,
+      updateScrollListeners,
+    ],
   );
 
   const handleDragStop = useCallback(() => {
     clearAutoScrollInterval();
+    clearScrollListeners();
+    cancelLayoutShiftCompensation();
+    cancelScrollUpdateFrame();
     resetScrollIntent();
     scrollableAncestorsRef.current = [];
     dragNodeRef.current = null;
@@ -567,7 +780,13 @@ export const useEdgeScroll = (
     scrollContainerRef.current = null;
     scrollSpeedRef.current = { x: 0, y: 0 };
     scrollDirectionRef.current = { x: 0, y: 0 };
-  }, [clearAutoScrollInterval, resetScrollIntent]);
+  }, [
+    cancelLayoutShiftCompensation,
+    cancelScrollUpdateFrame,
+    clearAutoScrollInterval,
+    clearScrollListeners,
+    resetScrollIntent,
+  ]);
 
   useEffect(() => {
     if (normalizedOptions.enabled === false) {
@@ -575,7 +794,20 @@ export const useEdgeScroll = (
     }
   }, [normalizedOptions.enabled, handleDragStop]);
 
-  useEffect(() => () => clearAutoScrollInterval(), [clearAutoScrollInterval]);
+  useEffect(
+    () => () => {
+      clearAutoScrollInterval();
+      clearScrollListeners();
+      cancelLayoutShiftCompensation();
+      cancelScrollUpdateFrame();
+    },
+    [
+      cancelLayoutShiftCompensation,
+      cancelScrollUpdateFrame,
+      clearAutoScrollInterval,
+      clearScrollListeners,
+    ],
+  );
 
   return {
     handleDragStart,

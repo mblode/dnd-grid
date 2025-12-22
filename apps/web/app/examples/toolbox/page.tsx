@@ -9,15 +9,14 @@ interface ToolboxItem {
   y: number;
   w: number;
   h: number;
-  deg: number;
   visible: boolean;
 }
 
 const initialItems: ToolboxItem[] = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2, deg: 0, visible: true },
-  { i: "b", x: 2, y: 0, w: 2, h: 2, deg: 0, visible: true },
-  { i: "c", x: 4, y: 0, w: 2, h: 2, deg: 0, visible: false },
-  { i: "d", x: 6, y: 0, w: 2, h: 2, deg: 0, visible: false },
+  { i: "a", x: 0, y: 0, w: 2, h: 2, visible: true },
+  { i: "b", x: 2, y: 0, w: 2, h: 2, visible: true },
+  { i: "c", x: 4, y: 0, w: 2, h: 2, visible: false },
+  { i: "d", x: 6, y: 0, w: 2, h: 2, visible: false },
 ];
 
 export default function ToolboxExample() {
@@ -33,6 +32,9 @@ export default function ToolboxExample() {
 
   const visibleItems = items.filter((item) => item.visible);
   const hiddenItems = items.filter((item) => !item.visible);
+  const visibleLayout: Layout = visibleItems.map(
+    ({ visible, ...item }) => item,
+  );
 
   const handleLayoutChange = (newLayout: Layout) => {
     setItems((prev) =>
@@ -65,7 +67,7 @@ export default function ToolboxExample() {
       </div>
 
       <DndGrid
-        layout={visibleItems as Layout}
+        layout={visibleLayout}
         cols={12}
         rowHeight={40}
         width={600}

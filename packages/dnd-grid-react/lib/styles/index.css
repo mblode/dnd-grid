@@ -1,2 +1,4 @@
+@layer base, dnd-grid-base, dnd-grid-theme;
+
 @import "./base.css";
 @import "./theme.css";

@@ -1,8 +1,11 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const GRID_WIDTH = 600;
 
 const STORAGE_KEY = "dnd-grid-example-layout";
 
@@ -29,6 +32,10 @@ function getInitialLayout(): Layout {
 
 export default function LocalStorageExample() {
   const [layout, setLayout] = useState<Layout>(getInitialLayout);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+    initialWidth: GRID_WIDTH,
+  });
 
   const handleLayoutChange = (newLayout: Layout) => {
     setLayout(newLayout);
@@ -46,17 +53,27 @@ export default function LocalStorageExample() {
         Reset Layout
       </Button>
 
-      <DndGrid
-        layout={layout}
-        cols={12}
-        rowHeight={40}
-        width={600}
-        onLayoutChange={handleLayoutChange}
+      <div
+        ref={containerRef}
+        className="w-full"
+        style={{ maxWidth: GRID_WIDTH }}
       >
-        {layout.map((item) => (
-          <div key={item.i}>{item.i}</div>
-        ))}
-      </DndGrid>
+        {mounted && width > 0 ? (
+          <DndGrid
+            layout={layout}
+            cols={12}
+            rowHeight={40}
+            width={width}
+            onLayoutChange={handleLayoutChange}
+          >
+            {layout.map((item) => (
+              <div key={item.i}>{item.i}</div>
+            ))}
+          </DndGrid>
+        ) : (
+          <Skeleton className="h-[220px] w-full" />
+        )}
+      </div>
     </div>
   );
 }

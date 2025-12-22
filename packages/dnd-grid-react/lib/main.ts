@@ -1,13 +1,16 @@
 import "./styles/index.css";
 
 export {
-  getCompactor,
   horizontalCompactor,
   horizontalOverlapCompactor,
   noCompactor,
   verticalCompactor,
   verticalOverlapCompactor,
 } from "./compactors";
+export {
+  AutoWidthDndGrid,
+  type AutoWidthDndGridProps,
+} from "./components/auto-width-dnd-grid";
 export { DndGrid } from "./components/dnd-grid";
 export { GridItem } from "./components/grid-item";
 export { ResizeHandle } from "./components/resize-handle";

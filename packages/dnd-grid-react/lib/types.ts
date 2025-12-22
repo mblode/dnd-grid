@@ -274,8 +274,6 @@ export type EventCallback = (
   arg4: Event,
   arg5: HTMLElement | null | undefined,
 ) => void;
-export type CompactType = ("horizontal" | "vertical") | null | undefined;
-
 export type Breakpoint = string;
 export type Breakpoints<B extends Breakpoint = Breakpoint> = Record<B, number>;
 export type BreakpointCols<B extends Breakpoint = Breakpoint> = Record<

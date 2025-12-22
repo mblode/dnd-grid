@@ -354,7 +354,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         let { layout } = stateRef.current;
         const { cols } = propsRef.current;
         const compactor = resolveCompactor(propsRef.current);
-        const { allowOverlap } = compactor;
+        const { allowOverlap, preventCollision } = compactor;
         const l = getLayoutItem(layout, i);
         if (!l) return;
         edgeScrollRef.current.handleDrag(e, node, newPosition);
@@ -368,7 +368,19 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           i: i,
         };
         // Move the element to the dragged location.
-        layout = compactor.onMove(layout, l, x, y, cols as number);
+        let nextLayout = compactor.onMove(layout, l, x, y, cols as number);
+        if (preventCollision && !allowOverlap) {
+          const nextItem = getLayoutItem(nextLayout, i);
+          const collisions = nextItem
+            ? getAllCollisions(nextLayout, nextItem).filter(
+                (layoutItem) => layoutItem.i !== nextItem.i,
+              )
+            : [];
+          if (collisions.length > 0) {
+            nextLayout = layout;
+          }
+        }
+        layout = nextLayout;
         propsRef.current.onDrag(layout, oldDragItem, l, placeholder, e, node);
         setState((prevState) => ({
           ...prevState,
@@ -392,11 +404,23 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         let { layout } = stateRef.current;
         const { cols } = propsRef.current;
         const compactor = resolveCompactor(propsRef.current);
-        const { allowOverlap } = compactor;
+        const { allowOverlap, preventCollision } = compactor;
         const l = getLayoutItem(layout, i);
         if (!l) return;
         // Move the element here
-        layout = compactor.onMove(layout, l, x, y, cols as number);
+        let nextLayout = compactor.onMove(layout, l, x, y, cols as number);
+        if (preventCollision && !allowOverlap) {
+          const nextItem = getLayoutItem(nextLayout, i);
+          const collisions = nextItem
+            ? getAllCollisions(nextLayout, nextItem).filter(
+                (layoutItem) => layoutItem.i !== nextItem.i,
+              )
+            : [];
+          if (collisions.length > 0) {
+            nextLayout = layout;
+          }
+        }
+        layout = nextLayout;
         // Set state
         const newLayout = allowOverlap
           ? layout

@@ -21,7 +21,7 @@ export default function Home() {
                 <Button asChild size="lg">
                   <a href="https://dnd-grid.com/docs">Get started</a>
                 </Button>
-                <code className="relative rounded-lg bg-white pl-5 pr-3 py-2 font-mono text-sm inline-flex items-center gap-2">
+                <code className="relative rounded-lg bg-background pl-5 pr-3 py-2 font-mono text-sm inline-flex items-center gap-2">
                   npm install @dnd-grid/react
                   <CopyButton
                     content="npm install @dnd-grid/react"

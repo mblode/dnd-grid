@@ -6,6 +6,7 @@ import {
   useContainerWidth,
   useDndGridResponsiveLayout,
 } from "@dnd-grid/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const layouts: ResponsiveLayouts = {
   lg: [
@@ -44,6 +45,7 @@ const cards = [
 export default function ResponsiveExample() {
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: true,
+    initialWidth: 0,
   });
 
   const { gridProps, handleLayoutChange, breakpoint, cols } =
@@ -57,13 +59,13 @@ export default function ResponsiveExample() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Breakpoint: {breakpoint}</span>
+        <span>Breakpoint: {mounted ? breakpoint : "..."}</span>
         <span>
-          {Math.round(width)}px · {cols} cols
+          {mounted ? `${Math.round(width)}px · ${cols} cols` : "Measuring..."}
         </span>
       </div>
       <div ref={containerRef} className="w-full">
-        {mounted && width > 0 && (
+        {mounted && width > 0 ? (
           <DndGrid
             {...gridProps}
             width={width}
@@ -74,6 +76,8 @@ export default function ResponsiveExample() {
               <div key={card.id}>{card.label}</div>
             ))}
           </DndGrid>
+        ) : (
+          <Skeleton className="h-[280px] w-full" />
         )}
       </div>
     </div>

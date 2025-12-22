@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import React from "react";
 import type {
   Compactor,
-  CompactType,
   Layout,
   LayoutItem,
   Position,
@@ -24,8 +23,8 @@ export const bottom = (layout: Layout): number => {
 
   return max;
 };
-export const cloneLayout = (layout: Layout): Layout => {
-  const newLayout = Array(layout.length);
+export const cloneLayout = (layout: Layout): LayoutItem[] => {
+  const newLayout: LayoutItem[] = new Array(layout.length);
 
   for (let i = 0, len = layout.length; i < len; i++) {
     newLayout[i] = cloneLayoutItem(layout[i]);
@@ -112,161 +111,6 @@ export const collides = (l1: LayoutItem, l2: LayoutItem): boolean => {
 };
 
 /**
- * Given a layout, compact it. This involves going down each y coordinate and removing gaps
- * between items.
- *
- * Does not modify layout items (clones). Creates a new layout array.
- */
-export const compact = (
-  layout: Layout,
-  compactType: CompactType,
-  cols: number,
-  allowOverlap?: boolean | null | undefined,
-): Layout => {
-  // Statics go in the compareWith array right away so items flow around them.
-  const compareWith = getStatics(layout);
-  // We go through the items by row and column.
-  const sorted = sortLayoutItems(layout, compactType);
-  // Holding for new items.
-  const out = Array(layout.length);
-
-  // Create index map for O(1) lookup instead of O(n) indexOf
-  const indexMap = new Map<string, number>();
-  for (let i = 0; i < layout.length; i++) {
-    indexMap.set(layout[i].i, i);
-  }
-
-  for (let i = 0, len = sorted.length; i < len; i++) {
-    let l = cloneLayoutItem(sorted[i]);
-
-    // Don't move static elements
-    if (!l.static) {
-      l = compactItem(compareWith, l, compactType, cols, sorted, allowOverlap);
-      // Add to comparison array. We only collide with items before this one.
-      // Statics are already in this array.
-      compareWith.push(l);
-    }
-
-    // Add to output array to make sure they still come out in the right order.
-    // Use Map for O(1) lookup instead of indexOf O(n)
-    const originalIndex = indexMap.get(sorted[i].i);
-    if (originalIndex !== undefined) {
-      out[originalIndex] = l;
-    }
-    // Clear moved flag, if it exists.
-    l.moved = false;
-  }
-
-  return out;
-};
-const heightWidth = {
-  x: "w",
-  y: "h",
-} as const;
-
-/**
- * Before moving item down, it will check if the movement will cause collisions and move those items down before.
- */
-const resolveCompactionCollision = (
-  layout: Layout,
-  item: LayoutItem,
-  moveToCoord: number,
-  axis: "x" | "y",
-  hasStatics?: boolean,
-) => {
-  const sizeProp = heightWidth[axis];
-  item[axis] += 1;
-  const itemIndex = layout.map((layoutItem) => layoutItem.i).indexOf(item.i);
-  const layoutHasStatics = hasStatics ?? getStatics(layout).length > 0;
-
-  // Go through each item we collide with.
-  for (let i = itemIndex + 1; i < layout.length; i++) {
-    const otherItem = layout[i];
-    // Ignore static items
-    if (otherItem.static) continue;
-    // Optimization: we can break early if we know we're past this el,
-    // but only when there are no static items scattered throughout.
-    if (!layoutHasStatics && otherItem.y > item.y + item.h) break;
-
-    if (collides(item, otherItem)) {
-      resolveCompactionCollision(
-        layout,
-        otherItem,
-        moveToCoord + item[sizeProp],
-        axis,
-        layoutHasStatics,
-      );
-    }
-  }
-
-  item[axis] = moveToCoord;
-};
-
-/**
- * Compact an item in the layout.
- *
- * Modifies item.
- */
-export const compactItem = (
-  compareWith: Layout,
-  l: LayoutItem,
-  compactType: CompactType,
-  cols: number,
-  fullLayout: Layout,
-  allowOverlap?: boolean | null | undefined,
-): LayoutItem => {
-  const compactV = compactType === "vertical";
-  const compactH = compactType === "horizontal";
-
-  if (compactV) {
-    // Bottom 'y' possible is the bottom of the layout.
-    // This allows you to do nice stuff like specify {y: Infinity}
-    // This is here because the layout must be sorted in order to get the correct bottom `y`.
-    l.y = Math.min(bottom(compareWith), l.y);
-
-    // Move the element up as far as it can go without colliding.
-    while (l.y > 0 && !getFirstCollision(compareWith, l)) {
-      l.y--;
-    }
-  } else if (compactH) {
-    // Move the element left as far as it can go without colliding.
-    while (l.x > 0 && !getFirstCollision(compareWith, l)) {
-      l.x--;
-    }
-  }
-
-  // Move it down, and keep moving it down if it's colliding.
-  let collision: LayoutItem | null | undefined;
-
-  // Checking the compactType null value to avoid breaking the layout when overlapping is allowed.
-  while (true) {
-    collision = getFirstCollision(compareWith, l);
-    if (!collision || (compactType === null && allowOverlap)) break;
-    if (compactH) {
-      resolveCompactionCollision(fullLayout, l, collision.x + collision.w, "x");
-    } else {
-      resolveCompactionCollision(fullLayout, l, collision.y + collision.h, "y");
-    }
-
-    // Since we can't grow without bounds horizontally, if we've overflown, let's move it down and try again.
-    if (compactH && l.x + l.w > cols) {
-      l.x = cols - l.w;
-      l.y++;
-
-      // Also move element as left as we can
-      while (l.x > 0 && !getFirstCollision(compareWith, l)) {
-        l.x--;
-      }
-    }
-  }
-
-  // Ensure that there are no negative positions
-  l.y = Math.max(l.y, 0);
-  l.x = Math.max(l.x, 0);
-  return l;
-};
-
-/**
  * Given a layout, make sure all elements fit within its bounds.
  *
  * Modifies layout items.
@@ -321,7 +165,7 @@ export const getLayoutItem = (
 export const getFirstCollision = (
   layout: Layout,
   layoutItem: LayoutItem,
-): LayoutItem | null | undefined => {
+): LayoutItem | undefined => {
   for (let i = 0, len = layout.length; i < len; i++) {
     if (collides(layout[i], layoutItem)) return layout[i];
   }
@@ -349,16 +193,17 @@ export const moveElement = (
   x: number | null | undefined,
   y: number | null | undefined,
   isUserAction: boolean | null | undefined,
-  preventCollision: boolean | null | undefined,
-  compactType: CompactType,
+  compactor: Compactor,
   cols: number,
-  allowOverlap?: boolean | null | undefined,
-): Layout => {
+): LayoutItem[] => {
   // If this is static and not explicitly enabled as draggable,
   // no move is possible, so we can short-circuit this immediately.
-  if (l.static && l.isDraggable !== true) return layout;
+  if (l.static && l.isDraggable !== true) return [...layout];
   // Short-circuit if nothing to do.
-  if (l.y === y && l.x === x) return layout;
+  if (l.y === y && l.x === x) return [...layout];
+  const compactorType = compactor.type;
+  const preventCollision = compactor.preventCollision === true;
+  const { allowOverlap } = compactor;
   const oldX = l.x;
   const oldY = l.y;
   // This is quite a bit faster than extending the object
@@ -369,14 +214,14 @@ export const moveElement = (
   // When doing this comparison, we have to sort the items we compare with
   // to ensure, in the case of multiple collisions, that we're getting the
   // nearest collision.
-  let sorted = sortLayoutItems(layout, compactType);
+  let sorted = [...sortLayoutItems(layout, compactor)];
   const movingUp =
-    compactType === "vertical" && typeof y === "number"
+    compactorType === "vertical" && typeof y === "number"
       ? oldY >= y
-      : compactType === "horizontal" && typeof x === "number"
+      : compactorType === "horizontal" && typeof x === "number"
         ? oldX >= x
         : false;
-  if (movingUp) sorted = sorted.slice().reverse();
+  if (movingUp) sorted = sorted.reverse();
   const collisions = getAllCollisions(sorted, l);
   const hasCollisions = collisions.length > 0;
 
@@ -393,10 +238,11 @@ export const moveElement = (
     l.x = oldX;
     l.y = oldY;
     l.moved = false;
-    return layout; // did not change so don't clone
+    return layout as LayoutItem[]; // did not change so don't clone
   }
 
   // Move each item that collides away from this element.
+  let resultLayout: LayoutItem[] = [...layout];
   for (let i = 0, len = collisions.length; i < len; i++) {
     const collision = collisions[i];
     // Short circuit so we can't infinite loop
@@ -404,27 +250,27 @@ export const moveElement = (
 
     // Don't move static items - we have to move *this* element away
     if (collision.static) {
-      layout = moveElementAwayFromCollision(
-        layout,
+      resultLayout = moveElementAwayFromCollision(
+        resultLayout,
         collision,
         l,
         isUserAction,
-        compactType,
+        compactor,
         cols,
       );
     } else {
-      layout = moveElementAwayFromCollision(
-        layout,
+      resultLayout = moveElementAwayFromCollision(
+        resultLayout,
         l,
         collision,
         isUserAction,
-        compactType,
+        compactor,
         cols,
       );
     }
   }
 
-  return layout;
+  return resultLayout;
 };
 
 /**
@@ -436,12 +282,13 @@ export const moveElementAwayFromCollision = (
   collidesWith: LayoutItem,
   itemToMove: LayoutItem,
   isUserAction: boolean | null | undefined,
-  compactType: CompactType,
+  compactor: Compactor,
   cols: number,
-): Layout => {
-  const compactH = compactType === "horizontal";
+): LayoutItem[] => {
+  const compactorType = compactor.type;
+  const compactH = compactorType === "horizontal";
   // Compact vertically if not set to horizontal
-  const compactV = compactType === "vertical";
+  const compactV = compactorType === "vertical";
   const preventCollision = collidesWith.static; // we're already colliding (not for static items)
 
   // If there is enough space above the collision to put this element, move it there.
@@ -460,9 +307,11 @@ export const moveElementAwayFromCollision = (
     };
     const firstCollision = getFirstCollision(layout, fakeItem);
     const collisionNorth =
-      firstCollision && firstCollision.y + firstCollision.h > collidesWith.y;
+      firstCollision !== undefined &&
+      firstCollision.y + firstCollision.h > collidesWith.y;
     const collisionWest =
-      firstCollision && collidesWith.x + collidesWith.w > firstCollision.x;
+      firstCollision !== undefined &&
+      collidesWith.x + collidesWith.w > firstCollision.x;
 
     // No collision? If so, we can go up there; otherwise, we'll end up moving down as normal
     if (!firstCollision) {
@@ -472,8 +321,7 @@ export const moveElementAwayFromCollision = (
         compactH ? fakeItem.x : undefined,
         compactV ? fakeItem.y : undefined,
         isUserAction,
-        preventCollision,
-        compactType,
+        { ...compactor, preventCollision },
         cols,
       );
     } else if (collisionNorth && compactV) {
@@ -481,16 +329,15 @@ export const moveElementAwayFromCollision = (
         layout,
         itemToMove,
         undefined,
-        collidesWith.y + 1,
+        itemToMove.y + 1,
         isUserAction,
-        preventCollision,
-        compactType,
+        { ...compactor, preventCollision },
         cols,
       );
-    } else if (collisionNorth && compactType == null) {
+    } else if (collisionNorth && compactorType === null) {
       collidesWith.y = itemToMove.y;
       itemToMove.y = itemToMove.y + itemToMove.h;
-      return layout;
+      return [...layout];
     } else if (collisionWest && compactH) {
       return moveElement(
         layout,
@@ -498,8 +345,7 @@ export const moveElementAwayFromCollision = (
         itemToMove.x,
         undefined,
         isUserAction,
-        preventCollision,
-        compactType,
+        { ...compactor, preventCollision },
         cols,
       );
     }
@@ -508,18 +354,17 @@ export const moveElementAwayFromCollision = (
   const newX = compactH ? itemToMove.x + 1 : undefined;
   const newY = compactV ? itemToMove.y + 1 : undefined;
 
-  if (newX == null && newY == null) {
-    return layout;
+  if (newX === undefined && newY === undefined) {
+    return [...layout];
   }
 
   return moveElement(
     layout,
     itemToMove,
-    compactH ? itemToMove.x + 1 : undefined,
-    compactV ? itemToMove.y + 1 : undefined,
+    newX,
+    newY,
     isUserAction,
-    preventCollision,
-    compactType,
+    { ...compactor, preventCollision },
     cols,
   );
 };
@@ -706,11 +551,13 @@ export const setTransform = (
  */
 export const sortLayoutItems = (
   layout: Layout,
-  compactType: CompactType,
+  compactor: Compactor,
 ): Layout => {
-  if (compactType === "horizontal") return sortLayoutItemsByColRow(layout);
-  if (compactType === "vertical") return sortLayoutItemsByRowCol(layout);
-  return layout;
+  const compactorType = compactor.type;
+  if (compactorType === "horizontal") return sortLayoutItemsByColRow(layout);
+  if (compactorType === "vertical") return sortLayoutItemsByRowCol(layout);
+  if (compactorType === "wrap") return sortLayoutItemsByRowCol(layout);
+  return layout.slice(0);
 };
 
 /**
@@ -720,9 +567,8 @@ export const sortLayoutItems = (
  */
 export const sortLayoutItemsByRowCol = (layout: Layout): Layout =>
   layout.slice(0).sort((a, b) => {
-    if (a.y > b.y || (a.y === b.y && a.x > b.x)) return 1;
-    if (a.y === b.y && a.x === b.x) return 0;
-    return -1;
+    if (a.y !== b.y) return a.y - b.y;
+    return a.x - b.x;
   });
 
 /**
@@ -732,8 +578,8 @@ export const sortLayoutItemsByRowCol = (layout: Layout): Layout =>
  */
 export const sortLayoutItemsByColRow = (layout: Layout): Layout =>
   layout.slice(0).sort((a, b) => {
-    if (a.x > b.x || (a.x === b.x && a.y > b.y)) return 1;
-    return -1;
+    if (a.x !== b.x) return a.x - b.x;
+    return a.y - b.y;
   });
 
 /**

@@ -1,8 +1,11 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+
+const GRID_WIDTH = 600;
 
 const initialLayout: Layout = [
   { i: "0", x: 0, y: 0, w: 2, h: 2, static: true },
@@ -15,28 +18,42 @@ const initialLayout: Layout = [
 
 export default function StaticElementsExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+    initialWidth: GRID_WIDTH,
+  });
 
   return (
     <div>
-      <DndGrid
-        layout={layout}
-        cols={12}
-        rowHeight={40}
-        width={600}
-        onLayoutChange={setLayout}
+      <div
+        ref={containerRef}
+        className="w-full"
+        style={{ maxWidth: GRID_WIDTH }}
       >
-        {layout.map((item) => (
-          <div
-            key={item.i}
-            className={cn(
-              "text-sm font-normal",
-              item.static ? "bg-muted-foreground/20" : "bg-muted",
-            )}
+        {mounted && width > 0 ? (
+          <DndGrid
+            layout={layout}
+            cols={12}
+            rowHeight={40}
+            width={width}
+            onLayoutChange={setLayout}
           >
-            {item.i} {item.static ? "(static)" : ""}
-          </div>
-        ))}
-      </DndGrid>
+            {layout.map((item) => (
+              <div
+                key={item.i}
+                className={cn(
+                  "text-sm font-normal",
+                  item.static ? "bg-muted-foreground/20" : "bg-muted",
+                )}
+              >
+                {item.i} {item.static ? "(static)" : ""}
+              </div>
+            ))}
+          </DndGrid>
+        ) : (
+          <Skeleton className="h-[220px] w-full" />
+        )}
+      </div>
     </div>
   );
 }

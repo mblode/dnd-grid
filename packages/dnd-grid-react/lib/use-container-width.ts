@@ -2,6 +2,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -24,6 +25,9 @@ export type UseContainerWidthResult = {
   measureWidth: () => void;
 };
 
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 export const useContainerWidth = (
   options: UseContainerWidthOptions = {},
 ): UseContainerWidthResult => {
@@ -44,7 +48,7 @@ export const useContainerWidth = (
     }
   }, [mounted]);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const node = containerRef.current;
     if (!node) return;
 

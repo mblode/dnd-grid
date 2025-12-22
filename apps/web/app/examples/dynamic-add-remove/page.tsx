@@ -1,9 +1,12 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const GRID_WIDTH = 600;
 
 export default function DynamicAddRemoveExample() {
   const [counter, setCounter] = useState(5);
@@ -29,6 +32,10 @@ export default function DynamicAddRemoveExample() {
     ]);
     setCounter((c) => c + 1);
   }, [counter]);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+    initialWidth: GRID_WIDTH,
+  });
 
   const removeItem = (id: string) => {
     setLayout((prev) => prev.filter((item) => item.i !== id));
@@ -40,29 +47,39 @@ export default function DynamicAddRemoveExample() {
         Add Item
       </Button>
 
-      <DndGrid
-        layout={layout}
-        cols={12}
-        rowHeight={40}
-        width={600}
-        onLayoutChange={setLayout}
+      <div
+        ref={containerRef}
+        className="w-full"
+        style={{ maxWidth: GRID_WIDTH }}
       >
-        {layout.map((item) => (
-          <div key={item.i} className="relative">
-            <span>{item.i}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeItem(item.i);
-              }}
-              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
-      </DndGrid>
+        {mounted && width > 0 ? (
+          <DndGrid
+            layout={layout}
+            cols={12}
+            rowHeight={40}
+            width={width}
+            onLayoutChange={setLayout}
+          >
+            {layout.map((item) => (
+              <div key={item.i} className="relative">
+                <span>{item.i}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeItem(item.i);
+                  }}
+                  className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </DndGrid>
+        ) : (
+          <Skeleton className="h-[220px] w-full" />
+        )}
+      </div>
     </div>
   );
 }

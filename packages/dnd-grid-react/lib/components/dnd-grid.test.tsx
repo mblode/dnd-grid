@@ -7,8 +7,8 @@ import {
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import {
-  getCompactor,
   horizontalCompactor,
+  verticalCompactor,
   verticalOverlapCompactor,
 } from "../compactors";
 import type {
@@ -281,7 +281,7 @@ describe("DndGrid", () => {
         resizing: false,
         droppingDOMNode: null,
         propsLayout: prevLayout,
-        compactor: getCompactor("vertical", false, false),
+        compactor: verticalCompactor,
         children: [<div key="a" />],
       } as DerivedState;
 
@@ -310,7 +310,7 @@ describe("DndGrid", () => {
         resizing: false,
         droppingDOMNode: null,
         propsLayout: prevLayout,
-        compactor: getCompactor("vertical", false, false),
+        compactor: verticalCompactor,
         children: [<div key="a" />],
       } as DerivedState;
 
@@ -1041,7 +1041,7 @@ describe("DndGrid", () => {
       renderGrid(
         <DndGrid
           {...defaultProps}
-          compactor={getCompactor("vertical", false, true)}
+          compactor={{ ...verticalCompactor, preventCollision: true }}
         >
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A

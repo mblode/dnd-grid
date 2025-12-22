@@ -40,6 +40,41 @@ function MyGrid() {
 }
 ```
 
+## Measuring container width
+
+If you want the grid to measure its container width and avoid width jumps on
+load, use `useContainerWidth` and render once measured:
+
+```tsx
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
+
+const layout: Layout = [
+  { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+];
+
+function MyGrid() {
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+    initialWidth: 600,
+  });
+
+  return (
+    <div ref={containerRef} className="w-full" style={{ maxWidth: 600 }}>
+      {mounted && width > 0 && (
+        <DndGrid layout={layout} cols={12} rowHeight={30} width={width}>
+          <div key="a">A</div>
+          <div key="b">B</div>
+        </DndGrid>
+      )}
+    </div>
+  );
+}
+```
+
+If you prefer a convenience wrapper, `AutoWidthDndGrid` exposes the same
+behavior with `measureBeforeMount` (default `true`) and `initialWidth`.
+
 ## Features
 
 - 100% React - no jQuery

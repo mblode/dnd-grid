@@ -96,10 +96,10 @@ Control what happens when a dragged item hits another item.
 - **Allow Overlap:** Items can be placed on top of each other.
 
 ```tsx
-import { getCompactor, verticalOverlapCompactor } from "@dnd-grid/react";
+import { verticalCompactor, verticalOverlapCompactor } from "@dnd-grid/react";
 
 // Block movement if it hits another item
-<DndGrid compactor={getCompactor("vertical", false, true)} />
+<DndGrid compactor={{ ...verticalCompactor, preventCollision: true }} />
 
 // Allow items to stack (disables compaction)
 <DndGrid compactor={verticalOverlapCompactor} />

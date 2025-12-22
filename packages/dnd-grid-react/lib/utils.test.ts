@@ -9,7 +9,12 @@ import {
   simpleLayout,
 } from "./__tests__/fixtures/layouts";
 import { createLayoutItem } from "./__tests__/test-utils";
-import { getCompactor } from "./compactors";
+import {
+  horizontalCompactor,
+  noCompactor,
+  verticalCompactor,
+  verticalOverlapCompactor,
+} from "./compactors";
 import type { LayoutItem, Position } from "./types";
 import {
   bottom,
@@ -17,8 +22,6 @@ import {
   cloneLayout,
   cloneLayoutItem,
   collides,
-  compact,
-  compactItem,
   correctBounds,
   getAllCollisions,
   getFirstCollision,
@@ -285,15 +288,15 @@ describe("utils", () => {
     });
   });
 
-  // --- COMPACTION ---
-  describe("compact", () => {
+  // --- COMPACTORS ---
+  describe("compactors", () => {
     it("compacts items vertically", () => {
-      const compacted = compact(gappyLayout, "vertical", 12);
+      const compacted = verticalCompactor.compact(gappyLayout, 12);
       expect(compacted[0].y).toBe(0);
     });
 
     it("compacts items horizontally", () => {
-      const compacted = compact(horizontalGappyLayout, "horizontal", 12);
+      const compacted = horizontalCompactor.compact(horizontalGappyLayout, 12);
       expect(compacted[0].x).toBe(0);
     });
 
@@ -309,86 +312,27 @@ describe("utils", () => {
         }),
         createLayoutItem({ i: "dynamic", x: 0, y: 5, w: 2, h: 2 }),
       ];
-      const compacted = compact(layout, "vertical", 12);
+      const compacted = verticalCompactor.compact(layout, 12);
       expect(compacted.find((i) => i.i === "dynamic")?.y).toBe(2);
     });
 
-    it("handles allowOverlap", () => {
-      const compacted = compact(collidingLayout, "vertical", 12, true);
-      // With allowOverlap, items still compact but can overlap
-      expect(compacted[0].y).toBe(0);
-      // The second item is still compacted to the top
-      expect(compacted[1].y).toBeGreaterThanOrEqual(0);
+    it("skips compaction when overlap is allowed", () => {
+      const compacted = verticalOverlapCompactor.compact(collidingLayout, 12);
+      expect(compacted.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }))).toEqual(
+        collidingLayout.map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
+      );
     });
 
     it("handles empty layout", () => {
-      const compacted = compact([], "vertical", 12);
+      const compacted = verticalCompactor.compact([], 12);
       expect(compacted).toEqual([]);
     });
 
-    it("handles null compactType", () => {
-      const compacted = compact(gappyLayout, null, 12);
-      // With null compactType, items don't compact but collisions still resolve
-      expect(compacted.length).toBe(gappyLayout.length);
-    });
-  });
-
-  describe("compactItem", () => {
-    it("compacts item vertically to top", () => {
-      const item = createLayoutItem({ i: "test", x: 0, y: 5, w: 1, h: 1 });
-      const compareWith: LayoutItem[] = [];
-      const fullLayout = [item];
-      const compacted = compactItem(
-        compareWith,
-        item,
-        "vertical",
-        12,
-        fullLayout,
+    it("preserves positions with no compaction", () => {
+      const compacted = noCompactor.compact(gappyLayout, 12);
+      expect(compacted.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }))).toEqual(
+        gappyLayout.map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
       );
-      expect(compacted.y).toBe(0);
-    });
-
-    it("compacts item horizontally to left", () => {
-      const item = createLayoutItem({ i: "test", x: 5, y: 0, w: 1, h: 1 });
-      const compareWith: LayoutItem[] = [];
-      const fullLayout = [item];
-      const compacted = compactItem(
-        compareWith,
-        item,
-        "horizontal",
-        12,
-        fullLayout,
-      );
-      expect(compacted.x).toBe(0);
-    });
-
-    it("stops at collision", () => {
-      const blocker = createLayoutItem({
-        i: "blocker",
-        x: 0,
-        y: 0,
-        w: 2,
-        h: 2,
-      });
-      const item = createLayoutItem({ i: "test", x: 0, y: 5, w: 1, h: 1 });
-      const compareWith = [blocker];
-      const fullLayout = [blocker, item];
-      const compacted = compactItem(
-        compareWith,
-        item,
-        "vertical",
-        12,
-        fullLayout,
-      );
-      expect(compacted.y).toBe(2);
-    });
-
-    it("ensures non-negative positions", () => {
-      const item = createLayoutItem({ i: "test", x: -5, y: -5, w: 1, h: 1 });
-      const fullLayout = [item];
-      const compacted = compactItem([], item, "vertical", 12, fullLayout);
-      expect(compacted.x).toBeGreaterThanOrEqual(0);
-      expect(compacted.y).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -483,8 +427,7 @@ describe("utils", () => {
         5,
         5,
         true,
-        false,
-        "vertical",
+        verticalCompactor,
         12,
       );
       expect(newLayout.find((item) => item.i === "a")?.x).toBe(5);
@@ -500,8 +443,7 @@ describe("utils", () => {
         5,
         5,
         true,
-        false,
-        "vertical",
+        verticalCompactor,
         12,
       );
       expect(newLayout[0].x).toBe(0);
@@ -517,11 +459,10 @@ describe("utils", () => {
         l.x,
         l.y,
         true,
-        false,
-        "vertical",
+        verticalCompactor,
         12,
       );
-      expect(newLayout).toBe(layout);
+      expect(newLayout).not.toBe(layout);
     });
 
     it("prevents collision when preventCollision is true", () => {
@@ -534,8 +475,7 @@ describe("utils", () => {
         0,
         0,
         true,
-        true,
-        "vertical",
+        { ...verticalCompactor, preventCollision: true },
         12,
       );
       // Should revert to original position
@@ -551,10 +491,8 @@ describe("utils", () => {
         0,
         0,
         true,
-        false,
-        "vertical",
+        verticalOverlapCompactor,
         12,
-        true,
       );
       // Should allow the move
       expect(newLayout.find((item) => item.i === "b")?.x).toBe(0);
@@ -569,7 +507,7 @@ describe("utils", () => {
         layout[0],
         layout[1],
         true,
-        "vertical",
+        verticalCompactor,
         12,
       );
       expect(newLayout.length).toBe(layout.length);
@@ -582,10 +520,33 @@ describe("utils", () => {
         layout[0],
         layout[1],
         true,
-        "horizontal",
+        horizontalCompactor,
         12,
       );
       expect(newLayout.length).toBe(layout.length);
+    });
+
+    it("moves user-action collisions down from the current item position", () => {
+      const layout = [
+        createLayoutItem({
+          i: "static",
+          x: 0,
+          y: 0,
+          w: 2,
+          h: 2,
+          static: true,
+        }),
+        createLayoutItem({ i: "moving", x: 0, y: 1, w: 2, h: 2 }),
+      ];
+      const newLayout = moveElementAwayFromCollision(
+        layout,
+        layout[0],
+        layout[1],
+        true,
+        verticalCompactor,
+        12,
+      );
+      expect(newLayout.find((item) => item.i === "moving")?.y).toBe(2);
     });
   });
 
@@ -638,7 +599,7 @@ describe("utils", () => {
         createLayoutItem({ i: "b", x: 1, y: 0 }),
         createLayoutItem({ i: "a", x: 0, y: 0 }),
       ];
-      const sorted = sortLayoutItems(layout, "vertical");
+      const sorted = sortLayoutItems(layout, verticalCompactor);
       expect(sorted[0].i).toBe("a");
     });
 
@@ -647,18 +608,15 @@ describe("utils", () => {
         createLayoutItem({ i: "b", x: 0, y: 1 }),
         createLayoutItem({ i: "a", x: 0, y: 0 }),
       ];
-      const sorted = sortLayoutItems(layout, "horizontal");
+      const sorted = sortLayoutItems(layout, horizontalCompactor);
       expect(sorted[0].i).toBe("a");
     });
 
-    it("returns original for null compactType", () => {
+    it("returns original for no compaction", () => {
       const layout = simpleLayout;
-      expect(sortLayoutItems(layout, null)).toBe(layout);
-    });
-
-    it("returns original for undefined compactType", () => {
-      const layout = simpleLayout;
-      expect(sortLayoutItems(layout, undefined)).toBe(layout);
+      const sorted = sortLayoutItems(layout, noCompactor);
+      expect(sorted).not.toBe(layout);
+      expect(sorted).toEqual(layout);
     });
   });
 
@@ -786,7 +744,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        getCompactor("vertical", false, false),
+        verticalCompactor,
       );
       const item = next.find((entry) => entry.i === "a");
       expect(item?.x).toBe(1);
@@ -802,7 +760,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        getCompactor("vertical", false, false),
+        verticalCompactor,
       );
       expect(next.map((entry) => entry.i)).toEqual(["b"]);
     });
@@ -819,7 +777,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        getCompactor("vertical", false, false),
+        verticalCompactor,
       );
       const item = next.find((entry) => entry.i === "b");
       expect(item?.y).toBe(1);
@@ -835,7 +793,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        getCompactor("vertical", false, false),
+        verticalCompactor,
       );
       expect(next.map((entry) => entry.i)).toEqual(["a"]);
     });
@@ -853,7 +811,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        getCompactor("vertical", true, false),
+        verticalOverlapCompactor,
       );
       const itemA = next.find((entry) => entry.i === "a");
       const itemB = next.find((entry) => entry.i === "b");

@@ -2,6 +2,7 @@
 
 import { DndGrid, type Layout } from "@dnd-grid/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
 
 export const BLOCK_GAP = 16;
@@ -9,6 +10,11 @@ export const BLOCK_HEIGHT = 24;
 export const BLOCK_COLUMNS = 4;
 export const DEFAULT_WIDTH = 480;
 export const MAX_WIDTH = 643;
+const DEFAULT_GRID_ROWS = 12;
+const DEFAULT_GRID_HEIGHT =
+  DEFAULT_GRID_ROWS * BLOCK_HEIGHT +
+  (DEFAULT_GRID_ROWS - 1) * BLOCK_GAP +
+  BLOCK_GAP * 2;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 2, h: 6 },
@@ -25,7 +31,7 @@ export const BlocksGrid = () => {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const handlers = useGridInteractions();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(DEFAULT_WIDTH);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
   // Prevent ResizeObserver feedback loops while grid items are being resized.
   const isResizingRef = useRef(false);
   const pendingWidthRef = useRef<number | null>(null);
@@ -70,7 +76,8 @@ export const BlocksGrid = () => {
   }, [commitContainerWidth]);
 
   const scaleFactor = useMemo(() => {
-    return Math.min(containerWidth, MAX_WIDTH) / DEFAULT_WIDTH;
+    const width = containerWidth ?? DEFAULT_WIDTH;
+    return Math.min(width, MAX_WIDTH) / DEFAULT_WIDTH;
   }, [containerWidth]);
 
   const margin = BLOCK_GAP * scaleFactor;
@@ -94,7 +101,7 @@ export const BlocksGrid = () => {
 
   return (
     <div ref={containerRef}>
-      {containerWidth > 0 && (
+      {containerWidth !== null && containerWidth > 0 ? (
         <DndGrid
           layout={layout}
           cols={BLOCK_COLUMNS}
@@ -125,6 +132,8 @@ export const BlocksGrid = () => {
             );
           })}
         </DndGrid>
+      ) : (
+        <Skeleton className="w-full" style={{ height: DEFAULT_GRID_HEIGHT }} />
       )}
     </div>
   );

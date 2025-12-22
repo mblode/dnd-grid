@@ -1,7 +1,10 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const GRID_WIDTH = 600;
 
 interface ToolboxItem {
   i: string;
@@ -21,6 +24,10 @@ const initialItems: ToolboxItem[] = [
 
 export default function ToolboxExample() {
   const [items, setItems] = useState<ToolboxItem[]>(initialItems);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+    initialWidth: GRID_WIDTH,
+  });
 
   const toggleItem = (id: string) => {
     setItems((prev) =>
@@ -66,29 +73,39 @@ export default function ToolboxExample() {
         </div>
       </div>
 
-      <DndGrid
-        layout={visibleLayout}
-        cols={12}
-        rowHeight={40}
-        width={600}
-        onLayoutChange={handleLayoutChange}
+      <div
+        ref={containerRef}
+        className="w-full"
+        style={{ maxWidth: GRID_WIDTH }}
       >
-        {visibleItems.map((item) => (
-          <div key={item.i} className="relative">
-            <span>{item.i}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleItem(item.i);
-              }}
-              className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </DndGrid>
+        {mounted && width > 0 ? (
+          <DndGrid
+            layout={visibleLayout}
+            cols={12}
+            rowHeight={40}
+            width={width}
+            onLayoutChange={handleLayoutChange}
+          >
+            {visibleItems.map((item) => (
+              <div key={item.i} className="relative">
+                <span>{item.i}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleItem(item.i);
+                  }}
+                  className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </DndGrid>
+        ) : (
+          <Skeleton className="h-[220px] w-full" />
+        )}
+      </div>
     </div>
   );
 }

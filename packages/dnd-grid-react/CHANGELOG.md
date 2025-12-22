@@ -53,13 +53,4 @@ Initial release of `dnd-grid`, a drag-and-drop, resizable grid layout library fo
 
 ### Acknowledgements
 
-This project is based on [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed (STRML). The original project provided the foundation for the grid layout algorithms and core functionality.
-
-Key modifications from the original:
-
-- Complete TypeScript rewrite
-- React 19 support
-- Added rotation (`deg`) support for grid items
-- Added touch delay duration for mobile
-- Modernised build system (Vite)
-- Reduced bundle size by removing unused dependencies
+Based on [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed (STRML). Differences: weighted swing physics, better styling defaults (`base.css`/`theme.css`, CSS vars, data attributes), touch drag delay, edge auto-scroll, item state hook.

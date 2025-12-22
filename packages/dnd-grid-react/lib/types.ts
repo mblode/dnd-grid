@@ -188,6 +188,7 @@ export type Props = {
 export type DefaultProps = Omit<Props, "children" | "width">;
 
 export type Layout = ReadonlyArray<LayoutItem>;
+export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 export type ConstraintContext = {
   cols: number;
   maxRows: number;
@@ -214,8 +215,9 @@ export type LayoutConstraint = {
     context: ConstraintContext,
   ) => { w: number; h: number };
 };
+export type CompactType = "horizontal" | "vertical" | "wrap" | null;
 export type Compactor = {
-  type: "vertical" | "horizontal" | null | string;
+  type: CompactType;
   allowOverlap: boolean;
   preventCollision?: boolean;
   compact: (layout: Layout, cols: number) => Layout;

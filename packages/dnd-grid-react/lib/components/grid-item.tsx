@@ -31,6 +31,7 @@ import {
 import { normalizeSpacing } from "../spacing";
 import {
   calculateVelocityFromHistory,
+  calculateRotationWeight,
   createLiveSpring,
   POSITION_SPRING_CONFIG,
   type PointWithTimestamp,
@@ -888,7 +889,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
     /**
      * onDrag event handler
-     * Uses Bento-style velocity-based rotation with 100ms sliding window
+     * Uses Bento-style velocity-based rotation with a size-weighted swing
      */
     const onDrag: DraggableEventHandler = React.useCallback(
       (e, { node, deltaX, deltaY }) => {
@@ -942,12 +943,25 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         // Calculate velocity from history using Bento algorithm
         const velocity = calculateVelocityFromHistory(positionHistory);
 
+        const positionParams = getPositionParams();
+        const { isBounded, w, h, containerWidth } = propsRef.current;
+        const { margin, rowHeight } = positionParams;
+        const colWidth = calcGridColWidth(positionParams);
+
+        const itemWidth = calcGridItemWHPx(w, colWidth, margin[1]);
+        const itemHeight = calcGridItemWHPx(h, rowHeight, margin[0]);
+        const baseWidth = calcGridItemWHPx(1, colWidth, margin[1]);
+        const baseHeight = calcGridItemWHPx(1, rowHeight, margin[0]);
+        const rotationWeight = calculateRotationWeight(
+          itemWidth,
+          itemHeight,
+          baseWidth,
+          baseHeight,
+        );
+
         // Convert velocity to rotation using Bento formula
         // INVERTED: drag right = tilt left (negative rotation) due to inertia
-        const targetRotation = velocityToRotation(velocity.x);
-
-        const { isBounded, w, h, containerWidth } = propsRef.current;
-        const positionParams = getPositionParams();
+        const targetRotation = velocityToRotation(velocity.x / rotationWeight);
 
         // Boundary calculations; keeps items within the grid
         if (isBounded) {
@@ -961,7 +975,6 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
               (container as HTMLElement).clientHeight -
               calcGridItemWHPx(h, rowHeight, margin[0]);
             top = clamp(top, 0, bottomBoundary);
-            const colWidth = calcGridColWidth(positionParams);
             const rightBoundary =
               containerWidth - calcGridItemWHPx(w, colWidth, margin[1]);
             left = clamp(left, 0, rightBoundary);

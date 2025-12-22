@@ -1,9 +1,9 @@
 import { act, render } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AutoScrollOptions } from "./types";
-import { AutoScrollActivator, TraversalOrder } from "./types";
-import { type EdgeScrollHandlers, useEdgeScroll } from "./use-edge-scroll";
+import type { AutoScrollOptions } from "../types";
+import { AutoScrollActivator, TraversalOrder } from "../types";
+import { type EdgeScrollHandlers, useEdgeScroll } from "../use-edge-scroll";
 
 type HarnessProps = {
   options?: AutoScrollOptions;

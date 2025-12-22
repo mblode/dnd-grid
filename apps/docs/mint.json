@@ -15,6 +15,11 @@
       "to": "#07C983"
     }
   },
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-H2PKLJ0615"
+    }
+  },
   "topbarLinks": [
     {
       "name": "GitHub",

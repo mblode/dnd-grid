@@ -4,3 +4,8 @@ compatibility_date = "2024-12-01"
 
 [observability]
 enabled = true
+
+[vars]
+DOCS_URL = "matthewblode.mintlify.dev"
+CUSTOM_URL = "dnd-grid.com"
+LANDING_URL = "landing.dnd-grid.com"

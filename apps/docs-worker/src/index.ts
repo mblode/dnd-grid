@@ -1,10 +1,15 @@
-const DOCS_URL = "matthewblode.mintlify.dev";
-const CUSTOM_URL = "dnd-grid.com";
-const LANDING_URL = "landing.dnd-grid.com";
+type Env = {
+  DOCS_URL?: string;
+  CUSTOM_URL?: string;
+  LANDING_URL?: string;
+};
 
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     try {
+      const docsUrl = env?.DOCS_URL ?? "matthewblode.mintlify.dev";
+      const customUrl = env?.CUSTOM_URL ?? "dnd-grid.com";
+      const landingHost = env?.LANDING_URL ?? "landing.dnd-grid.com";
       const urlObject = new URL(request.url);
 
       // Allow Vercel/Let's Encrypt verification paths to pass through
@@ -15,11 +20,11 @@ export default {
       // Proxy requests to /docs path to Mintlify
       if (urlObject.pathname.startsWith("/docs")) {
         const url = new URL(request.url);
-        url.hostname = DOCS_URL;
+        url.hostname = docsUrl;
 
         const proxyRequest = new Request(url, request);
-        proxyRequest.headers.set("Host", DOCS_URL);
-        proxyRequest.headers.set("X-Forwarded-Host", CUSTOM_URL);
+        proxyRequest.headers.set("Host", docsUrl);
+        proxyRequest.headers.set("X-Forwarded-Host", customUrl);
         proxyRequest.headers.set("X-Forwarded-Proto", "https");
 
         const clientIP = request.headers.get("CF-Connecting-IP");
@@ -32,7 +37,7 @@ export default {
 
       // Route all other traffic to landing page
       const landingUrl = new URL(request.url);
-      landingUrl.hostname = LANDING_URL;
+      landingUrl.hostname = landingHost;
       return await fetch(landingUrl, {
         method: request.method,
         headers: request.headers,

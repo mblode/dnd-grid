@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "tail": "wrangler tail"
+    "tail": "wrangler tail",
+    "smoke": "tsx scripts/smoke-test.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241205.0",
+    "tsx": "^4.19.2",
     "wrangler": "^4.56.0"
   }
 }

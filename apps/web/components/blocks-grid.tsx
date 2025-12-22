@@ -1,6 +1,6 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { DndGrid, verticalCompactor, type Layout } from "@dnd-grid/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
@@ -116,6 +116,7 @@ export const BlocksGrid = () => {
           onResizeStart={handleResizeStart}
           onResize={handlers.handleResize}
           onResizeStop={handleResizeStop}
+          compactor={{...verticalCompactor}}
         >
           {layout.map((item) => {
             return (

@@ -5,8 +5,8 @@ import {
   aspectRatio,
   defaultConstraints,
   snapToGrid,
-} from "./constraints";
-import type { ConstraintContext, LayoutItem } from "./types";
+} from "../constraints";
+import type { ConstraintContext, LayoutItem } from "../types";
 
 const baseItem: LayoutItem = {
   i: "a",

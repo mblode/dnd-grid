@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { ItemState, LayoutItem } from "./types";
-import { DndGridItemContext, useDndGridItemState } from "./use-item-state";
+import type { ItemState, LayoutItem } from "../types";
+import { DndGridItemContext, useDndGridItemState } from "../use-item-state";
 
 const TestConsumer = () => {
   const { item, state } = useDndGridItemState();

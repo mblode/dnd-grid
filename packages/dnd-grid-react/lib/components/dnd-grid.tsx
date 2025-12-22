@@ -26,6 +26,7 @@ import {
   cloneLayoutItem,
   getAllCollisions,
   getLayoutItem,
+  moveElement,
   noop,
   synchronizeLayoutWithChildren,
   withLayoutItem,
@@ -354,7 +355,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         let { layout } = stateRef.current;
         const { cols } = propsRef.current;
         const compactor = resolveCompactor(propsRef.current);
-        const { allowOverlap, preventCollision } = compactor;
+        const { allowOverlap } = compactor;
         const l = getLayoutItem(layout, i);
         if (!l) return;
         edgeScrollRef.current.handleDrag(e, node, newPosition);
@@ -368,25 +369,21 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           i: i,
         };
         // Move the element to the dragged location.
-        let nextLayout = compactor.onMove(layout, l, x, y, cols as number);
-        if (preventCollision && !allowOverlap) {
-          const nextItem = getLayoutItem(nextLayout, i);
-          const collisions = nextItem
-            ? getAllCollisions(nextLayout, nextItem).filter(
-                (layoutItem) => layoutItem.i !== nextItem.i,
-              )
-            : [];
-          if (collisions.length > 0) {
-            nextLayout = layout;
-          }
-        }
-        layout = nextLayout;
-        propsRef.current.onDrag(layout, oldDragItem, l, placeholder, e, node);
+        const nextLayout = moveElement(
+          layout,
+          l,
+          x,
+          y,
+          true,
+          compactor,
+          cols as number,
+        );
+        propsRef.current.onDrag(nextLayout, oldDragItem, l, placeholder, e, node);
         setState((prevState) => ({
           ...prevState,
           layout: allowOverlap
-            ? layout
-            : compactor.compact(layout, cols as number),
+            ? nextLayout
+            : compactor.compact(nextLayout, cols as number),
           activeDrag: placeholder,
         }));
       },
@@ -404,27 +401,23 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         let { layout } = stateRef.current;
         const { cols } = propsRef.current;
         const compactor = resolveCompactor(propsRef.current);
-        const { allowOverlap, preventCollision } = compactor;
+        const { allowOverlap } = compactor;
         const l = getLayoutItem(layout, i);
         if (!l) return;
         // Move the element here
-        let nextLayout = compactor.onMove(layout, l, x, y, cols as number);
-        if (preventCollision && !allowOverlap) {
-          const nextItem = getLayoutItem(nextLayout, i);
-          const collisions = nextItem
-            ? getAllCollisions(nextLayout, nextItem).filter(
-                (layoutItem) => layoutItem.i !== nextItem.i,
-              )
-            : [];
-          if (collisions.length > 0) {
-            nextLayout = layout;
-          }
-        }
-        layout = nextLayout;
+        const nextLayout = moveElement(
+          layout,
+          l,
+          x,
+          y,
+          true,
+          compactor,
+          cols as number,
+        );
         // Set state
         const newLayout = allowOverlap
-          ? layout
-          : compactor.compact(layout, cols as number);
+          ? nextLayout
+          : compactor.compact(nextLayout, cols as number);
         propsRef.current.onDragStop(newLayout, oldDragItem, l, null, e, node);
         // Keep activeDrag (placeholder) visible until item settles
         // settlingItem tracks which item is animating to final position
@@ -484,10 +477,9 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         const { allowOverlap, preventCollision } = compactor;
         let shouldMoveItem = false;
         let finalLayout: Layout = layout;
-        let x = 0;
-        let y = 0;
+        let x: number | undefined;
+        let y: number | undefined;
         const [newLayout, l] = withLayoutItem(layout, i, (l) => {
-          let hasCollisions = false;
           x = l.x;
           y = l.y;
 
@@ -514,13 +506,12 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
               ...l,
               w,
               h,
-              x,
-              y,
+              x: x ?? l.x,
+              y: y ?? l.y,
             }).filter((layoutItem) => layoutItem.i !== l.i);
-            hasCollisions = collisions.length > 0;
 
             // If we're colliding, we need adjust the placeholder.
-            if (hasCollisions) {
+            if (collisions.length > 0) {
               // Reset layoutItem dimensions if there were collisions
               y = l.y;
               h = l.h;
@@ -538,9 +529,17 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         if (!l) return;
         finalLayout = newLayout;
 
-        if (shouldMoveItem) {
+        if (shouldMoveItem && x !== undefined && y !== undefined) {
           // Move the element to the new position.
-          finalLayout = compactor.onMove(newLayout, l, x, y, cols as number);
+          finalLayout = moveElement(
+            newLayout,
+            l,
+            x,
+            y,
+            true,
+            compactor,
+            cols as number,
+          );
         }
 
         // Create placeholder element (display only)

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   calculateVelocityFromHistory,
+  calculateRotationWeight,
   createLiveSpring,
   MAX_ROTATION,
   POSITION_SPRING_CONFIG,
@@ -10,7 +11,7 @@ import {
   VELOCITY_SCALE,
   VELOCITY_WINDOW_MS,
   velocityToRotation,
-} from "./spring";
+} from "../spring";
 
 describe("spring", () => {
   describe("constants", () => {
@@ -311,6 +312,29 @@ describe("spring", () => {
     it("returns small rotation for small velocity", () => {
       const rotation = velocityToRotation(100);
       expect(Math.abs(rotation)).toBeLessThan(1);
+    });
+  });
+
+  describe("calculateRotationWeight", () => {
+    it("returns 1 for the baseline size", () => {
+      expect(calculateRotationWeight(100, 100, 100, 100)).toBe(1);
+    });
+
+    it("increases weight for larger items", () => {
+      expect(calculateRotationWeight(200, 200, 100, 100)).toBeCloseTo(
+        Math.pow(16, 0.4),
+      );
+    });
+
+    it("accounts for aspect ratio", () => {
+      const weight = calculateRotationWeight(200, 100, 100, 100);
+      expect(weight).toBeCloseTo(Math.pow(5, 0.4));
+    });
+
+    it("falls back to 1 for invalid inputs", () => {
+      expect(calculateRotationWeight(Infinity, 100, 100, 100)).toBe(1);
+      expect(calculateRotationWeight(100, 100, 0, 100)).toBe(1);
+      expect(calculateRotationWeight(100, -10, 100, 100)).toBe(1);
     });
   });
 });

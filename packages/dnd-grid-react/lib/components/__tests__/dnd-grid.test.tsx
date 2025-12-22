@@ -10,16 +10,16 @@ import {
   horizontalCompactor,
   verticalCompactor,
   verticalOverlapCompactor,
-} from "../compactors";
+} from "../../compactors";
 import type {
   GridDragEvent,
   GridResizeEvent,
   Layout,
   LayoutItem,
   Size,
-} from "../types";
-import { bottom } from "../utils";
-import { DndGrid } from "./dnd-grid";
+} from "../../types";
+import { bottom } from "../../utils";
+import { DndGrid } from "../dnd-grid";
 
 type MockGridItemProps = {
   children: React.ReactNode;
@@ -125,7 +125,7 @@ const renderGrid = (ui: React.ReactElement) => {
 };
 
 // Mock GridItem to simplify testing
-vi.mock("./grid-item", () => ({
+vi.mock("../grid-item", () => ({
   GridItem: ({
     children,
     i,
@@ -902,6 +902,49 @@ describe("DndGrid", () => {
       });
 
       expect(ref.current?.state.activeDrag).toBeNull();
+    });
+
+    it("moves colliding items out of the way when dragging upward", () => {
+      const layout: Layout = [
+        { i: "a", x: 0, y: 0, w: 2, h: 2 },
+        { i: "b", x: 0, y: 2, w: 2, h: 2 },
+      ];
+      const ref = React.createRef<DndGrid>();
+
+      renderGrid(
+        <DndGrid {...defaultProps} ref={ref} layout={layout}>
+          <div key="a">A</div>
+          <div key="b">B</div>
+        </DndGrid>,
+      );
+
+      const node = document.createElement("div");
+      const handle = getGridHandle(ref);
+      const dragStartEvent: GridDragEvent = {
+        e: new MouseEvent("mousedown"),
+        node,
+        newPosition: { left: 0, top: 0 },
+      };
+      const dragMoveEvent: GridDragEvent = {
+        e: new MouseEvent("mousemove"),
+        node,
+        newPosition: { left: 0, top: 0 },
+      };
+
+      act(() => {
+        handle.onDragStart("b", 0, 2, dragStartEvent);
+      });
+
+      act(() => {
+        handle.onDrag("b", 0, 0, dragMoveEvent);
+      });
+
+      const movedLayout = ref.current?.state.layout ?? [];
+      const itemA = movedLayout.find((item) => item.i === "a");
+      const itemB = movedLayout.find((item) => item.i === "b");
+
+      expect(itemB?.y).toBe(0);
+      expect(itemA?.y).toBe(2);
     });
 
     it("updates layout during resize lifecycle", () => {

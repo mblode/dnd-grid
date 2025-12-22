@@ -7,15 +7,15 @@ import {
   horizontalGappyLayout,
   layoutWithStatic,
   simpleLayout,
-} from "./__tests__/fixtures/layouts";
-import { createLayoutItem } from "./__tests__/test-utils";
+} from "./fixtures/layouts";
+import { createLayoutItem } from "./test-utils";
 import {
   horizontalCompactor,
   noCompactor,
   verticalCompactor,
   verticalOverlapCompactor,
-} from "./compactors";
-import type { LayoutItem, Position } from "./types";
+} from "../compactors";
+import type { LayoutItem, Position } from "../types";
 import {
   bottom,
   childrenEqual,
@@ -37,7 +37,7 @@ import {
   sortLayoutItemsByRowCol,
   synchronizeLayoutWithChildren,
   withLayoutItem,
-} from "./utils";
+} from "../utils";
 
 describe("utils", () => {
   // --- CLONING ---

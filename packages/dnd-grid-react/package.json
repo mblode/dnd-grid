@@ -27,7 +27,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "release": "npm run build && npm version patch && npm publish",
+    "release": "changeset publish",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -84,6 +84,7 @@
     "**/*.css"
   ],
   "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }

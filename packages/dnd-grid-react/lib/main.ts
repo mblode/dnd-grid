@@ -1,9 +1,13 @@
 import "./styles/index.css";
 
 export {
+  compactItemHorizontal,
+  compactItemVertical,
+  getCompactor,
   horizontalCompactor,
   horizontalOverlapCompactor,
   noCompactor,
+  resolveCompactionCollision,
   verticalCompactor,
   verticalOverlapCompactor,
 } from "./compactors";

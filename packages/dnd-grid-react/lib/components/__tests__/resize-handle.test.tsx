@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import { ResizeHandle } from "./resize-handle";
+import { ResizeHandle } from "../resize-handle";
 
 describe("ResizeHandle", () => {
   it("renders with correct class for se axis", () => {

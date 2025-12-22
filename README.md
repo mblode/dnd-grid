@@ -159,6 +159,10 @@ The hook must be used inside a `DndGrid` item (it throws if rendered elsewhere).
 
 See the full API, props, and guides at https://dnd-grid.com/docs.
 
+## Acknowledgements
+
+Based on [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed (STRML). Differences: weighted swing physics, better styling defaults (`base.css`/`theme.css`, CSS vars, data attributes), touch drag delay, edge auto-scroll, item state hook.
+
 ## Licence
 
 [MIT](LICENSE.md)

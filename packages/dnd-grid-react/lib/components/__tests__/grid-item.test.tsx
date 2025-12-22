@@ -2,9 +2,9 @@ import { act, render, screen } from "@testing-library/react";
 import React from "react";
 import type { DraggableData } from "react-draggable";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { calcGridColWidth } from "../calculate-utils";
-import type { Position, ReactRef, ResizeHandleAxis, Size } from "../types";
-import { GridItem } from "./grid-item";
+import { calcGridColWidth } from "../../calculate-utils";
+import type { Position, ReactRef, ResizeHandleAxis, Size } from "../../types";
+import { GridItem } from "../grid-item";
 
 let lastAllowMobileScroll: boolean | undefined;
 

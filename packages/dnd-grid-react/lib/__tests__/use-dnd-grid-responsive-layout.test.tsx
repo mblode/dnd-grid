@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { Layout, ResponsiveLayouts, Spacing } from "./types";
-import { useDndGridResponsiveLayout } from "./use-dnd-grid-responsive-layout";
+import type { Layout, ResponsiveLayouts, Spacing } from "../types";
+import { useDndGridResponsiveLayout } from "../use-dnd-grid-responsive-layout";
 
 type TestProps = {
   width: number;

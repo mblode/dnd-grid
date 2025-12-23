@@ -38,6 +38,7 @@
           "examples/toolbox",
           "examples/bounded",
           "examples/resizable-handles",
+          "examples/kitchen-sink",
           "examples/drag-from-outside",
           "examples/allow-overlap",
           "examples/compactor-showcase",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6
+
+### Patch Changes
+
+- d7ad09a: fix type errors
+
 ## 1.0.5
 
 ### Patch Changes

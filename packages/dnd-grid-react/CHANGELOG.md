@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- f62c7a2: Fix swing settling and placeholder alignment; export rotation weight helper
+
+### Patch Changes
+
+- 3a1f33f: placeholder improvements
+
 ## 1.0.7
 
 ### Patch Changes

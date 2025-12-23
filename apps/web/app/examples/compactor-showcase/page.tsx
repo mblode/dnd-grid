@@ -2,8 +2,8 @@
 
 import {
   DndGrid,
-  type Layout,
   horizontalCompactor,
+  type Layout,
   noCompactor,
   useContainerWidth,
   verticalCompactor,

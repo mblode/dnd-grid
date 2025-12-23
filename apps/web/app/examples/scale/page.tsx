@@ -1,7 +1,7 @@
 "use client";
 
 import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 

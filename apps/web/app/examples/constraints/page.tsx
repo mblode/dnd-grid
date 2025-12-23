@@ -2,9 +2,9 @@
 
 import {
   DndGrid,
+  defaultConstraints,
   type Layout,
   type LayoutConstraint,
-  defaultConstraints,
   snapToGrid,
   useContainerWidth,
 } from "@dnd-grid/react";

@@ -9,9 +9,7 @@ function ExamplesLayoutContent({ children }: { children: React.ReactNode }) {
 
   if (isEmbed) {
     return (
-      <div className="p-4 bg-background min-h-screen font-sans">
-        {children}
-      </div>
+      <div className="p-4 bg-background min-h-screen font-sans">{children}</div>
     );
   }
 

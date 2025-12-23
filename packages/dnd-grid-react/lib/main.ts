@@ -42,6 +42,7 @@ export {
 } from "./extras";
 export type { PointWithTimestamp, SpringConfig, SpringState } from "./spring";
 export {
+  calculateRotationWeight,
   calculateVelocityFromHistory,
   createLiveSpring,
   MAX_ROTATION,

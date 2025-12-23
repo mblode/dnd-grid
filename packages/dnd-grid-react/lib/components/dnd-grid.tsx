@@ -63,6 +63,25 @@ try {
 
 const noopDropDragOver: Props["onDropDragOver"] = () => undefined;
 
+const resolveDroppingCoords = (
+  gridEl: HTMLElement,
+  gridRect: DOMRect,
+  clientX: number,
+  clientY: number,
+  itemPixelWidth: number,
+  itemPixelHeight: number,
+  transformScale: number,
+) => {
+  const scrollLeft = gridEl.scrollLeft ?? 0;
+  const scrollTop = gridEl.scrollTop ?? 0;
+  const layerX = (clientX - gridRect.left) / transformScale + scrollLeft;
+  const layerY = (clientY - gridRect.top) / transformScale + scrollTop;
+  return {
+    clampedGridX: Math.max(0, layerX - itemPixelWidth / 2),
+    clampedGridY: Math.max(0, layerY - itemPixelHeight / 2),
+  };
+};
+
 const defaultProps: DefaultProps = {
   autoSize: true,
   autoScroll: true,
@@ -359,15 +378,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         const l = getLayoutItem(layout, i);
         if (!l) return;
         edgeScrollRef.current.handleDrag(e, node, newPosition);
-        // Create placeholder (display only)
-        const placeholder = {
-          w: l.w,
-          h: l.h,
-          x: l.x,
-          y: l.y,
-          placeholder: true,
-          i: i,
-        };
         // Move the element to the dragged location.
         const nextLayout = moveElement(
           layout,
@@ -378,19 +388,30 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           compactor,
           cols as number,
         );
+        const updatedLayout = allowOverlap
+          ? nextLayout
+          : compactor.compact(nextLayout, cols as number);
+        const updatedItem = getLayoutItem(updatedLayout, i) ?? l;
+        // Create placeholder (display only)
+        const placeholder = {
+          w: updatedItem.w,
+          h: updatedItem.h,
+          x: updatedItem.x,
+          y: updatedItem.y,
+          placeholder: true,
+          i: updatedItem.i,
+        };
         propsRef.current.onDrag(
-          nextLayout,
+          updatedLayout,
           oldDragItem,
-          l,
+          updatedItem,
           placeholder,
           e,
           node,
         );
         setState((prevState) => ({
           ...prevState,
-          layout: allowOverlap
-            ? nextLayout
-            : compactor.compact(nextLayout, cols as number),
+          layout: updatedLayout,
           activeDrag: placeholder,
         }));
       },
@@ -425,13 +446,30 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         const newLayout = allowOverlap
           ? nextLayout
           : compactor.compact(nextLayout, cols as number);
-        propsRef.current.onDragStop(newLayout, oldDragItem, l, null, e, node);
+        const updatedItem = getLayoutItem(newLayout, i) ?? l;
+        propsRef.current.onDragStop(
+          newLayout,
+          oldDragItem,
+          updatedItem,
+          null,
+          e,
+          node,
+        );
+        const placeholder = {
+          w: updatedItem.w,
+          h: updatedItem.h,
+          x: updatedItem.x,
+          y: updatedItem.y,
+          placeholder: true,
+          i: updatedItem.i,
+        };
         // Keep activeDrag (placeholder) visible until item settles
         // settlingItem tracks which item is animating to final position
         setState((prevState) => ({
           ...prevState,
           settlingItem: i,
           layout: newLayout,
+          activeDrag: placeholder,
           oldDragItem: null,
           oldLayout: null,
         }));
@@ -549,19 +587,23 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           );
         }
 
+        const updatedLayout = allowOverlap
+          ? finalLayout
+          : compactor.compact(finalLayout, cols as number);
+        const updatedItem = getLayoutItem(updatedLayout, i) ?? l;
         // Create placeholder element (display only)
         const placeholder = {
-          w: l.w,
-          h: l.h,
-          x: l.x,
-          y: l.y,
+          w: updatedItem.w,
+          h: updatedItem.h,
+          x: updatedItem.x,
+          y: updatedItem.y,
           static: true,
-          i: i,
+          i: updatedItem.i,
         };
         propsRef.current.onResize(
-          finalLayout,
+          updatedLayout,
           oldResizeItem,
-          l,
+          updatedItem,
           placeholder,
           e,
           node,
@@ -569,9 +611,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         // Re-compact the newLayout and set the drag placeholder.
         setState((prevState) => ({
           ...prevState,
-          layout: allowOverlap
-            ? finalLayout
-            : compactor.compact(finalLayout, cols as number),
+          layout: updatedLayout,
           activeDrag: placeholder,
         }));
       },
@@ -589,10 +629,11 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         const newLayout = allowOverlap
           ? layout
           : compactor.compact(layout, cols as number);
+        const updatedItem = getLayoutItem(newLayout, i) ?? l;
         propsRef.current.onResizeStop(
           newLayout,
           oldResizeItem,
-          l,
+          updatedItem,
           null,
           e,
           node,
@@ -827,11 +868,8 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
 
         const finalDroppingItem = { ...droppingItem, ...onDragOverResult };
         const { layout } = stateRef.current;
-        const gridRect = e.currentTarget.getBoundingClientRect(); // The grid's position in the viewport
-
-        // Calculate the mouse position relative to the grid
-        const layerX = e.clientX - gridRect.left;
-        const layerY = e.clientY - gridRect.top;
+        const gridEl = e.currentTarget;
+        const gridRect = gridEl.getBoundingClientRect(); // The grid's position in the viewport
         const positionParams: PositionParams = {
           cols,
           margin,
@@ -851,11 +889,18 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           rowHeight,
           margin[0],
         );
-        const clampedGridX = Math.max(0, layerX - itemPixelWidth / 2);
-        const clampedGridY = Math.max(0, layerY - itemPixelHeight / 2);
+        const { clampedGridX, clampedGridY } = resolveDroppingCoords(
+          gridEl,
+          gridRect,
+          e.clientX,
+          e.clientY,
+          itemPixelWidth,
+          itemPixelHeight,
+          transformScale,
+        );
         const droppingPosition = {
-          left: clampedGridX / transformScale,
-          top: clampedGridY / transformScale,
+          left: clampedGridX,
+          top: clampedGridY,
           e,
         };
 
@@ -883,8 +928,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         } else if (stateRef.current.droppingPosition) {
           const { left, top } = stateRef.current.droppingPosition;
           const shouldUpdatePosition =
-            left !== clampedGridX / transformScale ||
-            top !== clampedGridY / transformScale;
+            left !== clampedGridX || top !== clampedGridY;
 
           if (shouldUpdatePosition) {
             setState((prevState) => ({
@@ -954,9 +998,6 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         // Guard against missing grid element
         if (!gridEl) return;
         const gridRect = gridEl.getBoundingClientRect();
-        // Calculate the mouse position relative to the grid
-        const layerY = dndRect.top - gridRect.top;
-        const layerX = dndRect.left - gridRect.left;
         const positionParams: PositionParams = {
           cols,
           margin,
@@ -976,11 +1017,18 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           rowHeight,
           margin[0],
         );
-        const clampedGridX = Math.max(0, layerX - itemPixelWidth / 2);
-        const clampedGridY = Math.max(0, layerY - itemPixelHeight / 2);
+        const { clampedGridX, clampedGridY } = resolveDroppingCoords(
+          gridEl,
+          gridRect,
+          dndRect.left,
+          dndRect.top,
+          itemPixelWidth,
+          itemPixelHeight,
+          transformScale,
+        );
         const droppingPosition: DroppingPosition = {
-          left: clampedGridX / transformScale,
-          top: clampedGridY / transformScale,
+          left: clampedGridX,
+          top: clampedGridY,
           e,
         };
 
@@ -1008,8 +1056,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         } else if (stateRef.current.droppingPosition) {
           const { left, top } = stateRef.current.droppingPosition;
           const shouldUpdatePosition =
-            left !== clampedGridX / transformScale ||
-            top !== clampedGridY / transformScale;
+            left !== clampedGridX || top !== clampedGridY;
 
           if (shouldUpdatePosition) {
             setState((prevState) => ({

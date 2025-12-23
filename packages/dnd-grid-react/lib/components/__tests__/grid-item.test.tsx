@@ -545,6 +545,31 @@ describe("GridItem", () => {
       expect(handle.state.isAnimating).toBe(true);
       expect(document.body.classList.contains("dnd-grid-dragging")).toBe(false);
     });
+
+    it("clears settling state when drag restarts", () => {
+      const ref = React.createRef<GridItem>();
+      render(
+        <div className="dnd-grid">
+          <GridItem {...defaultProps} ref={ref} />
+        </div>,
+      );
+      const handle = getHandle(ref);
+      vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
+
+      const node = screen.getByTestId("child");
+      act(() => {
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
+        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+      });
+
+      expect(handle._isSettling).toBe(true);
+
+      act(() => {
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
+      });
+
+      expect(handle._isSettling).toBe(false);
+    });
   });
 
   describe("touch handling", () => {

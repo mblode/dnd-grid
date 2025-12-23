@@ -267,7 +267,7 @@ export const calculateRotationWeight = (
     return 1;
   }
 
-  return Math.pow(ratio, ROTATION_WEIGHT_EXPONENT);
+  return ratio ** ROTATION_WEIGHT_EXPONENT;
 };
 
 /**

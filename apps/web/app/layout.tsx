@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import localFont from "next/font/local";
+import Script from "next/script";
 import type React from "react";
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
@@ -24,7 +24,8 @@ const albra = localFont({
 const GA_MEASUREMENT_ID = "G-H2PKLJ0615";
 const siteUrl = "https://dnd-grid.com";
 const siteTitle = "dnd-grid - React grid layout";
-const siteDescription = "A drag-and-drop (DnD), resizable grid layout for React";
+const siteDescription =
+  "A drag-and-drop (DnD), resizable grid layout for React";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

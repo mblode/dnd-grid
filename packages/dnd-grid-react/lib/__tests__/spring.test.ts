@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  calculateVelocityFromHistory,
   calculateRotationWeight,
+  calculateVelocityFromHistory,
   createLiveSpring,
   MAX_ROTATION,
   POSITION_SPRING_CONFIG,
@@ -322,13 +322,13 @@ describe("spring", () => {
 
     it("increases weight for larger items", () => {
       expect(calculateRotationWeight(200, 200, 100, 100)).toBeCloseTo(
-        Math.pow(16, 0.4),
+        16 ** 0.4,
       );
     });
 
     it("accounts for aspect ratio", () => {
       const weight = calculateRotationWeight(200, 100, 100, 100);
-      expect(weight).toBeCloseTo(Math.pow(5, 0.4));
+      expect(weight).toBeCloseTo(5 ** 0.4);
     });
 
     it("falls back to 1 for invalid inputs", () => {

@@ -352,7 +352,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         { e, node, newPosition }: GridDragEvent,
       ) => {
         const { oldDragItem } = stateRef.current;
-        let { layout } = stateRef.current;
+        const { layout } = stateRef.current;
         const { cols } = propsRef.current;
         const compactor = resolveCompactor(propsRef.current);
         const { allowOverlap } = compactor;
@@ -378,7 +378,14 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
           compactor,
           cols as number,
         );
-        propsRef.current.onDrag(nextLayout, oldDragItem, l, placeholder, e, node);
+        propsRef.current.onDrag(
+          nextLayout,
+          oldDragItem,
+          l,
+          placeholder,
+          e,
+          node,
+        );
         setState((prevState) => ({
           ...prevState,
           layout: allowOverlap
@@ -398,7 +405,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         edgeScrollRef.current.handleDragStop();
         if (!stateRef.current.activeDrag) return;
         const { oldDragItem, oldLayout } = stateRef.current;
-        let { layout } = stateRef.current;
+        const { layout } = stateRef.current;
         const { cols } = propsRef.current;
         const compactor = resolveCompactor(propsRef.current);
         const { allowOverlap } = compactor;

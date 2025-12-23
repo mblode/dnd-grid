@@ -30,8 +30,8 @@ import {
 } from "../constraints";
 import { normalizeSpacing } from "../spacing";
 import {
-  calculateVelocityFromHistory,
   calculateRotationWeight,
+  calculateVelocityFromHistory,
   createLiveSpring,
   POSITION_SPRING_CONFIG,
   type PointWithTimestamp,

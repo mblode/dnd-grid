@@ -14,8 +14,8 @@ export default function Home() {
           <section className="py-16 md:py-24 text-center">
             <div className="container-wrapper">
               <h1 className="text-7xl font-light tracking-tight">dnd-grid</h1>
-              <p className="mt-8 text-4xl text-balance mx-auto text-center text-foreground/60 max-w-125">
-                A drag-and-drop (DnD), resizable grid layout for React
+              <p className="mt-8 text-2xl md:text-4xl text-balance mx-auto text-center text-foreground/60 max-w-125">
+                A drag-and-drop, resizable grid layout for React
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
                 <Button asChild size="lg">

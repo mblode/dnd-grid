@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+
+### Patch Changes
+
+- 4910131: improve compactor logic
+
 ## 1.0.3 (Unreleased)
 
 ### Breaking

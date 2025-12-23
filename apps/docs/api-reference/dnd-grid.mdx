@@ -1,6 +1,6 @@
 ---
 title: DndGrid
-description: The main grid layout component
+description: Main grid layout component.
 ---
 
 ## Import
@@ -14,25 +14,25 @@ import { DndGrid } from "@dnd-grid/react";
 ### Required
 
 <ResponseField name="layout" type="Layout" required>
-  The state of the grid. Array of layout items defining position and size.
+  Grid layout state (position and size per item).
 </ResponseField>
 
 <ResponseField name="width" type="number" required>
-  Width of the grid container in pixels.
+  Grid width in pixels.
 </ResponseField>
 
 <ResponseField name="children" type="ReactNode" required>
-  Grid items. Each child **must** have a unique `key` matching a layout item's `i` property.
+  Grid items; each child `key` must match a layout `i`.
 </ResponseField>
 
-### Grid Configuration
+### Grid configuration
 
 <ResponseField name="cols" type="number" default="12">
-  Number of columns in the grid.
+  Number of columns.
 </ResponseField>
 
 <ResponseField name="rowHeight" type="number" default="150">
-  Height of a single row in pixels.
+  Row height in pixels.
 </ResponseField>
 
 <ResponseField
@@ -40,8 +40,7 @@ import { DndGrid } from "@dnd-grid/react";
   type="number | { top: number; right: number; bottom: number; left: number }"
   default="10"
 >
-  Margin around items in pixels. Use a number for all sides or a `{ top, right,
-  bottom, left }` object.
+  Gap between items. Use a number or `{ top, right, bottom, left }`.
 </ResponseField>
 
 <ResponseField
@@ -49,26 +48,26 @@ import { DndGrid } from "@dnd-grid/react";
   type="number | { top: number; right: number; bottom: number; left: number } | null"
   default="null"
 >
-  Padding inside the container. Use a number for all sides or a `{ top, right,
-  bottom, left }` object. If null, uses the margin value.
+  Container padding. Use a number or `{ top, right, bottom, left }`. If null,
+  uses the margin value.
 </ResponseField>
 
 <ResponseField name="autoSize" type="boolean" default="true">
-  If true, container height adjusts to fit content.
+  Resize container height to fit content.
 </ResponseField>
 
 <ResponseField name="maxRows" type="number" default="Infinity">
-  Maximum number of rows in the grid.
+  Maximum rows.
 </ResponseField>
 
-### Behavior
+### Behaviour
 
 <ResponseField name="isDraggable" type="boolean" default="true">
-  Enable dragging for all items. Can be overridden per-item.
+  Enable dragging for all items. Can be overridden per item.
 </ResponseField>
 
 <ResponseField name="isResizable" type="boolean" default="true">
-  Enable resizing for all items. Can be overridden per-item.
+  Enable resizing for all items. Can be overridden per item.
 </ResponseField>
 
 <ResponseField
@@ -76,42 +75,39 @@ import { DndGrid } from "@dnd-grid/react";
   type="boolean | AutoScrollOptions"
   default="true"
 >
-  Auto-scroll when dragging near scroll edges. Set `true` for defaults or pass
-  options to tune thresholds, acceleration, interval, activator, order, or
-  scrollable ancestor filtering and layout shift compensation.
+  Auto-scroll near scroll edges. Use `true` for defaults or pass options.
 </ResponseField>
 
 <ResponseField name="isBounded" type="boolean" default="false">
-  Keep items within the grid container bounds during drag.
+  Keep items within bounds during drag.
 </ResponseField>
 
 <ResponseField name="compactor" type="Compactor">
-  Custom compaction strategy. Determines overlap and collision behavior.
+  Compaction strategy and collision behaviour.
 </ResponseField>
 
 <ResponseField name="constraints" type="LayoutConstraint[]">
-  Constraints applied during drag and resize. Defaults to `defaultConstraints`.
+  Drag and resize constraints. Defaults to `defaultConstraints`.
 </ResponseField>
 
-### Drag Configuration
+### Drag configuration
 
 <ResponseField name="draggableHandle" type="string">
-  CSS selector for elements that trigger drag.
+  Selector for elements that start a drag.
 </ResponseField>
 
 <ResponseField name="draggableCancel" type="string">
-  CSS selector for elements that should not trigger drag.
+  Selector for elements that cancel a drag.
 </ResponseField>
 
 <ResponseField name="dragTouchDelayDuration" type="number" default="250">
-  Milliseconds to wait before drag starts on touch devices.
+  Touch delay in milliseconds.
 </ResponseField>
 
-### Resize Configuration
+### Resize configuration
 
 <ResponseField name="resizeHandles" type="ResizeHandleAxis[]" default='["se"]'>
-  Which edges/corners show resize handles.
-  Options: `"n"`, `"e"`, `"s"`, `"w"`, `"ne"`, `"nw"`, `"se"`, `"sw"`
+  Edges and corners that show resize handles.
 </ResponseField>
 
 <ResponseField
@@ -121,14 +117,14 @@ import { DndGrid } from "@dnd-grid/react";
   Custom resize handle component.
 </ResponseField>
 
-### Drop Configuration
+### Drop configuration
 
 <ResponseField name="isDroppable" type="boolean" default="false">
-  Allow dropping items from outside the grid.
+  Allow external drops.
 </ResponseField>
 
 <ResponseField name="droppingItem" type="Partial<LayoutItem>">
-  Configuration for the item being dropped from outside.
+  Defaults for the dropped item.
 </ResponseField>
 
 ### Transform
@@ -140,27 +136,27 @@ import { DndGrid } from "@dnd-grid/react";
 ### Styling
 
 <ResponseField name="className" type="string">
-  Additional CSS class for the grid container.
+  Extra CSS class for the container.
 </ResponseField>
 
 <ResponseField name="style" type="CSSProperties">
-  Inline styles for the grid container.
+  Inline styles for the container.
 </ResponseField>
 
 <ResponseField name="innerRef" type="Ref<HTMLDivElement>">
-  Ref to the grid container element.
+  Ref to the container element.
 </ResponseField>
 
 ## Callbacks
 
 | Callback | Description |
 | -------- | ----------- |
-| `onLayoutChange` | Called when the layout changes (drag, resize, or external update). |
-| `onDragStart` | Called when dragging starts. |
-| `onDrag` | Called while dragging. |
-| `onDragStop` | Called when dragging stops. |
-| `onResizeStart` | Called when resizing starts. |
-| `onResize` | Called while resizing. |
-| `onResizeStop` | Called when resizing stops. |
-| `onDrop` | Called when an external item is dropped. |
-| `onDropDragOver` | Called when an external item is dragged over the grid. |
+| `onLayoutChange` | Fires when the layout changes. |
+| `onDragStart` | Fires when dragging starts. |
+| `onDrag` | Fires while dragging. |
+| `onDragStop` | Fires when dragging stops. |
+| `onResizeStart` | Fires when resizing starts. |
+| `onResize` | Fires while resizing. |
+| `onResizeStop` | Fires when resizing stops. |
+| `onDrop` | Fires when an external item is dropped. |
+| `onDropDragOver` | Fires when an external item is dragged over the grid. |

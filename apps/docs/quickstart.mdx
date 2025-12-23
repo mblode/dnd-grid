@@ -1,16 +1,15 @@
 ---
-title: Quick Start
-description: Build your first grid in minutes.
+title: Quick start
+description: Build your first grid.
 ---
 
-## Basic Example
+## Basic example
 
 ```tsx
 import { useState } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
-// 1. Define the initial state
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 2, h: 2 },
   { i: "b", x: 2, y: 0, w: 2, h: 2 },
@@ -34,10 +33,10 @@ export default function App() {
 }
 ```
 
-## The Mental Model
+## How it works
 
-`dnd-grid` is **controlled**. The `layout` prop is the single source of truth.
+`dnd-grid` is controlled. The `layout` prop is the source of truth.
 
-1.  **Layout State:** An array of objects defining position (`x`, `y`) and size (`w`, `h`).
-2.  **Unique Keys:** The `i` property in the layout **must** match the child's `key`.
-3.  **Grid Units:** All dimensions are in columns/rows, not pixels.
+1. **Layout state:** An array of items with `x`, `y`, `w`, and `h`.
+2. **Matching keys:** Each layout `i` must match its child `key`.
+3. **Grid units:** Sizes are in columns and rows, not pixels.

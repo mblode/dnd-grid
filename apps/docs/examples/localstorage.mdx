@@ -1,6 +1,6 @@
 ---
-title: LocalStorage
-description: Persist layout to localStorage and restore on page load.
+title: Local storage
+description: Persist layout to local storage and restore on load.
 ---
 
 <iframe
@@ -30,19 +30,16 @@ const defaultLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
 export default function LocalStorageExample() {
   const [layout, setLayout] = useState<Layout>(defaultLayout);
 
-  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setLayout(JSON.parse(saved));
-      } catch {
-        // Invalid JSON, use default
-      }
+    if (!saved) return;
+    try {
+      setLayout(JSON.parse(saved));
+    } catch {
+      setLayout(defaultLayout);
     }
   }, []);
 
-  // Save to localStorage on change
   const handleLayoutChange = (newLayout: Layout) => {
     setLayout(newLayout);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newLayout));

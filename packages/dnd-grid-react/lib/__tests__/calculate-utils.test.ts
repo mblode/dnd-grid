@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { defaultPositionParams } from "./test-utils";
 import {
   calcGridColWidth,
   calcGridItemPosition,
@@ -9,6 +8,7 @@ import {
   calcXYRaw,
   clamp,
 } from "../calculate-utils";
+import { defaultPositionParams } from "./test-utils";
 
 describe("calculate-utils", () => {
   describe("clamp", () => {

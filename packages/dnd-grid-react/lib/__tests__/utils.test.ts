@@ -1,15 +1,6 @@
 import React from "react";
 import { describe, expect, it } from "vitest";
 import {
-  collidingLayout,
-  complexLayout,
-  gappyLayout,
-  horizontalGappyLayout,
-  layoutWithStatic,
-  simpleLayout,
-} from "./fixtures/layouts";
-import { createLayoutItem } from "./test-utils";
-import {
   horizontalCompactor,
   noCompactor,
   verticalCompactor,
@@ -38,6 +29,15 @@ import {
   synchronizeLayoutWithChildren,
   withLayoutItem,
 } from "../utils";
+import {
+  collidingLayout,
+  complexLayout,
+  gappyLayout,
+  horizontalGappyLayout,
+  layoutWithStatic,
+  simpleLayout,
+} from "./fixtures/layouts";
+import { createLayoutItem } from "./test-utils";
 
 describe("utils", () => {
   // --- CLONING ---

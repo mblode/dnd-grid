@@ -108,9 +108,10 @@ export function compactItemVertical(
   }
 
   // Resolve collisions by moving down
-  let collision: LayoutItem | undefined;
-  while ((collision = getFirstCollision(compareWith, l)) !== undefined) {
+  let collision: LayoutItem | undefined = getFirstCollision(compareWith, l);
+  while (collision !== undefined) {
     resolveCompactionCollision(fullLayout, l, collision.y + collision.h, "y");
+    collision = getFirstCollision(compareWith, l);
   }
 
   (l as Mutable<LayoutItem>).y = Math.max(l.y, 0);
@@ -142,8 +143,8 @@ export function compactItemHorizontal(
   }
 
   // Resolve collisions
-  let collision: LayoutItem | undefined;
-  while ((collision = getFirstCollision(compareWith, l)) !== undefined) {
+  let collision: LayoutItem | undefined = getFirstCollision(compareWith, l);
+  while (collision !== undefined) {
     resolveCompactionCollision(fullLayout, l, collision.x + collision.w, "x");
 
     // Horizontal overflow: wrap to next row
@@ -155,6 +156,8 @@ export function compactItemHorizontal(
         (l as Mutable<LayoutItem>).x--;
       }
     }
+
+    collision = getFirstCollision(compareWith, l);
   }
 
   (l as Mutable<LayoutItem>).x = Math.max(l.x, 0);

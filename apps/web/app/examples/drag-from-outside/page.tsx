@@ -6,7 +6,7 @@ import {
   type LayoutItem,
   useContainerWidth,
 } from "@dnd-grid/react";
-import { useRef, useState, type DragEvent } from "react";
+import { type DragEvent, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -42,8 +42,8 @@ export default function DragFromOutsideExample() {
     initialWidth: GRID_WIDTH,
   });
 
-  const handleDragStart = (item: PaletteItem) =>
-    (event: DragEvent<HTMLDivElement>) => {
+  const handleDragStart =
+    (item: PaletteItem) => (event: DragEvent<HTMLDivElement>) => {
       dragItemRef.current = item;
       setActivePaletteId(item.id);
       event.dataTransfer.setData("text/plain", item.id);
@@ -85,8 +85,9 @@ export default function DragFromOutsideExample() {
       </div>
       <div className="flex flex-wrap gap-2">
         {paletteItems.map((item) => (
-          <div
+          <button
             key={item.id}
+            type="button"
             draggable
             onDragStart={handleDragStart(item)}
             onDragEnd={handleDragEnd}
@@ -98,7 +99,7 @@ export default function DragFromOutsideExample() {
             )}
           >
             {item.label}
-          </div>
+          </button>
         ))}
       </div>
 

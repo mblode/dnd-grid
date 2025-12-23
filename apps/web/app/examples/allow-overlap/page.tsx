@@ -29,9 +29,7 @@ export default function AllowOverlapExample() {
     initialWidth: GRID_WIDTH,
   });
 
-  const compactor = allowOverlap
-    ? verticalOverlapCompactor
-    : verticalCompactor;
+  const compactor = allowOverlap ? verticalOverlapCompactor : verticalCompactor;
 
   return (
     <div className="space-y-3">

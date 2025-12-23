@@ -1097,7 +1097,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
         return;
       }
 
-      if (!state.activeDrag) {
+      if (!state.activeDrag && !state.droppingDOMNode) {
         onLayoutMaybeChanged(state.layout, prevLayoutRef.current);
       }
 
@@ -1106,6 +1106,7 @@ const DndGrid = React.forwardRef<DndGridHandle, DndGridProps>(
       state.mounted,
       state.layout,
       state.activeDrag,
+      state.droppingDOMNode,
       props.layout,
       onLayoutMaybeChanged,
     ]);

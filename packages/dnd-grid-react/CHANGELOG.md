@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7
+
+### Patch Changes
+
+- 708d8dd: Revert size-weighted swing
+
 ## 1.0.6
 
 ### Patch Changes

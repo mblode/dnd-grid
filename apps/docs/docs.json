@@ -1,0 +1,77 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "almond",
+  "name": "dnd-grid",
+  "colors": {
+    "primary": "#0F9D78",
+    "light": "#38E4B2",
+    "dark": "#0B5E48"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start",
+        "pages": ["introduction", "installation", "quickstart"]
+      },
+      {
+        "group": "Concepts",
+        "pages": ["concepts/layout", "concepts/grid-items", "concepts/styling"]
+      },
+      {
+        "group": "API",
+        "pages": [
+          "api-reference/overview",
+          "api-reference/dnd-grid",
+          "api-reference/layout-item",
+          "api-reference/callbacks"
+        ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "examples/basic",
+          "examples/responsive",
+          "examples/static-elements",
+          "examples/dynamic-add-remove",
+          "examples/localstorage",
+          "examples/toolbox",
+          "examples/bounded",
+          "examples/resizable-handles",
+          "examples/drag-from-outside",
+          "examples/allow-overlap",
+          "examples/compactor-showcase",
+          "examples/constraints",
+          "examples/aspect-ratio-constraints",
+          "examples/scale"
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/mblode/dnd-grid"
+      },
+      {
+        "label": "NPM",
+        "href": "https://www.npmjs.com/package/@dnd-grid/react"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Homepage",
+      "href": "https://dnd-grid.com"
+    }
+  },
+  "integrations": {
+    "ga4": {
+      "measurementId": "G-H2PKLJ0615"
+    }
+  }
+}

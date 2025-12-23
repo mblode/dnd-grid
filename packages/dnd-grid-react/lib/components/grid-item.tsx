@@ -663,7 +663,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
       const animate = () => {
         const now = performance.now();
-        if (isSettlingRef.current) {
+        if (isSettlingRef.current && !isDraggingRef.current) {
           if (settleStartTimeRef.current === null) {
             settleStartTimeRef.current = now;
             settleFrameCountRef.current = 0;
@@ -816,6 +816,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         newPosition.top = cTop - pTop + scrollTop;
         dragPositionRef.current = newPosition;
         isDraggingRef.current = true;
+        isSettlingRef.current = false;
         positionHistoryRef.current = [];
         settleStartTimeRef.current = null;
         settleFrameCountRef.current = 0;

@@ -889,6 +889,11 @@ describe("DndGrid", () => {
       expect(ref.current?.state.layout.find((item) => item.i === "a")?.x).toBe(
         2,
       );
+      const draggedItem = ref.current?.state.layout.find(
+        (item) => item.i === "a",
+      );
+      expect(ref.current?.state.activeDrag?.x).toBe(draggedItem?.x);
+      expect(ref.current?.state.activeDrag?.y).toBe(draggedItem?.y);
 
       act(() => {
         handle.onDragStop("a", 2, 1, dragStopEvent);
@@ -896,6 +901,11 @@ describe("DndGrid", () => {
 
       expect(onDragStop).toHaveBeenCalled();
       expect(ref.current?.state.settlingItem).toBe("a");
+      const settledItem = ref.current?.state.layout.find(
+        (item) => item.i === "a",
+      );
+      expect(ref.current?.state.activeDrag?.x).toBe(settledItem?.x);
+      expect(ref.current?.state.activeDrag?.y).toBe(settledItem?.y);
 
       act(() => {
         ref.current?.onSettleComplete("a");

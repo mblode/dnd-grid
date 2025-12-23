@@ -233,3 +233,33 @@ export const velocityToRotation = (velocityX: number): number => {
   const rawRotation = -velocityX * VELOCITY_SCALE;
   return Math.sign(rawRotation) * Math.min(Math.abs(rawRotation), MAX_ROTATION);
 };
+
+/**
+ * Calculate a rotation weight based on item size relative to a baseline size.
+ */
+export const calculateRotationWeight = (
+  width: number,
+  height: number,
+  baselineWidth: number,
+  baselineHeight: number,
+): number => {
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    !Number.isFinite(baselineWidth) ||
+    !Number.isFinite(baselineHeight) ||
+    width <= 0 ||
+    height <= 0 ||
+    baselineWidth <= 0 ||
+    baselineHeight <= 0
+  ) {
+    return 1;
+  }
+
+  const widthRatio = width / baselineWidth;
+  const heightRatio = height / baselineHeight;
+  const sizeFactor =
+    ((widthRatio ** 2 + heightRatio ** 2) * (widthRatio * heightRatio)) / 2;
+
+  return sizeFactor ** 0.4;
+};

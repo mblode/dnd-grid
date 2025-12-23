@@ -21,22 +21,29 @@ const assertHost = (request: Request, expectedHost: string) => {
   assert.equal(hostname, expectedHost);
 };
 
-try {
-  requests.length = 0;
-  await worker.fetch(new Request("https://dnd-grid.com/docs"), env);
-  assert.equal(requests.length, 1);
-  assertHost(requests[0], env.DOCS_URL);
-  assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
+const run = async () => {
+  try {
+    requests.length = 0;
+    await worker.fetch(new Request("https://dnd-grid.com/docs"), env);
+    assert.equal(requests.length, 1);
+    assertHost(requests[0], env.DOCS_URL);
+    assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
 
-  requests.length = 0;
-  await worker.fetch(new Request("https://dnd-grid.com/"), env);
-  assert.equal(requests.length, 1);
-  assertHost(requests[0], env.LANDING_URL);
+    requests.length = 0;
+    await worker.fetch(new Request("https://dnd-grid.com/"), env);
+    assert.equal(requests.length, 1);
+    assertHost(requests[0], env.LANDING_URL);
 
-  requests.length = 0;
-  await worker.fetch(new Request("https://dnd-grid.com/.well-known/test"), env);
-  assert.equal(requests.length, 1);
-  assertHost(requests[0], "dnd-grid.com");
-} finally {
-  globalThis.fetch = originalFetch;
-}
+    requests.length = 0;
+    await worker.fetch(new Request("https://dnd-grid.com/.well-known/test"), env);
+    assert.equal(requests.length, 1);
+    assertHost(requests[0], "dnd-grid.com");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+};
+
+run().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

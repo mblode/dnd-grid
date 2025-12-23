@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  DndGrid,
   type Layout,
   useContainerWidth,
   verticalCompactor,

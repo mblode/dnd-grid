@@ -225,52 +225,6 @@ export const calculateVelocityFromHistory = (
 };
 
 /**
- * Calculate a rotation weight based on item size.
- *
- * Uses a rectangle inertia proxy: I ∝ (w*h)*(w^2 + h^2).
- * The exponent softens the size effect so large items still swing naturally.
- */
-const ROTATION_WEIGHT_EXPONENT = 0.4;
-export const calculateRotationWeight = (
-  width: number,
-  height: number,
-  baseWidth: number,
-  baseHeight: number,
-): number => {
-  if (
-    !Number.isFinite(width) ||
-    !Number.isFinite(height) ||
-    !Number.isFinite(baseWidth) ||
-    !Number.isFinite(baseHeight) ||
-    width <= 0 ||
-    height <= 0 ||
-    baseWidth <= 0 ||
-    baseHeight <= 0
-  ) {
-    return 1;
-  }
-
-  const inertia = width * height * (width * width + height * height);
-  const baseInertia =
-    baseWidth * baseHeight * (baseWidth * baseWidth + baseHeight * baseHeight);
-
-  if (!Number.isFinite(inertia) || !Number.isFinite(baseInertia)) {
-    return 1;
-  }
-
-  if (baseInertia <= 0) {
-    return 1;
-  }
-
-  const ratio = inertia / baseInertia;
-  if (!Number.isFinite(ratio) || ratio <= 0) {
-    return 1;
-  }
-
-  return ratio ** ROTATION_WEIGHT_EXPONENT;
-};
-
-/**
  * Convert velocity to rotation using Bento formula
  *
  * INVERTED: drag right = tilt left (negative rotation) due to inertia

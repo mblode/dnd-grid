@@ -1,24 +1,20 @@
 ---
-title: API Overview
-description: Complete API reference for dnd-grid
+title: API overview
+description: API reference for dnd-grid.
 ---
 
 ## Exports
 
-Common exports include:
+Common exports:
 
 ```tsx
 import {
   DndGrid,
-  GridItem,
   useContainerWidth,
   useDndGridResponsiveLayout,
   useEdgeScroll,
-  AutoScrollActivator,
-  TraversalOrder,
   verticalCompactor,
   defaultConstraints,
-  type AutoScrollOptions,
   type Compactor,
   type LayoutConstraint,
   type Layout,
@@ -32,7 +28,6 @@ import {
 | Component | Description |
 |-----------|-------------|
 | [`DndGrid`](/api-reference/dnd-grid) | Main grid layout component |
-| `GridItem` | Individual grid item (used internally) |
 
 ## Hooks
 
@@ -51,13 +46,10 @@ import {
 | `ResponsiveLayouts` | Breakpoint → layout map |
 | `Compactor` | Pluggable compaction strategy |
 | `LayoutConstraint` | Drag/resize constraint definition |
-| `AutoScrollOptions` | Configuration for edge auto-scrolling |
-| `AutoScrollActivator` | Choose pointer or draggable-rect activation |
-| `TraversalOrder` | Control scroll ancestor traversal order |
 
-## CSS Classes
+## CSS classes
 
-The grid applies these CSS classes that you can style:
+Common classes you can target:
 
 | Class | Element |
 |-------|---------|
@@ -65,72 +57,28 @@ The grid applies these CSS classes that you can style:
 | `.dnd-grid-item` | Each grid item |
 | `.dnd-grid-item-content` | Non-placeholder grid items |
 | `.dnd-grid-placeholder` | Placeholder during drag/resize |
-| `.dnd-draggable` | Draggable items |
 | `.dnd-draggable-dragging` | Item currently being dragged |
 | `.resizing` | Item currently being resized |
-| `.static` | Static (locked) items |
-| `.dnd-grid-animating` | Item settling after drag |
-| `.dropping` | Dropping placeholder item |
-| `.dnd-grid-resize-handle` | Resize handle element |
-| `body.dnd-grid-dragging` | Global dragging state |
-| `body.dnd-grid-resizing` | Global resizing state |
 
-## Quick Reference
+## Quick reference
 
-### Essential Props
+### Essential props
 
 ```tsx
 <DndGrid
-  // Required
-  layout={layout}           // Array of LayoutItem
-  width={1200}              // Container width in pixels
-
-  // Grid configuration
-  cols={12}                 // Number of columns
-  rowHeight={150}           // Row height in pixels
-  margin={10}               // Gap between items (number or { top, right, bottom, left })
-
-  // Behavior
-  isDraggable={true}        // Enable dragging
-  isResizable={true}        // Enable resizing
-  autoScroll={true}         // Edge auto-scroll while dragging
-  isBounded={false}         // Keep items in bounds
-  compactor={verticalCompactor} // Compaction strategy
-  constraints={defaultConstraints} // Drag/resize constraints
-
-  // Callbacks
+  layout={layout}
+  width={1200}
+  cols={12}
+  rowHeight={150}
   onLayoutChange={(layout) => {}}
-  onDragStart={(layout, oldItem, newItem, placeholder, e, node) => {}}
-  onDrag={(layout, oldItem, newItem, placeholder, e, node) => {}}
-  onDragStop={(layout, oldItem, newItem, placeholder, e, node) => {}}
 >
   {children}
 </DndGrid>
 ```
 
-### LayoutItem Structure
+## Import styles
 
-```tsx
-interface LayoutItem {
-  i: string;           // Unique identifier
-  x: number;           // X position (grid units)
-  y: number;           // Y position (grid units)
-  w: number;           // Width (grid units)
-  h: number;           // Height (grid units)
-  minW?: number;       // Min width
-  maxW?: number;       // Max width
-  minH?: number;       // Min height
-  maxH?: number;       // Max height
-  static?: boolean;    // Non-movable
-  isDraggable?: boolean;
-  isResizable?: boolean;
-  isBounded?: boolean;
-}
-```
-
-## Import Styles
-
-Don't forget to import the required CSS:
+Import the required CSS:
 
 ```tsx
 import "@dnd-grid/react/styles.css";

@@ -1,6 +1,6 @@
 ---
 title: Bounded
-description: Items cannot be dragged outside the grid bounds.
+description: Keep items within grid bounds.
 ---
 
 <iframe
@@ -34,7 +34,7 @@ export default function BoundedExample() {
       cols={12}
       rowHeight={50}
       width={1200}
-      isBounded // This enables bounding
+      isBounded
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (

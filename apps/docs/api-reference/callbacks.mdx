@@ -1,231 +1,75 @@
 ---
 title: Callbacks
-description: Event callbacks for drag, resize, and drop operations
+description: Event callbacks for drag, resize, and drop operations.
 ---
 
 ## Overview
 
-dnd-grid provides callbacks for all user interactions. Each callback receives the current layout state and information about the affected item.
+dnd-grid provides callbacks for drag, resize, drop, and layout changes.
 
-## Callback Signature
+## Callback signature
 
 Most callbacks share this signature:
 
 ```tsx
 type EventCallback = (
-  layout: Layout,           // Current layout array
-  oldItem: LayoutItem | null | undefined,      // Item state before the operation
-  newItem: LayoutItem | null | undefined,      // Item state after the operation
-  placeholder: LayoutItem | null | undefined,  // Placeholder position (during drag/resize)
-  event: Event,                               // Original mouse/touch/drag event
-  element: HTMLElement | null | undefined     // DOM element being manipulated
+  layout: Layout,
+  oldItem: LayoutItem | null | undefined,
+  newItem: LayoutItem | null | undefined,
+  placeholder: LayoutItem | null | undefined,
+  event: Event,
+  element: HTMLElement | null | undefined
 ) => void;
 ```
 
-## Layout Change
+## Layout change
 
 <ResponseField name="onLayoutChange" type="(layout: Layout) => void">
-  Called whenever the layout changes. This is the primary callback for persisting layout state.
-
-  ```tsx
-  <DndGrid
-    onLayoutChange={(newLayout) => {
-      setLayout(newLayout);
-      saveToServer(newLayout);
-    }}
-  />
-  ```
+  Fires whenever the layout changes. Use this to persist layout state.
 </ResponseField>
 
-## Drag Callbacks
+## Drag callbacks
 
 <ResponseField name="onDragStart" type="EventCallback">
-  Called when a drag operation begins.
-
-  ```tsx
-  <DndGrid
-    onDragStart={(layout, oldItem, newItem, placeholder, e, element) => {
-      console.log(`Started dragging ${oldItem.i}`);
-    }}
-  />
-  ```
+  Fires when a drag operation begins.
 </ResponseField>
 
 <ResponseField name="onDrag" type="EventCallback">
-  Called continuously during drag. Use sparingly as it fires frequently.
-
-  ```tsx
-  <DndGrid
-    onDrag={(layout, oldItem, newItem, placeholder, e, element) => {
-      // Update preview or highlight drop zones
-    }}
-  />
-  ```
+  Fires continuously during drag.
 </ResponseField>
 
 <ResponseField name="onDragStop" type="EventCallback">
-  Called when a drag operation ends.
-
-  ```tsx
-  <DndGrid
-    onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
-      if (oldItem.x !== newItem.x || oldItem.y !== newItem.y) {
-        console.log(`${newItem.i} moved to (${newItem.x}, ${newItem.y})`);
-      }
-    }}
-  />
-  ```
+  Fires when a drag operation ends.
 </ResponseField>
 
-## Resize Callbacks
+## Resize callbacks
 
 <ResponseField name="onResizeStart" type="EventCallback">
-  Called when a resize operation begins.
-
-  ```tsx
-  <DndGrid
-    onResizeStart={(layout, oldItem, newItem, placeholder, e, element) => {
-      console.log(`Started resizing ${oldItem.i}`);
-    }}
-  />
-  ```
+  Fires when a resize operation begins.
 </ResponseField>
 
 <ResponseField name="onResize" type="EventCallback">
-  Called continuously during resize.
-
-  ```tsx
-  <DndGrid
-    onResize={(layout, oldItem, newItem, placeholder, e, element) => {
-      // Update size preview
-    }}
-  />
-  ```
+  Fires continuously during resize.
 </ResponseField>
 
 <ResponseField name="onResizeStop" type="EventCallback">
-  Called when a resize operation ends.
-
-  ```tsx
-  <DndGrid
-    onResizeStop={(layout, oldItem, newItem, placeholder, e, element) => {
-      console.log(`${newItem.i} resized to ${newItem.w}x${newItem.h}`);
-    }}
-  />
-  ```
+  Fires when a resize operation ends.
 </ResponseField>
 
-## Drop Callbacks
+## Drop callbacks
 
 <ResponseField name="onDrop" type="(layout: Layout, item: LayoutItem | undefined, event: Event) => void">
-  Called when an external item is dropped onto the grid.
-
-  ```tsx
-  <DndGrid
-    isDroppable
-    onDrop={(layout, item, event) => {
-      if (item) {
-        console.log(`Dropped new item at (${item.x}, ${item.y})`);
-      }
-    }}
-  />
-  ```
+  Fires when an external item is dropped onto the grid.
 </ResponseField>
 
 <ResponseField name="onDropDragOver" type="(event: DragEvent) => { w?: number; h?: number } | false">
-  Called when an external item is dragged over the grid. Return the size for the dropping item, or `false` to reject the drop.
-
-  ```tsx
-  <DndGrid
-    isDroppable
-    onDropDragOver={(event) => {
-      // Customize size based on drag data
-      const type = event.dataTransfer?.getData("type");
-      if (type === "large") {
-        return { w: 4, h: 4 };
-      }
-      return { w: 2, h: 2 };
-    }}
-  />
-  ```
+  Called when an external item is dragged over the grid. Return size or `false` to reject the drop.
 </ResponseField>
 
-## Example: Complete Event Handling
-
-```tsx
-import { useState } from "react";
-import { DndGrid, type Layout, type LayoutItem } from "@dnd-grid/react";
-
-function TrackedGrid() {
-  const [layout, setLayout] = useState<Layout>([
-    { i: "a", x: 0, y: 0, w: 4, h: 2 },
-    { i: "b", x: 4, y: 0, w: 4, h: 2 },
-  ]);
-  const [activity, setActivity] = useState<string[]>([]);
-
-  const log = (message: string) => {
-    setActivity((prev) => [...prev.slice(-9), message]);
-  };
-
-  return (
-    <div>
-      <DndGrid
-        layout={layout}
-        cols={12}
-        rowHeight={50}
-        width={800}
-        onLayoutChange={(newLayout) => {
-          setLayout(newLayout);
-          log("Layout updated");
-        }}
-        onDragStart={(_, oldItem) => log(`Drag started: ${oldItem.i}`)}
-        onDragStop={(_, oldItem, newItem) => {
-          log(`Drag ended: ${newItem.i} at (${newItem.x}, ${newItem.y})`);
-        }}
-        onResizeStart={(_, oldItem) => log(`Resize started: ${oldItem.i}`)}
-        onResizeStop={(_, oldItem, newItem) => {
-          log(`Resize ended: ${newItem.i} is ${newItem.w}x${newItem.h}`);
-        }}
-      >
-        <div key="a">A</div>
-        <div key="b">B</div>
-      </DndGrid>
-
-      <div className="activity-log">
-        {activity.map((msg, i) => (
-          <div key={i}>{msg}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-## Performance Tips
+## Performance
 
 <Warning>
-  `onDrag` and `onResize` fire frequently during user interaction. Avoid expensive operations in these callbacks.
+  `onDrag` and `onResize` fire frequently. Avoid expensive work in these callbacks.
 </Warning>
 
-For expensive updates, debounce or use `onDragStop`/`onResizeStop`:
-
-```tsx
-import { useMemo } from "react";
-import { debounce } from "lodash";
-
-function Grid() {
-  const debouncedSave = useMemo(
-    () => debounce((layout) => saveToServer(layout), 500),
-    []
-  );
-
-  return (
-    <DndGrid
-      onLayoutChange={(layout) => {
-        setLayout(layout);
-        debouncedSave(layout);
-      }}
-    />
-  );
-}
-```
+For expensive updates, prefer `onDragStop` or `onResizeStop`.

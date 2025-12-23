@@ -1,24 +1,19 @@
 ---
 title: Styling
-description: Customize the look and feel of your grid.
+description: Customise the look and feel of your grid.
 ---
 
-## Why are styles required?
+## Required styles
 
-The `@dnd-grid/react/styles.css` file contains critical layout and interaction logic. Without it:
-
-- **Layout will break:** Grid items won't be positioned correctly.
-- **No Animations:** Items won't slide into place when others are moved.
-- **Invisible Handles:** Resize handles will be missing or misplaced.
-- **Broken Placeholders:** The "shadow" box during drag won't be visible.
+The `@dnd-grid/react/styles.css` file includes layout and interaction styles. Always import it.
 
 ```tsx
 import "@dnd-grid/react/styles.css";
 ```
 
-## CSS Variables
+## CSS variables
 
-`dnd-grid` uses CSS variables for easy theming. You can override these in your global CSS or on a specific grid container.
+`dnd-grid` uses CSS variables for theming. Override them in global CSS or on a grid container.
 
 ```css
 :root {
@@ -33,60 +28,40 @@ import "@dnd-grid/react/styles.css";
 | Variable | Default | Description |
 | :--- | :--- | :--- |
 | `--dnd-grid-radius` | `24px` | Border radius for grid items and the placeholder. |
-| `--dnd-grid-placeholder-bg` | `rgba(0,0,0,0.012)` | Background color of the drop placeholder. |
-| `--dnd-grid-handle-bg` | `#ffffff` | Color of the default resize handle. |
+| `--dnd-grid-placeholder-bg` | `rgba(0,0,0,0.012)` | Background colour of the drop placeholder. |
+| `--dnd-grid-handle-bg` | `#ffffff` | Colour of the default resize handle. |
 
-## Customizing Items
+## Item styles
 
 Grid items use `.dnd-grid-item` for layout. Non-placeholder items also include
-`.dnd-grid-item-content` so you can target visual styling without affecting the placeholder:
+`.dnd-grid-item-content` so you can target visuals without affecting the placeholder:
 
 ```css
-/* Custom item styling */
 .dnd-grid-item-content {
   background: white;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Style items while they are being dragged */
 .dnd-grid-item.dnd-draggable-dragging {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
 ```
 
-## Theming Tips
+## State classes
 
-### Dark Mode
+Use these classes for states and placeholders:
 
-You can use a media query or a class-based approach (like Tailwind) to update variables for dark mode.
+- `.dnd-draggable-dragging`: Item being dragged.
+- `.resizing`: Item being resized.
+- `.dnd-grid-placeholder`: Placeholder during drag/resize.
+- `.is-hovered`: Hover state.
 
-```css
-@media (prefers-color-scheme: dark) {
-  :root {
-    --dnd-grid-placeholder-bg: rgba(255, 255, 255, 0.05);
-    --dnd-grid-handle-bg: #1a202c;
-  }
-}
-```
+## Custom resize handles
 
-### Item States
-
-Use these classes to target specific states of a grid item:
-
-- `.dnd-draggable-dragging`: Active when an item is being moved.
-- `.resizing`: Active when an item is being resized.
-- `.dnd-grid-placeholder`: The preview box that appears during drag/resize.
-- `.is-hovered`: Active when the mouse is over an item.
-
-### Custom Resize Handles
-
-If you want to completely replace the resize handle UI, you can pass a custom component to the `resizeHandle` prop on `DndGrid`:
+Replace the handle UI with a custom component:
 
 ```tsx
-<DndGrid
-  resizeHandle={<div className="my-custom-handle" />}
-  // ...
-/>
+<DndGrid resizeHandle={<div className="my-custom-handle" />} />
 ```

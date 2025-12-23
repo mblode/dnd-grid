@@ -3,9 +3,9 @@ title: Layout
 description: How the grid system works.
 ---
 
-## The Layout Object
+## The layout object
 
-The layout is the core state of your grid. It is an array of objects where each object represents an item's position and dimensions.
+The layout is the grid state. It is an array of items with position and size.
 
 ```ts
 import { type Layout } from "@dnd-grid/react";
@@ -20,99 +20,65 @@ const layout: Layout = [
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `i` | `string` | **Required.** Unique identifier. Must match the child's `key`. |
-| `x` | `number` | **Required.** Horizontal position (column index, 0-based). |
-| `y` | `number` | **Required.** Vertical position (row index, 0-based). |
-| `w` | `number` | **Required.** Width (in columns). |
-| `h` | `number` | **Required.** Height (in rows). |
-| `minW` | `number` | Minimum width constraint. |
-| `maxW` | `number` | Maximum width constraint. |
-| `minH` | `number` | Minimum height constraint. |
-| `maxH` | `number` | Maximum height constraint. |
-| `static` | `boolean` | If `true`, the item is locked in place. |
-| `isDraggable` | `boolean` | Override grid-level drag setting. |
-| `isResizable` | `boolean` | Override grid-level resize setting. |
+| `i` | `string` | Required. Unique id, must match the child's `key`. |
+| `x` | `number` | Required. Column index (0-based). |
+| `y` | `number` | Required. Row index (0-based). |
+| `w` | `number` | Required. Width in columns. |
+| `h` | `number` | Required. Height in rows. |
+| `minW` | `number` | Minimum width. |
+| `maxW` | `number` | Maximum width. |
+| `minH` | `number` | Minimum height. |
+| `maxH` | `number` | Maximum height. |
+| `static` | `boolean` | If `true`, the item is locked. |
+| `isDraggable` | `boolean` | Override grid drag setting. |
+| `isResizable` | `boolean` | Override grid resize setting. |
 
-## Grid System
+## Grid system
 
-The grid is a coordinate system based on columns and rows.
+The grid uses a column and row coordinate system.
 
-- **Columns (`x`)**: Determined by the `cols` prop (default: 12).
-- **Rows (`y`)**: Infinite vertical space. Height is fixed by `rowHeight`.
-- **Width (`w`)**: Number of columns an item spans.
-- **Height (`h`)**: Number of rows an item spans.
-
-### Visualization
-
-```
-cols = 12
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │ 8 │ 9 │...│...│
-├───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┤
-│                                               │
-│  ┌───────────────┐                            │
-│  │ x=0, y=0      │  w=4, h=2                  │
-│  │               │                            │
-│  └───────────────┘                            │
-│                                               │
-└───────────────────────────────────────────────┘
-```
+- **Columns (`x`):** Count is set by `cols` (default 12).
+- **Rows (`y`):** Rows grow downward; height is set by `rowHeight`.
+- **Width (`w`):** Number of columns an item spans.
+- **Height (`h`):** Number of rows an item spans.
 
 ## Compaction
 
-Compaction determines how items rearrange when space becomes available.
+Compaction controls how items pack when space opens up.
 
 ```tsx
 import {
   verticalCompactor,
   horizontalCompactor,
   noCompactor,
-  wrapCompactor,
-  fastVerticalCompactor,
 } from "@dnd-grid/react";
 
-// Vertical compaction (default)
 <DndGrid compactor={verticalCompactor} />
-
-// Horizontal compaction
 <DndGrid compactor={horizontalCompactor} />
-
-// No compaction
 <DndGrid compactor={noCompactor} />
-
-// Wrap compaction for flow layouts
-<DndGrid compactor={wrapCompactor} />
-
-// Fast compaction for large layouts
-<DndGrid compactor={fastVerticalCompactor} />
 ```
 
 ## Collisions
 
-Control what happens when a dragged item hits another item.
+Choose collision behaviour when items overlap.
 
-- **Push (Default):** The dragged item pushes others out of the way.
-- **Prevent Collision:** The dragged item is blocked by others.
-- **Allow Overlap:** Items can be placed on top of each other.
+- **Push (default):** The dragged item pushes others out of the way.
+- **Prevent collision:** The dragged item is blocked by others.
+- **Allow overlap:** Items can be placed on top of each other.
 
 ```tsx
 import { verticalCompactor, verticalOverlapCompactor } from "@dnd-grid/react";
 
-// Block movement if it hits another item
 <DndGrid compactor={{ ...verticalCompactor, preventCollision: true }} />
-
-// Allow items to stack (disables compaction)
 <DndGrid compactor={verticalOverlapCompactor} />
 ```
 
 ## Persistence
 
-Since the layout is just a JSON-serializable array, saving it is trivial.
+The layout is JSON-serialisable, so saving it is straightforward.
 
 ```tsx
-// Save to localStorage
 const onLayoutChange = (newLayout) => {
-  saveToDb(newLayout);
   localStorage.setItem("grid", JSON.stringify(newLayout));
 };
 ```

@@ -1,14 +1,14 @@
 ---
-title: LayoutItem
-description: Layout item type definition.
+title: Layout item
+description: Layout item type reference.
 ---
 
-## Layout Type
+## Layout type
 
-The `Layout` type is an array of `LayoutItem` objects:
+`Layout` is an array of `LayoutItem` objects:
 
 ```tsx
-import { type Layout, type LayoutItem } from "@dnd-grid/react";
+import { type Layout } from "@dnd-grid/react";
 
 const layout: Layout = [
   { i: "a", x: 0, y: 0, w: 2, h: 2 },
@@ -16,45 +16,20 @@ const layout: Layout = [
 ];
 ```
 
-## LayoutItem Interface
-
-```tsx
-interface LayoutItem {
-  // Required
-  i: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-
-  // Optional
-  minW?: number;
-  maxW?: number;
-  minH?: number;
-  maxH?: number;
-  constraints?: LayoutConstraint[];
-  static?: boolean;
-  isDraggable?: boolean;
-  isResizable?: boolean;
-  isBounded?: boolean;
-  resizeHandles?: ResizeHandleAxis[];
-}
-```
-
 ## Properties
 
 ### Required
 
 <ResponseField name="i" type="string" required>
-  Unique identifier. Must match the `key` prop of the corresponding child element.
+  Unique id. Must match the child's `key`.
 </ResponseField>
 
 <ResponseField name="x" type="number" required>
-  X position in grid units (0-indexed).
+  X position in grid units (0-based).
 </ResponseField>
 
 <ResponseField name="y" type="number" required>
-  Y position in grid units (0-indexed).
+  Y position in grid units (0-based).
 </ResponseField>
 
 <ResponseField name="w" type="number" required>
@@ -68,58 +43,48 @@ interface LayoutItem {
 ### Optional
 
 <ResponseField name="minW" type="number">
-  Minimum width constraint.
+  Minimum width.
 </ResponseField>
 
 <ResponseField name="maxW" type="number">
-  Maximum width constraint.
+  Maximum width.
 </ResponseField>
 
 <ResponseField name="minH" type="number">
-  Minimum height constraint.
+  Minimum height.
 </ResponseField>
 
 <ResponseField name="maxH" type="number">
-  Maximum height constraint.
+  Maximum height.
 </ResponseField>
 
 <ResponseField name="constraints" type="LayoutConstraint[]">
-  Per-item constraints applied during drag/resize.
+  Per-item drag and resize constraints.
 </ResponseField>
 
 <ResponseField name="static" type="boolean" default="false">
-  If true, the item is locked in place.
+  If true, the item is locked.
 </ResponseField>
 
 <ResponseField name="isDraggable" type="boolean">
-  Override grid-level drag setting.
+  Override grid drag setting.
 </ResponseField>
 
 <ResponseField name="isResizable" type="boolean">
-  Override grid-level resize setting.
+  Override grid resize setting.
 </ResponseField>
 
 <ResponseField name="isBounded" type="boolean">
-  Override grid-level bounded setting.
+  Override grid bounded setting.
 </ResponseField>
 
 <ResponseField name="resizeHandles" type="ResizeHandleAxis[]">
-  Override grid-level resize handles.
+  Override grid resize handles.
 </ResponseField>
 
 ## Examples
 
-### Basic Layout
-
-```tsx
-const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 4, h: 2 },
-  { i: "b", x: 4, y: 0, w: 4, h: 2 },
-  { i: "c", x: 8, y: 0, w: 4, h: 2 },
-];
-```
-
-### With Size Constraints
+### With size constraints
 
 ```tsx
 const layout: Layout = [
@@ -129,33 +94,5 @@ const layout: Layout = [
     minW: 2, maxW: 8,
     minH: 2, maxH: 6,
   },
-];
-```
-
-### Static Header
-
-```tsx
-const layout: Layout = [
-  // Static header spanning full width
-  { i: "header", x: 0, y: 0, w: 12, h: 1, static: true },
-
-  // Movable content below
-  { i: "content", x: 0, y: 1, w: 8, h: 4 },
-  { i: "sidebar", x: 8, y: 1, w: 4, h: 4 },
-];
-```
-
-### Mixed Behavior
-
-```tsx
-const layout: Layout = [
-  // Draggable but not resizable
-  { i: "drag-only", x: 0, y: 0, w: 4, h: 2, isResizable: false },
-
-  // Resizable but not draggable
-  { i: "resize-only", x: 4, y: 0, w: 4, h: 2, isDraggable: false },
-
-  // Bounded (can't leave container)
-  { i: "bounded", x: 8, y: 0, w: 4, h: 2, isBounded: true },
 ];
 ```

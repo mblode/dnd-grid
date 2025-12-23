@@ -1,6 +1,6 @@
 ---
-title: Basic
-description: Simple draggable and resizable grid layout.
+title: Basic example
+description: Simple draggable and resizable grid.
 ---
 
 <iframe
@@ -17,18 +17,15 @@ import { useState } from "react";
 import { DndGrid, type Layout } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
-const generateLayout = (count: number): Layout => {
-  return Array.from({ length: count }, (_, i) => ({
-    i: i.toString(),
-    x: (i * 2) % 12,
-    y: Math.floor(i / 6) * 2,
-    w: 2,
-    h: 2,
-  }));
-};
+const initialLayout: Layout = [
+  { i: "a", x: 0, y: 0, w: 3, h: 2 },
+  { i: "b", x: 3, y: 0, w: 3, h: 2 },
+  { i: "c", x: 6, y: 0, w: 3, h: 2 },
+  { i: "d", x: 9, y: 0, w: 3, h: 2 },
+];
 
 export default function BasicExample() {
-  const [layout, setLayout] = useState<Layout>(generateLayout(12));
+  const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
     <DndGrid

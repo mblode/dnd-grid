@@ -58,6 +58,7 @@ export default function DynamicAddRemoveExample() {
             cols={12}
             rowHeight={40}
             width={width}
+            draggableCancel=".no-drag"
             onLayoutChange={setLayout}
           >
             {layout.map((item) => (
@@ -69,7 +70,7 @@ export default function DynamicAddRemoveExample() {
                     e.stopPropagation();
                     removeItem(item.i);
                   }}
-                  className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  className="no-drag absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>

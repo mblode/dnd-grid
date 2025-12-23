@@ -6,9 +6,9 @@ export function Logo({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       role="img"
-      aria-labelledby="dnd-grid-logo-title"
+      aria-labelledby="dnd-kit-logo-title"
     >
-      <title id="dnd-grid-logo-title">Dnd Grid</title>
+      <title id="dnd-kit-logo-title">dnd-kit</title>
       <rect width="1000" height="1000" rx="167" fill="currentColor" />
       <path
         d="M375 125C397.101 125 418.298 133.78 433.926 149.408C449.554 165.036 458.333 186.232 458.333 208.333V375C458.333 397.101 449.554 418.298 433.926 433.926C418.298 449.554 397.101 458.333 375 458.333H208.333C186.232 458.333 165.036 449.554 149.408 433.926C133.78 418.298 125 397.101 125 375V208.333C125 186.232 133.78 165.036 149.408 149.408C165.036 133.78 186.232 125 208.333 125H375Z"

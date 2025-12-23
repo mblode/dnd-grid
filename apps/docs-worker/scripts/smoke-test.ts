@@ -35,7 +35,10 @@ const run = async () => {
     assertHost(requests[0], env.LANDING_URL);
 
     requests.length = 0;
-    await worker.fetch(new Request("https://dnd-grid.com/.well-known/test"), env);
+    await worker.fetch(
+      new Request("https://dnd-grid.com/.well-known/test"),
+      env,
+    );
     assert.equal(requests.length, 1);
     assertHost(requests[0], "dnd-grid.com");
   } finally {

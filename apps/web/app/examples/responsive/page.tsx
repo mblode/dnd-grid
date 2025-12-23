@@ -6,7 +6,10 @@ import {
   useContainerWidth,
   useDndGridResponsiveLayout,
 } from "@dnd-grid/react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const layouts: ResponsiveLayouts = {
   lg: [
@@ -42,7 +45,23 @@ const cards = [
   { id: "d", label: "Notes" },
 ];
 
+const containerWidthOptions = [
+  { value: "auto", label: "Auto", description: "Fluid", width: null },
+  { value: "lg", label: "LG", description: "1200px", width: 1200 },
+  { value: "md", label: "MD", description: "996px", width: 996 },
+  { value: "sm", label: "SM", description: "768px", width: 768 },
+  { value: "xs", label: "XS", description: "480px", width: 480 },
+  { value: "xxs", label: "XXS", description: "360px", width: 360 },
+] as const;
+
 export default function ResponsiveExample() {
+  const searchParams = useSearchParams();
+  const isEmbed = searchParams.get("embed") === "true";
+  const [widthPreset, setWidthPreset] = useState("auto");
+  const activePreset =
+    containerWidthOptions.find((option) => option.value === widthPreset) ??
+    containerWidthOptions[0];
+  const containerWidth = activePreset?.width ?? null;
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: true,
     initialWidth: 0,
@@ -58,27 +77,48 @@ export default function ResponsiveExample() {
 
   return (
     <div className="space-y-3">
+      {isEmbed ? (
+        <Tabs value={widthPreset} onValueChange={setWidthPreset}>
+          <TabsList aria-label="Container width" className="w-full">
+            {containerWidthOptions.map((option) => (
+              <TabsTrigger
+                key={option.value}
+                value={option.value}
+                className="w-full"
+              >
+                {option.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      ) : null}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Breakpoint: {mounted ? breakpoint : "..."}</span>
         <span>
           {mounted ? `${Math.round(width)}px · ${cols} cols` : "Measuring..."}
         </span>
       </div>
-      <div ref={containerRef} className="w-full">
-        {mounted && width > 0 ? (
-          <DndGrid
-            {...gridProps}
-            width={width}
-            rowHeight={48}
-            onLayoutChange={handleLayoutChange}
-          >
-            {cards.map((card) => (
-              <div key={card.id}>{card.label}</div>
-            ))}
-          </DndGrid>
-        ) : (
-          <Skeleton className="h-[280px] w-full" />
-        )}
+      <div className="w-full overflow-x-auto">
+        <div
+          ref={containerRef}
+          className="mx-auto"
+          style={{ width: containerWidth ? `${containerWidth}px` : "100%" }}
+        >
+          {mounted && width > 0 ? (
+            <DndGrid
+              {...gridProps}
+              width={width}
+              rowHeight={48}
+              onLayoutChange={handleLayoutChange}
+            >
+              {cards.map((card) => (
+                <div key={card.id}>{card.label}</div>
+              ))}
+            </DndGrid>
+          ) : (
+            <Skeleton className="h-[280px] w-full" />
+          )}
+        </div>
       </div>
     </div>
   );

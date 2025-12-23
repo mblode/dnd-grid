@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { siteConfig } from "@/lib/config";
 
 export function SiteHeader() {
@@ -6,8 +7,12 @@ export function SiteHeader() {
     <header className="w-full py-6">
       <div className="container-wrapper">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-lg underline-offset-2 hover:underline">
-            dnd-grid
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-lg underline-offset-2 hover:underline"
+          >
+            <Logo className="h-6 w-6 text-foreground" />
+            <span>dnd-kit</span>
           </Link>
           <nav className="flex items-center gap-6 text-lg">
             <a

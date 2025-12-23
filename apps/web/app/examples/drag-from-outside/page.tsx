@@ -43,7 +43,7 @@ export default function DragFromOutsideExample() {
   });
 
   const handleDragStart =
-    (item: PaletteItem) => (event: DragEvent<HTMLDivElement>) => {
+    (item: PaletteItem) => (event: DragEvent<HTMLElement>) => {
       dragItemRef.current = item;
       setActivePaletteId(item.id);
       event.dataTransfer.setData("text/plain", item.id);

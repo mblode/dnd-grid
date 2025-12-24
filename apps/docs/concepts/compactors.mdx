@@ -1,0 +1,93 @@
+---
+title: Compactors
+description: Control how layouts pack and collide.
+---
+
+Compactors are pluggable strategies that determine how items pack when space
+opens up and how collisions are resolved. Pass a `Compactor` to the `compactor`
+prop on `DndGrid`, or use them with responsive layouts.
+
+## Built-in compactors
+
+| Compactor | Behavior |
+|-----------|----------|
+| `verticalCompactor` | Default. Packs items upward by row. |
+| `horizontalCompactor` | Packs items left-to-right, wrapping to the next row. |
+| `noCompactor` | Leaves items where they are, no packing. |
+| `verticalOverlapCompactor` | Vertical mode but allows overlap. |
+| `horizontalOverlapCompactor` | Horizontal mode but allows overlap. |
+| `wrapCompactor` | Wraps items in row-major order (from `extras`). |
+| `wrapOverlapCompactor` | Wrap mode with overlap allowed. |
+| `fastVerticalCompactor` | Faster vertical packing for large layouts. |
+| `fastHorizontalCompactor` | Faster horizontal packing for large layouts. |
+| `fastVerticalOverlapCompactor` | Fast vertical mode with overlap allowed. |
+| `fastHorizontalOverlapCompactor` | Fast horizontal mode with overlap allowed. |
+
+```tsx
+import {
+  verticalCompactor,
+  horizontalCompactor,
+  noCompactor,
+  wrapCompactor,
+  fastVerticalCompactor,
+} from "@dnd-grid/react";
+
+<DndGrid compactor={verticalCompactor} />
+<DndGrid compactor={horizontalCompactor} />
+<DndGrid compactor={noCompactor} />
+<DndGrid compactor={wrapCompactor} />
+<DndGrid compactor={fastVerticalCompactor} />
+```
+
+## Overlap and collision behavior
+
+- `allowOverlap: true` skips collision resolution. Items can overlap freely.
+- `preventCollision: true` blocks a move if it would collide with another item.
+
+```tsx
+import { verticalCompactor, verticalOverlapCompactor } from "@dnd-grid/react";
+
+<DndGrid compactor={{ ...verticalCompactor, preventCollision: true }} />
+<DndGrid compactor={verticalOverlapCompactor} />
+```
+
+## Helpers and custom compactors
+
+A compactor has four fields: `type`, `allowOverlap`, `compact`, and `onMove`.
+You can implement your own, or build on the helpers below:
+
+- `compactItemVertical`
+- `compactItemHorizontal`
+- `resolveCompactionCollision`
+- `getCompactor` for compatibility with the old `compactType` API
+
+```tsx
+import { type Compactor, compactItemVertical } from "@dnd-grid/react";
+
+const myCompactor: Compactor = {
+  type: "vertical",
+  allowOverlap: false,
+  compact(layout, _cols) {
+    // Reorder items by your own logic, then compact vertically.
+    const sorted = [...layout];
+    const out = sorted.map((item) => ({ ...item }));
+    const compareWith = out.filter((item) => item.static);
+    let maxY = 0;
+
+    for (const item of out) {
+      if (!item.static) {
+        compactItemVertical(compareWith, item, out, maxY);
+        maxY = Math.max(maxY, item.y + item.h);
+        compareWith.push(item);
+      }
+    }
+
+    return out;
+  },
+  onMove(layout, item, x, y) {
+    return layout.map((entry) =>
+      entry.i === item.i ? { ...entry, x, y, moved: true } : entry,
+    );
+  },
+};
+```

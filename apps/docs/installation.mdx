@@ -1,28 +1,36 @@
 ---
 title: Installation
-description: Install and configure dnd-grid.
+description: Install and use dnd-grid.
 ---
 
-## Set up
+## Installation
 
-Install the package and import the required styles.
-
-<CodeGroup>
-
-```bash npm
+```bash
 npm install @dnd-grid/react
 ```
 
-```bash yarn
-yarn add @dnd-grid/react
+Add the styles to your global CSS file (e.g. `globals.css`):
+
+```css
+@import "@dnd-grid/react/styles.css";
 ```
 
-```bash pnpm
-pnpm add @dnd-grid/react
-```
-
-</CodeGroup>
+## Usage
 
 ```tsx
-import "@dnd-grid/react/styles.css";
+import { DndGrid, type Layout } from "@dnd-grid/react"
+```
+
+```tsx
+<DndGrid
+  layout={layout}
+  cols={12}
+  rowHeight={50}
+  width={1200}
+  onLayoutChange={setLayout}
+>
+  {layout.map((item) => (
+    <div key={item.i}>{item.i}</div>
+  ))}
+</DndGrid>
 ```

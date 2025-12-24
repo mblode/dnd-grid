@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { ItemState, LayoutItem } from "../types";
-import { DndGridItemContext, useDndGridItemState } from "../use-item-state";
+import {
+  DndGridItemContext,
+  useDndGridItemState,
+  useOptionalDndGridItemState,
+} from "../use-item-state";
 
 const TestConsumer = () => {
   const { item, state } = useDndGridItemState();
@@ -9,6 +13,13 @@ const TestConsumer = () => {
     <div data-testid="state">
       {item.i}:{state.dragging ? "dragging" : "idle"}
     </div>
+  );
+};
+
+const OptionalConsumer = () => {
+  const context = useOptionalDndGridItemState();
+  return (
+    <div data-testid="optional">{context ? context.item.i : "missing"}</div>
   );
 };
 
@@ -38,5 +49,10 @@ describe("useDndGridItemState", () => {
       /useDndGridItemState must be used within a DndGrid item/i,
     );
     consoleError.mockRestore();
+  });
+
+  it("returns null when optional hook is used outside provider", () => {
+    render(<OptionalConsumer />);
+    expect(screen.getByTestId("optional")).toHaveTextContent("missing");
   });
 });

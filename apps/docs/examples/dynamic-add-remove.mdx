@@ -3,23 +3,46 @@ title: Dynamic add/remove
 description: Add and remove items at runtime.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/dynamic-add-remove?embed=true"
-  width="100%"
-  height="450"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Dynamic add/remove preview"
+    src="https://dnd-grid.com/examples/dynamic-add-remove-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/dynamic-add-remove/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-dynamic-add-remove-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState, useCallback } from "react";
-import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+<Tabs>
+<Tab title="CLI">
 
-export default function DynamicAddRemoveExample() {
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/dynamic-add-remove-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-dynamic-add-remove-example.tsx"
+"use client";
+
+import { DndGrid, findEmptyPosition, type Layout } from "@dnd-grid/react";
+import { useCallback, useState } from "react";
+
+const GRID_WIDTH = 1200;
+
+export function DynamicAddRemoveExample() {
   const [counter, setCounter] = useState(5);
   const [layout, setLayout] = useState<Layout>(
     [0, 1, 2, 3, 4].map((i) => ({
@@ -28,20 +51,23 @@ export default function DynamicAddRemoveExample() {
       y: 0,
       w: 2,
       h: 2,
-    }))
+    })),
   );
 
   const addItem = useCallback(() => {
-    setLayout((prev) => [
-      ...prev,
-      {
-        i: `n${counter}`,
-        x: (prev.length * 2) % 12,
-        y: Infinity,
-        w: 2,
-        h: 2,
-      },
-    ]);
+    setLayout((prev) => {
+      const position = findEmptyPosition(prev, { w: 2, h: 2 }, 12);
+
+      return [
+        ...prev,
+        {
+          i: `n${counter}`,
+          ...position,
+          w: 2,
+          h: 2,
+        },
+      ];
+    });
     setCounter((c) => c + 1);
   }, [counter]);
 
@@ -51,19 +77,23 @@ export default function DynamicAddRemoveExample() {
 
   return (
     <div>
-      <button onClick={addItem}>Add Item</button>
+      <button type="button" onClick={addItem}>
+        Add Item
+      </button>
 
       <DndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={1200}
+        width={GRID_WIDTH}
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
           <div key={item.i} className="grid-item">
             <span>{item.i}</span>
-            <button onClick={() => removeItem(item.i)}>×</button>
+            <button type="button" onClick={() => removeItem(item.i)}>
+              x
+            </button>
           </div>
         ))}
       </DndGrid>
@@ -71,3 +101,18 @@ export default function DynamicAddRemoveExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { DynamicAddRemoveExample } from "@/components/dnd-grid-dynamic-add-remove-example";
+
+export default function Page() {
+  return <DynamicAddRemoveExample />;
+}
+```
+
+

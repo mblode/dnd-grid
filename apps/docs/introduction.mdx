@@ -34,6 +34,16 @@ export default function Dashboard() {
 - **Compaction and constraints:** Control packing, collisions, and bounds.
 - **Styling hooks:** CSS variables, data attributes, and item state helpers.
 
+## Core engine vs React adapter
+
+`@dnd-grid/core` is the headless layout engine. It owns the layout math,
+compaction, constraints, and the command-based `createLayoutEngine` API with no
+DOM or React dependencies. `@dnd-grid/react` is the adapter that handles DOM
+measurements, drag/resize events, transforms, focus/a11y, and styling.
+
+Use `@dnd-grid/core` if you want to build a custom adapter for another runtime.
+Otherwise, consume `@dnd-grid/react` for the full React experience.
+
 ## Acknowledgements
 
 Inspired by [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed (STRML).

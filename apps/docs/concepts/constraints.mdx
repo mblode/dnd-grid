@@ -1,0 +1,122 @@
+---
+title: Constraints
+description: Enforce drag and resize rules.
+---
+
+Constraints are small functions that clamp item position and size during drag or
+resize. They run in order: grid-level `constraints` first, then per-item
+`constraints` on the `LayoutItem`.
+
+## Built-in constraints
+
+| Constraint | Description |
+|------------|-------------|
+| `gridBounds` | Keep items inside the grid bounds. |
+| `minMaxSize` | Respect `minW`, `maxW`, `minH`, `maxH` on items. |
+| `containerBounds` | Clamp movement to the visible container height. |
+| `boundedX` | Clamp horizontal movement only. |
+| `boundedY` | Clamp vertical movement only. |
+| `aspectRatio(ratio)` | Maintain a width/height ratio while resizing. |
+| `snapToGrid(stepX, stepY)` | Snap movement to grid steps. |
+| `minSize(minW, minH)` | Enforce minimum size. |
+| `maxSize(maxW, maxH)` | Enforce maximum size. |
+| `defaultConstraints` | `[gridBounds, minMaxSize]`. |
+
+## Using constraints
+
+```tsx
+import { useState } from "react";
+import {
+  DndGrid,
+  type Layout,
+  type LayoutConstraint,
+  aspectRatio,
+  defaultConstraints,
+  snapToGrid,
+} from "@dnd-grid/react";
+
+const topBand: LayoutConstraint = {
+  name: "topBand(2)",
+  constrainPosition(item, x, y) {
+    const maxY = Math.max(0, 2 - item.h);
+    return { x, y: Math.min(y, maxY) };
+  },
+};
+
+const layout: Layout = [
+  { i: "snap", x: 0, y: 0, w: 4, h: 2 },
+  { i: "ratio", x: 4, y: 0, w: 4, h: 2 },
+  { i: "band", x: 8, y: 0, w: 4, h: 2, constraints: [topBand] },
+];
+
+const constraints = [
+  ...defaultConstraints,
+  snapToGrid(2, 1),
+  aspectRatio(16 / 9),
+];
+
+export function ConstraintGrid() {
+  const [currentLayout, setLayout] = useState(layout);
+  return (
+    <DndGrid
+      layout={currentLayout}
+      cols={12}
+      rowHeight={40}
+      width={960}
+      constraints={constraints}
+      onLayoutChange={setLayout}
+    >
+      {currentLayout.map((item) => (
+        <div key={item.i}>{item.i}</div>
+      ))}
+    </DndGrid>
+  );
+}
+```
+
+## Writing custom constraints
+
+A `LayoutConstraint` can implement either `constrainPosition`, `constrainSize`,
+or both. The `ConstraintContext` provides grid metrics and the full layout.
+
+```tsx
+import { type LayoutConstraint } from "@dnd-grid/react";
+
+const lockRightColumn: LayoutConstraint = {
+  name: "lockRightColumn",
+  constrainPosition(item, x, y, { cols }) {
+    const maxX = Math.max(0, cols - item.w);
+    return { x: Math.max(x, maxX), y };
+  },
+};
+```
+
+## Constraint utilities
+
+If you are building your own drag interactions, you can apply the same rules
+manually with the exported helpers.
+
+```tsx
+import {
+  applyPositionConstraints,
+  applySizeConstraints,
+  defaultConstraints,
+} from "@dnd-grid/react";
+
+const position = applyPositionConstraints(
+  defaultConstraints,
+  item,
+  nextX,
+  nextY,
+  context,
+);
+
+const size = applySizeConstraints(
+  defaultConstraints,
+  item,
+  nextW,
+  nextH,
+  handle,
+  context,
+);
+```

@@ -30,6 +30,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "./lib"),
+      "@dnd-grid/core": resolve(__dirname, "../dnd-grid-core/lib/index.ts"),
     },
   },
 });

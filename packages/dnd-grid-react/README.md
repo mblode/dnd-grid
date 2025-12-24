@@ -40,6 +40,14 @@ function MyGrid() {
 }
 ```
 
+## Headless usage (advanced)
+
+`DndGrid` is the recommended default. If you need a custom wrapper or want to
+control item rendering, use the headless `useDndGrid` hook and render
+`GridItem` manually.
+
+Docs: https://dnd-grid.com/hooks/use-dnd-grid
+
 ## Measuring container width
 
 If you want the grid to measure its container width and avoid width jumps on
@@ -106,14 +114,23 @@ behavior with `measureBeforeMount` (default `true`) and `initialWidth`.
 | `isResizable` | `boolean` | `true` | Enable resizing |
 | `autoScroll` | `boolean \| AutoScrollOptions` | `true` | Auto-scroll when dragging near scroll edges |
 | `isBounded` | `boolean` | `false` | Keep items within container bounds |
-| `isDroppable` | `boolean` | `false` | Enable dropping items from outside |
 | `compactor` | `Compactor` | `verticalCompactor` | Compaction strategy |
 | `constraints` | `LayoutConstraint[]` | `defaultConstraints` | Constraints applied during drag/resize |
+| `validation` | `boolean` | `true in dev, false in prod` | Validate layouts at runtime with Zod |
 | `resizeHandles` | `ResizeHandleAxis[]` | `["se"]` | Resize handle positions |
 | `transformScale` | `number` | `1` | Scale factor for CSS transforms |
 | `dragTouchDelayDuration` | `number` | `250` | Touch delay before drag starts (ms) |
+| `dragHandle` | `string` | `""` | Selector for drag handles |
+| `dragCancel` | `string` | `""` | Selector for elements that cancel drag |
+| `aria-label` | `string` | `undefined` | Accessible label for the grid |
+| `aria-labelledby` | `string` | `undefined` | ID(s) of labelling elements |
+| `aria-describedby` | `string` | `undefined` | ID(s) of descriptive elements |
 
 Layout must be defined via the `layout` prop; `data-grid` on children is not supported.
+
+Drop behavior is enabled when you provide `onDrop` or `onDropDragOver`.
+
+`DndGrid` renders `role="grid"` and assigns `role="gridcell"` plus row/column indices to items. Placeholders and static items are excluded from set indexing.
 
 ## Responsive layouts
 
@@ -264,12 +281,12 @@ The hook must be used inside a `DndGrid` item (it throws if rendered elsewhere).
 | Callback | Type | Description |
 |----------|------|-------------|
 | `onLayoutChange` | `(layout: Layout) => void` | Called when layout changes |
-| `onDragStart` | `(layout, oldItem, newItem, placeholder, e, node) => void` | Called when drag starts |
-| `onDrag` | `(layout, oldItem, newItem, placeholder, e, node) => void` | Called during drag |
-| `onDragStop` | `(layout, oldItem, newItem, placeholder, e, node) => void` | Called when drag stops |
-| `onResizeStart` | `(layout, oldItem, newItem, placeholder, e, node) => void` | Called when resize starts |
-| `onResize` | `(layout, oldItem, newItem, placeholder, e, node) => void` | Called during resize |
-| `onResizeStop` | `(layout, oldItem, newItem, placeholder, e, node) => void` | Called when resize stops |
+| `onDragStart` | `(event: GridDragEvent) => void` | Called when drag starts |
+| `onDrag` | `(event: GridDragEvent) => void` | Called during drag |
+| `onDragStop` | `(event: GridDragEvent) => void` | Called when drag stops |
+| `onResizeStart` | `(event: GridResizeEvent) => void` | Called when resize starts |
+| `onResize` | `(event: GridResizeEvent) => void` | Called during resize |
+| `onResizeStop` | `(event: GridResizeEvent) => void` | Called when resize stops |
 | `onDrop` | `(layout, item, e) => void` | Called when item is dropped |
 | `onDropDragOver` | `(e) => { w?: number; h?: number } \| false` | Customise dropping item |
 

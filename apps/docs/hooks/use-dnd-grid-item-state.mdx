@@ -1,0 +1,61 @@
+---
+title: useDndGridItemState
+description: Read the current item and interaction state.
+---
+
+`useDndGridItemState` exposes the active item's layout data and interaction
+state. Use it to show drag/resize UI, badges, or inline controls.
+
+## Example
+
+```tsx
+import { useState } from "react";
+import { DndGrid, type Layout, useDndGridItemState } from "@dnd-grid/react";
+import "@dnd-grid/react/styles.css";
+
+const initialLayout: Layout = [
+  { i: "a", x: 0, y: 0, w: 3, h: 2 },
+  { i: "b", x: 3, y: 0, w: 3, h: 2 },
+];
+
+function ItemStatus() {
+  const { item, state } = useDndGridItemState();
+  return (
+    <div className={state.dragging ? "dragging" : ""}>
+      {item.i} {state.resizing ? "(resizing)" : ""}
+    </div>
+  );
+}
+
+export function ItemStateGrid() {
+  const [layout, setLayout] = useState(initialLayout);
+
+  return (
+    <DndGrid
+      layout={layout}
+      onLayoutChange={setLayout}
+      cols={12}
+      rowHeight={40}
+      width={800}
+    >
+      {layout.map((item) => (
+        <div key={item.i}>
+          <ItemStatus />
+        </div>
+      ))}
+    </DndGrid>
+  );
+}
+```
+
+## Returns
+
+| Value | Description |
+|-------|-------------|
+| `item` | The current `LayoutItem`. |
+| `state` | Interaction flags (`dragging`, `resizing`, `settling`, `disabled`). |
+
+<Note>
+  This hook must be used inside a `DndGrid` item. For shared components, use
+  `useOptionalDndGridItemState` and handle the `null` case.
+</Note>

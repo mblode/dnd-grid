@@ -3,9 +3,9 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
-  "linked": [],
+  "linked": [["@dnd-grid/core", "@dnd-grid/react"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["web", "docs-worker"]
+  "ignore": ["web", "docs", "docs-worker"]
 }

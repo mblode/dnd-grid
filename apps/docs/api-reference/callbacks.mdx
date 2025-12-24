@@ -9,17 +9,29 @@ dnd-grid provides callbacks for drag, resize, drop, and layout changes.
 
 ## Callback signature
 
-Most callbacks share this signature:
+Drag and resize callbacks receive an event object:
 
 ```tsx
-type EventCallback = (
-  layout: Layout,
-  oldItem: LayoutItem | null | undefined,
-  newItem: LayoutItem | null | undefined,
-  placeholder: LayoutItem | null | undefined,
-  event: Event,
-  element: HTMLElement | null | undefined
-) => void;
+type GridDragEvent<TData = unknown> = {
+  type: "dragStart" | "drag" | "dragStop";
+  layout: Layout<TData>;
+  previousItem: LayoutItem<TData> | null | undefined;
+  item: LayoutItem<TData> | null | undefined;
+  placeholder: LayoutItem<TData> | null | undefined;
+  event: Event;
+  node: HTMLElement | null | undefined;
+};
+
+type GridResizeEvent<TData = unknown> = {
+  type: "resizeStart" | "resize" | "resizeStop";
+  layout: Layout<TData>;
+  previousItem: LayoutItem<TData> | null | undefined;
+  item: LayoutItem<TData> | null | undefined;
+  placeholder: LayoutItem<TData> | null | undefined;
+  event: Event;
+  node: HTMLElement | null | undefined;
+  handle: ResizeHandleAxis;
+};
 ```
 
 ## Layout change
@@ -30,39 +42,39 @@ type EventCallback = (
 
 ## Drag callbacks
 
-<ResponseField name="onDragStart" type="EventCallback">
+<ResponseField name="onDragStart" type="(event: GridDragEvent) => void">
   Fires when a drag operation begins.
 </ResponseField>
 
-<ResponseField name="onDrag" type="EventCallback">
+<ResponseField name="onDrag" type="(event: GridDragEvent) => void">
   Fires continuously during drag.
 </ResponseField>
 
-<ResponseField name="onDragStop" type="EventCallback">
+<ResponseField name="onDragStop" type="(event: GridDragEvent) => void">
   Fires when a drag operation ends.
 </ResponseField>
 
 ## Resize callbacks
 
-<ResponseField name="onResizeStart" type="EventCallback">
+<ResponseField name="onResizeStart" type="(event: GridResizeEvent) => void">
   Fires when a resize operation begins.
 </ResponseField>
 
-<ResponseField name="onResize" type="EventCallback">
+<ResponseField name="onResize" type="(event: GridResizeEvent) => void">
   Fires continuously during resize.
 </ResponseField>
 
-<ResponseField name="onResizeStop" type="EventCallback">
+<ResponseField name="onResizeStop" type="(event: GridResizeEvent) => void">
   Fires when a resize operation ends.
 </ResponseField>
 
 ## Drop callbacks
 
-<ResponseField name="onDrop" type="(layout: Layout, item: LayoutItem | undefined, event: Event) => void">
+<ResponseField name="onDrop" type="(layout: Layout, item: LayoutItem | null | undefined, event: Event) => void">
   Fires when an external item is dropped onto the grid.
 </ResponseField>
 
-<ResponseField name="onDropDragOver" type="(event: DragEvent) => { w?: number; h?: number } | false">
+<ResponseField name="onDropDragOver" type="(event?: DragOverEvent) => { w?: number; h?: number } | false | null | undefined">
   Called when an external item is dragged over the grid. Return size or `false` to reject the drop.
 </ResponseField>
 
@@ -72,4 +84,5 @@ type EventCallback = (
   `onDrag` and `onResize` fire frequently. Avoid expensive work in these callbacks.
 </Warning>
 
-For expensive updates, prefer `onDragStop` or `onResizeStop`.
+For expensive updates, prefer `onDragStop` or `onResizeStop`, or set
+`callbackThrottle` on `DndGrid` to limit call frequency.

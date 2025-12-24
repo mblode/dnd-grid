@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "toolbox-example",
+  "type": "registry:component",
+  "title": "Toolbox",
+  "description": "Move items between the grid and toolbox.",
+  "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+  "css": {
+    "@import \"@dnd-grid/react/styles.css\"": {}
+  },
+  "files": [
+    {
+      "path": "examples/dnd-grid-toolbox-example.tsx",
+      "type": "registry:component",
+      "content": "\"use client\";\n\nimport { DndGrid, type Layout } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst GRID_WIDTH = 1200;\n\ninterface ToolboxItem {\n  i: string;\n  x: number;\n  y: number;\n  w: number;\n  h: number;\n  visible: boolean;\n}\n\nconst initialItems: ToolboxItem[] = [\n  { i: \"a\", x: 0, y: 0, w: 2, h: 2, visible: true },\n  { i: \"b\", x: 2, y: 0, w: 2, h: 2, visible: true },\n  { i: \"c\", x: 4, y: 0, w: 2, h: 2, visible: false },\n  { i: \"d\", x: 6, y: 0, w: 2, h: 2, visible: false },\n];\n\nexport function ToolboxExample() {\n  const [items, setItems] = useState<ToolboxItem[]>(initialItems);\n\n  const toggleItem = (id: string) => {\n    setItems((prev) =>\n      prev.map((item) =>\n        item.i === id ? { ...item, visible: !item.visible } : item,\n      ),\n    );\n  };\n\n  const visibleItems = items.filter((item) => item.visible);\n  const hiddenItems = items.filter((item) => !item.visible);\n  const visibleLayout: Layout = visibleItems.map(\n    ({ visible, ...item }) => item,\n  );\n\n  const handleLayoutChange = (newLayout: Layout) => {\n    setItems((prev) =>\n      prev.map((item) => {\n        const updated = newLayout.find((l) => l.i === item.i);\n        return updated ? { ...item, ...updated } : item;\n      }),\n    );\n  };\n\n  return (\n    <div>\n      <div className=\"toolbox\">\n        <div>Toolbox (click to add)</div>\n        {hiddenItems.map((item) => (\n          <button\n            key={item.i}\n            type=\"button\"\n            onClick={() => toggleItem(item.i)}\n          >\n            {item.i}\n          </button>\n        ))}\n      </div>\n\n      <DndGrid\n        layout={visibleLayout}\n        cols={12}\n        rowHeight={50}\n        width={GRID_WIDTH}\n        onLayoutChange={handleLayoutChange}\n      >\n        {visibleItems.map((item) => (\n          <div key={item.i} className=\"grid-item\">\n            <span>{item.i}</span>\n            <button type=\"button\" onClick={() => toggleItem(item.i)}>\n              x\n            </button>\n          </div>\n        ))}\n      </DndGrid>\n    </div>\n  );\n}\n"
+    }
+  ]
+}

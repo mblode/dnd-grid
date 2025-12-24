@@ -5,7 +5,7 @@
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
   --font-serif: var(--font-albra);
-  --font-mono: var(--font-mono);
+  --font-mono: var(--font-geist-mono);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

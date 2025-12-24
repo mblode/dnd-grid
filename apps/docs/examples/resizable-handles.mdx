@@ -3,21 +3,44 @@ title: Resizable handles
 description: Items can be resized from all eight directions.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/resizable-handles?embed=true"
-  width="100%"
-  height="450"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Resizable handles preview"
+    src="https://dnd-grid.com/examples/resizable-handles-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/resizable-handles/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-resizable-handles-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/resizable-handles-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-resizable-handles-example.tsx"
+"use client";
+
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { useState } from "react";
+
+const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 3, h: 2 },
@@ -25,7 +48,7 @@ const initialLayout: Layout = [
   { i: "c", x: 6, y: 0, w: 3, h: 2 },
 ];
 
-export default function ResizableHandlesExample() {
+export function ResizableHandlesExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
@@ -33,7 +56,7 @@ export default function ResizableHandlesExample() {
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={1200}
+      width={GRID_WIDTH}
       resizeHandles={["n", "e", "s", "w", "ne", "nw", "se", "sw"]}
       onLayoutChange={setLayout}
     >
@@ -46,3 +69,18 @@ export default function ResizableHandlesExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { ResizableHandlesExample } from "@/components/dnd-grid-resizable-handles-example";
+
+export default function Page() {
+  return <ResizableHandlesExample />;
+}
+```
+
+

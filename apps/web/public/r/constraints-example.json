@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "constraints-example",
+  "type": "registry:component",
+  "title": "Constraints",
+  "description": "Plug in constraints and custom rules.",
+  "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+  "css": {
+    "@import \"@dnd-grid/react/styles.css\"": {}
+  },
+  "files": [
+    {
+      "path": "examples/dnd-grid-constraints-example.tsx",
+      "type": "registry:component",
+      "content": "\"use client\";\n\nimport {\n  DndGrid,\n  defaultConstraints,\n  type Layout,\n  type LayoutConstraint,\n  snapToGrid,\n} from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst GRID_WIDTH = 1200;\n\nconst topBandConstraint: LayoutConstraint = {\n  name: \"topBand(4)\",\n  constrainPosition(item, x, y) {\n    const maxY = Math.max(0, 4 - item.h);\n    return { x, y: Math.min(y, maxY) };\n  },\n};\n\nconst gridConstraints: LayoutConstraint[] = [\n  ...defaultConstraints,\n  snapToGrid(2, 1),\n];\n\nconst initialLayout: Layout = [\n  { i: \"snap\", x: 0, y: 0, w: 3, h: 2 },\n  {\n    i: \"limits\",\n    x: 3,\n    y: 0,\n    w: 3,\n    h: 2,\n    minW: 2,\n    maxW: 5,\n    minH: 2,\n    maxH: 4,\n  },\n  {\n    i: \"band\",\n    x: 6,\n    y: 0,\n    w: 3,\n    h: 2,\n    constraints: [topBandConstraint],\n  },\n];\n\nexport function ConstraintsExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n\n  return (\n    <DndGrid\n      layout={layout}\n      cols={12}\n      rowHeight={50}\n      width={GRID_WIDTH}\n      constraints={gridConstraints}\n      onLayoutChange={setLayout}\n    >\n      {layout.map((item) => (\n        <div key={item.i} className=\"grid-item\">\n          {item.i}\n        </div>\n      ))}\n    </DndGrid>\n  );\n}\n"
+    }
+  ]
+}

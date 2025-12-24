@@ -9,6 +9,11 @@ description: Main grid layout component.
 import { DndGrid } from "@dnd-grid/react";
 ```
 
+<Note>
+  Need a headless wrapper? Use [`useDndGrid`](/hooks/use-dnd-grid) to build your
+  own container while keeping the same drag/resize behavior.
+</Note>
+
 ## Props
 
 ### Required
@@ -90,13 +95,52 @@ import { DndGrid } from "@dnd-grid/react";
   Drag and resize constraints. Defaults to `defaultConstraints`.
 </ResponseField>
 
+<ResponseField name="validation" type="boolean" default="true in dev, false in prod">
+  Validate layouts at runtime with Zod. Disable to avoid extra work in hot paths.
+</ResponseField>
+
+<ResponseField name="callbackThrottle" type="number | { drag?: number; resize?: number }">
+  Throttle `onDrag` and `onResize` callbacks in milliseconds. Pass a number to
+  apply to both, or an object for per-callback control.
+</ResponseField>
+
+### Motion
+
+<ResponseField name="animationConfig" type="AnimationConfig">
+  Configure spring and shadow animations for drag, resize, and settling.
+</ResponseField>
+
+<ResponseField name="reducedMotion" type="ReducedMotionSetting | boolean">
+  Motion preference override. Use `"system"` to respect
+  `prefers-reduced-motion`.
+</ResponseField>
+
+### Accessibility
+
+<ResponseField name="liveAnnouncements" type="LiveAnnouncementsOptions | false">
+  Configure aria-live announcements for drag, resize, and focus. Pass `false` to
+  disable.
+</ResponseField>
+
+<ResponseField name="aria-label" type="string">
+  Accessible label for the grid container.
+</ResponseField>
+
+<ResponseField name="aria-labelledby" type="string">
+  ID of the element that labels the grid.
+</ResponseField>
+
+<ResponseField name="aria-describedby" type="string">
+  ID of the element that describes the grid.
+</ResponseField>
+
 ### Drag configuration
 
-<ResponseField name="draggableHandle" type="string">
+<ResponseField name="dragHandle" type="string">
   Selector for elements that start a drag.
 </ResponseField>
 
-<ResponseField name="draggableCancel" type="string">
+<ResponseField name="dragCancel" type="string">
   Selector for elements that cancel a drag.
 </ResponseField>
 
@@ -112,16 +156,14 @@ import { DndGrid } from "@dnd-grid/react";
 
 <ResponseField
   name="resizeHandle"
-  type="ReactNode | ((axis, ref) => ReactNode)"
+  type="ReactElement | ((axis, ref) => ReactElement)"
 >
   Custom resize handle component.
 </ResponseField>
 
 ### Drop configuration
 
-<ResponseField name="isDroppable" type="boolean" default="false">
-  Allow external drops.
-</ResponseField>
+Drop behavior is enabled when you provide `onDrop` or `onDropDragOver`.
 
 <ResponseField name="droppingItem" type="Partial<LayoutItem>">
   Defaults for the dropped item.
@@ -141,6 +183,10 @@ import { DndGrid } from "@dnd-grid/react";
 
 <ResponseField name="style" type="CSSProperties">
   Inline styles for the container.
+</ResponseField>
+
+<ResponseField name="slotProps" type="SlotProps">
+  Customize className and style for items, placeholders, and resize handles.
 </ResponseField>
 
 <ResponseField name="innerRef" type="Ref<HTMLDivElement>">

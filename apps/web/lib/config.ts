@@ -7,5 +7,3 @@ export const siteConfig = {
     author: "https://matthewblode.com",
   },
 };
-
-export type SiteConfig = typeof siteConfig;

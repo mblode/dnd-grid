@@ -3,7 +3,10 @@ import type { Props as DndGridProps } from "../types";
 import { useContainerWidth } from "../use-container-width";
 import { DndGrid, type DndGridHandle } from "./dnd-grid";
 
-export type AutoWidthDndGridProps = Omit<DndGridProps, "width"> & {
+export type AutoWidthDndGridProps<TData = unknown> = Omit<
+  DndGridProps<TData>,
+  "width"
+> & {
   /**
    * Delay initial render until width is measured.
    */
@@ -18,13 +21,15 @@ export type AutoWidthDndGridProps = Omit<DndGridProps, "width"> & {
   containerProps?: Omit<React.HTMLAttributes<HTMLDivElement>, "children">;
 };
 
-export const AutoWidthDndGrid = React.forwardRef<
-  DndGridHandle,
-  AutoWidthDndGridProps
->(
-  (
-    { containerProps, measureBeforeMount = true, initialWidth, ...gridProps },
-    ref,
+export const AutoWidthDndGrid = React.forwardRef(
+  <TData,>(
+    {
+      containerProps,
+      measureBeforeMount = true,
+      initialWidth,
+      ...gridProps
+    }: AutoWidthDndGridProps<TData>,
+    ref: React.ForwardedRef<DndGridHandle<TData>>,
   ) => {
     const { width, containerRef, mounted } = useContainerWidth({
       measureBeforeMount,

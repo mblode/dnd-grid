@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "allow-overlap-example",
+  "type": "registry:component",
+  "title": "Allow overlap",
+  "description": "Let items stack without collision.",
+  "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+  "css": {
+    "@import \"@dnd-grid/react/styles.css\"": {}
+  },
+  "files": [
+    {
+      "path": "examples/dnd-grid-allow-overlap-example.tsx",
+      "type": "registry:component",
+      "content": "\"use client\";\n\nimport {\n  DndGrid,\n  type Layout,\n  verticalCompactor,\n  verticalOverlapCompactor,\n} from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst GRID_WIDTH = 1200;\n\nconst initialLayout: Layout = [\n  { i: \"a\", x: 0, y: 0, w: 3, h: 2 },\n  { i: \"b\", x: 1, y: 0, w: 3, h: 2 },\n  { i: \"c\", x: 2, y: 1, w: 3, h: 2 },\n  { i: \"d\", x: 6, y: 0, w: 3, h: 3 },\n];\n\nexport function AllowOverlapExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n  const [allowOverlap, setAllowOverlap] = useState(true);\n  const compactor = allowOverlap ? verticalOverlapCompactor : verticalCompactor;\n\n  return (\n    <div>\n      <button type=\"button\" onClick={() => setAllowOverlap((prev) => !prev)}>\n        {allowOverlap ? \"Disable overlap\" : \"Enable overlap\"}\n      </button>\n\n      <DndGrid\n        layout={layout}\n        cols={12}\n        rowHeight={50}\n        width={GRID_WIDTH}\n        compactor={compactor}\n        onLayoutChange={setLayout}\n      >\n        {layout.map((item) => (\n          <div key={item.i} className=\"grid-item\">\n            {item.i}\n          </div>\n        ))}\n      </DndGrid>\n    </div>\n  );\n}\n"
+    }
+  ]
+}

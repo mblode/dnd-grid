@@ -15,6 +15,7 @@ import {
   type DraggableEventHandler,
 } from "react-draggable";
 import { Resizable } from "react-resizable";
+import { resolveAnimationConfig } from "../animation-config";
 import {
   calcGridColWidth,
   calcGridItemPosition,
@@ -26,30 +27,29 @@ import {
 import {
   applyPositionConstraints,
   applySizeConstraints,
-  defaultConstraints,
+  resolveConstraints,
 } from "../constraints";
 import { normalizeSpacing } from "../spacing";
 import {
   calculateVelocityFromHistory,
   createLiveSpring,
-  POSITION_SPRING_CONFIG,
   type PointWithTimestamp,
-  SCALE_SPRING_CONFIG,
-  SPRING_DEFAULTS,
   VELOCITY_WINDOW_MS,
   velocityToRotation,
 } from "../spring";
 import type {
+  AnimationConfig,
   ConstraintContext,
   DroppingPosition,
-  GridDragEvent,
-  GridResizeEvent,
+  GridItemDragEvent,
+  GridItemResizeEvent,
   ItemState,
   Layout,
   LayoutConstraint,
   LayoutItem,
   Position,
   PositionParams,
+  ReducedMotionSetting,
   ResizeHandle,
   ResizeHandleAxis,
   Size,
@@ -57,11 +57,16 @@ import type {
   Spacing,
 } from "../types";
 import { DndGridItemContext } from "../use-item-state";
+import { useKeyboardMove } from "../use-keyboard-move";
+import { resolveReducedMotion, useReducedMotion } from "../use-reduced-motion";
 import { resizeItemInDirection, setTransform } from "../utils";
 import { ResizeHandle as DefaultResizeHandle } from "./resize-handle";
 
 const gridContainerClassName = "dnd-grid";
 const defaultResizeCursor = "se-resize";
+const restShadow = "0 2px 4px rgba(0,0,0,.04)";
+const dragShadow =
+  "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)";
 const getResizeCursor = (handle?: ResizeHandleAxis) =>
   handle ? `${handle}-resize` : defaultResizeCursor;
 const activeDragItems = new Set<symbol>();
@@ -116,12 +121,7 @@ type PartialPosition = {
   deg: number;
 };
 
-type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
-  i: string,
-  w: number,
-  h: number,
-  arg3: Data,
-) => void;
+type GridItemCallback<Data> = (event: Data) => void;
 
 type ResizeCallbackData = {
   node: HTMLElement;
@@ -148,10 +148,10 @@ type State = {
   animatedY: number;
 };
 
-type Props = {
+type Props<TData = unknown> = {
   children: ReactElement;
-  layout: Layout;
-  constraints?: LayoutConstraint[];
+  layout: Layout<TData>;
+  constraints?: LayoutConstraint<TData>[];
   cols: number;
   containerWidth: number;
   margin: Spacing;
@@ -163,10 +163,12 @@ type Props = {
   isBounded: boolean;
   static?: boolean;
   transformScale: number;
+  reducedMotion?: ReducedMotionSetting | boolean;
+  animationConfig?: AnimationConfig;
   droppingPosition?: DroppingPosition;
   className: string;
   style?: CSSProperties;
-  slotProps?: SlotProps;
+  slotProps?: SlotProps<TData>;
   // Draggability
   cancel: string;
   dragTouchDelayDuration: number;
@@ -182,13 +184,25 @@ type Props = {
   i: string;
   resizeHandles?: ResizeHandleAxis[];
   resizeHandle?: ResizeHandle;
-  onDrag?: GridItemCallback<GridDragEvent>;
-  onDragStart?: GridItemCallback<GridDragEvent>;
-  onDragStop?: GridItemCallback<GridDragEvent>;
-  onResize?: GridItemCallback<GridResizeEvent>;
-  onResizeStart?: GridItemCallback<GridResizeEvent>;
-  onResizeStop?: GridItemCallback<GridResizeEvent>;
+  onDrag?: GridItemCallback<GridItemDragEvent>;
+  onDragStart?: GridItemCallback<GridItemDragEvent>;
+  onDragStop?: GridItemCallback<GridItemDragEvent>;
+  onResize?: GridItemCallback<GridItemResizeEvent>;
+  onResizeStart?: GridItemCallback<GridItemResizeEvent>;
+  onResizeStop?: GridItemCallback<GridItemResizeEvent>;
   onSettleComplete?: (i: string) => void;
+  tabIndex?: number;
+  ariaRowIndex?: number;
+  ariaColIndex?: number;
+  ariaPosInSet?: number;
+  ariaSetSize?: number;
+  onItemFocus?: (id: string) => void;
+  onItemKeyDown?: (
+    event: React.KeyboardEvent<HTMLElement>,
+    id: string,
+    keyboardState: { isPressed: boolean; isResizing: boolean },
+  ) => void;
+  registerItemRef?: (id: string, node: HTMLElement | null) => void;
 };
 
 type DefaultProps = {
@@ -263,11 +277,16 @@ const defaultProps: DefaultProps = {
   transformScale: 1,
 };
 
-type GridItemProps = Omit<Props, keyof DefaultProps> & Partial<DefaultProps>;
+export type GridItemProps<TData = unknown> = Omit<
+  Props<TData>,
+  keyof DefaultProps
+> &
+  Partial<DefaultProps>;
 
-type GridItemComponent = React.ForwardRefExoticComponent<
-  React.PropsWithoutRef<GridItemProps> & React.RefAttributes<GridItemHandle>
-> & {
+type GridItemComponent = (<TData = unknown>(
+  props: React.PropsWithoutRef<GridItemProps<TData>> &
+    React.RefAttributes<GridItemHandle>,
+) => React.ReactElement | null) & {
   defaultProps?: DefaultProps;
   displayName?: string;
 };
@@ -276,9 +295,12 @@ type GridItemComponent = React.ForwardRefExoticComponent<
  * An individual item within a DndGrid.
  */
 
-const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
-  (incomingProps, ref) => {
-    const props = { ...defaultProps, ...incomingProps } as Props;
+const GridItem = React.forwardRef(
+  <TData,>(
+    incomingProps: GridItemProps<TData>,
+    ref: React.ForwardedRef<GridItemHandle>,
+  ) => {
+    const props = { ...defaultProps, ...incomingProps } as Props<TData>;
     const [state, setState] = React.useState<State>(() => ({
       allowedToDrag: false,
       resizing: false,
@@ -298,6 +320,19 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     stateRef.current = state;
     const propsRef = React.useRef(props);
     propsRef.current = props;
+    const resolvedAnimationConfig = React.useMemo(
+      () => resolveAnimationConfig(props.animationConfig),
+      [props.animationConfig],
+    );
+    const animationConfigRef = React.useRef(resolvedAnimationConfig);
+    animationConfigRef.current = resolvedAnimationConfig;
+    const prefersReducedMotion = useReducedMotion();
+    const reducedMotion = resolveReducedMotion(
+      props.reducedMotion,
+      prefersReducedMotion,
+    );
+    const reducedMotionRef = React.useRef(reducedMotion);
+    reducedMotionRef.current = reducedMotion;
 
     const elementRef = React.useRef<HTMLDivElement>(null);
     const draggableCoreRef = React.useRef<DraggableCore | null>(null);
@@ -319,30 +354,23 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     const dragDelayTimeoutRef = React.useRef<ReturnType<
       typeof setTimeout
     > | null>(null);
-    const prevPropsRef = React.useRef<Props | null>(null);
+    const prevPropsRef = React.useRef<Props<TData> | null>(null);
     const handleRef = React.useRef<GridItemHandle | null>(null);
 
     // Live spring instances for continuous animation (like Framer Motion's useSpring)
     const rotationSpringRef = React.useRef(
-      createLiveSpring({
-        stiffness: SPRING_DEFAULTS.stiffness,
-        damping: SPRING_DEFAULTS.damping,
-        mass: SPRING_DEFAULTS.mass,
-        restSpeed: 2,
-        restDistance: 0.5,
-      }),
+      createLiveSpring(animationConfigRef.current.springs.rotation),
     );
     const scaleSpringRef = React.useRef(
-      createLiveSpring({
-        stiffness: SCALE_SPRING_CONFIG.stiffness,
-        damping: SCALE_SPRING_CONFIG.damping,
-        restSpeed: SCALE_SPRING_CONFIG.restSpeed,
-        restDistance: 0.001, // Scale changes by 0.02, need tiny restDistance (not 0.5 default)
-      }),
+      createLiveSpring(animationConfigRef.current.springs.scale),
     );
     // Position springs for smooth settling animation after drag (underdamped for bounce)
-    const xSpringRef = React.useRef(createLiveSpring(POSITION_SPRING_CONFIG));
-    const ySpringRef = React.useRef(createLiveSpring(POSITION_SPRING_CONFIG));
+    const xSpringRef = React.useRef(
+      createLiveSpring(animationConfigRef.current.springs.position),
+    );
+    const ySpringRef = React.useRef(
+      createLiveSpring(animationConfigRef.current.springs.position),
+    );
 
     const setStateFromHandle = React.useCallback(
       (nextState: Partial<State> | ((prevState: State) => Partial<State>)) => {
@@ -363,7 +391,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     }, []);
 
     const getPositionParams = React.useCallback(
-      (currentProps: Props = propsRef.current): PositionParams => {
+      (currentProps: Props<TData> = propsRef.current): PositionParams => {
         const margin = normalizeSpacing(currentProps.margin);
         const containerPadding = normalizeSpacing(
           currentProps.containerPadding,
@@ -381,7 +409,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     );
 
     const getConstraintContext = React.useCallback(
-      (node?: HTMLElement | null): ConstraintContext => {
+      (node?: HTMLElement | null): ConstraintContext<TData> => {
         const { cols, maxRows, containerWidth, rowHeight, layout } =
           propsRef.current;
         const margin = normalizeSpacing(propsRef.current.margin);
@@ -403,7 +431,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       [getGridContainer],
     );
 
-    const getConstraintItem = React.useCallback((): LayoutItem => {
+    const getConstraintItem = React.useCallback((): LayoutItem<TData> => {
       const {
         layout,
         i,
@@ -421,6 +449,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         resizeHandles,
         isBounded,
       } = propsRef.current;
+      const data = layout.find((item) => item.i === i)?.data;
       return {
         i,
         x,
@@ -431,6 +460,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         minH,
         maxW,
         maxH,
+        data,
         constraints: layout.find((item) => item.i === i)?.constraints,
         static: isStatic,
         isDraggable,
@@ -643,6 +673,16 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
      * This matches swing-card.tsx useSpring behavior - continuously smoothing values
      */
     const startSpringAnimation = React.useCallback(() => {
+      if (
+        reducedMotionRef.current ||
+        !animationConfigRef.current.springs.enabled
+      ) {
+        if (springAnimationFrameRef.current !== null) {
+          cancelAnimationFrame(springAnimationFrameRef.current);
+          springAnimationFrameRef.current = null;
+        }
+        return;
+      }
       if (springAnimationFrameRef.current !== null) {
         return;
       }
@@ -751,6 +791,17 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
      */
     const updateSpringTargets = React.useCallback(
       (targetRotation: number, targetScale: number) => {
+        if (
+          reducedMotionRef.current ||
+          !animationConfigRef.current.springs.enabled
+        ) {
+          setState((prevState) => ({
+            ...prevState,
+            currentRotation: 0,
+            currentScale: 1,
+          }));
+          return;
+        }
         rotationSpringRef.current.setTarget(targetRotation);
         scaleSpringRef.current.setTarget(targetScale);
       },
@@ -779,6 +830,20 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       }));
     }, []);
 
+    React.useEffect(() => {
+      const { springs } = resolvedAnimationConfig;
+      rotationSpringRef.current = createLiveSpring(springs.rotation);
+      scaleSpringRef.current = createLiveSpring(springs.scale);
+      xSpringRef.current = createLiveSpring(springs.position);
+      ySpringRef.current = createLiveSpring(springs.position);
+      resetSpringState();
+    }, [resolvedAnimationConfig, resetSpringState]);
+
+    React.useEffect(() => {
+      if (!reducedMotion) return;
+      resetSpringState();
+    }, [reducedMotion, resetSpringState]);
+
     /**
      * onDragStart event handler
      */
@@ -802,18 +867,32 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
           left: 0,
           deg: 0,
         };
-        const container = getGridContainer(node) || node.offsetParent;
-        if (!container) return;
-        const parentRect = (container as HTMLElement).getBoundingClientRect();
-        const clientRect = node.getBoundingClientRect();
-        const cLeft = clientRect.left / transformScale;
-        const pLeft = parentRect.left / transformScale;
-        const cTop = clientRect.top / transformScale;
-        const pTop = parentRect.top / transformScale;
-        const scrollLeft = (container as HTMLElement).scrollLeft ?? 0;
-        const scrollTop = (container as HTMLElement).scrollTop ?? 0;
-        newPosition.left = cLeft - pLeft + scrollLeft;
-        newPosition.top = cTop - pTop + scrollTop;
+        const container =
+          getGridContainer(node) || node.offsetParent || node.parentElement;
+        if (container) {
+          const parentRect = (container as HTMLElement).getBoundingClientRect();
+          const clientRect = node.getBoundingClientRect();
+          const cLeft = clientRect.left / transformScale;
+          const pLeft = parentRect.left / transformScale;
+          const cTop = clientRect.top / transformScale;
+          const pTop = parentRect.top / transformScale;
+          const scrollLeft = (container as HTMLElement).scrollLeft ?? 0;
+          const scrollTop = (container as HTMLElement).scrollTop ?? 0;
+          newPosition.left = cLeft - pLeft + scrollLeft;
+          newPosition.top = cTop - pTop + scrollTop;
+        } else {
+          const fallbackPosition = calcGridItemPosition(
+            getPositionParams(),
+            propsRef.current.x,
+            propsRef.current.y,
+            propsRef.current.w,
+            propsRef.current.h,
+            0,
+            null,
+          );
+          newPosition.left = fallbackPosition.left;
+          newPosition.top = fallbackPosition.top;
+        }
         dragPositionRef.current = newPosition;
         isDraggingRef.current = true;
         isSettlingRef.current = false;
@@ -826,39 +905,42 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
           isAnimating: false, // Clear any pending settling animation
         }));
 
-        // Set scale spring target directly (setState is async, so we can't rely on state being updated)
-        // This matches swing-card.tsx handleDragStart: scaleRaw.set(1.04)
-        scaleSpringRef.current.setTarget(1.04);
-        // Note: Don't set rotation target here - let onDrag set it based on velocity
+        if (
+          !reducedMotionRef.current &&
+          animationConfigRef.current.springs.enabled
+        ) {
+          // Set scale spring target directly (setState is async, so we can't rely on state being updated)
+          // This matches swing-card.tsx handleDragStart: scaleRaw.set(1.04)
+          scaleSpringRef.current.setTarget(1.04);
+          // Note: Don't set rotation target here - let onDrag set it based on velocity
 
-        // Start continuous spring animation (matches swing-card.tsx useSpring behavior)
-        handleRef.current?.startSpringAnimation?.();
+          // Start continuous spring animation (matches swing-card.tsx useSpring behavior)
+          handleRef.current?.startSpringAnimation?.();
+        }
 
         // Set grabbing cursor on body during drag
         setGlobalDragActive(interactionIdRef.current, true);
 
         // Animate shadow on drag start
         if (elementRef.current) {
-          elementRef.current.animate(
-            [
-              { boxShadow: "0 2px 4px rgba(0,0,0,.04)" },
+          const { shadow } = animationConfigRef.current;
+          if (reducedMotionRef.current || !shadow.enabled) {
+            elementRef.current.style.boxShadow = dragShadow;
+          } else {
+            elementRef.current.animate(
+              [{ boxShadow: restShadow }, { boxShadow: dragShadow }],
               {
-                boxShadow:
-                  "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)",
+                duration: shadow.dragStartDuration,
+                easing: shadow.dragStartEasing,
+                fill: "forwards",
               },
-            ],
-            {
-              duration: 200,
-              easing: "cubic-bezier(.2, 0, 0, 1)",
-              fill: "forwards",
-            },
-          );
+            );
+          }
         }
 
         // Call callback with this data
         if (onDragStart) {
-          const constraints =
-            propsRef.current.constraints ?? defaultConstraints;
+          const constraints = resolveConstraints(propsRef.current.constraints);
           const rawPos = calcXYRaw(
             getPositionParams(),
             newPosition.top,
@@ -871,8 +953,11 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
             rawPos.y,
             getConstraintContext(node),
           );
-          return onDragStart.call(handleRef.current, propsRef.current.i, x, y, {
-            e: e as Event,
+          return onDragStart.call(handleRef.current, {
+            id: propsRef.current.i,
+            x,
+            y,
+            event: e as Event,
             node,
             newPosition,
           });
@@ -982,7 +1067,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         dragPositionRef.current = newPosition;
         positionHistoryRef.current = positionHistory;
         // Call callback with this data
-        const constraints = propsRef.current.constraints ?? defaultConstraints;
+        const constraints = resolveConstraints(propsRef.current.constraints);
         const rawPos = calcXYRaw(positionParams, top, left);
         const { x, y } = applyPositionConstraints(
           constraints,
@@ -991,10 +1076,15 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
           rawPos.y,
           getConstraintContext(node),
         );
-        return onDrag.call(handleRef.current, propsRef.current.i, x, y, {
-          e: e as Event,
+        return onDrag.call(handleRef.current, {
+          id: propsRef.current.i,
+          x,
+          y,
+          event: e as Event,
           node,
           newPosition,
+          deltaX,
+          deltaY,
         });
       },
       [
@@ -1022,6 +1112,68 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
         const { w, h, x, y } = propsRef.current;
         const { left, top } = dragPosition;
+
+        const springAnimationsEnabled =
+          !reducedMotionRef.current &&
+          animationConfigRef.current.springs.enabled;
+
+        if (!springAnimationsEnabled) {
+          resetSpringState();
+          setState((prevState) => ({
+            ...prevState,
+            dragging: false,
+            isAnimating: false,
+          }));
+          isDraggingRef.current = false;
+          dragPositionRef.current = null;
+          positionHistoryRef.current = [];
+          setGlobalDragActive(interactionIdRef.current, false);
+
+          if (elementRef.current) {
+            const { shadow } = animationConfigRef.current;
+            if (reducedMotionRef.current || !shadow.enabled) {
+              elementRef.current.style.boxShadow = restShadow;
+            } else {
+              elementRef.current.animate(
+                [{ boxShadow: dragShadow }, { boxShadow: restShadow }],
+                {
+                  duration: shadow.dragStopDuration,
+                  easing: shadow.dragStopEasing,
+                  fill: "forwards",
+                },
+              );
+            }
+          }
+
+          if (onDragStop) {
+            const constraints = resolveConstraints(
+              propsRef.current.constraints,
+            );
+            const rawPos = calcXYRaw(getPositionParams(), top, left);
+            const gridPos = applyPositionConstraints(
+              constraints,
+              getConstraintItem(),
+              rawPos.x,
+              rawPos.y,
+              getConstraintContext(node),
+            );
+            onDragStop.call(handleRef.current, {
+              id: propsRef.current.i,
+              x: gridPos.x,
+              y: gridPos.y,
+              event: e as Event,
+              node,
+              newPosition: {
+                top,
+                left,
+                deg: 0,
+              },
+            });
+          }
+
+          propsRef.current.onSettleComplete?.(propsRef.current.i);
+          return;
+        }
 
         // Calculate target grid position (where the item will settle)
         const targetPos = calcGridItemPosition(
@@ -1076,25 +1228,23 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
         // Animate shadow off on drag stop
         if (elementRef.current) {
-          elementRef.current.animate(
-            [
+          const { shadow } = animationConfigRef.current;
+          if (reducedMotionRef.current || !shadow.enabled) {
+            elementRef.current.style.boxShadow = restShadow;
+          } else {
+            elementRef.current.animate(
+              [{ boxShadow: dragShadow }, { boxShadow: restShadow }],
               {
-                boxShadow:
-                  "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)",
+                duration: shadow.dragStopDuration,
+                easing: shadow.dragStopEasing,
+                fill: "forwards",
               },
-              { boxShadow: "0 2px 4px rgba(0,0,0,.04)" },
-            ],
-            {
-              duration: 200,
-              easing: "ease-out",
-              fill: "forwards",
-            },
-          );
+            );
+          }
         }
 
         if (onDragStop) {
-          const constraints =
-            propsRef.current.constraints ?? defaultConstraints;
+          const constraints = resolveConstraints(propsRef.current.constraints);
           const rawPos = calcXYRaw(getPositionParams(), top, left);
           const gridPos = applyPositionConstraints(
             constraints,
@@ -1103,17 +1253,14 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
             rawPos.y,
             getConstraintContext(node),
           );
-          onDragStop.call(
-            handleRef.current,
-            propsRef.current.i,
-            gridPos.x,
-            gridPos.y,
-            {
-              e: e as Event,
-              node,
-              newPosition,
-            },
-          );
+          onDragStop.call(handleRef.current, {
+            id: propsRef.current.i,
+            x: gridPos.x,
+            y: gridPos.y,
+            event: e as Event,
+            node,
+            newPosition,
+          });
         }
         handleRef.current?.startSpringAnimation?.();
         return;
@@ -1123,6 +1270,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         getConstraintItem,
         getConstraintContext,
         resetDelayTimeout,
+        resetSpringState,
         updateSpringTargets,
       ],
     );
@@ -1130,7 +1278,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     // When a droppingPosition is present, this means we should fire a move event, as if we had moved
     // this element by `x, y` pixels.
     const moveDroppingItem = React.useCallback(
-      (prevProps?: Props) => {
+      (prevProps?: Props<TData>) => {
         const { droppingPosition } = propsRef.current;
         if (!droppingPosition) return;
         const node = elementRef.current;
@@ -1210,7 +1358,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
         // Get new XY based on pixel size
         if (!handler) return;
-        const constraints = propsRef.current.constraints ?? defaultConstraints;
+        const constraints = resolveConstraints(propsRef.current.constraints);
         const rawSize = calcWHRaw(
           getPositionParams(),
           updatedSize.width,
@@ -1224,18 +1372,15 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
           handle,
           getConstraintContext(node),
         );
-        handler.call(
-          handleRef.current,
-          i,
-          constrainedSize.w,
-          constrainedSize.h,
-          {
-            e,
-            node,
-            size: updatedSize,
-            handle,
-          },
-        );
+        handler.call(handleRef.current, {
+          id: i,
+          w: constrainedSize.w,
+          h: constrainedSize.h,
+          event: e,
+          node,
+          size: updatedSize,
+          handle,
+        });
       },
       [getPositionParams, getConstraintItem, getConstraintContext],
     );
@@ -1362,7 +1507,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
         position: Position,
         isResizable: boolean,
         itemState: ItemState,
-        slotProps?: SlotProps,
+        slotProps?: SlotProps<TData>,
       ): GridChildElement => {
         const { transformScale, resizeHandles, resizeHandle } =
           propsRef.current;
@@ -1463,6 +1608,14 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       prevPropsRef.current = propsRef.current;
     }, [props.droppingPosition, moveDroppingItem]);
 
+    React.useLayoutEffect(() => {
+      if (!props.registerItemRef) return;
+      props.registerItemRef(props.i, elementRef.current);
+      return () => {
+        props.registerItemRef?.(props.i, null);
+      };
+    }, [props.i, props.registerItemRef]);
+
     React.useEffect(() => {
       return () => {
         // Clean up event listeners and timeouts to prevent memory leaks
@@ -1525,6 +1678,45 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
 
     handleRef.current.state = stateRef.current;
 
+    const keyboardMove = useKeyboardMove({
+      onDragStart,
+      onDrag,
+      onDragStop,
+      onResizeStart,
+      onResize,
+      onResizeStop,
+      getPositionParams,
+      i: props.i,
+      x: props.x,
+      y: props.y,
+      w: props.w,
+      h: props.h,
+      isDraggable: props.isDraggable,
+      isResizable: props.isResizable,
+      nodeRef: elementRef,
+    });
+    const {
+      onKeyDown: onKeyboardMoveKeyDown,
+      isPressed,
+      isResizing,
+    } = keyboardMove;
+
+    const handleKeyDown = React.useCallback(
+      (event: React.KeyboardEvent<HTMLElement>) => {
+        onKeyboardMoveKeyDown(event);
+        if (!props.onItemKeyDown) return;
+        if (event.defaultPrevented || isPressed || isResizing) return;
+        props.onItemKeyDown(event, props.i, { isPressed, isResizing });
+      },
+      [
+        onKeyboardMoveKeyDown,
+        props.onItemKeyDown,
+        props.i,
+        isPressed,
+        isResizing,
+      ],
+    );
+
     React.useImperativeHandle(
       ref,
       () => handleRef.current as GridItemHandle,
@@ -1562,7 +1754,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
     };
 
     const constraintItem = getConstraintItem();
-    const layoutItem: LayoutItem = {
+    const layoutItem: LayoutItem<TData> = {
       i: props.i,
       x: props.x,
       y: props.y,
@@ -1572,6 +1764,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       minH: props.minH,
       maxW: props.maxW,
       maxH: props.maxH,
+      data: constraintItem.data,
       constraints: constraintItem.constraints,
       static: props.static,
       isDraggable: props.isDraggable,
@@ -1590,11 +1783,51 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       typeof itemSlotStyle === "function"
         ? itemSlotStyle(layoutItem, itemState)
         : itemSlotStyle;
-    const isPlaceholder = props.className.includes("dnd-grid-placeholder");
+    const isPlaceholder =
+      props.className.includes("dnd-grid-placeholder") ||
+      Boolean(droppingPosition);
     const child = React.Children.only(props.children) as GridChildElement;
+    const resolvedRole = isPlaceholder
+      ? "presentation"
+      : (child.props.role ?? "gridcell");
+    const resolvedAriaHidden = isPlaceholder
+      ? true
+      : child.props["aria-hidden"];
+    const resolvedAriaRowIndex = isPlaceholder
+      ? undefined
+      : ((child.props["aria-rowindex"] as number | undefined) ??
+        props.ariaRowIndex);
+    const resolvedAriaColIndex = isPlaceholder
+      ? undefined
+      : ((child.props["aria-colindex"] as number | undefined) ??
+        props.ariaColIndex);
+    const resolvedAriaPosInSet = isPlaceholder
+      ? undefined
+      : ((child.props["aria-posinset"] as number | undefined) ??
+        props.ariaPosInSet);
+    const resolvedAriaSetSize = isPlaceholder
+      ? undefined
+      : ((child.props["aria-setsize"] as number | undefined) ??
+        props.ariaSetSize);
+    const resolvedAriaPressed = isPlaceholder ? undefined : isPressed;
+    const resolvedTabIndex = props.static ? undefined : (props.tabIndex ?? 0);
+    const handleFocus = (event: React.FocusEvent<HTMLElement>) => {
+      child.props.onFocus?.(event);
+      props.onItemFocus?.(props.i);
+    };
     // Create the child element. We clone the existing element but modify its className and style.
     const nextChildProps: GridChildProps = {
       ref: elementRef,
+      tabIndex: resolvedTabIndex,
+      onKeyDown: handleKeyDown,
+      onFocus: handleFocus,
+      role: resolvedRole,
+      "aria-hidden": resolvedAriaHidden,
+      "aria-rowindex": resolvedAriaRowIndex,
+      "aria-colindex": resolvedAriaColIndex,
+      "aria-posinset": resolvedAriaPosInSet,
+      "aria-setsize": resolvedAriaSetSize,
+      "aria-pressed": resolvedAriaPressed,
       className: clsx(
         "dnd-grid-item",
         child.props.className,
@@ -1619,6 +1852,7 @@ const GridItem = React.forwardRef<GridItemHandle, GridItemProps>(
       },
       // Composable data attributes for state targeting
       "data-dnd-grid-item": "",
+      "data-dnd-grid-item-id": props.i,
       "data-dragging": Boolean(state.dragging) || undefined,
       "data-resizing": Boolean(state.resizing) || undefined,
       "data-settling": isSettlingRef.current || undefined,

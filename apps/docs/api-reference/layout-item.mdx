@@ -5,14 +5,16 @@ description: Layout item type reference.
 
 ## Layout type
 
-`Layout` is an array of `LayoutItem` objects:
+`Layout<TData>` is an array of `LayoutItem<TData>` objects:
 
 ```tsx
 import { type Layout } from "@dnd-grid/react";
 
-const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+type CardData = { kind: "chart" | "text" };
+
+const layout: Layout<CardData> = [
+  { i: "a", x: 0, y: 0, w: 2, h: 2, data: { kind: "chart" } },
+  { i: "b", x: 2, y: 0, w: 2, h: 2, data: { kind: "text" } },
 ];
 ```
 
@@ -80,6 +82,10 @@ const layout: Layout = [
 
 <ResponseField name="resizeHandles" type="ResizeHandleAxis[]">
   Override grid resize handles.
+</ResponseField>
+
+<ResponseField name="data" type="TData">
+  Optional typed metadata for the item.
 </ResponseField>
 
 ## Examples

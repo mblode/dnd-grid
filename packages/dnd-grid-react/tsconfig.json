@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./lib"
+    "baseUrl": ".",
+    "paths": {
+      "@dnd-grid/core": ["../dnd-grid-core/dist/index.d.ts"],
+      "@dnd-grid/core/*": ["../dnd-grid-core/dist/*"]
+    }
   },
   "include": ["lib"]
 }

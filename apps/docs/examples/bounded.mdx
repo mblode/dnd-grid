@@ -3,21 +3,44 @@ title: Bounded
 description: Keep items within grid bounds.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/bounded?embed=true"
-  width="100%"
-  height="450"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Bounded preview"
+    src="https://dnd-grid.com/examples/bounded-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/bounded/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-bounded-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/bounded-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-bounded-example.tsx"
+"use client";
+
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { useState } from "react";
+
+const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   i: i.toString(),
@@ -27,7 +50,7 @@ const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   h: 2,
 }));
 
-export default function BoundedExample() {
+export function BoundedExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
@@ -35,7 +58,7 @@ export default function BoundedExample() {
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={1200}
+      width={GRID_WIDTH}
       isBounded
       onLayoutChange={setLayout}
     >
@@ -48,3 +71,18 @@ export default function BoundedExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { BoundedExample } from "@/components/dnd-grid-bounded-example";
+
+export default function Page() {
+  return <BoundedExample />;
+}
+```
+
+

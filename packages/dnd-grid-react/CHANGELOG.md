@@ -73,7 +73,8 @@ Initial release of `dnd-grid`, a drag-and-drop, resizable grid layout library fo
 - `Layout` - array of layout items
 - `LayoutItem` - single layout item definition
 - `DndGridProps` - props for DndGrid component
-- `EventCallback` - callback type for drag/resize events
+- `GridDragEvent` - event object for drag callbacks
+- `GridResizeEvent` - event object for resize callbacks
 - `ResizeHandleAxis` - resize handle position type
 - `CompactType` - compaction mode type
 - `Position` - position object type

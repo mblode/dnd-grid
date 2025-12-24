@@ -1,68 +1,26 @@
-import type { Layout, LayoutItem } from "@dnd-grid/react";
+import type { GridDragEvent, GridResizeEvent } from "@dnd-grid/react";
 import { useCallback, useState } from "react";
 
-export interface ResizeState {
+interface ResizeState {
   id: string;
   w: number;
   h: number;
 }
 
-export interface GridInteractionsHandlers {
-  handleDragStart: (
-    layout: Layout,
-    oldItem: LayoutItem | null | undefined,
-    newItem: LayoutItem | null | undefined,
-    placeholder: LayoutItem | null | undefined,
-    event: Event,
-    node: HTMLElement | null | undefined,
-  ) => void;
-  handleDrag: (
-    layout: Layout,
-    oldItem: LayoutItem | null | undefined,
-    newItem: LayoutItem | null | undefined,
-    placeholder: LayoutItem | null | undefined,
-    event: Event,
-    node: HTMLElement | null | undefined,
-  ) => void;
-  handleDragStop: (
-    layout: Layout,
-    oldItem: LayoutItem | null | undefined,
-    newItem: LayoutItem | null | undefined,
-    placeholder: LayoutItem | null | undefined,
-    event: Event,
-    node: HTMLElement | null | undefined,
-  ) => void;
-  handleResizeStart: (
-    layout: Layout,
-    oldItem: LayoutItem | null | undefined,
-    newItem: LayoutItem | null | undefined,
-    placeholder: LayoutItem | null | undefined,
-    event: Event,
-    node: HTMLElement | null | undefined,
-  ) => void;
-  handleResize: (
-    layout: Layout,
-    oldItem: LayoutItem | null | undefined,
-    newItem: LayoutItem | null | undefined,
-    placeholder: LayoutItem | null | undefined,
-    event: Event,
-    node: HTMLElement | null | undefined,
-  ) => void;
-  handleResizeStop: (
-    layout: Layout,
-    oldItem: LayoutItem | null | undefined,
-    newItem: LayoutItem | null | undefined,
-    placeholder: LayoutItem | null | undefined,
-    event: Event,
-    node: HTMLElement | null | undefined,
-  ) => void;
+interface GridInteractionsHandlers {
+  handleDragStart: (event: GridDragEvent) => void;
+  handleDrag: (event: GridDragEvent) => void;
+  handleDragStop: (event: GridDragEvent) => void;
+  handleResizeStart: (event: GridResizeEvent) => void;
+  handleResize: (event: GridResizeEvent) => void;
+  handleResizeStop: (event: GridResizeEvent) => void;
   handleSelect: (id: string) => void;
   handleHover: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
   setSelectedId: (id: string | null) => void;
 }
 
-export interface UseGridInteractionsOptions {
+interface UseGridInteractionsOptions {
   onDragStart?: (id: string) => void;
   onDragStop?: (id: string) => void;
   onResizeStart?: (id: string) => void;
@@ -80,8 +38,9 @@ export function useGridInteractions(
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
 
   const handleDragStart = useCallback(
-    (_layout: Layout, oldItem: LayoutItem | null | undefined) => {
-      const id = oldItem?.i ?? null;
+    (event: GridDragEvent) => {
+      const item = event.item ?? event.previousItem;
+      const id = item?.i ?? null;
       setHoveredId(id);
       setDragId(id);
       if (id) {
@@ -91,70 +50,48 @@ export function useGridInteractions(
     [options],
   );
 
-  const handleDrag = useCallback(
-    (
-      _layout: Layout,
-      _oldItem: LayoutItem | null | undefined,
-      _newItem: LayoutItem | null | undefined,
-    ) => {
-      // Can be extended for edge scroll or other drag-time behaviors
-    },
-    [],
-  );
+  const handleDrag = useCallback((_event: GridDragEvent) => {
+    // Can be extended for edge scroll or other drag-time behaviors
+  }, []);
 
   const handleDragStop = useCallback(
-    (
-      _layout: Layout,
-      _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined,
-    ) => {
+    (event: GridDragEvent) => {
+      const item = event.item ?? event.previousItem;
       setDragId(null);
-      if (newItem?.i) {
-        options.onDragStop?.(newItem.i);
+      if (item?.i) {
+        options.onDragStop?.(item.i);
       }
     },
     [options],
   );
 
   const handleResizeStart = useCallback(
-    (
-      _layout: Layout,
-      _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined,
-    ) => {
-      const id = newItem?.i ?? null;
+    (event: GridResizeEvent) => {
+      const item = event.item ?? event.previousItem;
+      const id = item?.i ?? null;
       setHoveredId(id);
       setSelectedId(id);
-      if (newItem) {
-        setResizeState({ id: newItem.i, w: newItem.w, h: newItem.h });
-        options.onResizeStart?.(newItem.i);
+      if (item) {
+        setResizeState({ id: item.i, w: item.w, h: item.h });
+        options.onResizeStart?.(item.i);
       }
     },
     [options],
   );
 
-  const handleResize = useCallback(
-    (
-      _layout: Layout,
-      _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined,
-    ) => {
-      if (newItem) {
-        setResizeState({ id: newItem.i, w: newItem.w, h: newItem.h });
-      }
-    },
-    [],
-  );
+  const handleResize = useCallback((event: GridResizeEvent) => {
+    const item = event.item ?? event.previousItem;
+    if (item) {
+      setResizeState({ id: item.i, w: item.w, h: item.h });
+    }
+  }, []);
 
   const handleResizeStop = useCallback(
-    (
-      _layout: Layout,
-      _oldItem: LayoutItem | null | undefined,
-      newItem: LayoutItem | null | undefined,
-    ) => {
+    (event: GridResizeEvent) => {
+      const item = event.item ?? event.previousItem;
       setResizeState(null);
-      if (newItem?.i) {
-        options.onResizeStop?.(newItem.i);
+      if (item?.i) {
+        options.onResizeStop?.(item.i);
       }
     },
     [options],

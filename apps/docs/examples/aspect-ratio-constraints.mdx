@@ -3,22 +3,44 @@ title: Aspect ratio constraints
 description: Lock item resizing to a ratio.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/aspect-ratio-constraints?embed=true"
-  width="100%"
-  height="460"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Aspect ratio constraints preview"
+    src="https://dnd-grid.com/examples/aspect-ratio-constraints-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/aspect-ratio-constraints/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-aspect-ratio-constraints-example.tsx)
 
-## Code
+## Installation
 
-```tsx
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/aspect-ratio-constraints-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-aspect-ratio-constraints-example.tsx"
+"use client";
+
+import { aspectRatio, DndGrid, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
-import { DndGrid, type Layout, aspectRatio } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
 
+const GRID_WIDTH = 1200;
 const ratio16x9 = aspectRatio(16 / 9);
 const ratio1x1 = aspectRatio(1);
 
@@ -28,7 +50,7 @@ const initialLayout: Layout = [
   { i: "free", x: 9, y: 0, w: 3, h: 2 },
 ];
 
-export default function AspectRatioConstraintsExample() {
+export function AspectRatioConstraintsExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
@@ -36,7 +58,7 @@ export default function AspectRatioConstraintsExample() {
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={1200}
+      width={GRID_WIDTH}
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (
@@ -48,3 +70,18 @@ export default function AspectRatioConstraintsExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { AspectRatioConstraintsExample } from "@/components/dnd-grid-aspect-ratio-constraints-example";
+
+export default function Page() {
+  return <AspectRatioConstraintsExample />;
+}
+```
+
+

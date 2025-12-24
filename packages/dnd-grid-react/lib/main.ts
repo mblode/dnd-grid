@@ -16,6 +16,7 @@ export {
   type AutoWidthDndGridProps,
 } from "./components/auto-width-dnd-grid";
 export { DndGrid } from "./components/dnd-grid";
+export type { GridItemProps } from "./components/grid-item";
 export { GridItem } from "./components/grid-item";
 export { ResizeHandle } from "./components/resize-handle";
 export {
@@ -40,6 +41,16 @@ export {
   wrapCompactor,
   wrapOverlapCompactor,
 } from "./extras";
+export { findEmptyPosition } from "./find-empty-position";
+export type {
+  LayoutCommand,
+  LayoutEngine,
+  LayoutEngineOptions,
+  LayoutEnginePlugin,
+  LayoutEnginePluginContext,
+  LayoutState,
+} from "./layout-engine";
+export { createLayoutEngine } from "./layout-engine";
 export type { PointWithTimestamp, SpringConfig, SpringState } from "./spring";
 export {
   calculateRotationWeight,
@@ -52,20 +63,32 @@ export {
   velocityToRotation,
 } from "./spring";
 export type {
+  AnimationConfig,
+  AnimationSpringConfig,
   AutoScrollOptions,
   Breakpoint,
   BreakpointCols,
   Breakpoints,
+  CallbackThrottleOptions,
   Compactor,
   ConstraintContext,
   DroppingPosition,
-  EventCallback,
+  GridDragEvent,
+  GridItemDragEvent,
+  GridItemResizeEvent,
+  GridResizeEvent,
   ItemState,
   Layout,
   LayoutConstraint,
   LayoutItem,
+  LiveAnnouncementContext,
+  LiveAnnouncements,
+  LiveAnnouncementsOptions,
+  LiveRegionSettings,
+  MissingLayoutStrategy,
   Position,
   Props as DndGridProps,
+  ReducedMotionSetting,
   ResizeHandleAxis,
   ResponsiveLayouts,
   ResponsiveSpacing,
@@ -80,10 +103,26 @@ export type {
 } from "./use-container-width";
 export { useContainerWidth } from "./use-container-width";
 export type {
+  DndGridMeasurements,
+  DndGridState,
+  UseDndGridApi,
+  UseDndGridGridProps,
+  UseDndGridItemProps,
+  UseDndGridOptions,
+  UseDndGridResult,
+} from "./use-dnd-grid";
+export { useDndGrid } from "./use-dnd-grid";
+export type {
   UseDndGridResponsiveLayoutOptions,
   UseDndGridResponsiveLayoutResult,
 } from "./use-dnd-grid-responsive-layout";
 export { useDndGridResponsiveLayout } from "./use-dnd-grid-responsive-layout";
 export type { EdgeScrollHandlers } from "./use-edge-scroll";
 export { useEdgeScroll } from "./use-edge-scroll";
-export { DndGridItemContext, useDndGridItemState } from "./use-item-state";
+export {
+  DndGridItemContext,
+  useDndGridItemState,
+  useOptionalDndGridItemState,
+} from "./use-item-state";
+export { useReducedMotion } from "./use-reduced-motion";
+export { layoutItemSchema, layoutSchema, validateLayout } from "./validation";

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dynamic-add-remove-example",
+  "type": "registry:component",
+  "title": "Dynamic add/remove",
+  "description": "Add and remove items at runtime.",
+  "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+  "css": {
+    "@import \"@dnd-grid/react/styles.css\"": {}
+  },
+  "files": [
+    {
+      "path": "examples/dnd-grid-dynamic-add-remove-example.tsx",
+      "type": "registry:component",
+      "content": "\"use client\";\n\nimport { DndGrid, findEmptyPosition, type Layout } from \"@dnd-grid/react\";\nimport { useCallback, useState } from \"react\";\n\nconst GRID_WIDTH = 1200;\n\nexport function DynamicAddRemoveExample() {\n  const [counter, setCounter] = useState(5);\n  const [layout, setLayout] = useState<Layout>(\n    [0, 1, 2, 3, 4].map((i) => ({\n      i: i.toString(),\n      x: (i * 2) % 12,\n      y: 0,\n      w: 2,\n      h: 2,\n    })),\n  );\n\n  const addItem = useCallback(() => {\n    setLayout((prev) => {\n      const position = findEmptyPosition(prev, { w: 2, h: 2 }, 12);\n\n      return [\n        ...prev,\n        {\n          i: `n${counter}`,\n          ...position,\n          w: 2,\n          h: 2,\n        },\n      ];\n    });\n    setCounter((c) => c + 1);\n  }, [counter]);\n\n  const removeItem = (id: string) => {\n    setLayout((prev) => prev.filter((item) => item.i !== id));\n  };\n\n  return (\n    <div>\n      <button type=\"button\" onClick={addItem}>\n        Add Item\n      </button>\n\n      <DndGrid\n        layout={layout}\n        cols={12}\n        rowHeight={50}\n        width={GRID_WIDTH}\n        onLayoutChange={setLayout}\n      >\n        {layout.map((item) => (\n          <div key={item.i} className=\"grid-item\">\n            <span>{item.i}</span>\n            <button type=\"button\" onClick={() => removeItem(item.i)}>\n              x\n            </button>\n          </div>\n        ))}\n      </DndGrid>\n    </div>\n  );\n}\n"
+    }
+  ]
+}

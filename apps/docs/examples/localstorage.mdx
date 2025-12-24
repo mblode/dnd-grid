@@ -3,22 +3,44 @@ title: Local storage
 description: Persist layout to local storage and restore on load.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/localstorage?embed=true"
-  width="100%"
-  height="450"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Local storage preview"
+    src="https://dnd-grid.com/examples/localstorage-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/localstorage/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-localstorage-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState, useEffect } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/localstorage-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-localstorage-example.tsx"
+"use client";
+
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { useEffect, useState } from "react";
 
+const GRID_WIDTH = 1200;
 const STORAGE_KEY = "dnd-grid-layout";
 
 const defaultLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
@@ -29,7 +51,7 @@ const defaultLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   h: 2,
 }));
 
-export default function LocalStorageExample() {
+export function LocalStorageExample() {
   const [layout, setLayout] = useState<Layout>(defaultLayout);
 
   useEffect(() => {
@@ -54,13 +76,15 @@ export default function LocalStorageExample() {
 
   return (
     <div>
-      <button onClick={resetLayout}>Reset Layout</button>
+      <button type="button" onClick={resetLayout}>
+        Reset Layout
+      </button>
 
       <DndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={1200}
+        width={GRID_WIDTH}
         onLayoutChange={handleLayoutChange}
       >
         {layout.map((item) => (
@@ -73,3 +97,18 @@ export default function LocalStorageExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { LocalStorageExample } from "@/components/dnd-grid-localstorage-example";
+
+export default function Page() {
+  return <LocalStorageExample />;
+}
+```
+
+

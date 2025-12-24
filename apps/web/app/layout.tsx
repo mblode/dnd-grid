@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import type React from "react";
@@ -19,6 +20,11 @@ const albra = localFont({
     },
   ],
   variable: "--font-albra",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
 });
 
 const GA_MEASUREMENT_ID = "G-H2PKLJ0615";
@@ -55,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${albra.variable} font-serif antialiased min-h-screen`}
+      className={`${albra.variable} ${geistMono.variable} font-serif antialiased min-h-screen`}
     >
       <body className="flex min-h-screen flex-col">
         <Script

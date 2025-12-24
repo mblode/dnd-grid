@@ -1,0 +1,67 @@
+---
+title: useContainerWidth
+description: Measure and track container width.
+---
+
+`DndGrid` needs a fixed width. `useContainerWidth` watches a wrapper element
+with `ResizeObserver` and gives you a width that stays in sync as the container
+resizes.
+
+## Example
+
+```tsx
+import { useState } from "react";
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
+import "@dnd-grid/react/styles.css";
+
+const initialLayout: Layout = [
+  { i: "a", x: 0, y: 0, w: 3, h: 2 },
+  { i: "b", x: 3, y: 0, w: 3, h: 2 },
+];
+
+export function AutoWidthGrid() {
+  const [layout, setLayout] = useState(initialLayout);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+    initialWidth: 800,
+  });
+
+  return (
+    <div ref={containerRef} style={{ width: "100%" }}>
+      {mounted && width > 0 && (
+        <DndGrid
+          layout={layout}
+          onLayoutChange={setLayout}
+          cols={12}
+          rowHeight={40}
+          width={width}
+        >
+          <div key="a">A</div>
+          <div key="b">B</div>
+        </DndGrid>
+      )}
+    </div>
+  );
+}
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `measureBeforeMount` | `boolean` | `false` | Delay rendering until the first measurement. Useful for SSR. |
+| `initialWidth` | `number` | `1280` | Width value used before measuring. |
+
+## Returns
+
+| Value | Description |
+|-------|-------------|
+| `width` | Current container width. |
+| `mounted` | `true` after the initial measurement when `measureBeforeMount` is enabled. |
+| `containerRef` | Attach to the element you want to measure. |
+| `measureWidth` | Trigger a manual measurement. |
+
+<Note>
+  Prefer `AutoWidthDndGrid` if you want the same behavior without wiring the
+  hook yourself.
+</Note>

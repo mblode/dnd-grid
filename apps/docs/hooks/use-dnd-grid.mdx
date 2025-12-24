@@ -1,0 +1,89 @@
+---
+title: useDndGrid
+description: Headless hook for building custom grid wrappers.
+---
+
+`useDndGrid` exposes the grid logic without rendering. Use it when you want a
+custom wrapper, extra markup around the grid, or to control how items render.
+
+<Note>
+  `DndGrid` is the recommended default for most apps. Reach for `useDndGrid`
+  when you need full control over the markup.
+</Note>
+
+## Example
+
+```tsx
+import * as React from "react";
+import { GridItem, type Layout, useDndGrid } from "@dnd-grid/react";
+import "@dnd-grid/react/styles.css";
+
+const initialLayout: Layout = [
+  { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+];
+
+export function HeadlessGrid() {
+  const [layout, setLayout] = React.useState(initialLayout);
+  const children = layout.map((item) => (
+    <div key={item.i} className="card">
+      {item.i.toUpperCase()}
+    </div>
+  ));
+
+  const { gridProps, itemProps, liveRegionElement } = useDndGrid({
+    layout,
+    onLayoutChange: setLayout,
+    width: 800,
+    cols: 12,
+    rowHeight: 40,
+    children,
+  });
+
+  const droppingProps = itemProps.getDroppingItemProps();
+  const placeholderProps = itemProps.getPlaceholderProps();
+
+  return (
+    <section>
+      <div {...gridProps}>
+        {liveRegionElement}
+        {React.Children.map(children, (child) => {
+          const props = itemProps.getItemProps(child);
+          return props ? <GridItem {...props} /> : null;
+        })}
+        {droppingProps && <GridItem {...droppingProps} />}
+        {placeholderProps && <GridItem {...placeholderProps} />}
+      </div>
+    </section>
+  );
+}
+```
+
+## Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `layout` | `Layout` | Controlled layout array. |
+| `width` | `number` | Required width in pixels. |
+| `children` | `ReactNode` | Items to render; each child `key` must match `layout.i`. |
+| `onLayoutChange` | `(layout) => void` | Called when the layout changes. |
+
+All other `DndGrid` props are supported. See the
+[`DndGrid` props](/api-reference/dnd-grid) for the full list.
+
+## Returns
+
+| Value | Description |
+|-------|-------------|
+| `gridProps` | Props to spread onto the grid container, including `ref`, roles, and drop handlers. |
+| `itemProps` | Helpers for items: `getItemProps`, `getDroppingItemProps`, `getPlaceholderProps`. |
+| `state` | Internal grid state (`layout`, `activeDrag`, `resizing`, and more). |
+| `api` | Imperative API (`measure`, `scroll`, `move`, `resize`, `commit`, `containerHeight`). |
+| `liveRegion` | `aria-live` props + current message for announcing drag/resize events. |
+| `liveRegionElement` | Ready-to-render live region element. |
+
+<Note>
+  If you do not render `liveRegionElement` (or `liveRegion`), screen reader
+  announcements are disabled.
+  Use `DndGrid` when you do not need a custom wrapper.
+</Note>

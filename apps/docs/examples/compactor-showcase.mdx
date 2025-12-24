@@ -3,28 +3,51 @@ title: Compactor showcase
 description: Switch between vertical, horizontal, wrap, and none.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/compactor-showcase?embed=true"
-  width="100%"
-  height="520"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Compactor showcase preview"
+    src="https://dnd-grid.com/examples/compactor-showcase-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/compactor-showcase/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-compactor-showcase-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/compactor-showcase-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-compactor-showcase-example.tsx"
+"use client";
+
 import {
   DndGrid,
-  type Layout,
   horizontalCompactor,
+  type Layout,
   noCompactor,
   verticalCompactor,
   wrapCompactor,
 } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { useState } from "react";
+
+const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 2, h: 2 },
@@ -44,7 +67,7 @@ const compactors = {
 
 type CompactorKey = keyof typeof compactors;
 
-export default function CompactorShowcaseExample() {
+export function CompactorShowcaseExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const [compactorKey, setCompactorKey] = useState<CompactorKey>("vertical");
 
@@ -73,7 +96,7 @@ export default function CompactorShowcaseExample() {
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={1200}
+        width={GRID_WIDTH}
         compactor={compactors[compactorKey]}
         onLayoutChange={setLayout}
       >
@@ -87,3 +110,18 @@ export default function CompactorShowcaseExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { CompactorShowcaseExample } from "@/components/dnd-grid-compactor-showcase-example";
+
+export default function Page() {
+  return <CompactorShowcaseExample />;
+}
+```
+
+

@@ -1,0 +1,47 @@
+---
+title: SSR
+description: Server rendering and hydration tips.
+---
+
+`dnd-grid` is safe to render on the server, but it needs a width on the client.
+Use the patterns below to avoid layout jumps and hydration warnings.
+
+## Use a client component
+
+`DndGrid` relies on DOM events and `ResizeObserver`. In Next.js App Router,
+render it in a client component:
+
+```tsx
+"use client";
+
+import { DndGrid } from "@dnd-grid/react";
+```
+
+## Measure width after mount
+
+```tsx
+import { useContainerWidth } from "@dnd-grid/react";
+
+const { width, containerRef, mounted } = useContainerWidth({
+  measureBeforeMount: true,
+  initialWidth: 800,
+});
+
+return (
+  <div ref={containerRef}>
+    {mounted && width > 0 && <DndGrid width={width} {...props} />}
+  </div>
+);
+```
+
+## Prefer AutoWidthDndGrid when possible
+
+`AutoWidthDndGrid` wraps the same logic and avoids wiring the hook yourself.
+
+## Keep styles global
+
+Make sure the stylesheet is imported from a client entry or global CSS:
+
+```tsx
+import "@dnd-grid/react/styles.css";
+```

@@ -505,7 +505,7 @@ describe("GridItem", () => {
       });
 
       expect(onDrag).toHaveBeenCalled();
-      const dragEvent = onDrag.mock.calls[0][3];
+      const dragEvent = onDrag.mock.calls[0][0];
       expect(dragEvent.newPosition.left).toBe(200);
       expect(dragEvent.newPosition.top).toBe(100);
     });
@@ -709,6 +709,132 @@ describe("GridItem", () => {
     });
   });
 
+  describe("reduced motion", () => {
+    it("skips spring animation when reduced motion is enabled", () => {
+      const ref = React.createRef<GridItem>();
+      render(
+        <div className="dnd-grid">
+          <GridItem {...defaultProps} ref={ref} reducedMotion="always" />
+        </div>,
+      );
+      const handle = getHandle(ref);
+
+      act(() => {
+        handle.startSpringAnimation();
+      });
+
+      expect(handle.springAnimationFrame).toBeNull();
+    });
+
+    it("skips WAAPI animations when reduced motion is enabled", () => {
+      const animateSpy = vi.spyOn(Element.prototype, "animate");
+      const initialCalls = animateSpy.mock.calls.length;
+      const ref = React.createRef<GridItem>();
+      render(
+        <div className="dnd-grid">
+          <GridItem {...defaultProps} ref={ref} reducedMotion="always" />
+        </div>,
+      );
+      const handle = getHandle(ref);
+      const node = screen.getByTestId("child");
+
+      act(() => {
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
+        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+      });
+
+      expect(animateSpy.mock.calls.length).toBe(initialCalls);
+    });
+
+    it("calls onSettleComplete immediately when reduced motion is enabled", () => {
+      const onSettleComplete = vi.fn();
+      const ref = React.createRef<GridItem>();
+      render(
+        <div className="dnd-grid">
+          <GridItem
+            {...defaultProps}
+            ref={ref}
+            reducedMotion="always"
+            onSettleComplete={onSettleComplete}
+          />
+        </div>,
+      );
+      const handle = getHandle(ref);
+      const node = screen.getByTestId("child");
+
+      act(() => {
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
+        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+      });
+
+      expect(onSettleComplete).toHaveBeenCalledWith("test-item");
+    });
+  });
+
+  describe("animation config", () => {
+    it("skips spring animation when springs are disabled", () => {
+      const ref = React.createRef<GridItem>();
+      render(
+        <div className="dnd-grid">
+          <GridItem
+            {...defaultProps}
+            ref={ref}
+            animationConfig={{ springs: { enabled: false } }}
+          />
+        </div>,
+      );
+      const handle = getHandle(ref);
+
+      act(() => {
+        handle.startSpringAnimation();
+      });
+
+      expect(handle.springAnimationFrame).toBeNull();
+    });
+
+    it("uses custom shadow durations and easings", () => {
+      const animateSpy = vi.spyOn(Element.prototype, "animate");
+      const initialCalls = animateSpy.mock.calls.length;
+      const ref = React.createRef<GridItem>();
+      render(
+        <div className="dnd-grid">
+          <GridItem
+            {...defaultProps}
+            ref={ref}
+            animationConfig={{
+              shadow: {
+                dragStartDuration: 140,
+                dragStopDuration: 80,
+                dragStartEasing: "linear",
+                dragStopEasing: "ease-in",
+              },
+            }}
+          />
+        </div>,
+      );
+      const handle = getHandle(ref);
+      const node = screen.getByTestId("child");
+
+      act(() => {
+        handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
+        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+      });
+
+      const calls = animateSpy.mock.calls.slice(initialCalls);
+      const firstOptions = calls[0]?.[1] as
+        | KeyframeAnimationOptions
+        | undefined;
+      const secondOptions = calls[1]?.[1] as
+        | KeyframeAnimationOptions
+        | undefined;
+      expect(calls.length).toBeGreaterThanOrEqual(2);
+      expect(firstOptions?.duration).toBe(140);
+      expect(firstOptions?.easing).toBe("linear");
+      expect(secondOptions?.duration).toBe(80);
+      expect(secondOptions?.easing).toBe("ease-in");
+    });
+  });
+
   describe("shouldComponentUpdate", () => {
     it("updates when children change", () => {
       const { rerender } = render(<GridItem {...defaultProps} />);
@@ -900,8 +1026,9 @@ describe("GridItem", () => {
       });
 
       expect(onResize).toHaveBeenCalled();
-      expect(onResize.mock.calls[0][1]).toBe(2);
-      expect(onResize.mock.calls[0][2]).toBe(2);
+      const resizeEvent = onResize.mock.calls[0][0];
+      expect(resizeEvent.w).toBe(2);
+      expect(resizeEvent.h).toBe(2);
       expect(handle.state.resizing).toBe(true);
     });
 

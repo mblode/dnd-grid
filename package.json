@@ -13,6 +13,9 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "check-types": "turbo run check-types",
+    "examples:sync": "npm run examples:sync-docs && npm run examples:build-registry",
+    "examples:sync-docs": "node scripts/sync-docs-examples.mjs",
+    "examples:build-registry": "node scripts/generate-registry.mjs",
     "workers:dev": "npm run dev --workspace=docs-worker",
     "workers:deploy": "npm run deploy --workspace=docs-worker"
   },

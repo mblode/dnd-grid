@@ -1,5 +1,49 @@
-import type { CSSProperties, ReactElement, ReactNode, Ref } from "react";
+import type {
+  AnimationConfig,
+  Compactor,
+  GridDragEvent,
+  GridResizeEvent,
+  Layout,
+  LayoutConstraint,
+  LayoutItem,
+  PartialPosition,
+  ResizeHandleAxis,
+  Size,
+  Spacing,
+} from "@dnd-grid/core";
+import type {
+  AriaAttributes,
+  AriaRole,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  Ref,
+} from "react";
 import type { DraggableEvent } from "react-draggable";
+
+export type {
+  AnimationConfig,
+  AnimationSpringConfig,
+  Breakpoint,
+  BreakpointCols,
+  Breakpoints,
+  Compactor,
+  ConstraintContext,
+  GridDragEvent,
+  GridResizeEvent,
+  Layout,
+  LayoutConstraint,
+  LayoutItem,
+  MissingLayoutStrategy,
+  Position,
+  PositionParams,
+  ResizeHandleAxis,
+  ResponsiveLayouts,
+  ResponsiveSpacing,
+  Size,
+  Spacing,
+  SpacingObject,
+} from "@dnd-grid/core";
 
 // util
 export type ReactRef<T extends HTMLElement> = {
@@ -13,16 +57,6 @@ export type ResizeHandle =
       ref: ReactRef<HTMLElement>,
     ) => ReactElement);
 
-export type ResizeHandleAxis =
-  | "s"
-  | "w"
-  | "e"
-  | "n"
-  | "sw"
-  | "nw"
-  | "se"
-  | "ne";
-
 export enum AutoScrollActivator {
   Pointer = 0,
   DraggableRect = 1,
@@ -32,6 +66,11 @@ export enum TraversalOrder {
   TreeOrder = 0,
   ReversedTreeOrder = 1,
 }
+
+export type CallbackThrottleOptions = {
+  drag?: number;
+  resize?: number;
+};
 
 export type AutoScrollOptions = {
   acceleration?: number;
@@ -51,35 +90,6 @@ export type AutoScrollOptions = {
     y: number;
   };
 };
-
-export type LayoutItem = {
-  w: number;
-  h: number;
-  x: number;
-  y: number;
-  i: string;
-  minW?: number;
-  minH?: number;
-  maxW?: number;
-  maxH?: number;
-  constraints?: LayoutConstraint[];
-  moved?: boolean;
-  static?: boolean;
-  isDraggable?: boolean | null | undefined;
-  isResizable?: boolean | null | undefined;
-  resizeHandles?: Array<ResizeHandleAxis>;
-  isBounded?: boolean | null | undefined;
-};
-
-export type SpacingObject = {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-};
-
-export type SpacingArray = [number, number, number, number];
-export type Spacing = number | SpacingObject;
 
 /**
  * State of a grid item during interactions
@@ -105,14 +115,14 @@ type HandleSlotStyle =
   | CSSProperties
   | ((axis: ResizeHandleAxis, state?: ItemState) => CSSProperties);
 
-export type SlotProps = {
+export type SlotProps<TData = unknown> = {
   item?: {
-    className?: SlotClassName<LayoutItem>;
-    style?: SlotStyle<LayoutItem>;
+    className?: SlotClassName<LayoutItem<TData>>;
+    style?: SlotStyle<LayoutItem<TData>>;
   };
   placeholder?: {
-    className?: SlotClassName<LayoutItem>;
-    style?: SlotStyle<LayoutItem>;
+    className?: SlotClassName<LayoutItem<TData>>;
+    style?: SlotStyle<LayoutItem<TData>>;
   };
   handle?: {
     className?: HandleSlotClassName;
@@ -120,18 +130,78 @@ export type SlotProps = {
   };
 };
 
-export type Props = {
+export type ReducedMotionSetting = "system" | "always" | "never";
+
+export type LiveRegionSettings = {
+  role?: AriaRole;
+  ariaLive?: AriaAttributes["aria-live"];
+  ariaAtomic?: boolean;
+  ariaRelevant?: AriaAttributes["aria-relevant"];
+};
+
+export type LiveAnnouncementContext<TData = unknown> = {
+  item: LayoutItem<TData> | null | undefined;
+  previousItem?: LayoutItem<TData> | null | undefined;
+  node?: HTMLElement | null;
+  layout: Layout<TData>;
+  cols: number;
+  maxRows: number;
+  rowHeight: number;
+  getItemLabel: (
+    item: LayoutItem<TData> | null | undefined,
+    node?: HTMLElement | null,
+  ) => string;
+};
+
+export type LiveAnnouncements<TData = unknown> = {
+  onDragStart?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+  onDrag?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+  onDragStop?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+  onResizeStart?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+  onResize?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+  onResizeStop?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+  onFocus?: (
+    context: LiveAnnouncementContext<TData>,
+  ) => string | null | undefined;
+};
+
+export type LiveAnnouncementsOptions<TData = unknown> = {
+  enabled?: boolean;
+  announcements?: Partial<LiveAnnouncements<TData>>;
+  getItemLabel?: (
+    item: LayoutItem<TData> | null | undefined,
+    node?: HTMLElement | null,
+  ) => string;
+  liveRegion?: LiveRegionSettings;
+};
+
+export type Props<TData = unknown> = {
   className: string;
   style: CSSProperties;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
   width: number;
   autoSize: boolean;
   autoScroll?: boolean | AutoScrollOptions;
   cols: number;
   dragTouchDelayDuration: number;
-  draggableCancel: string;
-  draggableHandle: string;
-  compactor?: Compactor;
-  layout: Layout;
+  dragCancel: string;
+  dragHandle: string;
+  compactor?: Compactor<TData>;
+  layout: Layout<TData>;
   margin: Spacing;
   containerPadding: Spacing | null;
   rowHeight: number;
@@ -139,25 +209,35 @@ export type Props = {
   isBounded: boolean;
   isDraggable: boolean;
   isResizable: boolean;
-  isDroppable: boolean;
   transformScale: number;
-  droppingItem: Partial<LayoutItem>;
+  /**
+   * Throttle `onDrag` and `onResize` callbacks.
+   */
+  callbackThrottle?: number | CallbackThrottleOptions;
+  validation?: boolean;
+  animationConfig?: AnimationConfig;
+  reducedMotion?: ReducedMotionSetting | boolean;
+  droppingItem: Partial<LayoutItem<TData>>;
   resizeHandles: ResizeHandleAxis[];
   resizeHandle?: ResizeHandle;
-  constraints?: LayoutConstraint[];
+  constraints?: LayoutConstraint<TData>[];
   /**
    * Customize styling of internal elements.
    */
-  slotProps?: SlotProps;
+  slotProps?: SlotProps<TData>;
+  /**
+   * Configure live announcements for drag/resize/focus. Pass false to disable.
+   */
+  liveAnnouncements?: LiveAnnouncementsOptions<TData> | false;
   // Callbacks
-  onLayoutChange: (arg0: Layout) => void;
-  onDrag: EventCallback;
-  onDragStart: EventCallback;
-  onDragStop: EventCallback;
-  onResize: EventCallback;
-  onResizeStart: EventCallback;
-  onResizeStop: EventCallback;
-  onDropDragOver: (e?: DragOverEvent) =>
+  onLayoutChange: (arg0: Layout<TData>) => void;
+  onDrag: (event: GridDragEvent<TData>) => void;
+  onDragStart: (event: GridDragEvent<TData>) => void;
+  onDragStop: (event: GridDragEvent<TData>) => void;
+  onResize: (event: GridResizeEvent<TData>) => void;
+  onResizeStart: (event: GridResizeEvent<TData>) => void;
+  onResizeStop: (event: GridResizeEvent<TData>) => void;
+  onDropDragOver?: (e?: DragOverEvent) =>
     | (
         | {
             w?: number;
@@ -167,132 +247,50 @@ export type Props = {
       )
     | null
     | undefined;
-  onDrop: (
-    layout: Layout,
-    item: LayoutItem | null | undefined,
+  onDrop?: (
+    layout: Layout<TData>,
+    item: LayoutItem<TData> | null | undefined,
     e: Event,
   ) => void;
   children: ReactNode;
   innerRef?: Ref<HTMLDivElement>;
-  dndRect?: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-    width: number;
-    height: number;
-  };
-  dndEvent?: Event | null;
 };
 
-export type DefaultProps = Omit<Props, "children" | "width">;
+export type DefaultProps<TData = unknown> = Omit<
+  Props<TData>,
+  "children" | "width"
+>;
 
-export type Layout = ReadonlyArray<LayoutItem>;
-export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
-export type ConstraintContext = {
-  cols: number;
-  maxRows: number;
-  containerWidth: number;
-  containerHeight: number;
-  rowHeight: number;
-  margin: SpacingArray;
-  containerPadding: SpacingArray;
-  layout: Layout;
-};
-export type LayoutConstraint = {
-  name: string;
-  constrainPosition?: (
-    item: LayoutItem,
-    x: number,
-    y: number,
-    context: ConstraintContext,
-  ) => { x: number; y: number };
-  constrainSize?: (
-    item: LayoutItem,
-    w: number,
-    h: number,
-    handle: ResizeHandleAxis,
-    context: ConstraintContext,
-  ) => { w: number; h: number };
-};
-export type CompactType = "horizontal" | "vertical" | "wrap" | null;
-export type Compactor = {
-  type: CompactType;
-  allowOverlap: boolean;
-  preventCollision?: boolean;
-  compact: (layout: Layout, cols: number) => Layout;
-  onMove: (
-    layout: Layout,
-    item: LayoutItem,
-    x: number,
-    y: number,
-    cols: number,
-  ) => Layout;
-};
-export type Position = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  deg?: number;
-};
-export type PartialPosition = {
-  left: number;
-  top: number;
-};
 export type DroppingPosition = {
   left: number;
   top: number;
   e: DraggableEvent | Event;
 };
-export type Size = {
-  width: number;
-  height: number;
-};
-export type GridDragEvent = {
-  e: Event;
+
+export type GridItemDragEvent = {
+  id: string;
+  x: number;
+  y: number;
+  event: Event;
   node: HTMLElement;
   newPosition: PartialPosition;
+  deltaX?: number;
+  deltaY?: number;
 };
-export type GridResizeEvent = {
-  e: Event;
+
+export type GridItemResizeEvent = {
+  id: string;
+  w: number;
+  h: number;
+  event: Event;
   node: HTMLElement;
   size: Size;
-  handle: string;
+  handle: ResizeHandleAxis;
 };
+
 export type DragOverEvent = MouseEvent & {
   nativeEvent: Event & {
     layerX: number;
     layerY: number;
   };
-};
-
-// All callbacks are of the signature (layout, oldItem, newItem, placeholder, e).
-export type EventCallback = (
-  arg0: Layout,
-  oldItem: LayoutItem | null | undefined,
-  newItem: LayoutItem | null | undefined,
-  placeholder: LayoutItem | null | undefined,
-  arg4: Event,
-  arg5: HTMLElement | null | undefined,
-) => void;
-export type Breakpoint = string;
-export type Breakpoints<B extends Breakpoint = Breakpoint> = Record<B, number>;
-export type BreakpointCols<B extends Breakpoint = Breakpoint> = Record<
-  B,
-  number
->;
-export type ResponsiveLayouts<B extends Breakpoint = Breakpoint> = Partial<
-  Record<B, Layout>
->;
-export type ResponsiveSpacing<B extends Breakpoint = Breakpoint> =
-  | Spacing
-  | Partial<Record<B, Spacing>>;
-export type PositionParams = {
-  margin: SpacingArray;
-  containerPadding: SpacingArray;
-  containerWidth: number;
-  cols: number;
-  rowHeight: number;
-  maxRows: number;
 };

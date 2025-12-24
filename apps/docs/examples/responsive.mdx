@@ -3,27 +3,46 @@ title: Responsive layout
 description: Breakpoint layouts based on container width.
 ---
 
-Use the width tabs in the embed to preview breakpoints since the iframe cannot resize.
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Responsive layout preview"
+    src="https://dnd-grid.com/examples/responsive-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-<iframe
-  src="https://dnd-grid.com/examples/responsive?embed=true"
-  width="100%"
-  height="520"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-responsive-example.tsx)
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/responsive/page.tsx)
+## Installation
 
-## Code
+<Tabs>
+<Tab title="CLI">
 
-```tsx
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/responsive-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-responsive-example.tsx"
+"use client";
+
 import {
   DndGrid,
   type ResponsiveLayouts,
   useContainerWidth,
   useDndGridResponsiveLayout,
 } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
 
 const layouts: ResponsiveLayouts = {
   lg: [
@@ -42,7 +61,7 @@ const layouts: ResponsiveLayouts = {
 
 const cards = ["a", "b", "c", "d"];
 
-export default function ResponsiveExample() {
+export function ResponsiveExample() {
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: true,
   });
@@ -72,3 +91,18 @@ export default function ResponsiveExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { ResponsiveExample } from "@/components/dnd-grid-responsive-example";
+
+export default function Page() {
+  return <ResponsiveExample />;
+}
+```
+
+

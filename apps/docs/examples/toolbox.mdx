@@ -3,21 +3,44 @@ title: Toolbox
 description: Move items between the grid and toolbox.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/toolbox?embed=true"
-  width="100%"
-  height="500"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Toolbox preview"
+    src="https://dnd-grid.com/examples/toolbox-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/toolbox/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-toolbox-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/toolbox-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-toolbox-example.tsx"
+"use client";
+
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { useState } from "react";
+
+const GRID_WIDTH = 1200;
 
 interface ToolboxItem {
   i: string;
@@ -35,54 +58,60 @@ const initialItems: ToolboxItem[] = [
   { i: "d", x: 6, y: 0, w: 2, h: 2, visible: false },
 ];
 
-export default function ToolboxExample() {
+export function ToolboxExample() {
   const [items, setItems] = useState<ToolboxItem[]>(initialItems);
 
   const toggleItem = (id: string) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.i === id ? { ...item, visible: !item.visible } : item
-      )
+        item.i === id ? { ...item, visible: !item.visible } : item,
+      ),
     );
   };
 
   const visibleItems = items.filter((item) => item.visible);
   const hiddenItems = items.filter((item) => !item.visible);
-  const visibleLayout: Layout = visibleItems.map(({ visible, ...item }) => item);
+  const visibleLayout: Layout = visibleItems.map(
+    ({ visible, ...item }) => item,
+  );
 
   const handleLayoutChange = (newLayout: Layout) => {
     setItems((prev) =>
       prev.map((item) => {
         const updated = newLayout.find((l) => l.i === item.i);
         return updated ? { ...item, ...updated } : item;
-      })
+      }),
     );
   };
 
   return (
     <div>
-      {/* Toolbox */}
       <div className="toolbox">
         <div>Toolbox (click to add)</div>
         {hiddenItems.map((item) => (
-          <button key={item.i} onClick={() => toggleItem(item.i)}>
+          <button
+            key={item.i}
+            type="button"
+            onClick={() => toggleItem(item.i)}
+          >
             {item.i}
           </button>
         ))}
       </div>
 
-      {/* Grid */}
       <DndGrid
         layout={visibleLayout}
         cols={12}
         rowHeight={50}
-        width={1200}
+        width={GRID_WIDTH}
         onLayoutChange={handleLayoutChange}
       >
         {visibleItems.map((item) => (
           <div key={item.i} className="grid-item">
             <span>{item.i}</span>
-            <button onClick={() => toggleItem(item.i)}>×</button>
+            <button type="button" onClick={() => toggleItem(item.i)}>
+              x
+            </button>
           </div>
         ))}
       </DndGrid>
@@ -90,3 +119,18 @@ export default function ToolboxExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { ToolboxExample } from "@/components/dnd-grid-toolbox-example";
+
+export default function Page() {
+  return <ToolboxExample />;
+}
+```
+
+

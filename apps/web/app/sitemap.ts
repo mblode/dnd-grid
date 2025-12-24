@@ -2,17 +2,7 @@ import type { MetadataRoute } from "next";
 
 const siteUrl = "https://dnd-grid.com";
 
-const routes = [
-  "",
-  "examples/basic",
-  "examples/responsive",
-  "examples/static-elements",
-  "examples/dynamic-add-remove",
-  "examples/localstorage",
-  "examples/toolbox",
-  "examples/bounded",
-  "examples/resizable-handles",
-];
+const routes = [""];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();

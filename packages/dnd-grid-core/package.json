@@ -1,0 +1,58 @@
+{
+  "name": "@dnd-grid/core",
+  "version": "0.1.0",
+  "description": "Headless layout engine for dnd-grid",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./layout-engine": {
+      "types": "./dist/layout-engine.d.ts",
+      "import": "./dist/layout-engine.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --p ./tsconfig.build.json",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mblode/dnd-grid.git"
+  },
+  "keywords": [
+    "grid",
+    "layout",
+    "drag",
+    "resize",
+    "dnd"
+  ],
+  "author": "Matthew Blode <mblode@users.noreply.github.com> (https://github.com/mblode)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mblode/dnd-grid/issues"
+  },
+  "homepage": "https://github.com/mblode/dnd-grid",
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  }
+}

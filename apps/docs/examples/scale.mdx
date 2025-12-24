@@ -3,22 +3,44 @@ title: Scale
 description: Keep drag math correct when scaling the grid.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/scale?embed=true"
-  width="100%"
-  height="480"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Scale preview"
+    src="https://dnd-grid.com/examples/scale-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/scale/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-scale-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useState, type CSSProperties } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/scale-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-scale-example.tsx"
+"use client";
+
 import { DndGrid, type Layout } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { type CSSProperties, useState } from "react";
 
+const GRID_WIDTH = 1200;
 const scaleOptions = [0.75, 1, 1.25];
 
 const initialLayout: Layout = [
@@ -29,12 +51,12 @@ const initialLayout: Layout = [
   { i: "e", x: 6, y: 2, w: 3, h: 3 },
 ];
 
-export default function ScaleExample() {
+export function ScaleExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const [scale, setScale] = useState(1);
 
   const scaledStyle: CSSProperties = {
-    width: 1200,
+    width: GRID_WIDTH,
     transform: `scale(${scale})`,
     transformOrigin: "top left",
     ["--dnd-grid-scale" as string]: scale,
@@ -55,7 +77,7 @@ export default function ScaleExample() {
           layout={layout}
           cols={12}
           rowHeight={50}
-          width={1200}
+          width={GRID_WIDTH}
           transformScale={scale}
           onLayoutChange={setLayout}
         >
@@ -70,3 +92,18 @@ export default function ScaleExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { ScaleExample } from "@/components/dnd-grid-scale-example";
+
+export default function Page() {
+  return <ScaleExample />;
+}
+```
+
+

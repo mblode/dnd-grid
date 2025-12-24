@@ -1,12 +1,21 @@
 import { createContext, useContext } from "react";
 import type { ItemState, LayoutItem } from "./types";
 
-type ItemContext = {
-  item: LayoutItem;
+type ItemContext<TData = unknown> = {
+  item: LayoutItem<TData>;
   state: ItemState;
 };
 
-export const DndGridItemContext = createContext<ItemContext | null>(null);
+export const DndGridItemContext = createContext<ItemContext<unknown> | null>(
+  null,
+);
+
+export const useOptionalDndGridItemState = <
+  TData = unknown,
+>(): ItemContext<TData> | null => {
+  const context = useContext(DndGridItemContext);
+  return context as ItemContext<TData> | null;
+};
 
 /**
  * Hook to access the current grid item's state from within a custom component.
@@ -25,13 +34,13 @@ export const DndGridItemContext = createContext<ItemContext | null>(null);
  * };
  * ```
  */
-export const useDndGridItemState = (): ItemContext => {
-  const context = useContext(DndGridItemContext);
+export const useDndGridItemState = <TData = unknown>(): ItemContext<TData> => {
+  const context = useOptionalDndGridItemState<TData>();
   if (!context) {
     throw new Error(
       "useDndGridItemState must be used within a DndGrid item. " +
         "Make sure your component is rendered as a child of a DndGrid.",
     );
   }
-  return context;
+  return context as ItemContext<TData>;
 };

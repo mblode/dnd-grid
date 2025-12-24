@@ -82,15 +82,15 @@ export const BlocksGrid = () => {
 
   const margin = BLOCK_GAP * scaleFactor;
   const handleResizeStart: typeof handlers.handleResizeStart = useCallback(
-    (...args) => {
+    (event) => {
       isResizingRef.current = true;
-      handlers.handleResizeStart(...args);
+      handlers.handleResizeStart(event);
     },
     [handlers],
   );
   const handleResizeStop: typeof handlers.handleResizeStop = useCallback(
-    (...args) => {
-      handlers.handleResizeStop(...args);
+    (event) => {
+      handlers.handleResizeStop(event);
       isResizingRef.current = false;
       if (pendingWidthRef.current !== null) {
         commitContainerWidth(pendingWidthRef.current);

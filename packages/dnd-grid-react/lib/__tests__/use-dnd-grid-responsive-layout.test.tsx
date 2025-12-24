@@ -1,19 +1,31 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import type { Layout, ResponsiveLayouts, Spacing } from "../types";
+import { describe, expect, it, vi } from "vitest";
+import type {
+  Layout,
+  MissingLayoutStrategy,
+  ResponsiveLayouts,
+  Spacing,
+} from "../types";
 import { useDndGridResponsiveLayout } from "../use-dnd-grid-responsive-layout";
 
 type TestProps = {
   width: number;
   layouts: ResponsiveLayouts;
   margin?: Spacing | Record<string, Spacing>;
+  missingLayoutStrategy?: MissingLayoutStrategy;
 };
 
-const TestComponent = ({ width, layouts, margin }: TestProps) => {
+const TestComponent = ({
+  width,
+  layouts,
+  margin,
+  missingLayoutStrategy,
+}: TestProps) => {
   const result = useDndGridResponsiveLayout({
     width,
     layouts,
     margin: margin ?? 10,
+    missingLayoutStrategy,
   });
   const serializedMargin =
     typeof result.margin === "number"
@@ -58,13 +70,63 @@ describe("useDndGridResponsiveLayout", () => {
       md: { top: 12, right: 16, bottom: 12, left: 16 },
     };
     const { rerender } = render(
-      <TestComponent width={1200} layouts={layouts} margin={margin} />,
+      <TestComponent
+        width={1200}
+        layouts={layouts}
+        margin={margin}
+        missingLayoutStrategy="derive"
+      />,
     );
 
-    rerender(<TestComponent width={800} layouts={layouts} margin={margin} />);
+    rerender(
+      <TestComponent
+        width={800}
+        layouts={layouts}
+        margin={margin}
+        missingLayoutStrategy="derive"
+      />,
+    );
 
     const node = screen.getByTestId("result");
     expect(node.dataset.breakpoint).toBe("sm");
     expect(node.dataset.cols).toBe("6");
+  });
+
+  it("returns empty layout when missingLayoutStrategy is empty", () => {
+    const layouts: ResponsiveLayouts = {
+      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
+    };
+    render(
+      <TestComponent
+        width={800}
+        layouts={layouts}
+        missingLayoutStrategy="empty"
+      />,
+    );
+    const node = screen.getByTestId("result");
+    const parsedLayout = JSON.parse(node.dataset.layout || "[]") as Layout;
+    expect(parsedLayout).toHaveLength(0);
+  });
+
+  it("throws when missingLayoutStrategy is error and layout is missing", () => {
+    const layouts: ResponsiveLayouts = {
+      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
+    };
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    expect(() =>
+      render(
+        <TestComponent
+          width={800}
+          layouts={layouts}
+          margin={10}
+          missingLayoutStrategy="error"
+        />,
+      ),
+    ).toThrow(/Responsive layout.*missing/i);
+
+    consoleError.mockRestore();
   });
 });

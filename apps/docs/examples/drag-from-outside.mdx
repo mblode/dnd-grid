@@ -3,21 +3,44 @@ title: Drag from outside
 description: Drop external items into the grid.
 ---
 
-<iframe
-  src="https://dnd-grid.com/examples/drag-from-outside?embed=true"
-  width="100%"
-  height="520"
-  style={{ border: "1px solid #e5e7eb", borderRadius: "8px", marginBottom: "24px" }}
-/>
+<div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+  <iframe
+    title="Drag from outside preview"
+    src="https://dnd-grid.com/examples/drag-from-outside-example?embed=1"
+    className="h-[640px] w-full"
+    loading="lazy"
+  />
+</div>
 
-[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/app/examples/drag-from-outside/page.tsx)
+[View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-drag-from-outside-example.tsx)
 
-## Code
+## Installation
 
-```tsx
-import { useRef, useState } from "react";
+<Tabs>
+<Tab title="CLI">
+
+```bash
+npx shadcn@latest add https://dnd-grid.com/r/drag-from-outside-example.json
+```
+
+</Tab>
+<Tab title="Manual">
+
+```bash
+npm install @dnd-grid/react
+```
+
+```css
+@import "@dnd-grid/react/styles.css";
+```
+
+```tsx title="components/dnd-grid-drag-from-outside-example.tsx"
+"use client";
+
 import { DndGrid, type Layout, type LayoutItem } from "@dnd-grid/react";
-import "@dnd-grid/react/styles.css";
+import { useRef, useState } from "react";
+
+const GRID_WIDTH = 1200;
 
 type PaletteItem = {
   id: string;
@@ -39,7 +62,7 @@ const initialLayout: Layout = [
   { i: "d", x: 9, y: 0, w: 3, h: 2 },
 ];
 
-export default function DragFromOutsideExample() {
+export function DragFromOutsideExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const dragItemRef = useRef<PaletteItem | null>(null);
   const nextIdRef = useRef(1);
@@ -63,14 +86,17 @@ export default function DragFromOutsideExample() {
     <div>
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         {paletteItems.map((palette) => (
-          <div
+          <button
             key={palette.id}
+            type="button"
             draggable
             onDragStart={(event) => {
               dragItemRef.current = palette;
               event.dataTransfer.setData("text/plain", palette.id);
             }}
             style={{
+              appearance: "none",
+              background: "white",
               border: "1px solid #e5e7eb",
               padding: "6px 10px",
               borderRadius: "6px",
@@ -79,7 +105,7 @@ export default function DragFromOutsideExample() {
             }}
           >
             {palette.label}
-          </div>
+          </button>
         ))}
       </div>
 
@@ -87,8 +113,7 @@ export default function DragFromOutsideExample() {
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={1200}
-        isDroppable
+        width={GRID_WIDTH}
         onDrop={handleDrop}
         onDropDragOver={handleDropDragOver}
         onLayoutChange={setLayout}
@@ -103,3 +128,18 @@ export default function DragFromOutsideExample() {
   );
 }
 ```
+
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { DragFromOutsideExample } from "@/components/dnd-grid-drag-from-outside-example";
+
+export default function Page() {
+  return <DragFromOutsideExample />;
+}
+```
+
+

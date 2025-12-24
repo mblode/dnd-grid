@@ -12,8 +12,9 @@ import {
   verticalOverlapCompactor,
 } from "../../compactors";
 import type {
-  GridDragEvent,
-  GridResizeEvent,
+  AnimationConfig,
+  GridItemDragEvent,
+  GridItemResizeEvent,
   Layout,
   LayoutItem,
   Size,
@@ -30,8 +31,21 @@ type MockGridItemProps = {
   h: number;
   isDraggable?: boolean;
   isResizable?: boolean;
+  animationConfig?: AnimationConfig;
   static?: boolean;
   className?: string;
+  tabIndex?: number;
+  ariaRowIndex?: number;
+  ariaColIndex?: number;
+  ariaPosInSet?: number;
+  ariaSetSize?: number;
+  onItemFocus?: (id: string) => void;
+  onItemKeyDown?: (
+    event: React.KeyboardEvent<HTMLElement>,
+    id: string,
+    keyboardState: { isPressed: boolean; isResizing: boolean },
+  ) => void;
+  registerItemRef?: (id: string, node: HTMLElement | null) => void;
 };
 
 type DerivedProps = Parameters<typeof DndGrid.getDerivedStateFromProps>[0];
@@ -137,8 +151,18 @@ vi.mock("../grid-item", () => ({
     isResizable,
     static: isStatic,
     className,
+    tabIndex,
+    ariaRowIndex,
+    ariaColIndex,
+    ariaPosInSet,
+    ariaSetSize,
+    onItemFocus,
+    onItemKeyDown,
+    registerItemRef,
   }: MockGridItemProps) => (
+    // biome-ignore lint/a11y/useSemanticElements: mock grid item mirrors real markup
     <div
+      ref={(node) => registerItemRef?.(i, node)}
       data-testid={`grid-item-${i}`}
       data-x={x}
       data-y={y}
@@ -147,7 +171,19 @@ vi.mock("../grid-item", () => ({
       data-draggable={isDraggable}
       data-resizable={isResizable}
       data-static={isStatic}
+      data-aria-rowindex={ariaRowIndex}
+      data-aria-colindex={ariaColIndex}
+      data-aria-posinset={ariaPosInSet}
+      data-aria-setsize={ariaSetSize}
+      data-dnd-grid-item=""
+      data-dnd-grid-item-id={i}
       className={className}
+      role="gridcell"
+      tabIndex={tabIndex}
+      onFocus={() => onItemFocus?.(i)}
+      onKeyDown={(event) =>
+        onItemKeyDown?.(event, i, { isPressed: false, isResizing: false })
+      }
     >
       {children}
     </div>
@@ -215,6 +251,79 @@ describe("DndGrid", () => {
     });
   });
 
+  describe("aria semantics", () => {
+    it("sets grid role and counts", () => {
+      renderGrid(
+        <DndGrid {...defaultProps} cols={4}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 1, h: 2 }}>
+            A
+          </div>
+          <div key="b" data-grid={{ x: 1, y: 2, w: 1, h: 1 }}>
+            B
+          </div>
+        </DndGrid>,
+      );
+      const grid = getGridElement();
+      expect(grid).toHaveAttribute("role", "grid");
+      expect(grid).toHaveAttribute("aria-colcount", "4");
+      expect(grid).toHaveAttribute("aria-rowcount", "3");
+    });
+
+    it("accepts grid label props", () => {
+      renderGrid(
+        <DndGrid
+          {...defaultProps}
+          aria-label="Layout grid"
+          aria-labelledby="grid-label"
+          aria-describedby="grid-desc"
+        >
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+            A
+          </div>
+        </DndGrid>,
+      );
+      const grid = getGridElement();
+      expect(grid).toHaveAttribute("aria-label", "Layout grid");
+      expect(grid).toHaveAttribute("aria-labelledby", "grid-label");
+      expect(grid).toHaveAttribute("aria-describedby", "grid-desc");
+    });
+
+    it("computes item aria indices and set membership", () => {
+      renderGrid(
+        <DndGrid {...defaultProps}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 1, h: 1 }}>
+            A
+          </div>
+          <div key="b" data-grid={{ x: 1, y: 0, w: 1, h: 1, static: true }}>
+            B
+          </div>
+          <div key="c" data-grid={{ x: 0, y: 1, w: 1, h: 1 }}>
+            C
+          </div>
+        </DndGrid>,
+      );
+
+      const itemA = screen.getByTestId("grid-item-a");
+      const itemB = screen.getByTestId("grid-item-b");
+      const itemC = screen.getByTestId("grid-item-c");
+
+      expect(itemA).toHaveAttribute("data-aria-rowindex", "1");
+      expect(itemA).toHaveAttribute("data-aria-colindex", "1");
+      expect(itemA).toHaveAttribute("data-aria-posinset", "1");
+      expect(itemA).toHaveAttribute("data-aria-setsize", "2");
+
+      expect(itemB).toHaveAttribute("data-aria-rowindex", "1");
+      expect(itemB).toHaveAttribute("data-aria-colindex", "2");
+      expect(itemB).not.toHaveAttribute("data-aria-posinset");
+      expect(itemB).not.toHaveAttribute("data-aria-setsize");
+
+      expect(itemC).toHaveAttribute("data-aria-rowindex", "2");
+      expect(itemC).toHaveAttribute("data-aria-colindex", "1");
+      expect(itemC).toHaveAttribute("data-aria-posinset", "2");
+      expect(itemC).toHaveAttribute("data-aria-setsize", "2");
+    });
+  });
+
   describe("layout synchronization", () => {
     it("synchronizes layout with children", () => {
       const layout: Layout = [{ i: "a", x: 0, y: 0, w: 4, h: 2 }];
@@ -272,6 +381,7 @@ describe("DndGrid", () => {
       const nextLayout: Layout = [{ i: "a", x: 2, y: 0, w: 1, h: 1 }];
       const prevState = {
         activeDrag: null,
+        activeItemId: null,
         settlingItem: null,
         layout: prevLayout,
         mounted: false,
@@ -301,6 +411,7 @@ describe("DndGrid", () => {
       const prevLayout: Layout = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
       const prevState = {
         activeDrag: null,
+        activeItemId: null,
         settlingItem: null,
         layout: prevLayout,
         mounted: false,
@@ -324,6 +435,36 @@ describe("DndGrid", () => {
       );
 
       expect(derived?.layout?.[0].i).toBe("b");
+    });
+  });
+
+  describe("validation", () => {
+    it("throws on invalid layout when validation is enabled", () => {
+      const badLayout: Layout = [
+        { i: "a", x: 0, y: 0, w: 1, h: 1 },
+        { i: "a", x: 1, y: 0, w: 1, h: 1 },
+      ];
+      expect(() =>
+        renderGrid(
+          <DndGrid {...defaultProps} layout={badLayout} validation={true}>
+            <div key="a">A</div>
+          </DndGrid>,
+        ),
+      ).toThrow();
+    });
+
+    it("skips validation when disabled", () => {
+      const badLayout: Layout = [
+        { i: "a", x: 0, y: 0, w: 1, h: 1 },
+        { i: "a", x: 1, y: 0, w: 1, h: 1 },
+      ];
+      expect(() =>
+        renderGrid(
+          <DndGrid {...defaultProps} layout={badLayout} validation={false}>
+            <div key="a">A</div>
+          </DndGrid>,
+        ),
+      ).not.toThrow();
     });
   });
 
@@ -487,10 +628,11 @@ describe("DndGrid", () => {
   });
 
   describe("drop functionality", () => {
-    it("enables drop when isDroppable is true", () => {
+    it("enables drop when onDrop is provided", () => {
       const ref = React.createRef<DndGrid>();
+      const onDrop = vi.fn();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
+        <DndGrid {...defaultProps} ref={ref} onDrop={onDrop}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -507,7 +649,7 @@ describe("DndGrid", () => {
     it("calls onDrop callback", () => {
       const onDrop = vi.fn();
       renderGrid(
-        <DndGrid {...defaultProps} isDroppable={true} onDrop={onDrop}>
+        <DndGrid {...defaultProps} onDrop={onDrop}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -520,7 +662,7 @@ describe("DndGrid", () => {
 
     it("increments dragEnterCounter on dragEnter", () => {
       renderGrid(
-        <DndGrid {...defaultProps} isDroppable={true}>
+        <DndGrid {...defaultProps} onDropDragOver={() => undefined}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -533,7 +675,7 @@ describe("DndGrid", () => {
 
     it("decrements dragEnterCounter on dragLeave", () => {
       renderGrid(
-        <DndGrid {...defaultProps} isDroppable={true}>
+        <DndGrid {...defaultProps} onDropDragOver={() => undefined}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -549,7 +691,7 @@ describe("DndGrid", () => {
       const onDrop = vi.fn();
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true} onDrop={onDrop}>
+        <DndGrid {...defaultProps} ref={ref} onDrop={onDrop}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -589,12 +731,7 @@ describe("DndGrid", () => {
         .mockReturnValue(false);
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid
-          {...defaultProps}
-          ref={ref}
-          isDroppable={true}
-          onDropDragOver={onDropDragOver}
-        >
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={onDropDragOver}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -623,7 +760,7 @@ describe("DndGrid", () => {
     it("updates droppingPosition when drag over moves", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={() => undefined}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -650,7 +787,7 @@ describe("DndGrid", () => {
     it("clears placeholder when drag leave reaches zero", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={() => undefined}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -681,7 +818,7 @@ describe("DndGrid", () => {
       const onDrop = vi.fn();
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true} onDrop={onDrop}>
+        <DndGrid {...defaultProps} ref={ref} onDrop={onDrop}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -707,7 +844,7 @@ describe("DndGrid", () => {
     it("adds dropping placeholder when dndRect is provided", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={() => undefined}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -736,7 +873,7 @@ describe("DndGrid", () => {
     it("handles missing document lookup for grid element", () => {
       const ref = React.createRef<DndGrid>();
       renderGrid(
-        <DndGrid {...defaultProps} ref={ref} isDroppable={true}>
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={() => undefined}>
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -836,6 +973,191 @@ describe("DndGrid", () => {
     });
   });
 
+  describe("live announcements", () => {
+    it("renders a live region by default", () => {
+      renderGrid(
+        <DndGrid {...defaultProps}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+            A
+          </div>
+        </DndGrid>,
+      );
+      const liveRegion = document.querySelector(
+        "[data-dnd-grid-live-region]",
+      ) as HTMLElement;
+      expect(liveRegion).toBeInTheDocument();
+      expect(liveRegion).toHaveAttribute("role", "status");
+      expect(liveRegion).toHaveAttribute("aria-live", "polite");
+      expect(liveRegion).toHaveAttribute("aria-atomic", "true");
+    });
+
+    it("can disable live announcements", () => {
+      renderGrid(
+        <DndGrid {...defaultProps} liveAnnouncements={false}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+            A
+          </div>
+        </DndGrid>,
+      );
+      expect(
+        document.querySelector("[data-dnd-grid-live-region]"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("announces drag, resize, and focus updates", () => {
+      const announcements = {
+        onDragStart: vi.fn(() => "drag-start"),
+        onDrag: vi.fn(() => "drag-move"),
+        onDragStop: vi.fn(() => "drag-stop"),
+        onResizeStart: vi.fn(() => "resize-start"),
+        onResize: vi.fn(() => "resize"),
+        onResizeStop: vi.fn(() => "resize-stop"),
+        onFocus: vi.fn(() => "focus"),
+      };
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
+      const ref = React.createRef<DndGrid>();
+
+      renderGrid(
+        <DndGrid
+          {...defaultProps}
+          ref={ref}
+          layout={layout}
+          liveAnnouncements={{ announcements }}
+        >
+          <div key="a">A</div>
+        </DndGrid>,
+      );
+
+      const liveRegion = document.querySelector(
+        "[data-dnd-grid-live-region]",
+      ) as HTMLElement;
+      const node = document.createElement("div");
+      const handle = getGridHandle(ref);
+      const dragStartEvent: GridItemDragEvent = {
+        id: "a",
+        x: 0,
+        y: 0,
+        event: new MouseEvent("mousedown"),
+        node,
+        newPosition: { left: 0, top: 0 },
+      };
+      const dragMoveEvent: GridItemDragEvent = {
+        id: "a",
+        x: 1,
+        y: 0,
+        event: new MouseEvent("mousemove"),
+        node,
+        newPosition: { left: 10, top: 10 },
+      };
+      const dragStopEvent: GridItemDragEvent = {
+        id: "a",
+        x: 1,
+        y: 0,
+        event: new MouseEvent("mouseup"),
+        node,
+        newPosition: { left: 10, top: 10 },
+      };
+
+      act(() => {
+        handle.onDragStart(dragStartEvent);
+      });
+      expect(announcements.onDragStart).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("drag-start");
+
+      act(() => {
+        handle.onDrag(dragMoveEvent);
+      });
+      expect(announcements.onDrag).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("drag-move");
+
+      act(() => {
+        handle.onDragStop(dragStopEvent);
+      });
+      expect(announcements.onDragStop).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("drag-stop");
+
+      const resizeEvent: GridItemResizeEvent = {
+        id: "a",
+        w: 2,
+        h: 2,
+        event: new Event("resize"),
+        node,
+        size: { width: 100, height: 100 },
+        handle: "se",
+      };
+      act(() => {
+        handle.onResizeStart(resizeEvent);
+      });
+      expect(announcements.onResizeStart).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("resize-start");
+
+      act(() => {
+        handle.onResize({ ...resizeEvent, w: 3, h: 4 });
+      });
+      expect(announcements.onResize).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("resize");
+
+      act(() => {
+        handle.onResizeStop({ ...resizeEvent, w: 3, h: 4 });
+      });
+      expect(announcements.onResizeStop).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("resize-stop");
+
+      const item = screen.getByTestId("grid-item-a");
+      fireEvent.focus(item);
+      expect(announcements.onFocus).toHaveBeenCalled();
+      expect(liveRegion.textContent).toBe("focus");
+    });
+
+    it("dedupes drag move announcements by grid position", () => {
+      const onDrag = vi.fn(() => "drag-move");
+      const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
+      const ref = React.createRef<DndGrid>();
+
+      renderGrid(
+        <DndGrid
+          {...defaultProps}
+          ref={ref}
+          layout={layout}
+          liveAnnouncements={{ announcements: { onDrag } }}
+        >
+          <div key="a">A</div>
+        </DndGrid>,
+      );
+
+      const node = document.createElement("div");
+      const handle = getGridHandle(ref);
+      const dragStartEvent: GridItemDragEvent = {
+        id: "a",
+        x: 0,
+        y: 0,
+        event: new MouseEvent("mousedown"),
+        node,
+        newPosition: { left: 0, top: 0 },
+      };
+      const dragMoveEvent: GridItemDragEvent = {
+        id: "a",
+        x: 1,
+        y: 0,
+        event: new MouseEvent("mousemove"),
+        node,
+        newPosition: { left: 10, top: 10 },
+      };
+
+      act(() => {
+        handle.onDragStart(dragStartEvent);
+      });
+      act(() => {
+        handle.onDrag(dragMoveEvent);
+      });
+      act(() => {
+        handle.onDrag(dragMoveEvent);
+      });
+
+      expect(onDrag).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("drag and resize handlers", () => {
     it("updates layout during drag lifecycle", () => {
       const layout: Layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
@@ -859,33 +1181,48 @@ describe("DndGrid", () => {
 
       const node = document.createElement("div");
       const handle = getGridHandle(ref);
-      const dragStartEvent: GridDragEvent = {
-        e: new MouseEvent("mousedown"),
+      const dragStartEvent: GridItemDragEvent = {
+        id: "a",
+        x: 0,
+        y: 0,
+        event: new MouseEvent("mousedown"),
         node,
         newPosition: { left: 0, top: 0 },
       };
-      const dragMoveEvent: GridDragEvent = {
-        e: new MouseEvent("mousemove"),
+      const dragMoveEvent: GridItemDragEvent = {
+        id: "a",
+        x: 2,
+        y: 1,
+        event: new MouseEvent("mousemove"),
         node,
         newPosition: { left: 10, top: 10 },
       };
-      const dragStopEvent: GridDragEvent = {
-        e: new MouseEvent("mouseup"),
+      const dragStopEvent: GridItemDragEvent = {
+        id: "a",
+        x: 2,
+        y: 1,
+        event: new MouseEvent("mouseup"),
         node,
         newPosition: { left: 10, top: 10 },
       };
       act(() => {
-        handle.onDragStart("a", 0, 0, dragStartEvent);
+        handle.onDragStart(dragStartEvent);
       });
 
       expect(onDragStart).toHaveBeenCalled();
+      const dragStartPayload = onDragStart.mock.calls[0][0];
+      expect(dragStartPayload.type).toBe("dragStart");
+      expect(dragStartPayload.item?.i).toBe("a");
       expect(ref.current?.state.activeDrag?.i).toBe("a");
 
       act(() => {
-        handle.onDrag("a", 2, 1, dragMoveEvent);
+        handle.onDrag(dragMoveEvent);
       });
 
       expect(onDrag).toHaveBeenCalled();
+      const dragPayload = onDrag.mock.calls[0][0];
+      expect(dragPayload.type).toBe("drag");
+      expect(dragPayload.item?.i).toBe("a");
       expect(ref.current?.state.layout.find((item) => item.i === "a")?.x).toBe(
         2,
       );
@@ -896,10 +1233,13 @@ describe("DndGrid", () => {
       expect(ref.current?.state.activeDrag?.y).toBe(draggedItem?.y);
 
       act(() => {
-        handle.onDragStop("a", 2, 1, dragStopEvent);
+        handle.onDragStop(dragStopEvent);
       });
 
       expect(onDragStop).toHaveBeenCalled();
+      const dragStopPayload = onDragStop.mock.calls[0][0];
+      expect(dragStopPayload.type).toBe("dragStop");
+      expect(dragStopPayload.item?.i).toBe("a");
       expect(ref.current?.state.settlingItem).toBe("a");
       const settledItem = ref.current?.state.layout.find(
         (item) => item.i === "a",
@@ -930,23 +1270,29 @@ describe("DndGrid", () => {
 
       const node = document.createElement("div");
       const handle = getGridHandle(ref);
-      const dragStartEvent: GridDragEvent = {
-        e: new MouseEvent("mousedown"),
+      const dragStartEvent: GridItemDragEvent = {
+        id: "b",
+        x: 0,
+        y: 2,
+        event: new MouseEvent("mousedown"),
         node,
         newPosition: { left: 0, top: 0 },
       };
-      const dragMoveEvent: GridDragEvent = {
-        e: new MouseEvent("mousemove"),
+      const dragMoveEvent: GridItemDragEvent = {
+        id: "b",
+        x: 0,
+        y: 0,
+        event: new MouseEvent("mousemove"),
         node,
         newPosition: { left: 0, top: 0 },
       };
 
       act(() => {
-        handle.onDragStart("b", 0, 2, dragStartEvent);
+        handle.onDragStart(dragStartEvent);
       });
 
       act(() => {
-        handle.onDrag("b", 0, 0, dragMoveEvent);
+        handle.onDrag(dragMoveEvent);
       });
 
       const movedLayout = ref.current?.state.layout ?? [];
@@ -978,23 +1324,29 @@ describe("DndGrid", () => {
       const node = document.createElement("div");
       const handle = getGridHandle(ref);
       const resizeSize: Size = { width: 100, height: 100 };
-      const resizeEvent: GridResizeEvent = {
-        e: new Event("resize"),
+      const resizeEvent: GridItemResizeEvent = {
+        id: "a",
+        w: 2,
+        h: 2,
+        event: new Event("resize"),
         node,
         size: resizeSize,
         handle: "se",
       };
       act(() => {
-        handle.onResizeStart("a", 2, 2, resizeEvent);
+        handle.onResizeStart(resizeEvent);
       });
 
       expect(ref.current?.state.resizing).toBe(true);
 
       act(() => {
-        handle.onResize("a", 3, 4, resizeEvent);
+        handle.onResize({ ...resizeEvent, w: 3, h: 4 });
       });
 
       expect(onResize).toHaveBeenCalled();
+      const resizePayload = onResize.mock.calls[0][0];
+      expect(resizePayload.type).toBe("resize");
+      expect(resizePayload.handle).toBe("se");
       expect(ref.current?.state.activeDrag?.i).toBe("a");
       expect(ref.current?.state.layout.find((item) => item.i === "a")?.w).toBe(
         3,
@@ -1004,10 +1356,13 @@ describe("DndGrid", () => {
       );
 
       act(() => {
-        handle.onResizeStop("a", 3, 4, resizeEvent);
+        handle.onResizeStop({ ...resizeEvent, w: 3, h: 4 });
       });
 
       expect(onResizeStop).toHaveBeenCalled();
+      const resizeStopPayload = onResizeStop.mock.calls[0][0];
+      expect(resizeStopPayload.type).toBe("resizeStop");
+      expect(resizeStopPayload.handle).toBe("se");
       expect(ref.current?.state.resizing).toBe(false);
       expect(ref.current?.state.activeDrag).toBeNull();
     });
@@ -1189,7 +1544,7 @@ describe("DndGrid", () => {
       renderGrid(
         <DndGrid
           {...defaultProps}
-          isDroppable={true}
+          onDropDragOver={() => undefined}
           droppingItem={{ i: "custom-drop", w: 2, h: 2 }}
         >
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
@@ -1202,9 +1557,9 @@ describe("DndGrid", () => {
   });
 
   describe("draggable handles", () => {
-    it("accepts draggableHandle prop", () => {
+    it("accepts dragHandle prop", () => {
       renderGrid(
-        <DndGrid {...defaultProps} draggableHandle=".handle">
+        <DndGrid {...defaultProps} dragHandle=".handle">
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>
@@ -1213,9 +1568,9 @@ describe("DndGrid", () => {
       expect(screen.getByTestId("grid-item-a")).toBeInTheDocument();
     });
 
-    it("accepts draggableCancel prop", () => {
+    it("accepts dragCancel prop", () => {
       renderGrid(
-        <DndGrid {...defaultProps} draggableCancel=".no-drag">
+        <DndGrid {...defaultProps} dragCancel=".no-drag">
           <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
             A
           </div>

@@ -1,0 +1,268 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "dnd-grid",
+  "homepage": "https://dnd-grid.com",
+  "items": [
+    {
+      "name": "allow-overlap-example",
+      "type": "registry:component",
+      "title": "Allow overlap",
+      "description": "Let items stack without collision.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-allow-overlap-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "aspect-ratio-constraints-example",
+      "type": "registry:component",
+      "title": "Aspect ratio constraints",
+      "description": "Lock item resizing to a ratio.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-aspect-ratio-constraints-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "basic-example",
+      "type": "registry:component",
+      "title": "Basic example",
+      "description": "Simple draggable and resizable grid.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-basic-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "bounded-example",
+      "type": "registry:component",
+      "title": "Bounded",
+      "description": "Keep items within grid bounds.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-bounded-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "compactor-showcase-example",
+      "type": "registry:component",
+      "title": "Compactor showcase",
+      "description": "Switch between vertical, horizontal, wrap, and none.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-compactor-showcase-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "constraints-example",
+      "type": "registry:component",
+      "title": "Constraints",
+      "description": "Plug in constraints and custom rules.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-constraints-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "drag-from-outside-example",
+      "type": "registry:component",
+      "title": "Drag from outside",
+      "description": "Drop external items into the grid.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-drag-from-outside-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "dynamic-add-remove-example",
+      "type": "registry:component",
+      "title": "Dynamic add/remove",
+      "description": "Add and remove items at runtime.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-dynamic-add-remove-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "headless-example",
+      "type": "registry:component",
+      "title": "Headless wrapper",
+      "description": "Build a custom wrapper with useDndGrid.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-headless-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "kitchen-sink-example",
+      "type": "registry:component",
+      "title": "Kitchen sink",
+      "description": "A full-featured builder with external drag, selection, action bar, and edit panel.",
+      "dependencies": [
+        "@dnd-grid/react",
+        "react-draggable",
+        "react-resizable",
+        "@dnd-kit/core"
+      ],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-kitchen-sink-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "localstorage-example",
+      "type": "registry:component",
+      "title": "Local storage",
+      "description": "Persist layout to local storage and restore on load.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-localstorage-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "resizable-handles-example",
+      "type": "registry:component",
+      "title": "Resizable handles",
+      "description": "Items can be resized from all eight directions.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-resizable-handles-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "responsive-example",
+      "type": "registry:component",
+      "title": "Responsive layout",
+      "description": "Breakpoint layouts based on container width.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-responsive-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "scale-example",
+      "type": "registry:component",
+      "title": "Scale",
+      "description": "Keep drag math correct when scaling the grid.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-scale-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "static-elements-example",
+      "type": "registry:component",
+      "title": "Static items",
+      "description": "Static items cannot be moved or resized.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-static-elements-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "toolbox-example",
+      "type": "registry:component",
+      "title": "Toolbox",
+      "description": "Move items between the grid and toolbox.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-toolbox-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

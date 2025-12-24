@@ -1,0 +1,65 @@
+---
+title: useEdgeScroll
+description: Auto-scroll scroll containers while dragging near edges.
+---
+
+`useEdgeScroll` powers the `autoScroll` behavior in `DndGrid`. Use it directly
+when you need auto-scroll for custom drag interactions.
+
+## Example
+
+```tsx
+import { useRef } from "react";
+import { AutoScrollActivator, useEdgeScroll } from "@dnd-grid/react";
+
+export function EdgeScrollCard() {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const { handleDragStart, handleDrag, handleDragStop, isScrolling } =
+    useEdgeScroll({
+      activator: AutoScrollActivator.Pointer,
+      threshold: { x: 0.15, y: 0.15 },
+    });
+
+  return (
+    <div
+      ref={cardRef}
+      onPointerDown={(event) => {
+        handleDragStart(event, cardRef.current);
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }}
+      onPointerMove={(event) => handleDrag(event, cardRef.current)}
+      onPointerUp={() => handleDragStop()}
+      style={{ cursor: "grab", userSelect: "none" }}
+    >
+      {isScrolling ? "Scrolling..." : "Drag me near the edges"}
+    </div>
+  );
+}
+```
+
+## Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `enabled` | `boolean` | Enable or disable auto-scroll. |
+| `threshold` | `{ x: number; y: number }` | Percent of the container edge used as the trigger zone. |
+| `acceleration` | `number` | Base scroll speed multiplier. |
+| `interval` | `number` | Scroll interval in ms. |
+| `activator` | `AutoScrollActivator` | Use pointer coordinates or the dragged element rect. |
+| `order` | `TraversalOrder` | Scroll ancestor order (`TreeOrder` or `ReversedTreeOrder`). |
+| `canScroll` | `(element) => boolean` | Optional predicate to skip specific scroll containers. |
+| `layoutShiftCompensation` | `boolean` or `{ x: boolean; y: boolean }` | Compensate when layout shifts during drag. |
+
+## Returns
+
+| Value | Description |
+|-------|-------------|
+| `handleDragStart` | Call on drag start with the event, node, and optional `{ left, top }` position. |
+| `handleDrag` | Call on drag move with the event, node, and optional `{ left, top }` position. |
+| `handleDragStop` | Call on drag end. |
+| `isScrolling` | `true` while auto-scroll is active. |
+
+<Note>
+  When using `DndGrid`, prefer the `autoScroll` prop unless you need to wire
+  the behavior into a custom drag system.
+</Note>

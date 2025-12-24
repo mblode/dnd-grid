@@ -1,0 +1,38 @@
+---
+title: Troubleshooting
+description: Fix common setup issues.
+---
+
+## The grid is empty or items do not render
+
+- Ensure every child `key` matches a layout item `i`.
+- Pass a non-zero `width` to `DndGrid` (use `useContainerWidth` if needed).
+- Make sure each layout item has `w` and `h` greater than 0.
+
+## Dragging or resizing does not work
+
+- Check `isDraggable` and `isResizable` on the grid and items.
+- `static: true` disables drag and resize.
+- Make sure `dragHandle` and `dragCancel` selectors match your DOM.
+
+## Resize handles are missing
+
+- Import `@dnd-grid/react/styles.css`.
+- Verify `resizeHandles` is not empty and the item is resizable.
+
+## Layout jumps on hydration
+
+- Use `useContainerWidth({ measureBeforeMount: true })` and render once mounted.
+- Provide a stable `initialWidth` that matches your container.
+
+## Auto-scroll does not trigger
+
+- Ensure the scroll container has `overflow: auto` or `scroll`.
+- Pass `autoScroll` options to adjust `threshold` and `activator`.
+- Use `AutoScrollActivator.DraggableRect` if pointer coordinates are unreliable.
+
+## Items overlap unexpectedly
+
+- Use a non-overlap compactor like `verticalCompactor` or `horizontalCompactor`.
+- Avoid `allowOverlap` variants unless you want stacking.
+- Set `preventCollision` if you want drag moves to be blocked.

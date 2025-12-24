@@ -65,3 +65,61 @@ Replace the handle UI with a custom component:
 ```tsx
 <DndGrid resizeHandle={<div className="my-custom-handle" />} />
 ```
+
+## Reduced motion
+
+`DndGrid` respects `prefers-reduced-motion` for spring and WAAPI effects. You can
+override the behavior with `reducedMotion`:
+
+```tsx
+<DndGrid reducedMotion="always" />
+```
+
+Accepted values:
+
+- `"system"` (default): use the OS preference.
+- `"always"`: disable motion.
+- `"never"`: always allow motion.
+- `true`/`false`: aliases for `"always"`/`"never"`.
+
+To disable CSS transitions as well, set the transition variables in a media
+query:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .dnd-grid {
+    --dnd-grid-transition-duration: 0ms;
+  }
+}
+```
+
+## Animation config
+
+Use `animationConfig` to tune spring behavior and drag shadow timings:
+
+```tsx
+<DndGrid
+  animationConfig={{
+    springs: {
+      rotation: { stiffness: 120, damping: 12 },
+      scale: { stiffness: 600, damping: 35 },
+      position: { stiffness: 240, damping: 24 },
+    },
+    shadow: {
+      dragStartDuration: 160,
+      dragStopDuration: 120,
+    },
+  }}
+/>
+```
+
+Disable springs or shadow animations entirely:
+
+```tsx
+<DndGrid
+  animationConfig={{
+    springs: { enabled: false },
+    shadow: { enabled: false },
+  }}
+/>
+```

@@ -11,11 +11,18 @@ Common exports:
 import {
   DndGrid,
   useContainerWidth,
+  useDndGrid,
   useDndGridResponsiveLayout,
+  useDndGridItemState,
   useEdgeScroll,
   verticalCompactor,
   defaultConstraints,
+  layoutSchema,
+  layoutItemSchema,
+  validateLayout,
   type Compactor,
+  type GridDragEvent,
+  type GridResizeEvent,
   type LayoutConstraint,
   type Layout,
   type LayoutItem,
@@ -29,13 +36,19 @@ import {
 |-----------|-------------|
 | [`DndGrid`](/api-reference/dnd-grid) | Main grid layout component |
 
+Most apps should start with `DndGrid`. Use
+[`useDndGrid`](/hooks/use-dnd-grid) when you need a custom wrapper or want to
+control rendering.
+
 ## Hooks
 
 | Hook | Description |
 |------|-------------|
-| `useContainerWidth` | Measure container width with ResizeObserver |
-| `useDndGridResponsiveLayout` | Manage responsive breakpoints + layout state |
-| `useEdgeScroll` | Auto-scroll while dragging near scroll edges |
+| [`useContainerWidth`](/hooks/use-container-width) | Measure container width with ResizeObserver |
+| [`useDndGrid`](/hooks/use-dnd-grid) | Headless hook for building custom grid wrappers |
+| [`useDndGridResponsiveLayout`](/hooks/use-dnd-grid-responsive-layout) | Manage responsive breakpoints + layout state |
+| [`useDndGridItemState`](/hooks/use-dnd-grid-item-state) | Access item layout and interaction state |
+| [`useEdgeScroll`](/hooks/use-edge-scroll) | Auto-scroll while dragging near scroll edges |
 
 ## Types
 
@@ -46,6 +59,16 @@ import {
 | `ResponsiveLayouts` | Breakpoint → layout map |
 | `Compactor` | Pluggable compaction strategy |
 | `LayoutConstraint` | Drag/resize constraint definition |
+| `GridDragEvent` | Event object for drag callbacks |
+| `GridResizeEvent` | Event object for resize callbacks |
+
+## Runtime validation
+
+`layoutSchema`, `layoutItemSchema`, and `validateLayout` use Zod to validate
+layouts at runtime. `DndGrid` and `useDndGrid` also expose a `validation` prop
+(default: enabled in dev, disabled in production) to fail fast on bad layouts.
+Validation adds runtime work and bundle weight, so keep it off in hot paths if
+you do not need it.
 
 ## CSS classes
 

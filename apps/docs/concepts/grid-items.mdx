@@ -5,7 +5,7 @@ description: Working with grid items.
 
 ## Basic items
 
-Each child of `DndGrid` is a grid item. The child's `key` must match the layout `i`.
+Each child of `DndGrid` is a grid item. The child's `key` must match the layout `id`.
 
 ```tsx
 <DndGrid layout={layout}>
@@ -49,17 +49,17 @@ Use per-item fields to lock items, constrain size, or override grid settings.
 
 ```tsx
 const layout: Layout = [
-  { i: "header", x: 0, y: 0, w: 12, h: 1, static: true },
-  { i: "content", x: 0, y: 1, w: 8, h: 4, minW: 4, maxW: 10 },
+  { id: "header", x: 0, y: 0, w: 12, h: 1, static: true },
+  { id: "content", x: 0, y: 1, w: 8, h: 4, minW: 4, maxW: 10 },
   {
-    i: "custom",
+    id: "custom",
     x: 8,
     y: 1,
     w: 4,
     h: 4,
-    isDraggable: false,
-    isResizable: true,
-    isBounded: true,
+    draggable: false,
+    resizable: true,
+    bounded: true,
     resizeHandles: ["s", "e"],
   },
 ];

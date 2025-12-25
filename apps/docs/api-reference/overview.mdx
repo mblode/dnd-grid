@@ -9,8 +9,8 @@ Common exports:
 
 ```tsx
 import {
-  AutoWidthDndGrid,
   DndGrid,
+  FixedWidthDndGrid,
   GridItem,
   ResizeHandle,
   useContainerWidth,
@@ -45,8 +45,9 @@ import {
 Most apps should start with `DndGrid`. Use
 [`useDndGrid`](/hooks/use-dnd-grid) when you need a custom wrapper or want to
 control rendering.
+DndGrid measures its container width automatically.
 
-Also exported: `AutoWidthDndGrid` (auto-measures width), `GridItem`, and
+Also exported: `FixedWidthDndGrid` (explicit width), `GridItem`, and
 `ResizeHandle`.
 
 ## Hooks
@@ -106,7 +107,6 @@ Common classes you can target:
 ```tsx
 <DndGrid
   layout={layout}
-  width={1200}
   cols={12}
   rowHeight={150}
   onLayoutChange={(layout) => {}}

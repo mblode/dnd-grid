@@ -79,7 +79,7 @@ export const synchronizeLayoutWithChildren = <TData>(
         if (!missingLayoutItems.has(childKey)) {
           missingLayoutItems.add(childKey);
           console.warn(
-            `DndGrid: Missing layout item for child key "${childKey}". Add a layout entry with i: "${childKey}".`,
+            `DndGrid: Missing layout item for child key "${childKey}". Add a layout entry with id: "${childKey}".`,
           );
         }
       }
@@ -91,7 +91,7 @@ export const synchronizeLayoutWithChildren = <TData>(
           h: 1,
           x: 0,
           y: bottom(layout),
-          i: childKey,
+          id: childKey,
         }),
       );
     }
@@ -99,11 +99,11 @@ export const synchronizeLayoutWithChildren = <TData>(
   if (layoutSyncWarnings) {
     const { unusedLayoutItems } = layoutSyncWarnings;
     initial.forEach((item) => {
-      if (childKeys.has(item.i)) return;
-      if (unusedLayoutItems.has(item.i)) return;
-      unusedLayoutItems.add(item.i);
+      if (childKeys.has(item.id)) return;
+      if (unusedLayoutItems.has(item.id)) return;
+      unusedLayoutItems.add(item.id);
       console.warn(
-        `DndGrid: Layout item "${item.i}" has no matching child and will be ignored.`,
+        `DndGrid: Layout item "${item.id}" has no matching child and will be ignored.`,
       );
     });
   }

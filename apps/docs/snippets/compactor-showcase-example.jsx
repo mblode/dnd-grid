@@ -4,7 +4,7 @@ export function CompactorShowcaseExample() {
   return (
     <ExamplePlaceholder
       title="Compactor showcase"
-      description="Switch between vertical, horizontal, wrap, and none."
+      description="Switch between vertical, horizontal, and none."
     />
   );
 }

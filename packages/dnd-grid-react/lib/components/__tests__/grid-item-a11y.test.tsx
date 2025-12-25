@@ -39,16 +39,16 @@ vi.mock("react-resizable", () => ({
 
 const defaultProps = {
   children: <div data-testid="child">Content</div>,
-  layout: [{ i: "test-item", x: 0, y: 0, w: 2, h: 2 }],
+  layout: [{ id: "test-item", x: 0, y: 0, w: 2, h: 2 }],
   cols: 12,
   containerWidth: 1200,
-  margin: 10,
+  gap: 10,
   containerPadding: 10,
   rowHeight: 150,
   maxRows: Infinity,
-  isDraggable: true,
-  isResizable: true,
-  isBounded: false,
+  draggable: true,
+  resizable: true,
+  bounded: false,
   transformScale: 1,
   className: "",
   cancel: "",
@@ -62,7 +62,7 @@ const defaultProps = {
   maxW: 12,
   minH: 1,
   maxH: Infinity,
-  i: "test-item",
+  id: "test-item",
 };
 
 describe("GridItem A11y", () => {
@@ -142,8 +142,8 @@ describe("GridItem A11y", () => {
 
   it("exits pressed state on Escape", async () => {
     const user = userEvent.setup();
-    const onDragStop = vi.fn();
-    render(<GridItem {...defaultProps} onDragStop={onDragStop} />);
+    const onDragEnd = vi.fn();
+    render(<GridItem {...defaultProps} onDragEnd={onDragEnd} />);
     const item = screen.getByTestId("child");
 
     await user.tab();
@@ -152,7 +152,7 @@ describe("GridItem A11y", () => {
 
     await user.keyboard("{Escape}");
     expect(item).toHaveAttribute("aria-pressed", "false");
-    expect(onDragStop).toHaveBeenCalled();
+    expect(onDragEnd).toHaveBeenCalled();
   });
 
   it("triggers onDrag on ArrowRight when pressed", async () => {
@@ -177,7 +177,7 @@ describe("GridItem A11y", () => {
         {...defaultProps}
         onDrag={onDrag}
         x={1}
-        layout={[{ i: "test-item", x: 1, y: 0, w: 2, h: 2 }]}
+        layout={[{ id: "test-item", x: 1, y: 0, w: 2, h: 2 }]}
       />,
     );
 
@@ -212,7 +212,7 @@ describe("GridItem A11y", () => {
         {...defaultProps}
         onDrag={onDrag}
         y={1}
-        layout={[{ i: "test-item", x: 0, y: 1, w: 2, h: 2 }]}
+        layout={[{ id: "test-item", x: 0, y: 1, w: 2, h: 2 }]}
       />,
     );
 
@@ -243,26 +243,26 @@ describe("GridItem A11y", () => {
 
   it("commits resize on Space", async () => {
     const user = userEvent.setup();
-    const onResizeStop = vi.fn();
-    render(<GridItem {...defaultProps} onResizeStop={onResizeStop} />);
+    const onResizeEnd = vi.fn();
+    render(<GridItem {...defaultProps} onResizeEnd={onResizeEnd} />);
 
     await user.tab();
     await user.keyboard(" "); // Pick up
     await user.keyboard("{Shift>}{ArrowRight}{/Shift}");
     await user.keyboard(" "); // Drop
 
-    expect(onResizeStop).toHaveBeenCalled();
+    expect(onResizeEnd).toHaveBeenCalled();
   });
 
   it("cancels resize on Escape", async () => {
     const user = userEvent.setup();
     const onResize = vi.fn();
-    const onResizeStop = vi.fn();
+    const onResizeEnd = vi.fn();
     render(
       <GridItem
         {...defaultProps}
         onResize={onResize}
-        onResizeStop={onResizeStop}
+        onResizeEnd={onResizeEnd}
       />,
     );
 
@@ -271,7 +271,7 @@ describe("GridItem A11y", () => {
     await user.keyboard("{Shift>}{ArrowRight}{/Shift}");
     await user.keyboard("{Escape}");
 
-    expect(onResizeStop).toHaveBeenCalled();
+    expect(onResizeEnd).toHaveBeenCalled();
     const lastResizeEvent =
       onResize.mock.calls[onResize.mock.calls.length - 1][0];
     expect(lastResizeEvent.w).toBe(2);

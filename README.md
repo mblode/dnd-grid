@@ -45,14 +45,14 @@ import { DndGrid } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2 },
-  { i: "c", x: 4, y: 0, w: 2, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 2 },
+  { id: "b", x: 2, y: 0, w: 2, h: 2 },
+  { id: "c", x: 4, y: 0, w: 2, h: 2 },
 ];
 
 export default function App() {
   return (
-    <DndGrid layout={layout} cols={12} rowHeight={30} width={1200}>
+    <DndGrid layout={layout} cols={12} rowHeight={30}>
       <div key="a">A</div>
       <div key="b">B</div>
       <div key="c">C</div>
@@ -60,6 +60,8 @@ export default function App() {
   );
 }
 ```
+
+`DndGrid` measures its container width automatically and updates on resize.
 
 ## Controlled layout
 
@@ -70,7 +72,7 @@ import "@dnd-grid/react/styles.css";
 
 export default function App() {
   const [layout, setLayout] = useState([
-    { i: "a", x: 0, y: 0, w: 2, h: 2 },
+    { id: "a", x: 0, y: 0, w: 2, h: 2 },
   ]);
 
   return (
@@ -79,10 +81,25 @@ export default function App() {
       onLayoutChange={setLayout}
       cols={12}
       rowHeight={30}
-      width={1200}
     >
       <div key="a">A</div>
     </DndGrid>
+  );
+}
+```
+
+## Fixed width (when you already have it)
+
+If you already measure width (responsive layouts, SSR), pass it explicitly:
+
+```tsx
+import { FixedWidthDndGrid } from "@dnd-grid/react";
+
+export default function App() {
+  return (
+    <FixedWidthDndGrid layout={layout} cols={12} rowHeight={30} width={1200}>
+      <div key="a">A</div>
+    </FixedWidthDndGrid>
   );
 }
 ```
@@ -91,7 +108,7 @@ export default function App() {
 
 Each item in `layout` maps to a child by `key` and defines position + size:
 
-- `i` - Stable id, must match the child key
+- `id` - Stable id, must match the child key
 - `x`, `y` - Column and row position
 - `w`, `h` - Width and height in grid units
 
@@ -154,7 +171,7 @@ function Card() {
   const { item, state } = useDndGridItemState();
   return (
     <div className={state.dragging ? "is-dragging" : ""}>
-      {state.dragging ? "Moving..." : `Item ${item.i}`}
+      {state.dragging ? "Moving..." : `Item ${item.id}`}
     </div>
   );
 }

@@ -5,7 +5,7 @@ export function createLayoutItem(
   overrides: Partial<LayoutItem> = {},
 ): LayoutItem {
   return {
-    i: "test-item",
+    id: "test-item",
     x: 0,
     y: 0,
     w: 1,

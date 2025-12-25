@@ -13,11 +13,10 @@ const USAGE_COMPONENT_SNIPPET = `<DndGrid
   layout={layout}
   cols={12}
   rowHeight={50}
-  width={1200}
   onLayoutChange={setLayout}
 >
   {layout.map((item) => (
-    <div key={item.i}>{item.i}</div>
+    <div key={item.id}>{item.id}</div>
   ))}
 </DndGrid>`;
 

@@ -37,10 +37,10 @@ import { createLayoutItem } from "./test-utils";
 describe("utils", () => {
   describe("cloneLayoutItem", () => {
     it("creates a deep copy of layout item", () => {
-      const item = createLayoutItem({ i: "test", x: 1, y: 2, w: 3, h: 4 });
+      const item = createLayoutItem({ id: "test", x: 1, y: 2, w: 3, h: 4 });
       const cloned = cloneLayoutItem(item);
 
-      expect(cloned.i).toBe(item.i);
+      expect(cloned.id).toBe(item.id);
       expect(cloned.x).toBe(item.x);
       expect(cloned.y).toBe(item.y);
       expect(cloned.w).toBe(item.w);
@@ -55,9 +55,9 @@ describe("utils", () => {
         minH: 1,
         maxH: 5,
         static: true,
-        isDraggable: false,
-        isResizable: true,
-        isBounded: true,
+        draggable: false,
+        resizable: true,
+        bounded: true,
         resizeHandles: ["se", "ne"],
       });
       const cloned = cloneLayoutItem(item);
@@ -99,7 +99,7 @@ describe("utils", () => {
 
       expect(cloned.length).toBe(simpleLayout.length);
       cloned.forEach((item, i) => {
-        expect(item.i).toBe(simpleLayout[i].i);
+        expect(item.id).toBe(simpleLayout[i].id);
         expect(item.x).toBe(simpleLayout[i].x);
         expect(item.y).toBe(simpleLayout[i].y);
         expect(item.w).toBe(simpleLayout[i].w);
@@ -115,7 +115,7 @@ describe("utils", () => {
 
     it("preserves layout order", () => {
       const cloned = cloneLayout(complexLayout);
-      expect(cloned.map((l) => l.i)).toEqual(complexLayout.map((l) => l.i));
+      expect(cloned.map((l) => l.id)).toEqual(complexLayout.map((l) => l.id));
     });
   });
 
@@ -166,45 +166,45 @@ describe("utils", () => {
     });
 
     it("returns true for overlapping items", () => {
-      const l1 = createLayoutItem({ i: "a", x: 0, y: 0, w: 2, h: 2 });
-      const l2 = createLayoutItem({ i: "b", x: 1, y: 1, w: 2, h: 2 });
+      const l1 = createLayoutItem({ id: "a", x: 0, y: 0, w: 2, h: 2 });
+      const l2 = createLayoutItem({ id: "b", x: 1, y: 1, w: 2, h: 2 });
       expect(collides(l1, l2)).toBe(true);
     });
 
     it("returns false for adjacent items (right)", () => {
-      const l1 = createLayoutItem({ i: "a", x: 0, y: 0, w: 2, h: 2 });
-      const l2 = createLayoutItem({ i: "b", x: 2, y: 0, w: 2, h: 2 });
+      const l1 = createLayoutItem({ id: "a", x: 0, y: 0, w: 2, h: 2 });
+      const l2 = createLayoutItem({ id: "b", x: 2, y: 0, w: 2, h: 2 });
       expect(collides(l1, l2)).toBe(false);
     });
 
     it("returns false for adjacent items (below)", () => {
-      const l1 = createLayoutItem({ i: "a", x: 0, y: 0, w: 2, h: 2 });
-      const l2 = createLayoutItem({ i: "b", x: 0, y: 2, w: 2, h: 2 });
+      const l1 = createLayoutItem({ id: "a", x: 0, y: 0, w: 2, h: 2 });
+      const l2 = createLayoutItem({ id: "b", x: 0, y: 2, w: 2, h: 2 });
       expect(collides(l1, l2)).toBe(false);
     });
 
     it("returns false for items far apart", () => {
-      const l1 = createLayoutItem({ i: "a", x: 0, y: 0, w: 1, h: 1 });
-      const l2 = createLayoutItem({ i: "b", x: 10, y: 10, w: 1, h: 1 });
+      const l1 = createLayoutItem({ id: "a", x: 0, y: 0, w: 1, h: 1 });
+      const l2 = createLayoutItem({ id: "b", x: 10, y: 10, w: 1, h: 1 });
       expect(collides(l1, l2)).toBe(false);
     });
 
     it("detects partial overlap", () => {
-      const l1 = createLayoutItem({ i: "a", x: 0, y: 0, w: 3, h: 3 });
-      const l2 = createLayoutItem({ i: "b", x: 2, y: 2, w: 3, h: 3 });
+      const l1 = createLayoutItem({ id: "a", x: 0, y: 0, w: 3, h: 3 });
+      const l2 = createLayoutItem({ id: "b", x: 2, y: 2, w: 3, h: 3 });
       expect(collides(l1, l2)).toBe(true);
     });
   });
 
   describe("getFirstCollision", () => {
     it("returns first colliding item", () => {
-      const item = createLayoutItem({ i: "test", x: 0, y: 0, w: 3, h: 3 });
+      const item = createLayoutItem({ id: "test", x: 0, y: 0, w: 3, h: 3 });
       const collision = getFirstCollision(simpleLayout, item);
-      expect(collision?.i).toBe("a");
+      expect(collision?.id).toBe("a");
     });
 
     it("returns undefined when no collision", () => {
-      const item = createLayoutItem({ i: "test", x: 10, y: 10, w: 1, h: 1 });
+      const item = createLayoutItem({ id: "test", x: 10, y: 10, w: 1, h: 1 });
       const collision = getFirstCollision(simpleLayout, item);
       expect(collision).toBeUndefined();
     });
@@ -218,13 +218,13 @@ describe("utils", () => {
 
   describe("getAllCollisions", () => {
     it("returns all colliding items", () => {
-      const item = createLayoutItem({ i: "test", x: 1, y: 0, w: 3, h: 3 });
+      const item = createLayoutItem({ id: "test", x: 1, y: 0, w: 3, h: 3 });
       const collisions = getAllCollisions(simpleLayout, item);
       expect(collisions.length).toBe(2);
     });
 
     it("returns empty array when no collisions", () => {
-      const item = createLayoutItem({ i: "test", x: 10, y: 10, w: 1, h: 1 });
+      const item = createLayoutItem({ id: "test", x: 10, y: 10, w: 1, h: 1 });
       expect(getAllCollisions(simpleLayout, item)).toEqual([]);
     });
 
@@ -246,7 +246,7 @@ describe("utils", () => {
     it("handles items at different positions", () => {
       const layout = [
         createLayoutItem({ y: 0, h: 2 }),
-        createLayoutItem({ i: "b", y: 5, h: 3 }),
+        createLayoutItem({ id: "b", y: 5, h: 3 }),
       ];
       expect(bottom(layout)).toBe(8);
     });
@@ -270,23 +270,25 @@ describe("utils", () => {
     it("respects static items", () => {
       const layout = [
         createLayoutItem({
-          i: "static",
+          id: "static",
           x: 0,
           y: 0,
           w: 2,
           h: 2,
           static: true,
         }),
-        createLayoutItem({ i: "dynamic", x: 0, y: 5, w: 2, h: 2 }),
+        createLayoutItem({ id: "dynamic", x: 0, y: 5, w: 2, h: 2 }),
       ];
       const compacted = verticalCompactor.compact(layout, 12);
-      expect(compacted.find((i) => i.i === "dynamic")?.y).toBe(2);
+      expect(compacted.find((i) => i.id === "dynamic")?.y).toBe(2);
     });
 
     it("skips compaction when overlap is allowed", () => {
       const compacted = verticalOverlapCompactor.compact(collidingLayout, 12);
-      expect(compacted.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }))).toEqual(
-        collidingLayout.map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
+      expect(
+        compacted.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })),
+      ).toEqual(
+        collidingLayout.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })),
       );
     });
 
@@ -297,9 +299,9 @@ describe("utils", () => {
 
     it("preserves positions with no compaction", () => {
       const compacted = noCompactor.compact(gappyLayout, 12);
-      expect(compacted.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }))).toEqual(
-        gappyLayout.map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
-      );
+      expect(
+        compacted.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })),
+      ).toEqual(gappyLayout.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })));
     });
   });
 
@@ -327,7 +329,7 @@ describe("utils", () => {
     it("handles static item collisions", () => {
       const layout = [
         createLayoutItem({
-          i: "static1",
+          id: "static1",
           x: 0,
           y: 0,
           w: 2,
@@ -335,7 +337,7 @@ describe("utils", () => {
           static: true,
         }),
         createLayoutItem({
-          i: "static2",
+          id: "static2",
           x: 0,
           y: 0,
           w: 2,
@@ -393,11 +395,11 @@ describe("utils", () => {
         verticalCompactor,
         12,
       );
-      expect(newLayout.find((item) => item.i === "a")?.x).toBe(5);
-      expect(newLayout.find((item) => item.i === "a")?.y).toBe(5);
+      expect(newLayout.find((item) => item.id === "a")?.x).toBe(5);
+      expect(newLayout.find((item) => item.id === "a")?.y).toBe(5);
     });
 
-    it("does not move static items without isDraggable", () => {
+    it("does not move static items without draggable", () => {
       const layout = cloneLayout(layoutWithStatic);
       const staticItem = layout[0];
       const newLayout = moveElement(
@@ -455,7 +457,7 @@ describe("utils", () => {
         verticalOverlapCompactor,
         12,
       );
-      expect(newLayout.find((item) => item.i === "b")?.x).toBe(0);
+      expect(newLayout.find((item) => item.id === "b")?.x).toBe(0);
     });
   });
 
@@ -489,14 +491,14 @@ describe("utils", () => {
     it("moves user-action collisions down from the current item position", () => {
       const layout = [
         createLayoutItem({
-          i: "static",
+          id: "static",
           x: 0,
           y: 0,
           w: 2,
           h: 2,
           static: true,
         }),
-        createLayoutItem({ i: "moving", x: 0, y: 1, w: 2, h: 2 }),
+        createLayoutItem({ id: "moving", x: 0, y: 1, w: 2, h: 2 }),
       ];
       const newLayout = moveElementAwayFromCollision(
         layout,
@@ -506,34 +508,34 @@ describe("utils", () => {
         verticalCompactor,
         12,
       );
-      expect(newLayout.find((item) => item.i === "moving")?.y).toBe(2);
+      expect(newLayout.find((item) => item.id === "moving")?.y).toBe(2);
     });
   });
 
   describe("sortLayoutItemsByRowCol", () => {
     it("sorts by row then column", () => {
       const layout = [
-        createLayoutItem({ i: "c", x: 2, y: 1 }),
-        createLayoutItem({ i: "a", x: 0, y: 0 }),
-        createLayoutItem({ i: "b", x: 1, y: 0 }),
+        createLayoutItem({ id: "c", x: 2, y: 1 }),
+        createLayoutItem({ id: "a", x: 0, y: 0 }),
+        createLayoutItem({ id: "b", x: 1, y: 0 }),
       ];
       const sorted = sortLayoutItemsByRowCol(layout);
-      expect(sorted.map((l) => l.i)).toEqual(["a", "b", "c"]);
+      expect(sorted.map((l) => l.id)).toEqual(["a", "b", "c"]);
     });
 
     it("does not mutate original array", () => {
       const layout = [
-        createLayoutItem({ i: "b", x: 1, y: 0 }),
-        createLayoutItem({ i: "a", x: 0, y: 0 }),
+        createLayoutItem({ id: "b", x: 1, y: 0 }),
+        createLayoutItem({ id: "a", x: 0, y: 0 }),
       ];
       sortLayoutItemsByRowCol(layout);
-      expect(layout[0].i).toBe("b");
+      expect(layout[0].id).toBe("b");
     });
 
     it("handles items at same position", () => {
       const layout = [
-        createLayoutItem({ i: "b", x: 0, y: 0 }),
-        createLayoutItem({ i: "a", x: 0, y: 0 }),
+        createLayoutItem({ id: "b", x: 0, y: 0 }),
+        createLayoutItem({ id: "a", x: 0, y: 0 }),
       ];
       const sorted = sortLayoutItemsByRowCol(layout);
       expect(sorted.length).toBe(2);
@@ -543,32 +545,32 @@ describe("utils", () => {
   describe("sortLayoutItemsByColRow", () => {
     it("sorts by column then row", () => {
       const layout = [
-        createLayoutItem({ i: "c", x: 1, y: 1 }),
-        createLayoutItem({ i: "a", x: 0, y: 1 }),
-        createLayoutItem({ i: "b", x: 0, y: 0 }),
+        createLayoutItem({ id: "c", x: 1, y: 1 }),
+        createLayoutItem({ id: "a", x: 0, y: 1 }),
+        createLayoutItem({ id: "b", x: 0, y: 0 }),
       ];
       const sorted = sortLayoutItemsByColRow(layout);
-      expect(sorted.map((l) => l.i)).toEqual(["b", "a", "c"]);
+      expect(sorted.map((l) => l.id)).toEqual(["b", "a", "c"]);
     });
   });
 
   describe("sortLayoutItems", () => {
     it("uses row-col for vertical compact", () => {
       const layout = [
-        createLayoutItem({ i: "b", x: 1, y: 0 }),
-        createLayoutItem({ i: "a", x: 0, y: 0 }),
+        createLayoutItem({ id: "b", x: 1, y: 0 }),
+        createLayoutItem({ id: "a", x: 0, y: 0 }),
       ];
       const sorted = sortLayoutItems(layout, verticalCompactor);
-      expect(sorted[0].i).toBe("a");
+      expect(sorted[0].id).toBe("a");
     });
 
     it("uses col-row for horizontal compact", () => {
       const layout = [
-        createLayoutItem({ i: "b", x: 0, y: 1 }),
-        createLayoutItem({ i: "a", x: 0, y: 0 }),
+        createLayoutItem({ id: "b", x: 0, y: 1 }),
+        createLayoutItem({ id: "a", x: 0, y: 0 }),
       ];
       const sorted = sortLayoutItems(layout, horizontalCompactor);
-      expect(sorted[0].i).toBe("a");
+      expect(sorted[0].id).toBe("a");
     });
 
     it("returns original for no compaction", () => {

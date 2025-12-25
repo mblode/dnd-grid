@@ -3,8 +3,9 @@ title: SSR
 description: Server rendering and hydration tips.
 ---
 
-`dnd-grid` is safe to render on the server, but it needs a width on the client.
-Use the patterns below to avoid layout jumps and hydration warnings.
+`dnd-grid` is safe to render on the server. `DndGrid` measures its container
+width on the client, so use the patterns below to avoid layout jumps and
+hydration warnings.
 
 ## Use a client component
 
@@ -17,26 +18,33 @@ render it in a client component:
 import { DndGrid } from "@dnd-grid/react";
 ```
 
-## Measure width after mount
+## Auto width (default)
+
+`DndGrid` waits for its first measurement by default. If you want to render
+immediately, pass `measureBeforeMount={false}` and an `initialWidth`.
 
 ```tsx
-import { useContainerWidth } from "@dnd-grid/react";
-
-const { width, containerRef, mounted } = useContainerWidth({
-  measureBeforeMount: true,
-  initialWidth: 800,
-});
+import { DndGrid } from "@dnd-grid/react";
 
 return (
-  <div ref={containerRef}>
-    {mounted && width > 0 && <DndGrid width={width} {...props} />}
-  </div>
+  <DndGrid
+    {...props}
+    measureBeforeMount={false}
+    initialWidth={800}
+  />
 );
 ```
 
-## Prefer AutoWidthDndGrid when possible
+## Fixed width (known ahead of time)
 
-`AutoWidthDndGrid` wraps the same logic and avoids wiring the hook yourself.
+If you already have a width (layout shells, SSR constraints), use the fixed
+width component:
+
+```tsx
+import { FixedWidthDndGrid } from "@dnd-grid/react";
+
+return <FixedWidthDndGrid width={800} {...props} />;
+```
 
 ## Keep styles global
 

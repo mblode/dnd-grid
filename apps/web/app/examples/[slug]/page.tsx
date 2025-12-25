@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { examples, examplesBySlug } from "@/examples/manifest";
+import { cn } from "@/lib/utils";
 
 const siteUrl = "https://dnd-grid.com";
 
@@ -68,16 +69,10 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
     example.slug,
   )}`;
   const githubUrl = `https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-${example.slug}.tsx`;
-  const frame = (
-    <div className="overflow-x-auto">
-      <div className="p-2">
-        <Component />
-      </div>
-    </div>
-  );
+  const frame = <Component />;
 
   return (
-    <main className={isEmbed ? "p-2" : "py-8"}>
+    <main className={cn({ "py-8": !isEmbed })}>
       {!isEmbed && (
         <div className="container-wrapper">
           <div className="mb-8 space-y-3">
@@ -105,15 +100,7 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
         </div>
       )}
 
-      <div className={isEmbed ? "" : "container-wrapper"}>
-        {isEmbed ? (
-          frame
-        ) : (
-          <div className="rounded-2xl border border-border bg-card/80 shadow-sm">
-            {frame}
-          </div>
-        )}
-      </div>
+      <div className={cn({ "container-wrapper": !isEmbed })}>{frame}</div>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AutoWidthDndGrid,
+  DndGrid,
   defaultConstraints,
   type Layout,
   type LayoutConstraint,
@@ -23,9 +23,9 @@ const gridConstraints: LayoutConstraint[] = [
 ];
 
 const initialLayout: Layout = [
-  { i: "snap", x: 0, y: 0, w: 3, h: 2 },
+  { id: "snap", x: 0, y: 0, w: 3, h: 2 },
   {
-    i: "limits",
+    id: "limits",
     x: 3,
     y: 0,
     w: 3,
@@ -36,7 +36,7 @@ const initialLayout: Layout = [
     maxH: 4,
   },
   {
-    i: "band",
+    id: "band",
     x: 6,
     y: 0,
     w: 3,
@@ -49,7 +49,7 @@ export function ConstraintsExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
-    <AutoWidthDndGrid
+    <DndGrid
       layout={layout}
       cols={12}
       rowHeight={50}
@@ -57,10 +57,10 @@ export function ConstraintsExample() {
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (
-        <div key={item.i} className="grid-item">
-          {item.i}
+        <div key={item.id} className="grid-item">
+          {item.id}
         </div>
       ))}
-    </AutoWidthDndGrid>
+    </DndGrid>
   );
 }

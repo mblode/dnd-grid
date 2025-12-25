@@ -12,6 +12,7 @@ import { DndGrid } from "@dnd-grid/react";
 <Note>
   Need a headless wrapper? Use [`useDndGrid`](/hooks/use-dnd-grid) to build your
   own container while keeping the same drag/resize behavior.
+  If you already have a measured width, use `FixedWidthDndGrid`.
 </Note>
 
 ## Props
@@ -23,12 +24,22 @@ import { DndGrid } from "@dnd-grid/react";
   from children (with a dev warning).
 </ResponseField>
 
-<ResponseField name="width" type="number" required>
-  Grid width in pixels.
+<ResponseField name="children" type="ReactNode" required>
+  Grid items; each child `key` must match a layout `id`.
 </ResponseField>
 
-<ResponseField name="children" type="ReactNode" required>
-  Grid items; each child `key` must match a layout `i`.
+### Measurement
+
+<ResponseField name="measureBeforeMount" type="boolean" default="true">
+  Delay rendering until the container width is measured.
+</ResponseField>
+
+<ResponseField name="initialWidth" type="number" default="1280">
+  Width used before measurement when rendering early.
+</ResponseField>
+
+<ResponseField name="containerProps" type="HTMLAttributes<HTMLDivElement>">
+  Props applied to the measurement wrapper.
 </ResponseField>
 
 ### Grid configuration
@@ -42,7 +53,7 @@ import { DndGrid } from "@dnd-grid/react";
 </ResponseField>
 
 <ResponseField
-  name="margin"
+  name="gap"
   type="number | { top: number; right: number; bottom: number; left: number }"
   default="10"
 >
@@ -55,7 +66,7 @@ import { DndGrid } from "@dnd-grid/react";
   default="null"
 >
   Container padding. Use a number or `{ top, right, bottom, left }`. If null,
-  uses the margin value.
+  uses the gap value.
 </ResponseField>
 
 <ResponseField name="autoSize" type="boolean" default="true">
@@ -68,11 +79,11 @@ import { DndGrid } from "@dnd-grid/react";
 
 ### Behaviour
 
-<ResponseField name="isDraggable" type="boolean" default="true">
+<ResponseField name="draggable" type="boolean" default="true">
   Enable dragging for all items. Can be overridden per item.
 </ResponseField>
 
-<ResponseField name="isResizable" type="boolean" default="true">
+<ResponseField name="resizable" type="boolean" default="true">
   Enable resizing for all items. Can be overridden per item.
 </ResponseField>
 
@@ -84,7 +95,7 @@ import { DndGrid } from "@dnd-grid/react";
   Auto-scroll near scroll edges. Use `true` for defaults or pass options.
 </ResponseField>
 
-<ResponseField name="isBounded" type="boolean" default="false">
+<ResponseField name="bounded" type="boolean" default="false">
   Keep items within bounds during drag.
 </ResponseField>
 
@@ -201,9 +212,9 @@ Drop behavior is enabled when you provide `onDrop` or `onDropDragOver`.
 | `onLayoutChange` | Fires when the layout changes. |
 | `onDragStart` | Fires when dragging starts. |
 | `onDrag` | Fires while dragging. |
-| `onDragStop` | Fires when dragging stops. |
+| `onDragEnd` | Fires when dragging ends. |
 | `onResizeStart` | Fires when resizing starts. |
 | `onResize` | Fires while resizing. |
-| `onResizeStop` | Fires when resizing stops. |
+| `onResizeEnd` | Fires when resizing ends. |
 | `onDrop` | Fires when an external item is dropped. |
 | `onDropDragOver` | Fires when an external item is dragged over the grid. |

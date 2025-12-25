@@ -44,9 +44,9 @@ const topBand: LayoutConstraint = {
 };
 
 const layout: Layout = [
-  { i: "snap", x: 0, y: 0, w: 4, h: 2 },
-  { i: "ratio", x: 4, y: 0, w: 4, h: 2 },
-  { i: "band", x: 8, y: 0, w: 4, h: 2, constraints: [topBand] },
+  { id: "snap", x: 0, y: 0, w: 4, h: 2 },
+  { id: "ratio", x: 4, y: 0, w: 4, h: 2 },
+  { id: "band", x: 8, y: 0, w: 4, h: 2, constraints: [topBand] },
 ];
 
 const constraints = [
@@ -62,12 +62,11 @@ export function ConstraintGrid() {
       layout={currentLayout}
       cols={12}
       rowHeight={40}
-      width={960}
       constraints={constraints}
       onLayoutChange={setLayout}
     >
       {currentLayout.map((item) => (
-        <div key={item.i}>{item.i}</div>
+        <div key={item.id}>{item.id}</div>
       ))}
     </DndGrid>
   );

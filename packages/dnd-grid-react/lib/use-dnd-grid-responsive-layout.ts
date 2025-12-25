@@ -38,7 +38,7 @@ export type UseDndGridResponsiveLayoutOptions<
   cols?: BreakpointCols<B>;
   layouts?: ResponsiveLayouts<B, TData>;
   defaultLayouts?: ResponsiveLayouts<B, TData>;
-  margin?: ResponsiveSpacing<B>;
+  gap?: ResponsiveSpacing<B>;
   containerPadding?: ResponsiveSpacing<B> | null;
   compactor?: Compactor<TData>;
   missingLayoutStrategy?: MissingLayoutStrategy;
@@ -50,7 +50,7 @@ export type UseDndGridResponsiveLayoutOptions<
   ) => void;
   onWidthChange?: (
     width: number,
-    margin: Spacing,
+    gap: Spacing,
     cols: number,
     containerPadding: Spacing | null,
   ) => void;
@@ -64,12 +64,12 @@ export type UseDndGridResponsiveLayoutResult<
   layouts: ResponsiveLayouts<B, TData>;
   breakpoint: B;
   cols: number;
-  margin: Spacing;
+  gap: Spacing;
   containerPadding: Spacing | null;
   gridProps: {
     layout: Layout<TData>;
     cols: number;
-    margin: Spacing;
+    gap: Spacing;
     containerPadding: Spacing | null;
   };
   setLayoutForBreakpoint: (breakpoint: B, layout: Layout<TData>) => void;
@@ -103,7 +103,7 @@ export const useDndGridResponsiveLayout = <
     cols: colsConfig = DEFAULT_COLS as unknown as BreakpointCols<B>,
     layouts: propsLayouts,
     defaultLayouts,
-    margin: marginProp = 10,
+    gap: gapProp = 10,
     containerPadding: containerPaddingProp = null,
     compactor: compactorProp,
     missingLayoutStrategy = isDevelopment ? "warn" : "derive",
@@ -140,9 +140,9 @@ export const useDndGridResponsiveLayout = <
   const prevColsRef = useRef(colsConfig);
   const warnedBreakpointsRef = useRef(new Set<B>());
 
-  const margin = useMemo(
-    () => resolveResponsiveSpacing(marginProp, breakpoint),
-    [marginProp, breakpoint],
+  const gap = useMemo(
+    () => resolveResponsiveSpacing(gapProp, breakpoint),
+    [gapProp, breakpoint],
   );
   const containerPadding = useMemo(() => {
     if (containerPaddingProp === null) return null;
@@ -193,13 +193,13 @@ export const useDndGridResponsiveLayout = <
 
     const nextBreakpoint = getBreakpointFromWidth(breakpoints, width);
     const nextCols = getColsFromBreakpoint(nextBreakpoint, colsConfig);
-    const nextMargin = resolveResponsiveSpacing(marginProp, nextBreakpoint);
+    const nextGap = resolveResponsiveSpacing(gapProp, nextBreakpoint);
     const nextContainerPadding =
       containerPaddingProp === null
         ? null
         : resolveResponsiveSpacing(containerPaddingProp, nextBreakpoint);
 
-    onWidthChange?.(width, nextMargin, nextCols, nextContainerPadding);
+    onWidthChange?.(width, nextGap, nextCols, nextContainerPadding);
 
     if (nextBreakpoint !== breakpoint || breakpointsChanged || colsChanged) {
       const nextLayouts = cloneLayouts(layouts);
@@ -246,7 +246,7 @@ export const useDndGridResponsiveLayout = <
     layouts,
     layout,
     compactor,
-    marginProp,
+    gapProp,
     containerPaddingProp,
     missingLayoutStrategy,
     onBreakpointChange,
@@ -324,10 +324,10 @@ export const useDndGridResponsiveLayout = <
     () => ({
       layout,
       cols,
-      margin,
+      gap,
       containerPadding,
     }),
-    [layout, cols, margin, containerPadding],
+    [layout, cols, gap, containerPadding],
   );
 
   return {
@@ -335,7 +335,7 @@ export const useDndGridResponsiveLayout = <
     layouts,
     breakpoint,
     cols,
-    margin,
+    gap,
     containerPadding,
     gridProps,
     setLayoutForBreakpoint,

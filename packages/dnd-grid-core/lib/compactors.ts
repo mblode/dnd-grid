@@ -28,7 +28,7 @@ export function resolveCompactionCollision<TData>(
 
   (item as Mutable<LayoutItem<TData>>)[axis] += 1;
 
-  const itemIndex = layout.findIndex((l) => l.i === item.i);
+  const itemIndex = layout.findIndex((l) => l.id === item.id);
   const layoutHasStatics = hasStatics ?? getStatics(layout).length > 0;
 
   for (let i = itemIndex + 1; i < layout.length; i++) {

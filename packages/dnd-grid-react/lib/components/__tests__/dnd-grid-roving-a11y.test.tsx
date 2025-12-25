@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { DndGrid } from "../dnd-grid";
+import { FixedWidthDndGrid as DndGrid } from "../fixed-width-dnd-grid";
 
 vi.mock("react-draggable", () => ({
   DraggableCore: ({ children }: { children: React.ReactElement }) => children,
@@ -16,7 +16,7 @@ const baseProps = {
   width: 1200,
   cols: 12,
   rowHeight: 150,
-  margin: 10,
+  gap: 10,
 };
 
 describe("DndGrid roving tabindex", () => {
@@ -25,8 +25,8 @@ describe("DndGrid roving tabindex", () => {
       <DndGrid
         {...baseProps}
         layout={[
-          { i: "a", x: 0, y: 1, w: 2, h: 2 },
-          { i: "b", x: 0, y: 0, w: 2, h: 2 },
+          { id: "a", x: 0, y: 1, w: 2, h: 2 },
+          { id: "b", x: 0, y: 0, w: 2, h: 2 },
         ]}
       >
         <div key="a" data-testid="item-a">
@@ -51,8 +51,8 @@ describe("DndGrid roving tabindex", () => {
       <DndGrid
         {...baseProps}
         layout={[
-          { i: "a", x: 0, y: 0, w: 2, h: 2 },
-          { i: "b", x: 2, y: 0, w: 2, h: 2 },
+          { id: "a", x: 0, y: 0, w: 2, h: 2 },
+          { id: "b", x: 2, y: 0, w: 2, h: 2 },
         ]}
       >
         <div key="a" data-testid="item-a">

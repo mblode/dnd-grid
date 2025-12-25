@@ -14,7 +14,7 @@ import {
   type DraggableEvent,
   type DraggableEventHandler,
 } from "react-draggable";
-import { Resizable } from "react-resizable";
+import { Resizable, type ResizableProps } from "react-resizable";
 import { resolveAnimationConfig } from "../animation-config";
 import {
   calcGridColWidth,
@@ -154,13 +154,13 @@ type Props<TData = unknown> = {
   constraints?: LayoutConstraint<TData>[];
   cols: number;
   containerWidth: number;
-  margin: Spacing;
+  gap: Spacing;
   containerPadding: Spacing;
   rowHeight: number;
   maxRows: number;
-  isDraggable: boolean;
-  isResizable: boolean;
-  isBounded: boolean;
+  draggable: boolean;
+  resizable: boolean;
+  bounded: boolean;
   static?: boolean;
   transformScale: number;
   reducedMotion?: ReducedMotionSetting | boolean;
@@ -181,16 +181,16 @@ type Props<TData = unknown> = {
   maxW: number;
   minH: number;
   maxH: number;
-  i: string;
+  id: string;
   resizeHandles?: ResizeHandleAxis[];
   resizeHandle?: ResizeHandle;
   onDrag?: GridItemCallback<GridItemDragEvent>;
   onDragStart?: GridItemCallback<GridItemDragEvent>;
-  onDragStop?: GridItemCallback<GridItemDragEvent>;
+  onDragEnd?: GridItemCallback<GridItemDragEvent>;
   onResize?: GridItemCallback<GridItemResizeEvent>;
   onResizeStart?: GridItemCallback<GridItemResizeEvent>;
-  onResizeStop?: GridItemCallback<GridItemResizeEvent>;
-  onSettleComplete?: (i: string) => void;
+  onResizeEnd?: GridItemCallback<GridItemResizeEvent>;
+  onSettleComplete?: (id: string) => void;
   tabIndex?: number;
   ariaRowIndex?: number;
   ariaColIndex?: number;
@@ -234,6 +234,19 @@ type ResizeHandleElement = ReactElement<
     }
 >;
 
+type ResizableWithResizeEndProps = Omit<ResizableProps, "onResizeStop"> & {
+  onResizeEnd?: ResizableProps["onResizeStop"];
+  width: number;
+  height: number;
+};
+
+const ResizableWithResizeEnd = ({
+  onResizeEnd,
+  ...props
+}: ResizableWithResizeEndProps) => {
+  return <Resizable {...props} onResizeStop={onResizeEnd} />;
+};
+
 type GridItemHandle = {
   state: State;
   setState: (
@@ -245,16 +258,16 @@ type GridItemHandle = {
   createStyle: (pos: Position) => Record<string, string | null | undefined>;
   onDragStart: DraggableEventHandler;
   onDrag: DraggableEventHandler;
-  onDragStop: DraggableEventHandler;
+  onDragEnd: DraggableEventHandler;
   handleTouchMove: (e: Event) => void;
   onResizeStart: GridItemResizeCallback;
   onResize: GridItemResizeCallback;
-  onResizeStop: GridItemResizeCallback;
+  onResizeEnd: GridItemResizeCallback;
   onResizeHandler: (
     e: Event,
     data: ResizeCallbackData,
     position: Position,
-    handlerName: "onResize" | "onResizeStart" | "onResizeStop",
+    handlerName: "onResize" | "onResizeStart" | "onResizeEnd",
   ) => void;
   startDragDelayTimeout: (e: Event) => void;
   resetDelayTimeout: () => void;
@@ -392,7 +405,7 @@ const GridItem = React.forwardRef(
 
     const getPositionParams = React.useCallback(
       (currentProps: Props<TData> = propsRef.current): PositionParams => {
-        const margin = normalizeSpacing(currentProps.margin);
+        const gap = normalizeSpacing(currentProps.gap);
         const containerPadding = normalizeSpacing(
           currentProps.containerPadding,
         );
@@ -400,7 +413,7 @@ const GridItem = React.forwardRef(
           cols: currentProps.cols,
           containerPadding,
           containerWidth: currentProps.containerWidth,
-          margin,
+          gap,
           maxRows: currentProps.maxRows,
           rowHeight: currentProps.rowHeight,
         };
@@ -412,7 +425,7 @@ const GridItem = React.forwardRef(
       (node?: HTMLElement | null): ConstraintContext<TData> => {
         const { cols, maxRows, containerWidth, rowHeight, layout } =
           propsRef.current;
-        const margin = normalizeSpacing(propsRef.current.margin);
+        const gap = normalizeSpacing(propsRef.current.gap);
         const containerPadding = normalizeSpacing(
           propsRef.current.containerPadding,
         );
@@ -423,7 +436,7 @@ const GridItem = React.forwardRef(
           containerWidth,
           containerHeight: container ? container.clientHeight : 0,
           rowHeight,
-          margin,
+          gap,
           containerPadding,
           layout,
         };
@@ -434,7 +447,7 @@ const GridItem = React.forwardRef(
     const getConstraintItem = React.useCallback((): LayoutItem<TData> => {
       const {
         layout,
-        i,
+        id,
         x,
         y,
         w,
@@ -444,14 +457,14 @@ const GridItem = React.forwardRef(
         maxW,
         maxH,
         static: isStatic,
-        isDraggable,
-        isResizable,
+        draggable,
+        resizable,
         resizeHandles,
-        isBounded,
+        bounded,
       } = propsRef.current;
-      const data = layout.find((item) => item.i === i)?.data;
+      const data = layout.find((item) => item.id === id)?.data;
       return {
-        i,
+        id,
         x,
         y,
         w,
@@ -461,12 +474,12 @@ const GridItem = React.forwardRef(
         maxW,
         maxH,
         data,
-        constraints: layout.find((item) => item.i === i)?.constraints,
+        constraints: layout.find((item) => item.id === id)?.constraints,
         static: isStatic,
-        isDraggable,
-        isResizable,
+        draggable,
+        resizable,
         resizeHandles,
-        isBounded,
+        bounded,
       };
     }, []);
 
@@ -729,7 +742,7 @@ const GridItem = React.forwardRef(
             springAnimationFrameRef.current = null;
 
             if (wasSettling && propsRef.current.onSettleComplete) {
-              propsRef.current.onSettleComplete(propsRef.current.i);
+              propsRef.current.onSettleComplete(propsRef.current.id);
             }
             return;
           }
@@ -777,7 +790,7 @@ const GridItem = React.forwardRef(
 
           // Notify parent that settling animation is complete
           if (wasSettling && propsRef.current.onSettleComplete) {
-            propsRef.current.onSettleComplete(propsRef.current.i);
+            propsRef.current.onSettleComplete(propsRef.current.id);
           }
         }
       };
@@ -954,7 +967,7 @@ const GridItem = React.forwardRef(
             getConstraintContext(node),
           );
           return onDragStart.call(handleRef.current, {
-            id: propsRef.current.i,
+            id: propsRef.current.id,
             x,
             y,
             event: e as Event,
@@ -1032,24 +1045,24 @@ const GridItem = React.forwardRef(
         // INVERTED: drag right = tilt left (negative rotation) due to inertia
         const targetRotation = velocityToRotation(velocity.x);
 
-        const { isBounded, w, h, containerWidth } = propsRef.current;
+        const { bounded, w, h, containerWidth } = propsRef.current;
         const positionParams = getPositionParams();
 
         // Boundary calculations; keeps items within the grid
-        if (isBounded) {
+        if (bounded) {
           const { offsetParent } = node;
           const container = getGridContainer(node) || offsetParent;
 
           if (container) {
             const { rowHeight } = propsRef.current;
-            const margin = normalizeSpacing(propsRef.current.margin);
+            const gap = normalizeSpacing(propsRef.current.gap);
             const bottomBoundary =
               (container as HTMLElement).clientHeight -
-              calcGridItemWHPx(h, rowHeight, margin[0]);
+              calcGridItemWHPx(h, rowHeight, gap[0]);
             top = clamp(top, 0, bottomBoundary);
             const colWidth = calcGridColWidth(positionParams);
             const rightBoundary =
-              containerWidth - calcGridItemWHPx(w, colWidth, margin[1]);
+              containerWidth - calcGridItemWHPx(w, colWidth, gap[1]);
             left = clamp(left, 0, rightBoundary);
           }
         }
@@ -1077,7 +1090,7 @@ const GridItem = React.forwardRef(
           getConstraintContext(node),
         );
         return onDrag.call(handleRef.current, {
-          id: propsRef.current.i,
+          id: propsRef.current.id,
           x,
           y,
           event: e as Event,
@@ -1097,15 +1110,15 @@ const GridItem = React.forwardRef(
     );
 
     /**
-     * onDragStop event handler
+     * onDragEnd event handler
      */
-    const onDragStop: DraggableEventHandler = React.useCallback(
+    const onDragEnd: DraggableEventHandler = React.useCallback(
       (e, { node }) => {
         resetDelayTimeout();
-        const { onDragStop } = propsRef.current;
+        const { onDragEnd } = propsRef.current;
 
         const dragPosition = dragPositionRef.current;
-        // Guard against onDragStop being called before onDragStart
+        // Guard against onDragEnd being called before onDragStart
         if (!dragPosition) {
           return;
         }
@@ -1145,7 +1158,7 @@ const GridItem = React.forwardRef(
             }
           }
 
-          if (onDragStop) {
+          if (onDragEnd) {
             const constraints = resolveConstraints(
               propsRef.current.constraints,
             );
@@ -1157,8 +1170,8 @@ const GridItem = React.forwardRef(
               rawPos.y,
               getConstraintContext(node),
             );
-            onDragStop.call(handleRef.current, {
-              id: propsRef.current.i,
+            onDragEnd.call(handleRef.current, {
+              id: propsRef.current.id,
               x: gridPos.x,
               y: gridPos.y,
               event: e as Event,
@@ -1171,7 +1184,7 @@ const GridItem = React.forwardRef(
             });
           }
 
-          propsRef.current.onSettleComplete?.(propsRef.current.i);
+          propsRef.current.onSettleComplete?.(propsRef.current.id);
           return;
         }
 
@@ -1243,7 +1256,7 @@ const GridItem = React.forwardRef(
           }
         }
 
-        if (onDragStop) {
+        if (onDragEnd) {
           const constraints = resolveConstraints(propsRef.current.constraints);
           const rawPos = calcXYRaw(getPositionParams(), top, left);
           const gridPos = applyPositionConstraints(
@@ -1253,8 +1266,8 @@ const GridItem = React.forwardRef(
             rawPos.y,
             getConstraintContext(node),
           );
-          onDragStop.call(handleRef.current, {
-            id: propsRef.current.i,
+          onDragEnd.call(handleRef.current, {
+            id: propsRef.current.id,
             x: gridPos.x,
             y: gridPos.y,
             event: e as Event,
@@ -1333,10 +1346,10 @@ const GridItem = React.forwardRef(
         e: Event,
         { node, size, handle }: ResizeCallbackData, // 'size' is updated position
         position: Position, // existing position
-        handlerName: "onResize" | "onResizeStart" | "onResizeStop",
+        handlerName: "onResize" | "onResizeStart" | "onResizeEnd",
       ): void => {
         const handler = propsRef.current[handlerName];
-        const { i, containerWidth } = propsRef.current;
+        const { id, containerWidth } = propsRef.current;
         // Clamping of dimensions based on resize direction
         let updatedSize: Position = {
           left: position.left,
@@ -1373,7 +1386,7 @@ const GridItem = React.forwardRef(
           getConstraintContext(node),
         );
         handler.call(handleRef.current, {
-          id: i,
+          id,
           w: constrainedSize.w,
           h: constrainedSize.h,
           event: e,
@@ -1404,9 +1417,9 @@ const GridItem = React.forwardRef(
     }, []);
 
     /**
-     * onResizeStop event handler
+     * onResizeEnd event handler
      */
-    const onResizeStop: GridItemResizeCallback = React.useCallback(
+    const onResizeEnd: GridItemResizeCallback = React.useCallback(
       (e, callbackData, position) => {
         clearResizeCursorActive();
         resizePositionRef.current = null;
@@ -1414,7 +1427,7 @@ const GridItem = React.forwardRef(
           ...prevState,
           resizing: false,
         }));
-        onResizeHandler(e, callbackData, position, "onResizeStop");
+        onResizeHandler(e, callbackData, position, "onResizeEnd");
       },
       [clearResizeCursorActive, onResizeHandler],
     );
@@ -1455,7 +1468,7 @@ const GridItem = React.forwardRef(
      * Mix a Draggable instance into a child.
      */
     const mixinDraggable = React.useCallback(
-      (child: ReactNode, isDraggable: boolean) => {
+      (child: ReactNode, draggable: boolean) => {
         const delayedDragEnabled: boolean =
           !!propsRef.current.dragTouchDelayDuration && isTouchCapable();
 
@@ -1465,12 +1478,12 @@ const GridItem = React.forwardRef(
 
         return (
           <DraggableCore
-            disabled={!isDraggable}
+            disabled={!draggable}
             allowMobileScroll={delayedDragEnabled}
             onStart={onDragStart}
             onMouseDown={delayedDragEnabled ? onMouseDown : undefined}
             onDrag={onDrag}
-            onStop={onDragStop}
+            onStop={onDragEnd}
             handle={propsRef.current.handle}
             cancel={
               ".react-resizable-handle" +
@@ -1484,7 +1497,7 @@ const GridItem = React.forwardRef(
           </DraggableCore>
         );
       },
-      [onDrag, onDragStart, onDragStop, onMouseDown, isTouchCapable],
+      [onDrag, onDragStart, onDragEnd, onMouseDown, isTouchCapable],
     );
 
     /**
@@ -1505,7 +1518,7 @@ const GridItem = React.forwardRef(
       (
         child: GridChildElement,
         position: Position,
-        isResizable: boolean,
+        resizable: boolean,
         itemState: ItemState,
         slotProps?: SlotProps<TData>,
       ): GridChildElement => {
@@ -1568,16 +1581,16 @@ const GridItem = React.forwardRef(
         };
 
         return (
-          <Resizable // These are opts for the resize handle itself
+          <ResizableWithResizeEnd // These are opts for the resize handle itself
             draggableOpts={{
-              disabled: !isResizable,
+              disabled: !resizable,
             }}
-            className={isResizable ? undefined : "react-resizable-hide"}
+            className={resizable ? undefined : "react-resizable-hide"}
             width={position.width}
             height={position.height}
             minConstraints={minConstraints}
             maxConstraints={maxConstraints}
-            onResizeStop={curryResizeHandler(position, onResizeStop)}
+            onResizeEnd={curryResizeHandler(position, onResizeEnd)}
             onResizeStart={curryResizeHandler(position, onResizeStart)}
             onResize={curryResizeHandler(position, onResize)}
             transformScale={transformScale}
@@ -1585,7 +1598,7 @@ const GridItem = React.forwardRef(
             handle={renderHandle}
           >
             {child}
-          </Resizable>
+          </ResizableWithResizeEnd>
         );
       },
       [
@@ -1593,7 +1606,7 @@ const GridItem = React.forwardRef(
         getPositionParams,
         onResize,
         onResizeStart,
-        onResizeStop,
+        onResizeEnd,
       ],
     );
 
@@ -1610,11 +1623,11 @@ const GridItem = React.forwardRef(
 
     React.useLayoutEffect(() => {
       if (!props.registerItemRef) return;
-      props.registerItemRef(props.i, elementRef.current);
+      props.registerItemRef(props.id, elementRef.current);
       return () => {
-        props.registerItemRef?.(props.i, null);
+        props.registerItemRef?.(props.id, null);
       };
-    }, [props.i, props.registerItemRef]);
+    }, [props.id, props.registerItemRef]);
 
     React.useEffect(() => {
       return () => {
@@ -1645,11 +1658,11 @@ const GridItem = React.forwardRef(
         createStyle,
         onDragStart,
         onDrag,
-        onDragStop,
+        onDragEnd,
         handleTouchMove,
         onResizeStart,
         onResize,
-        onResizeStop,
+        onResizeEnd,
         onResizeHandler,
         startDragDelayTimeout,
         resetDelayTimeout,
@@ -1681,18 +1694,18 @@ const GridItem = React.forwardRef(
     const keyboardMove = useKeyboardMove({
       onDragStart,
       onDrag,
-      onDragStop,
+      onDragEnd,
       onResizeStart,
       onResize,
-      onResizeStop,
+      onResizeEnd,
       getPositionParams,
-      i: props.i,
+      id: props.id,
       x: props.x,
       y: props.y,
       w: props.w,
       h: props.h,
-      isDraggable: props.isDraggable,
-      isResizable: props.isResizable,
+      draggable: props.draggable,
+      resizable: props.resizable,
       nodeRef: elementRef,
     });
     const {
@@ -1706,12 +1719,12 @@ const GridItem = React.forwardRef(
         onKeyboardMoveKeyDown(event);
         if (!props.onItemKeyDown) return;
         if (event.defaultPrevented || isPressed || isResizing) return;
-        props.onItemKeyDown(event, props.i, { isPressed, isResizing });
+        props.onItemKeyDown(event, props.id, { isPressed, isResizing });
       },
       [
         onKeyboardMoveKeyDown,
         props.onItemKeyDown,
-        props.i,
+        props.id,
         isPressed,
         isResizing,
       ],
@@ -1723,7 +1736,7 @@ const GridItem = React.forwardRef(
       [],
     );
 
-    const { x, y, w, h, isDraggable, isResizable, droppingPosition } = props;
+    const { x, y, w, h, draggable, resizable, droppingPosition } = props;
     const slotProps = props.slotProps;
     const positionState =
       state.resizing || state.dragging
@@ -1755,7 +1768,7 @@ const GridItem = React.forwardRef(
 
     const constraintItem = getConstraintItem();
     const layoutItem: LayoutItem<TData> = {
-      i: props.i,
+      id: props.id,
       x: props.x,
       y: props.y,
       w: props.w,
@@ -1767,10 +1780,10 @@ const GridItem = React.forwardRef(
       data: constraintItem.data,
       constraints: constraintItem.constraints,
       static: props.static,
-      isDraggable: props.isDraggable,
-      isResizable: props.isResizable,
+      draggable: props.draggable,
+      resizable: props.resizable,
       resizeHandles: props.resizeHandles,
-      isBounded: props.isBounded,
+      bounded: props.bounded,
     };
 
     const itemSlotClassName = slotProps?.item?.className;
@@ -1813,7 +1826,7 @@ const GridItem = React.forwardRef(
     const resolvedTabIndex = props.static ? undefined : (props.tabIndex ?? 0);
     const handleFocus = (event: React.FocusEvent<HTMLElement>) => {
       child.props.onFocus?.(event);
-      props.onItemFocus?.(props.i);
+      props.onItemFocus?.(props.id);
     };
     // Create the child element. We clone the existing element but modify its className and style.
     const nextChildProps: GridChildProps = {
@@ -1837,7 +1850,7 @@ const GridItem = React.forwardRef(
         {
           static: props.static,
           resizing: Boolean(state.resizing),
-          "dnd-draggable": isDraggable,
+          "dnd-draggable": draggable,
           "dnd-draggable-dragging": Boolean(state.dragging),
           "dnd-grid-animating": isSettlingRef.current, // Use sync flag - set BEFORE async setState to avoid race condition
           dropping: Boolean(droppingPosition),
@@ -1852,19 +1865,19 @@ const GridItem = React.forwardRef(
       },
       // Composable data attributes for state targeting
       "data-dnd-grid-item": "",
-      "data-dnd-grid-item-id": props.i,
+      "data-dnd-grid-item-id": props.id,
       "data-dragging": Boolean(state.dragging) || undefined,
       "data-resizing": Boolean(state.resizing) || undefined,
       "data-settling": isSettlingRef.current || undefined,
       "data-disabled": props.static || undefined,
-      "data-draggable": isDraggable || undefined,
-      "data-resizable": isResizable || undefined,
+      "data-draggable": draggable || undefined,
+      "data-resizable": resizable || undefined,
     };
     let newChild: GridChildElement = React.cloneElement(child, nextChildProps);
     // Resizable support. This is usually on but the user can toggle it off.
-    newChild = mixinResizable(newChild, pos, isResizable, itemState, slotProps);
+    newChild = mixinResizable(newChild, pos, resizable, itemState, slotProps);
     // Draggable support. This is always on, except for with placeholders.
-    newChild = mixinDraggable(newChild, isDraggable);
+    newChild = mixinDraggable(newChild, draggable);
 
     return (
       <DndGridItemContext.Provider

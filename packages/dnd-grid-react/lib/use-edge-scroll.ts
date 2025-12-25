@@ -366,7 +366,7 @@ export type EdgeScrollHandlers = {
     node?: HTMLElement | null,
     newPosition?: { left: number; top: number },
   ) => void;
-  handleDragStop: () => void;
+  handleDragEnd: () => void;
   isScrolling: boolean;
 };
 
@@ -767,7 +767,7 @@ export const useEdgeScroll = (
     ],
   );
 
-  const handleDragStop = useCallback(() => {
+  const handleDragEnd = useCallback(() => {
     clearAutoScrollInterval();
     clearScrollListeners();
     cancelLayoutShiftCompensation();
@@ -790,9 +790,9 @@ export const useEdgeScroll = (
 
   useEffect(() => {
     if (normalizedOptions.enabled === false) {
-      handleDragStop();
+      handleDragEnd();
     }
-  }, [normalizedOptions.enabled, handleDragStop]);
+  }, [normalizedOptions.enabled, handleDragEnd]);
 
   useEffect(
     () => () => {
@@ -812,7 +812,7 @@ export const useEdgeScroll = (
   return {
     handleDragStart,
     handleDrag,
-    handleDragStop,
+    handleDragEnd,
     isScrolling,
   };
 };

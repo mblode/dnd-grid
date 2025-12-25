@@ -10,8 +10,8 @@ describe("validation", () => {
 
   it("rejects duplicate layout item ids", () => {
     const layout = [
-      createLayoutItem({ i: "dup" }),
-      createLayoutItem({ i: "dup", x: 1 }),
+      createLayoutItem({ id: "dup" }),
+      createLayoutItem({ id: "dup", x: 1 }),
     ];
     const result = layoutSchema.safeParse(layout);
 
@@ -22,7 +22,7 @@ describe("validation", () => {
   });
 
   it("throws on invalid layouts via validateLayout", () => {
-    const badLayout = [{ i: 1, x: 0, y: 0, w: 1, h: 1 }];
+    const badLayout = [{ id: 1, x: 0, y: 0, w: 1, h: 1 }];
     expect(() => validateLayout(badLayout)).toThrow();
   });
 });

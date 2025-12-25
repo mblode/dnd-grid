@@ -15,7 +15,7 @@ export type LayoutItem<TData = unknown> = {
   h: number;
   x: number;
   y: number;
-  i: string;
+  id: string;
   data?: TData;
   minW?: number;
   minH?: number;
@@ -24,17 +24,17 @@ export type LayoutItem<TData = unknown> = {
   constraints?: LayoutConstraint<TData>[];
   moved?: boolean;
   static?: boolean;
-  isDraggable?: boolean | null | undefined;
-  isResizable?: boolean | null | undefined;
+  draggable?: boolean | null | undefined;
+  resizable?: boolean | null | undefined;
   resizeHandles?: Array<ResizeHandleAxis>;
-  isBounded?: boolean | null | undefined;
+  bounded?: boolean | null | undefined;
 };
 
 export type Layout<TData = unknown> = ReadonlyArray<LayoutItem<TData>>;
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type GridDragEvent<TData = unknown> = {
-  type: "dragStart" | "drag" | "dragStop";
+  type: "dragStart" | "drag" | "dragEnd";
   layout: Layout<TData>;
   previousItem: LayoutItem<TData> | null | undefined;
   item: LayoutItem<TData> | null | undefined;
@@ -44,7 +44,7 @@ export type GridDragEvent<TData = unknown> = {
 };
 
 export type GridResizeEvent<TData = unknown> = {
-  type: "resizeStart" | "resize" | "resizeStop";
+  type: "resizeStart" | "resize" | "resizeEnd";
   layout: Layout<TData>;
   previousItem: LayoutItem<TData> | null | undefined;
   item: LayoutItem<TData> | null | undefined;
@@ -85,7 +85,7 @@ export type ConstraintContext<TData = unknown> = {
   containerWidth: number;
   containerHeight: number;
   rowHeight: number;
-  margin: SpacingArray;
+  gap: SpacingArray;
   containerPadding: SpacingArray;
   layout: Layout<TData>;
 };
@@ -107,7 +107,7 @@ export type LayoutConstraint<TData = unknown> = {
   ): { w: number; h: number };
 };
 
-export type CompactType = "horizontal" | "vertical" | "wrap" | null;
+export type CompactType = "horizontal" | "vertical" | null;
 
 export type Compactor<TData = unknown> = {
   type: CompactType;
@@ -145,7 +145,7 @@ export type Size = {
 };
 
 export type PositionParams = {
-  margin: SpacingArray;
+  gap: SpacingArray;
   containerPadding: SpacingArray;
   containerWidth: number;
   cols: number;

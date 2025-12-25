@@ -35,7 +35,7 @@ export type LayoutEngineOptions<TData = unknown> = {
   cols: number;
   maxRows: number;
   rowHeight: number;
-  margin: SpacingArray;
+  gap: SpacingArray;
   containerPadding: SpacingArray;
   containerWidth: number;
   containerHeight: number;
@@ -140,7 +140,7 @@ const spacingArraySchema = z.tuple([
 
 const layoutItemSchema = z
   .object({
-    i: z.string(),
+    id: z.string(),
     x: z.number(),
     y: z.number(),
     w: z.number(),
@@ -161,7 +161,7 @@ const layoutEngineOptionsSchema = z
     cols: z.number().int().nonnegative(),
     maxRows: z.number().int().nonnegative(),
     rowHeight: z.number().nonnegative(),
-    margin: spacingArraySchema,
+    gap: spacingArraySchema,
     containerPadding: spacingArraySchema,
     containerWidth: z.number().nonnegative(),
     containerHeight: z.number().nonnegative(),
@@ -268,7 +268,7 @@ const createConstraintContext = <TData>(
   containerWidth: options.containerWidth,
   containerHeight: options.containerHeight,
   rowHeight: options.rowHeight,
-  margin: options.margin,
+  gap: options.gap,
   containerPadding: options.containerPadding,
   layout,
 });
@@ -528,7 +528,7 @@ export const createLayoutEngine = <TData = unknown>(
             h: nextH,
             x: nextX ?? l.x,
             y: nextY ?? l.y,
-          }).filter((layoutItem) => layoutItem.i !== l.i);
+          }).filter((layoutItem) => layoutItem.id !== l.id);
 
           if (collisions.length > 0) {
             nextY = l.y;

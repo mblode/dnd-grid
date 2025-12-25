@@ -1,6 +1,10 @@
 "use client";
 
-import { DndGrid, type Layout, verticalCompactor } from "@dnd-grid/react";
+import {
+  FixedWidthDndGrid,
+  type Layout,
+  verticalCompactor,
+} from "@dnd-grid/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
@@ -17,14 +21,14 @@ const DEFAULT_GRID_HEIGHT =
   BLOCK_GAP * 2;
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 6 },
-  { i: "b", x: 2, y: 0, w: 1, h: 3 },
-  { i: "c", x: 3, y: 0, w: 1, h: 3 },
-  { i: "d", x: 2, y: 3, w: 2, h: 4 },
-  { i: "e", x: 0, y: 6, w: 1, h: 4 },
-  { i: "f", x: 1, y: 6, w: 1, h: 4 },
-  { i: "g", x: 2, y: 7, w: 2, h: 3 },
-  { i: "h", x: 0, y: 10, w: 4, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 6 },
+  { id: "b", x: 2, y: 0, w: 1, h: 3 },
+  { id: "c", x: 3, y: 0, w: 1, h: 3 },
+  { id: "d", x: 2, y: 3, w: 2, h: 4 },
+  { id: "e", x: 0, y: 6, w: 1, h: 4 },
+  { id: "f", x: 1, y: 6, w: 1, h: 4 },
+  { id: "g", x: 2, y: 7, w: 2, h: 3 },
+  { id: "h", x: 0, y: 10, w: 4, h: 2 },
 ];
 
 export const BlocksGrid = () => {
@@ -80,7 +84,7 @@ export const BlocksGrid = () => {
     return Math.min(width, MAX_WIDTH) / DEFAULT_WIDTH;
   }, [containerWidth]);
 
-  const margin = BLOCK_GAP * scaleFactor;
+  const gap = BLOCK_GAP * scaleFactor;
   const handleResizeStart: typeof handlers.handleResizeStart = useCallback(
     (event) => {
       isResizingRef.current = true;
@@ -88,9 +92,9 @@ export const BlocksGrid = () => {
     },
     [handlers],
   );
-  const handleResizeStop: typeof handlers.handleResizeStop = useCallback(
+  const handleResizeEnd: typeof handlers.handleResizeEnd = useCallback(
     (event) => {
-      handlers.handleResizeStop(event);
+      handlers.handleResizeEnd(event);
       isResizingRef.current = false;
       if (pendingWidthRef.current !== null) {
         commitContainerWidth(pendingWidthRef.current);
@@ -102,37 +106,37 @@ export const BlocksGrid = () => {
   return (
     <div ref={containerRef}>
       {containerWidth !== null && containerWidth > 0 ? (
-        <DndGrid
+        <FixedWidthDndGrid
           layout={layout}
           cols={BLOCK_COLUMNS}
           rowHeight={BLOCK_HEIGHT * scaleFactor}
           width={containerWidth}
-          margin={margin}
+          gap={gap}
           onLayoutChange={setLayout}
           resizeHandles={["ne", "nw", "se", "sw"]}
           onDragStart={handlers.handleDragStart}
           onDrag={handlers.handleDrag}
-          onDragStop={handlers.handleDragStop}
+          onDragEnd={handlers.handleDragEnd}
           onResizeStart={handleResizeStart}
           onResize={handlers.handleResize}
-          onResizeStop={handleResizeStop}
+          onResizeEnd={handleResizeEnd}
           compactor={{ ...verticalCompactor }}
         >
           {layout.map((item) => {
             return (
               <button
-                key={item.i}
-                onPointerEnter={() => handlers.handleHover(item.i)}
+                key={item.id}
+                onPointerEnter={() => handlers.handleHover(item.id)}
                 onPointerLeave={() => handlers.handleHover(null)}
-                onClick={() => handlers.handleSelect(item.i)}
+                onClick={() => handlers.handleSelect(item.id)}
                 type="button"
                 className="p-0"
               >
-                {item.i}
+                {item.id}
               </button>
             );
           })}
-        </DndGrid>
+        </FixedWidthDndGrid>
       ) : (
         <Skeleton className="w-full" style={{ height: DEFAULT_GRID_HEIGHT }} />
       )}

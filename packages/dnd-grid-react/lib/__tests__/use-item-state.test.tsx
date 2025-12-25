@@ -11,7 +11,7 @@ const TestConsumer = () => {
   const { item, state } = useDndGridItemState();
   return (
     <div data-testid="state">
-      {item.i}:{state.dragging ? "dragging" : "idle"}
+      {item.id}:{state.dragging ? "dragging" : "idle"}
     </div>
   );
 };
@@ -19,13 +19,13 @@ const TestConsumer = () => {
 const OptionalConsumer = () => {
   const context = useOptionalDndGridItemState();
   return (
-    <div data-testid="optional">{context ? context.item.i : "missing"}</div>
+    <div data-testid="optional">{context ? context.item.id : "missing"}</div>
   );
 };
 
 describe("useDndGridItemState", () => {
   it("returns context values when used within provider", () => {
-    const item: LayoutItem = { i: "a", x: 0, y: 0, w: 1, h: 1 };
+    const item: LayoutItem = { id: "a", x: 0, y: 0, w: 1, h: 1 };
     const state: ItemState = {
       dragging: true,
       resizing: false,

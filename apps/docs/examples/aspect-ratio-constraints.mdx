@@ -37,36 +37,97 @@ npm install @dnd-grid/react
 ```tsx title="components/dnd-grid-aspect-ratio-constraints-example.tsx"
 "use client";
 
-import { aspectRatio, DndGrid, type Layout } from "@dnd-grid/react";
-import { useState } from "react";
+import {
+  FixedWidthDndGrid,
+  applySizeConstraints,
+  aspectRatio,
+  defaultConstraints,
+  type ConstraintContext,
+  type Layout,
+  useContainerWidth,
+} from "@dnd-grid/react";
+import * as React from "react";
 
-const GRID_WIDTH = 1200;
+const COLS = 12;
+const ROW_HEIGHT = 50;
+const GRID_SPACING = 10;
+
 const ratio16x9 = aspectRatio(16 / 9);
 const ratio1x1 = aspectRatio(1);
 
-const initialLayout: Layout = [
-  { i: "16:9", x: 0, y: 0, w: 6, h: 3, constraints: [ratio16x9] },
-  { i: "1:1", x: 6, y: 0, w: 3, h: 3, constraints: [ratio1x1] },
-  { i: "free", x: 9, y: 0, w: 3, h: 2 },
+const baseLayout: Layout = [
+  { id: "16:9", x: 0, y: 0, w: 6, h: 3, constraints: [ratio16x9] },
+  { id: "1:1", x: 6, y: 0, w: 3, h: 3, constraints: [ratio1x1] },
+  { id: "free", x: 9, y: 0, w: 3, h: 2 },
 ];
 
+const createConstraintContext = (
+  layout: Layout,
+  containerWidth: number,
+): ConstraintContext => ({
+  cols: COLS,
+  maxRows: Number.POSITIVE_INFINITY,
+  containerWidth,
+  containerHeight: 0,
+  rowHeight: ROW_HEIGHT,
+  gap: [GRID_SPACING, GRID_SPACING, GRID_SPACING, GRID_SPACING],
+  containerPadding: [GRID_SPACING, GRID_SPACING, GRID_SPACING, GRID_SPACING],
+  layout,
+});
+
+const applyInitialConstraints = (
+  layout: Layout,
+  containerWidth: number,
+): Layout => {
+  const context = createConstraintContext(layout, containerWidth);
+  return layout.map((item) => {
+    if (!item.constraints?.length) return item;
+    const size = applySizeConstraints(
+      defaultConstraints,
+      item,
+      item.w,
+      item.h,
+      "se",
+      context,
+    );
+    if (size.w === item.w && size.h === item.h) return item;
+    return { ...item, ...size };
+  });
+};
+
 export function AspectRatioConstraintsExample() {
-  const [layout, setLayout] = useState<Layout>(initialLayout);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+  });
+  const [layout, setLayout] = React.useState<Layout>(baseLayout);
+  const [ready, setReady] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!mounted || width <= 0 || ready) return;
+    setLayout(applyInitialConstraints(baseLayout, width));
+    setReady(true);
+  }, [mounted, ready, width]);
 
   return (
-    <DndGrid
-      layout={layout}
-      cols={12}
-      rowHeight={50}
-      width={GRID_WIDTH}
-      onLayoutChange={setLayout}
-    >
-      {layout.map((item) => (
-        <div key={item.i} className="grid-item">
-          {item.i}
-        </div>
-      ))}
-    </DndGrid>
+    <div ref={containerRef}>
+      {mounted && ready && (
+        <FixedWidthDndGrid
+          layout={layout}
+          cols={COLS}
+          rowHeight={ROW_HEIGHT}
+          width={width}
+          gap={GRID_SPACING}
+          containerPadding={GRID_SPACING}
+          onLayoutChange={setLayout}
+        >
+          {layout.map((item) => (
+            <div key={item.id} className="grid-item">
+              {item.id}
+            </div>
+          ))}
+        </FixedWidthDndGrid>
+      )}
+    </div>
   );
 }
 ```
@@ -83,5 +144,6 @@ export default function Page() {
   return <AspectRatioConstraintsExample />;
 }
 ```
+
 
 

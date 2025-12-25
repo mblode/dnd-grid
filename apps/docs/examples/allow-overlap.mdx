@@ -45,13 +45,11 @@ import {
 } from "@dnd-grid/react";
 import { useState } from "react";
 
-const GRID_WIDTH = 1200;
-
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 3, h: 2 },
-  { i: "b", x: 1, y: 0, w: 3, h: 2 },
-  { i: "c", x: 2, y: 1, w: 3, h: 2 },
-  { i: "d", x: 6, y: 0, w: 3, h: 3 },
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 1, y: 0, w: 3, h: 2 },
+  { id: "c", x: 2, y: 1, w: 3, h: 2 },
+  { id: "d", x: 6, y: 0, w: 3, h: 3 },
 ];
 
 export function AllowOverlapExample() {
@@ -69,13 +67,12 @@ export function AllowOverlapExample() {
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         compactor={compactor}
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
-          <div key={item.i} className="grid-item">
-            {item.i}
+          <div key={item.id} className="grid-item">
+            {item.id}
           </div>
         ))}
       </DndGrid>
@@ -96,5 +93,8 @@ export default function Page() {
   return <AllowOverlapExample />;
 }
 ```
+
+
+
 
 

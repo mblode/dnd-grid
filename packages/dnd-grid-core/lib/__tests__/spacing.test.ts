@@ -18,7 +18,7 @@ describe("spacing", () => {
       expect(() =>
         normalizeSpacing([1, 2, 3, 4] as unknown as Spacing),
       ).toThrow(
-        "DndGrid: margin/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }.",
+        "DndGrid: gap/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }.",
       );
     });
   });

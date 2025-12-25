@@ -14,15 +14,15 @@ import { DndGrid, type Layout, useDndGridItemState } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 3, h: 2 },
-  { i: "b", x: 3, y: 0, w: 3, h: 2 },
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 3, y: 0, w: 3, h: 2 },
 ];
 
 function ItemStatus() {
   const { item, state } = useDndGridItemState();
   return (
     <div className={state.dragging ? "dragging" : ""}>
-      {item.i} {state.resizing ? "(resizing)" : ""}
+      {item.id} {state.resizing ? "(resizing)" : ""}
     </div>
   );
 }
@@ -36,10 +36,9 @@ export function ItemStateGrid() {
       onLayoutChange={setLayout}
       cols={12}
       rowHeight={40}
-      width={800}
     >
       {layout.map((item) => (
-        <div key={item.i}>
+        <div key={item.id}>
           <ItemStatus />
         </div>
       ))}

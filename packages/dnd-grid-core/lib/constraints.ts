@@ -66,7 +66,7 @@ export const containerBounds: LayoutConstraint = {
       maxRows,
       containerHeight,
       rowHeight,
-      margin,
+      gap,
       containerPadding,
     }: ConstraintContext,
   ): { x: number; y: number } {
@@ -75,7 +75,7 @@ export const containerBounds: LayoutConstraint = {
       containerHeight > 0 ? containerHeight - paddingY : 0;
     const visibleRows =
       availableHeight > 0
-        ? Math.floor((availableHeight + margin[0]) / (rowHeight + margin[0]))
+        ? Math.floor((availableHeight + gap[0]) / (rowHeight + gap[0]))
         : maxRows;
     return {
       x: clamp(x, 0, Math.max(0, cols - item.w)),
@@ -123,21 +123,20 @@ export const aspectRatio = (ratio: number): LayoutConstraint => ({
     _handle: ResizeHandleAxis,
     context: ConstraintContext,
   ): { w: number; h: number } {
-    const { cols, containerWidth, rowHeight, margin, containerPadding } =
-      context;
+    const { cols, containerWidth, rowHeight, gap, containerPadding } = context;
     const colWidth = calcGridColWidth({
       cols,
       containerWidth,
       rowHeight,
       maxRows: context.maxRows,
-      margin,
+      gap,
       containerPadding,
     });
-    const pixelWidth = calcGridItemWHPx(w, colWidth, margin[1]);
+    const pixelWidth = calcGridItemWHPx(w, colWidth, gap[1]);
     const pixelHeight = pixelWidth / ratio;
     const h = Math.max(
       1,
-      Math.round((pixelHeight + margin[0]) / (rowHeight + margin[0])),
+      Math.round((pixelHeight + gap[0]) / (rowHeight + gap[0])),
     );
     return { w, h };
   },

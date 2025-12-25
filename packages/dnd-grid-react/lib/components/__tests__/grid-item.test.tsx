@@ -45,16 +45,16 @@ vi.mock("react-resizable", () => ({
 
 const defaultProps = {
   children: <div data-testid="child">Content</div>,
-  layout: [{ i: "test-item", x: 0, y: 0, w: 2, h: 2 }],
+  layout: [{ id: "test-item", x: 0, y: 0, w: 2, h: 2 }],
   cols: 12,
   containerWidth: 1200,
-  margin: 10,
+  gap: 10,
   containerPadding: 10,
   rowHeight: 150,
   maxRows: Infinity,
-  isDraggable: true,
-  isResizable: true,
-  isBounded: false,
+  draggable: true,
+  resizable: true,
+  bounded: false,
   transformScale: 1,
   className: "",
   cancel: "",
@@ -68,7 +68,7 @@ const defaultProps = {
   maxW: 12,
   minH: 1,
   maxH: Infinity,
-  i: "test-item",
+  id: "test-item",
 };
 
 type ResizeCallbackData = {
@@ -146,14 +146,14 @@ describe("GridItem", () => {
       expect(element).toHaveClass("static");
     });
 
-    it("applies dnd-draggable class when isDraggable is true", () => {
-      render(<GridItem {...defaultProps} isDraggable={true} />);
+    it("applies dnd-draggable class when draggable is true", () => {
+      render(<GridItem {...defaultProps} draggable={true} />);
       const element = screen.getByTestId("child");
       expect(element).toHaveClass("dnd-draggable");
     });
 
-    it("does not apply dnd-draggable class when isDraggable is false", () => {
-      render(<GridItem {...defaultProps} isDraggable={false} />);
+    it("does not apply dnd-draggable class when draggable is false", () => {
+      render(<GridItem {...defaultProps} draggable={false} />);
       const element = screen.getByTestId("child");
       expect(element).not.toHaveClass("dnd-draggable");
     });
@@ -183,7 +183,7 @@ describe("GridItem", () => {
             item: {
               style: (item, state) => ({
                 backgroundColor:
-                  item.i === "test-item" && !state.dragging ? "blue" : "red",
+                  item.id === "test-item" && !state.dragging ? "blue" : "red",
               }),
             },
           }}
@@ -293,48 +293,48 @@ describe("GridItem", () => {
   });
 
   describe("draggable behavior", () => {
-    it("has dnd-draggable class when isDraggable is true", () => {
-      render(<GridItem {...defaultProps} isDraggable={true} />);
+    it("has dnd-draggable class when draggable is true", () => {
+      render(<GridItem {...defaultProps} draggable={true} />);
       const element = screen.getByTestId("child");
       expect(element).toHaveClass("dnd-draggable");
     });
 
-    it("does not have dnd-draggable class when isDraggable is false", () => {
-      render(<GridItem {...defaultProps} isDraggable={false} />);
+    it("does not have dnd-draggable class when draggable is false", () => {
+      render(<GridItem {...defaultProps} draggable={false} />);
       const element = screen.getByTestId("child");
       expect(element).not.toHaveClass("dnd-draggable");
     });
 
     it("is not draggable when static is true", () => {
-      render(<GridItem {...defaultProps} static={true} isDraggable={true} />);
+      render(<GridItem {...defaultProps} static={true} draggable={true} />);
       const element = screen.getByTestId("child");
-      // Static items are rendered with isDraggable=false passed to component
+      // Static items are rendered with draggable=false passed to component
       expect(element).toHaveClass("static");
     });
   });
 
   describe("resizable behavior", () => {
-    it("includes resizable wrapper when isResizable is true", () => {
-      render(<GridItem {...defaultProps} isResizable={true} />);
+    it("includes resizable wrapper when resizable is true", () => {
+      render(<GridItem {...defaultProps} resizable={true} />);
       const element = screen.getByTestId("child");
       expect(element).toHaveAttribute("data-resizable", "true");
     });
 
-    it("includes react-resizable-hide class when isResizable is false", () => {
-      render(<GridItem {...defaultProps} isResizable={false} />);
+    it("includes react-resizable-hide class when resizable is false", () => {
+      render(<GridItem {...defaultProps} resizable={false} />);
       const element = screen.getByTestId("child");
       expect(element).toHaveClass("react-resizable-hide");
     });
   });
 
   describe("bounded mode", () => {
-    it("accepts isBounded prop", () => {
-      render(<GridItem {...defaultProps} isBounded={true} />);
+    it("accepts bounded prop", () => {
+      render(<GridItem {...defaultProps} bounded={true} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
 
-    it("renders correctly with isBounded false", () => {
-      render(<GridItem {...defaultProps} isBounded={false} />);
+    it("renders correctly with bounded false", () => {
+      render(<GridItem {...defaultProps} bounded={false} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
   });
@@ -446,21 +446,21 @@ describe("GridItem", () => {
     });
 
     it("ignores drag stop when not dragging", () => {
-      const onDragStop = vi.fn();
+      const onDragEnd = vi.fn();
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
-          <GridItem {...defaultProps} ref={ref} onDragStop={onDragStop} />
+          <GridItem {...defaultProps} ref={ref} onDragEnd={onDragEnd} />
         </div>,
       );
       const handle = getHandle(ref);
 
       const node = screen.getByTestId("child");
       act(() => {
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
 
-      expect(onDragStop).not.toHaveBeenCalled();
+      expect(onDragEnd).not.toHaveBeenCalled();
       expect(handle.state.dragging).toBe(false);
     });
 
@@ -475,11 +475,11 @@ describe("GridItem", () => {
             ref={ref}
             onDragStart={onDragStart}
             onDrag={onDrag}
-            isBounded={true}
+            bounded={true}
             containerWidth={300}
             cols={3}
             rowHeight={100}
-            margin={0}
+            gap={0}
             containerPadding={0}
             w={1}
             h={1}
@@ -512,7 +512,7 @@ describe("GridItem", () => {
 
     it("enters settling state on drag stop", () => {
       const onDragStart = vi.fn();
-      const onDragStop = vi.fn();
+      const onDragEnd = vi.fn();
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
@@ -520,7 +520,7 @@ describe("GridItem", () => {
             {...defaultProps}
             ref={ref}
             onDragStart={onDragStart}
-            onDragStop={onDragStop}
+            onDragEnd={onDragEnd}
           />
         </div>,
       );
@@ -536,10 +536,10 @@ describe("GridItem", () => {
       expect(document.body.classList.contains("dnd-grid-dragging")).toBe(true);
 
       act(() => {
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
 
-      expect(onDragStop).toHaveBeenCalled();
+      expect(onDragEnd).toHaveBeenCalled();
       expect(handle.state.dragging).toBe(false);
       expect(handle._isSettling).toBe(true);
       expect(handle.state.isAnimating).toBe(true);
@@ -559,7 +559,7 @@ describe("GridItem", () => {
       const node = screen.getByTestId("child");
       act(() => {
         handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
 
       expect(handle._isSettling).toBe(true);
@@ -664,7 +664,7 @@ describe("GridItem", () => {
       const node = screen.getByTestId("child");
       act(() => {
         handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
         vi.advanceTimersByTime(2000);
       });
 
@@ -674,14 +674,14 @@ describe("GridItem", () => {
 
     it("keeps animation active during long drags and settles on stop", () => {
       const onSettleComplete = vi.fn();
-      const onDragStop = vi.fn();
+      const onDragEnd = vi.fn();
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
             ref={ref}
-            onDragStop={onDragStop}
+            onDragEnd={onDragEnd}
             onSettleComplete={onSettleComplete}
           />
         </div>,
@@ -699,7 +699,7 @@ describe("GridItem", () => {
       expect(handle.springAnimationFrame).not.toBeNull();
 
       act(() => {
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
       act(() => {
         vi.advanceTimersByTime(2000);
@@ -740,7 +740,7 @@ describe("GridItem", () => {
 
       act(() => {
         handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
 
       expect(animateSpy.mock.calls.length).toBe(initialCalls);
@@ -764,7 +764,7 @@ describe("GridItem", () => {
 
       act(() => {
         handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
 
       expect(onSettleComplete).toHaveBeenCalledWith("test-item");
@@ -817,7 +817,7 @@ describe("GridItem", () => {
 
       act(() => {
         handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
-        handle.onDragStop(new MouseEvent("mouseup"), createDragData(node));
+        handle.onDragEnd(new MouseEvent("mouseup"), createDragData(node));
       });
 
       const calls = animateSpy.mock.calls.slice(initialCalls);
@@ -873,9 +873,9 @@ describe("GridItem", () => {
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
 
-    it("accepts onDragStop callback", () => {
-      const onDragStop = vi.fn();
-      render(<GridItem {...defaultProps} onDragStop={onDragStop} />);
+    it("accepts onDragEnd callback", () => {
+      const onDragEnd = vi.fn();
+      render(<GridItem {...defaultProps} onDragEnd={onDragEnd} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
 
@@ -891,9 +891,9 @@ describe("GridItem", () => {
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
 
-    it("accepts onResizeStop callback", () => {
-      const onResizeStop = vi.fn();
-      render(<GridItem {...defaultProps} onResizeStop={onResizeStop} />);
+    it("accepts onResizeEnd callback", () => {
+      const onResizeEnd = vi.fn();
+      render(<GridItem {...defaultProps} onResizeEnd={onResizeEnd} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
 
@@ -1034,7 +1034,7 @@ describe("GridItem", () => {
 
     it("sets the resize cursor on the body during resize", () => {
       const onResizeStart = vi.fn();
-      const onResizeStop = vi.fn();
+      const onResizeEnd = vi.fn();
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
@@ -1042,7 +1042,7 @@ describe("GridItem", () => {
             {...defaultProps}
             ref={ref}
             onResizeStart={onResizeStart}
-            onResizeStop={onResizeStop}
+            onResizeEnd={onResizeEnd}
           />
         </div>,
       );
@@ -1069,7 +1069,7 @@ describe("GridItem", () => {
       ).toBe("se-resize");
 
       act(() => {
-        handle.onResizeStop(new Event("resize"), resizeData, position);
+        handle.onResizeEnd(new Event("resize"), resizeData, position);
       });
 
       expect(document.body.classList.contains("dnd-grid-resizing")).toBe(false);
@@ -1081,7 +1081,7 @@ describe("GridItem", () => {
     it("routes resize events through wrapper callbacks", () => {
       const onResizeStart = vi.fn();
       const onResize = vi.fn();
-      const onResizeStop = vi.fn();
+      const onResizeEnd = vi.fn();
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
@@ -1090,7 +1090,7 @@ describe("GridItem", () => {
             ref={ref}
             onResizeStart={onResizeStart}
             onResize={onResize}
-            onResizeStop={onResizeStop}
+            onResizeEnd={onResizeEnd}
           />
         </div>,
       );
@@ -1110,12 +1110,12 @@ describe("GridItem", () => {
       act(() => {
         handle.onResizeStart(new Event("resize"), resizeData, position);
         handle.onResize(new Event("resize"), resizeData, position);
-        handle.onResizeStop(new Event("resize"), resizeData, position);
+        handle.onResizeEnd(new Event("resize"), resizeData, position);
       });
 
       expect(onResizeStart).toHaveBeenCalled();
       expect(onResize).toHaveBeenCalled();
-      expect(onResizeStop).toHaveBeenCalled();
+      expect(onResizeEnd).toHaveBeenCalled();
       expect(handle.state.resizing).toBe(false);
     });
   });

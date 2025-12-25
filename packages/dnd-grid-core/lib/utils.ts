@@ -39,7 +39,7 @@ export const withLayoutItem = <TData>(
   let itemIndex = -1;
 
   for (let i = 0, len = layout.length; i < len; i++) {
-    if (layout[i].i === itemKey) {
+    if (layout[i].id === itemKey) {
       item = layout[i];
       itemIndex = i;
       break;
@@ -66,7 +66,7 @@ export const cloneLayoutItem = <TData>(
     h: layoutItem.h,
     x: layoutItem.x,
     y: layoutItem.y,
-    i: layoutItem.i,
+    id: layoutItem.id,
     minW: layoutItem.minW,
     maxW: layoutItem.maxW,
     minH: layoutItem.minH,
@@ -74,10 +74,10 @@ export const cloneLayoutItem = <TData>(
     constraints: layoutItem.constraints,
     moved: Boolean(layoutItem.moved),
     static: Boolean(layoutItem.static),
-    isDraggable: layoutItem.isDraggable,
-    isResizable: layoutItem.isResizable,
+    draggable: layoutItem.draggable,
+    resizable: layoutItem.resizable,
     resizeHandles: layoutItem.resizeHandles,
-    isBounded: layoutItem.isBounded,
+    bounded: layoutItem.bounded,
   };
 
   if (Object.hasOwn(layoutItem, "data")) {
@@ -91,7 +91,7 @@ export const collides = <TData>(
   l1: LayoutItem<TData>,
   l2: LayoutItem<TData>,
 ): boolean => {
-  if (l1.i === l2.i) return false;
+  if (l1.id === l2.id) return false;
   if (l1.x + l1.w <= l2.x) return false;
   if (l1.x >= l2.x + l2.w) return false;
   if (l1.y + l1.h <= l2.y) return false;
@@ -130,7 +130,7 @@ export const getLayoutItem = <TData>(
   id: string,
 ): LayoutItem<TData> | null | undefined => {
   for (let i = 0, len = layout.length; i < len; i++) {
-    if (layout[i].i === id) return layout[i];
+    if (layout[i].id === id) return layout[i];
   }
 };
 
@@ -160,7 +160,7 @@ export const moveElement = <TData>(
   compactor: Compactor<TData>,
   cols: number,
 ): LayoutItem<TData>[] => {
-  if (l.static && l.isDraggable !== true) return [...layout];
+  if (l.static && l.draggable !== true) return [...layout];
   if (l.y === y && l.x === x) return [...layout];
   const compactorType = compactor.type;
   const preventCollision = compactor.preventCollision === true;
@@ -240,7 +240,7 @@ export const moveElementAwayFromCollision = <TData>(
       y: compactV ? Math.max(collidesWith.y - itemToMove.h, 0) : itemToMove.y,
       w: itemToMove.w,
       h: itemToMove.h,
-      i: "-1",
+      id: "-1",
     };
     const firstCollision = getFirstCollision(layout, fakeItem);
     const collisionNorth =
@@ -466,7 +466,6 @@ export const sortLayoutItems = <TData>(
   const compactorType = compactor.type;
   if (compactorType === "horizontal") return sortLayoutItemsByColRow(layout);
   if (compactorType === "vertical") return sortLayoutItemsByRowCol(layout);
-  if (compactorType === "wrap") return sortLayoutItemsByRowCol(layout);
   return layout.slice(0);
 };
 
@@ -493,7 +492,7 @@ export const simpleOnMove = <TData>(
   y: number,
 ): Layout<TData> => {
   const newLayout = cloneLayout(layout);
-  const movedItem = newLayout.find((l) => l.i === item.i);
+  const movedItem = newLayout.find((l) => l.id === item.id);
   if (movedItem) {
     movedItem.x = x;
     movedItem.y = y;

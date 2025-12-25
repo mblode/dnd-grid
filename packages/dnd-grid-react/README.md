@@ -46,7 +46,7 @@ function MyGrid() {
 control item rendering, use the headless `useDndGrid` hook and render
 `GridItem` manually.
 
-Docs: https://dnd-grid.com/hooks/use-dnd-grid
+Docs: https://dnd-grid.com/docs/hooks/use-dnd-grid
 
 ## Measuring container width
 
@@ -81,7 +81,8 @@ function MyGrid() {
 ```
 
 If you prefer a convenience wrapper, `AutoWidthDndGrid` exposes the same
-behavior with `measureBeforeMount` (default `true`) and `initialWidth`.
+behavior with `measureBeforeMount` (default `true`) and `initialWidth`. Use
+`containerProps` to style the measurement wrapper.
 
 ## Features
 
@@ -102,14 +103,17 @@ behavior with `measureBeforeMount` (default `true`) and `initialWidth`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `layout` | `Layout` | `[]` | Array of layout items |
+| `children` | `ReactNode` | required | Grid items; each child `key` must match a layout `i`. |
+| `layout` | `Layout` | `[]` | Array of layout items; missing entries are derived from children (dev warning). |
+| `width` | `number` | required | Width of the grid container |
 | `cols` | `number` | `12` | Number of columns |
 | `rowHeight` | `number` | `150` | Height of a row in pixels |
-| `width` | `number` | required | Width of the grid container |
 | `autoSize` | `boolean` | `true` | Auto-size the container height |
 | `maxRows` | `number` | `Infinity` | Maximum number of rows |
 | `margin` | `number \| { top: number; right: number; bottom: number; left: number }` | `10` | Margin around items |
 | `containerPadding` | `number \| { top: number; right: number; bottom: number; left: number } \| null` | `null` | Container padding (null uses margin) |
+| `className` | `string` | `""` | Extra class for the grid container |
+| `style` | `CSSProperties` | `{}` | Inline styles for the grid container |
 | `isDraggable` | `boolean` | `true` | Enable dragging |
 | `isResizable` | `boolean` | `true` | Enable resizing |
 | `autoScroll` | `boolean \| AutoScrollOptions` | `true` | Auto-scroll when dragging near scroll edges |
@@ -117,16 +121,25 @@ behavior with `measureBeforeMount` (default `true`) and `initialWidth`.
 | `compactor` | `Compactor` | `verticalCompactor` | Compaction strategy |
 | `constraints` | `LayoutConstraint[]` | `defaultConstraints` | Constraints applied during drag/resize |
 | `validation` | `boolean` | `true in dev, false in prod` | Validate layouts at runtime with Zod |
+| `callbackThrottle` | `number \| { drag?: number; resize?: number }` | `undefined` | Throttle `onDrag` and `onResize` callbacks |
+| `animationConfig` | `AnimationConfig` | `default config` | Configure spring and shadow animations |
+| `reducedMotion` | `ReducedMotionSetting \| boolean` | `"system"` | Motion preference override |
 | `resizeHandles` | `ResizeHandleAxis[]` | `["se"]` | Resize handle positions |
+| `resizeHandle` | `ReactElement \| ((axis, ref) => ReactElement)` | `undefined` | Custom resize handle component |
 | `transformScale` | `number` | `1` | Scale factor for CSS transforms |
 | `dragTouchDelayDuration` | `number` | `250` | Touch delay before drag starts (ms) |
 | `dragHandle` | `string` | `""` | Selector for drag handles |
 | `dragCancel` | `string` | `""` | Selector for elements that cancel drag |
+| `droppingItem` | `Partial<LayoutItem>` | `{ i: "__dropping-elem__", w: 1, h: 1 }` | Defaults for the dropping placeholder |
+| `slotProps` | `SlotProps` | `undefined` | Slot styling for items, placeholders, and handles |
+| `liveAnnouncements` | `LiveAnnouncementsOptions \| false` | `enabled` | Configure aria-live announcements or disable |
+| `innerRef` | `Ref<HTMLDivElement>` | `undefined` | Ref to the container element |
 | `aria-label` | `string` | `undefined` | Accessible label for the grid |
 | `aria-labelledby` | `string` | `undefined` | ID(s) of labelling elements |
 | `aria-describedby` | `string` | `undefined` | ID(s) of descriptive elements |
 
-Layout must be defined via the `layout` prop; `data-grid` on children is not supported.
+Layout is provided via the `layout` prop; `data-grid` on children is not supported.
+Missing layout entries are derived from children (with a dev warning).
 
 Drop behavior is enabled when you provide `onDrop` or `onDropDragOver`.
 
@@ -184,6 +197,7 @@ interface LayoutItem {
   maxW?: number;  // Maximum width
   minH?: number;  // Minimum height
   maxH?: number;  // Maximum height
+  data?: TData;   // Optional metadata
   resizeHandles?: ResizeHandleAxis[]; // Override resize handle positions
   constraints?: LayoutConstraint[]; // Per-item constraints
   static?: boolean;     // Cannot be moved or resized
@@ -313,7 +327,9 @@ Common CSS classes include:
 The grid sets `data-*` attributes for stateful styling:
 
 - `data-dnd-grid` on the container
+- `data-dnd-grid-live-region` on the aria-live element
 - `data-dnd-grid-item` on each item
+- `data-dnd-grid-item-id` on each item
 - `data-dnd-grid-handle` and `data-handle-axis` on resize handles
 - `data-dragging`, `data-resizing`, `data-settling`, `data-disabled`, `data-draggable`, `data-resizable` on items when true
 

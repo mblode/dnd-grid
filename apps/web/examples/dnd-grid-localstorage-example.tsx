@@ -1,9 +1,8 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, type Layout } from "@dnd-grid/react";
 import { useEffect, useState } from "react";
 
-const GRID_WIDTH = 1200;
 const STORAGE_KEY = "dnd-grid-layout";
 
 const defaultLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
@@ -43,11 +42,10 @@ export function LocalStorageExample() {
         Reset Layout
       </button>
 
-      <DndGrid
+      <AutoWidthDndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         onLayoutChange={handleLayoutChange}
       >
         {layout.map((item) => (
@@ -55,7 +53,7 @@ export function LocalStorageExample() {
             {item.i}
           </div>
         ))}
-      </DndGrid>
+      </AutoWidthDndGrid>
     </div>
   );
 }

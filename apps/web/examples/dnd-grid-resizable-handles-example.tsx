@@ -1,9 +1,7 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 3, h: 2 },
@@ -15,11 +13,10 @@ export function ResizableHandlesExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
-    <DndGrid
+    <AutoWidthDndGrid
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={GRID_WIDTH}
       resizeHandles={["n", "e", "s", "w", "ne", "nw", "se", "sw"]}
       onLayoutChange={setLayout}
     >
@@ -28,6 +25,6 @@ export function ResizableHandlesExample() {
           {item.i}
         </div>
       ))}
-    </DndGrid>
+    </AutoWidthDndGrid>
   );
 }

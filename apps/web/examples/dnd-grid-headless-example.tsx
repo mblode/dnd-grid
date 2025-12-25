@@ -1,9 +1,12 @@
 "use client";
 
-import { GridItem, type Layout, useDndGrid } from "@dnd-grid/react";
+import {
+  GridItem,
+  type Layout,
+  useContainerWidth,
+  useDndGrid,
+} from "@dnd-grid/react";
 import * as React from "react";
-
-const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 3, h: 2 },
@@ -13,6 +16,9 @@ const initialLayout: Layout = [
 
 export function HeadlessExample() {
   const [layout, setLayout] = React.useState(initialLayout);
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: true,
+  });
   const children = layout.map((item) => (
     <div key={item.i} className="grid-item">
       {item.i}
@@ -24,9 +30,25 @@ export function HeadlessExample() {
     onLayoutChange: setLayout,
     cols: 12,
     rowHeight: 50,
-    width: GRID_WIDTH,
+    width,
     children,
   });
+
+  const { ref: gridRef, ...restGridProps } = gridProps;
+  const setGridRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      containerRef.current = node;
+      if (typeof gridRef === "function") {
+        gridRef(node);
+        return;
+      }
+      if (gridRef) {
+        (gridRef as React.MutableRefObject<HTMLDivElement | null>).current =
+          node;
+      }
+    },
+    [containerRef, gridRef],
+  );
 
   const droppingProps = itemProps.getDroppingItemProps();
   const placeholderProps = itemProps.getPlaceholderProps();
@@ -34,14 +56,18 @@ export function HeadlessExample() {
   return (
     <div className="space-y-2">
       <div className="text-xs text-zinc-500">Custom wrapper</div>
-      <div {...gridProps}>
-        {liveRegionElement}
-        {React.Children.map(children, (child) => {
-          const props = itemProps.getItemProps(child);
-          return props ? <GridItem {...props} /> : null;
-        })}
-        {droppingProps && <GridItem {...droppingProps} />}
-        {placeholderProps && <GridItem {...placeholderProps} />}
+      <div {...restGridProps} ref={setGridRef}>
+        {mounted && (
+          <>
+            {liveRegionElement}
+            {React.Children.map(children, (child) => {
+              const props = itemProps.getItemProps(child);
+              return props ? <GridItem {...props} /> : null;
+            })}
+            {droppingProps && <GridItem {...droppingProps} />}
+            {placeholderProps && <GridItem {...placeholderProps} />}
+          </>
+        )}
       </div>
     </div>
   );

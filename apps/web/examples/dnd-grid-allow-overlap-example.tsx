@@ -1,14 +1,12 @@
 "use client";
 
 import {
-  DndGrid,
+  AutoWidthDndGrid,
   type Layout,
   verticalCompactor,
   verticalOverlapCompactor,
 } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 3, h: 2 },
@@ -28,11 +26,10 @@ export function AllowOverlapExample() {
         {allowOverlap ? "Disable overlap" : "Enable overlap"}
       </button>
 
-      <DndGrid
+      <AutoWidthDndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         compactor={compactor}
         onLayoutChange={setLayout}
       >
@@ -41,7 +38,7 @@ export function AllowOverlapExample() {
             {item.i}
           </div>
         ))}
-      </DndGrid>
+      </AutoWidthDndGrid>
     </div>
   );
 }

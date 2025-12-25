@@ -1,9 +1,11 @@
 "use client";
 
-import { DndGrid, findEmptyPosition, type Layout } from "@dnd-grid/react";
+import {
+  AutoWidthDndGrid,
+  findEmptyPosition,
+  type Layout,
+} from "@dnd-grid/react";
 import { useCallback, useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 export function DynamicAddRemoveExample() {
   const [counter, setCounter] = useState(5);
@@ -44,11 +46,10 @@ export function DynamicAddRemoveExample() {
         Add Item
       </button>
 
-      <DndGrid
+      <AutoWidthDndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
@@ -59,7 +60,7 @@ export function DynamicAddRemoveExample() {
             </button>
           </div>
         ))}
-      </DndGrid>
+      </AutoWidthDndGrid>
     </div>
   );
 }

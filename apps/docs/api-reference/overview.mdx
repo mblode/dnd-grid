@@ -9,12 +9,18 @@ Common exports:
 
 ```tsx
 import {
+  AutoWidthDndGrid,
   DndGrid,
+  GridItem,
+  ResizeHandle,
   useContainerWidth,
   useDndGrid,
   useDndGridResponsiveLayout,
   useDndGridItemState,
+  useOptionalDndGridItemState,
+  useReducedMotion,
   useEdgeScroll,
+  createLayoutEngine,
   verticalCompactor,
   defaultConstraints,
   layoutSchema,
@@ -40,6 +46,9 @@ Most apps should start with `DndGrid`. Use
 [`useDndGrid`](/hooks/use-dnd-grid) when you need a custom wrapper or want to
 control rendering.
 
+Also exported: `AutoWidthDndGrid` (auto-measures width), `GridItem`, and
+`ResizeHandle`.
+
 ## Hooks
 
 | Hook | Description |
@@ -61,6 +70,13 @@ control rendering.
 | `LayoutConstraint` | Drag/resize constraint definition |
 | `GridDragEvent` | Event object for drag callbacks |
 | `GridResizeEvent` | Event object for resize callbacks |
+
+## Additional exports
+
+`@dnd-grid/react` also exports:
+
+- `useOptionalDndGridItemState` and `useReducedMotion`
+- `createLayoutEngine` and layout engine types for headless usage
 
 ## Runtime validation
 

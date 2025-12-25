@@ -1,9 +1,8 @@
 "use client";
 
-import { aspectRatio, DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, aspectRatio, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
 
-const GRID_WIDTH = 1200;
 const ratio16x9 = aspectRatio(16 / 9);
 const ratio1x1 = aspectRatio(1);
 
@@ -17,11 +16,10 @@ export function AspectRatioConstraintsExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
-    <DndGrid
+    <AutoWidthDndGrid
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={GRID_WIDTH}
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (
@@ -29,6 +27,6 @@ export function AspectRatioConstraintsExample() {
           {item.i}
         </div>
       ))}
-    </DndGrid>
+    </AutoWidthDndGrid>
   );
 }

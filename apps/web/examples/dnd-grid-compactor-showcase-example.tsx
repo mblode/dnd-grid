@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  DndGrid,
+  AutoWidthDndGrid,
   horizontalCompactor,
   type Layout,
   noCompactor,
@@ -9,8 +9,6 @@ import {
   wrapCompactor,
 } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "a", x: 0, y: 0, w: 2, h: 2 },
@@ -55,11 +53,10 @@ export function CompactorShowcaseExample() {
         ))}
       </div>
 
-      <DndGrid
+      <AutoWidthDndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         compactor={compactors[compactorKey]}
         onLayoutChange={setLayout}
       >
@@ -68,7 +65,7 @@ export function CompactorShowcaseExample() {
             {item.i}
           </div>
         ))}
-      </DndGrid>
+      </AutoWidthDndGrid>
     </div>
   );
 }

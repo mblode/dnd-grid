@@ -14,6 +14,11 @@ A drag-and-drop (DnD), resizable grid layout for React with sensible defaults an
 - **Styling hooks** - CSS variables, data attributes, and item state hook
 - **React 17, 18, 19** - works across modern React versions
 
+## Packages
+
+- `@dnd-grid/react` - React components, hooks, and styles
+- `@dnd-grid/core` - Headless layout engine and utilities (see `packages/dnd-grid-core/README.md`)
+
 ## Quick start
 
 ```bash
@@ -122,7 +127,9 @@ Theme variables are exposed as CSS custom properties:
 The grid also adds composable `data-*` attributes for state-aware styling:
 
 - `data-dnd-grid` on the container
+- `data-dnd-grid-live-region` on the aria-live element
 - `data-dnd-grid-item` on each item
+- `data-dnd-grid-item-id` on each item
 - `data-dnd-grid-handle` and `data-handle-axis` on resize handles
 - `data-dragging`, `data-resizing`, `data-settling`, `data-disabled`, `data-draggable`, `data-resizable` on items when true
 
@@ -158,6 +165,17 @@ The hook must be used inside a `DndGrid` item (it throws if rendered elsewhere).
 ## Documentation
 
 See the full API, props, and guides at https://dnd-grid.com/docs.
+
+## Development
+
+This repo is a Turborepo with npm workspaces (Node >= 18).
+
+```bash
+npm run dev
+npm run dev --workspace=web
+npm run check-types
+npm run lint
+```
 
 ## Acknowledgements
 

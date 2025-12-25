@@ -1,9 +1,7 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({
   i: i.toString(),
@@ -17,11 +15,10 @@ export function BoundedExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
-    <DndGrid
+    <AutoWidthDndGrid
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={GRID_WIDTH}
       isBounded
       onLayoutChange={setLayout}
     >
@@ -30,6 +27,6 @@ export function BoundedExample() {
           {item.i}
         </div>
       ))}
-    </DndGrid>
+    </AutoWidthDndGrid>
   );
 }

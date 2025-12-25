@@ -1,9 +1,8 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, type Layout } from "@dnd-grid/react";
 import { type CSSProperties, useState } from "react";
 
-const GRID_WIDTH = 1200;
 const scaleOptions = [0.75, 1, 1.25];
 
 const initialLayout: Layout = [
@@ -19,7 +18,6 @@ export function ScaleExample() {
   const [scale, setScale] = useState(1);
 
   const scaledStyle: CSSProperties = {
-    width: GRID_WIDTH,
     transform: `scale(${scale})`,
     transformOrigin: "top left",
     ["--dnd-grid-scale" as string]: scale,
@@ -35,22 +33,20 @@ export function ScaleExample() {
         ))}
       </div>
 
-      <div style={scaledStyle}>
-        <DndGrid
-          layout={layout}
-          cols={12}
-          rowHeight={50}
-          width={GRID_WIDTH}
-          transformScale={scale}
-          onLayoutChange={setLayout}
-        >
-          {layout.map((item) => (
-            <div key={item.i} className="grid-item">
-              {item.i}
-            </div>
-          ))}
-        </DndGrid>
-      </div>
+      <AutoWidthDndGrid
+        layout={layout}
+        cols={12}
+        rowHeight={50}
+        transformScale={scale}
+        onLayoutChange={setLayout}
+        containerProps={{ style: scaledStyle }}
+      >
+        {layout.map((item) => (
+          <div key={item.i} className="grid-item">
+            {item.i}
+          </div>
+        ))}
+      </AutoWidthDndGrid>
     </div>
   );
 }

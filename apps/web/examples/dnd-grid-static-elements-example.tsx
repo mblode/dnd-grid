@@ -1,9 +1,7 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 const initialLayout: Layout = [
   { i: "0", x: 0, y: 0, w: 3, h: 2, static: true },
@@ -16,11 +14,10 @@ export function StaticElementsExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
-    <DndGrid
+    <AutoWidthDndGrid
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={GRID_WIDTH}
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (
@@ -28,6 +25,6 @@ export function StaticElementsExample() {
           {item.i} {item.static ? "(static)" : ""}
         </div>
       ))}
-    </DndGrid>
+    </AutoWidthDndGrid>
   );
 }

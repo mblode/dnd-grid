@@ -1,9 +1,7 @@
 "use client";
 
-import { DndGrid, type Layout } from "@dnd-grid/react";
+import { AutoWidthDndGrid, type Layout } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 interface ToolboxItem {
   i: string;
@@ -58,11 +56,10 @@ export function ToolboxExample() {
         ))}
       </div>
 
-      <DndGrid
+      <AutoWidthDndGrid
         layout={visibleLayout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         onLayoutChange={handleLayoutChange}
       >
         {visibleItems.map((item) => (
@@ -73,7 +70,7 @@ export function ToolboxExample() {
             </button>
           </div>
         ))}
-      </DndGrid>
+      </AutoWidthDndGrid>
     </div>
   );
 }

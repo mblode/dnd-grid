@@ -1,9 +1,11 @@
 "use client";
 
-import { DndGrid, type Layout, type LayoutItem } from "@dnd-grid/react";
+import {
+  AutoWidthDndGrid,
+  type Layout,
+  type LayoutItem,
+} from "@dnd-grid/react";
 import { useRef, useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 type PaletteItem = {
   id: string;
@@ -72,11 +74,10 @@ export function DragFromOutsideExample() {
         ))}
       </div>
 
-      <DndGrid
+      <AutoWidthDndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
-        width={GRID_WIDTH}
         onDrop={handleDrop}
         onDropDragOver={handleDropDragOver}
         onLayoutChange={setLayout}
@@ -86,7 +87,7 @@ export function DragFromOutsideExample() {
             {item.i}
           </div>
         ))}
-      </DndGrid>
+      </AutoWidthDndGrid>
     </div>
   );
 }

@@ -1,15 +1,13 @@
 "use client";
 
 import {
-  DndGrid,
+  AutoWidthDndGrid,
   defaultConstraints,
   type Layout,
   type LayoutConstraint,
   snapToGrid,
 } from "@dnd-grid/react";
 import { useState } from "react";
-
-const GRID_WIDTH = 1200;
 
 const topBandConstraint: LayoutConstraint = {
   name: "topBand(4)",
@@ -51,11 +49,10 @@ export function ConstraintsExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
 
   return (
-    <DndGrid
+    <AutoWidthDndGrid
       layout={layout}
       cols={12}
       rowHeight={50}
-      width={GRID_WIDTH}
       constraints={gridConstraints}
       onLayoutChange={setLayout}
     >
@@ -64,6 +61,6 @@ export function ConstraintsExample() {
           {item.i}
         </div>
       ))}
-    </DndGrid>
+    </AutoWidthDndGrid>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  DndGrid,
+  AutoWidthDndGrid,
   type DndGrid as DndGridHandle,
   type Layout,
   type LayoutItem,
@@ -529,12 +529,11 @@ export function KitchenSinkExample() {
         }}
       >
         <div ref={gridRef}>
-          <DndGrid
+          <AutoWidthDndGrid
             ref={gridApiRef}
             layout={layout}
             cols={4}
             rowHeight={40}
-            width={480}
             resizeHandles={["ne", "nw", "se", "sw"]}
             onDrop={handleDrop}
             onDropDragOver={handleDropDragOver}
@@ -618,7 +617,7 @@ export function KitchenSinkExample() {
                 </div>
               );
             })}
-          </DndGrid>
+          </AutoWidthDndGrid>
         </div>
 
         <div

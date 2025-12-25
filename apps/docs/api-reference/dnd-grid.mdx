@@ -16,10 +16,11 @@ import { DndGrid } from "@dnd-grid/react";
 
 ## Props
 
-### Required
+### Core props
 
-<ResponseField name="layout" type="Layout" required>
-  Grid layout state (position and size per item).
+<ResponseField name="layout" type="Layout" default="[]">
+  Grid layout state (position and size per item). Missing entries are derived
+  from children (with a dev warning).
 </ResponseField>
 
 <ResponseField name="width" type="number" required>

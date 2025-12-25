@@ -160,7 +160,7 @@ export type LiveAnnouncements<TData = unknown> = {
   onDrag?: (
     context: LiveAnnouncementContext<TData>,
   ) => string | null | undefined;
-  onDragStop?: (
+  onDragEnd?: (
     context: LiveAnnouncementContext<TData>,
   ) => string | null | undefined;
   onResizeStart?: (
@@ -169,7 +169,7 @@ export type LiveAnnouncements<TData = unknown> = {
   onResize?: (
     context: LiveAnnouncementContext<TData>,
   ) => string | null | undefined;
-  onResizeStop?: (
+  onResizeEnd?: (
     context: LiveAnnouncementContext<TData>,
   ) => string | null | undefined;
   onFocus?: (
@@ -202,13 +202,13 @@ export type Props<TData = unknown> = {
   dragHandle: string;
   compactor?: Compactor<TData>;
   layout: Layout<TData>;
-  margin: Spacing;
+  gap: Spacing;
   containerPadding: Spacing | null;
   rowHeight: number;
   maxRows: number;
-  isBounded: boolean;
-  isDraggable: boolean;
-  isResizable: boolean;
+  bounded: boolean;
+  draggable: boolean;
+  resizable: boolean;
   transformScale: number;
   /**
    * Throttle `onDrag` and `onResize` callbacks.
@@ -233,10 +233,10 @@ export type Props<TData = unknown> = {
   onLayoutChange: (arg0: Layout<TData>) => void;
   onDrag: (event: GridDragEvent<TData>) => void;
   onDragStart: (event: GridDragEvent<TData>) => void;
-  onDragStop: (event: GridDragEvent<TData>) => void;
+  onDragEnd: (event: GridDragEvent<TData>) => void;
   onResize: (event: GridResizeEvent<TData>) => void;
   onResizeStart: (event: GridResizeEvent<TData>) => void;
-  onResizeStop: (event: GridResizeEvent<TData>) => void;
+  onResizeEnd: (event: GridResizeEvent<TData>) => void;
   onDropDragOver?: (e?: DragOverEvent) =>
     | (
         | {

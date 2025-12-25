@@ -155,7 +155,7 @@ describe("useEdgeScroll", () => {
 
     const scrolled = container.scrollTop;
     act(() => {
-      handlers?.handleDragStop();
+      handlers?.handleDragEnd();
       vi.advanceTimersByTime(20);
     });
 

@@ -16,8 +16,6 @@ prop on `DndGrid`, or use them with responsive layouts.
 | `noCompactor` | Leaves items where they are, no packing. |
 | `verticalOverlapCompactor` | Vertical mode but allows overlap. |
 | `horizontalOverlapCompactor` | Horizontal mode but allows overlap. |
-| `wrapCompactor` | Wraps items in row-major order (from `extras`). |
-| `wrapOverlapCompactor` | Wrap mode with overlap allowed. |
 | `fastVerticalCompactor` | Faster vertical packing for large layouts. |
 | `fastHorizontalCompactor` | Faster horizontal packing for large layouts. |
 | `fastVerticalOverlapCompactor` | Fast vertical mode with overlap allowed. |
@@ -28,14 +26,12 @@ import {
   verticalCompactor,
   horizontalCompactor,
   noCompactor,
-  wrapCompactor,
   fastVerticalCompactor,
 } from "@dnd-grid/react";
 
 <DndGrid compactor={verticalCompactor} />
 <DndGrid compactor={horizontalCompactor} />
 <DndGrid compactor={noCompactor} />
-<DndGrid compactor={wrapCompactor} />
 <DndGrid compactor={fastVerticalCompactor} />
 ```
 
@@ -86,7 +82,7 @@ const myCompactor: Compactor = {
   },
   onMove(layout, item, x, y) {
     return layout.map((entry) =>
-      entry.i === item.i ? { ...entry, x, y, moved: true } : entry,
+      entry.id === item.id ? { ...entry, x, y, moved: true } : entry,
     );
   },
 };

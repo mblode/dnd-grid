@@ -11,8 +11,8 @@ The layout is the grid state. It is an array of items with position and size.
 import { type Layout } from "@dnd-grid/react";
 
 const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 4, h: 2 },
-  { i: "b", x: 4, y: 0, w: 4, h: 2 },
+  { id: "a", x: 0, y: 0, w: 4, h: 2 },
+  { id: "b", x: 4, y: 0, w: 4, h: 2 },
 ];
 ```
 
@@ -20,7 +20,7 @@ const layout: Layout = [
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `i` | `string` | Required. Unique id, must match the child's `key`. |
+| `id` | `string` | Required. Unique id, must match the child's `key`. |
 | `x` | `number` | Required. Column index (0-based). |
 | `y` | `number` | Required. Row index (0-based). |
 | `w` | `number` | Required. Width in columns. |
@@ -30,8 +30,8 @@ const layout: Layout = [
 | `minH` | `number` | Minimum height. |
 | `maxH` | `number` | Maximum height. |
 | `static` | `boolean` | If `true`, the item is locked. |
-| `isDraggable` | `boolean` | Override grid drag setting. |
-| `isResizable` | `boolean` | Override grid resize setting. |
+| `draggable` | `boolean` | Override grid drag setting. |
+| `resizable` | `boolean` | Override grid resize setting. |
 
 For the full `LayoutItem` shape (constraints, resize handles, `data`, and more),
 see the [Layout item API reference](/api-reference/layout-item).

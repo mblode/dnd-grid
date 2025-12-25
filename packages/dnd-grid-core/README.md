@@ -15,16 +15,16 @@ npm install @dnd-grid/core
 import { createLayoutEngine, type Layout } from "@dnd-grid/core";
 
 const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 2 },
+  { id: "b", x: 2, y: 0, w: 2, h: 2 },
 ];
 
 const engine = createLayoutEngine({
   cols: 12,
   maxRows: 100,
   rowHeight: 30,
-  margin: [10, 10, 10, 10],
-  containerPadding: [10, 10, 10, 10],
+  gap: 10,
+  containerPadding: 10,
   containerWidth: 1200,
   containerHeight: 800,
   state: { layout },

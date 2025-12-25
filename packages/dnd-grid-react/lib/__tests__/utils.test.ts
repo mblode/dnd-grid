@@ -83,7 +83,7 @@ describe("utils", () => {
   describe("synchronizeLayoutWithChildren", () => {
     it("keeps existing layout item when child matches", () => {
       const initialLayout = [
-        createLayoutItem({ i: "a", x: 1, y: 2, w: 2, h: 2 }),
+        createLayoutItem({ id: "a", x: 1, y: 2, w: 2, h: 2 }),
       ];
       const children = React.createElement("div", { key: "a" });
       const next = synchronizeLayoutWithChildren(
@@ -92,14 +92,14 @@ describe("utils", () => {
         12,
         verticalCompactor,
       );
-      const item = next.find((entry) => entry.i === "a");
+      const item = next.find((entry) => entry.id === "a");
       expect(item?.x).toBe(1);
       expect(item?.y).toBe(0);
     });
 
     it("drops layout items without matching children", () => {
       const initialLayout = [
-        createLayoutItem({ i: "a", x: 2, y: 3, w: 2, h: 2 }),
+        createLayoutItem({ id: "a", x: 2, y: 3, w: 2, h: 2 }),
       ];
       const children = React.createElement("div", { key: "b" });
       const next = synchronizeLayoutWithChildren(
@@ -108,12 +108,12 @@ describe("utils", () => {
         12,
         verticalCompactor,
       );
-      expect(next.map((entry) => entry.i)).toEqual(["b"]);
+      expect(next.map((entry) => entry.id)).toEqual(["b"]);
     });
 
     it("adds new items at the bottom when missing from initial layout", () => {
       const initialLayout = [
-        createLayoutItem({ i: "a", x: 0, y: 0, w: 1, h: 1 }),
+        createLayoutItem({ id: "a", x: 0, y: 0, w: 1, h: 1 }),
       ];
       const children = [
         React.createElement("div", { key: "a" }),
@@ -125,12 +125,12 @@ describe("utils", () => {
         12,
         verticalCompactor,
       );
-      const item = next.find((entry) => entry.i === "b");
+      const item = next.find((entry) => entry.id === "b");
       expect(item?.y).toBe(1);
     });
 
     it("ignores children without keys", () => {
-      const initialLayout = [createLayoutItem({ i: "a" })];
+      const initialLayout = [createLayoutItem({ id: "a" })];
       const children = [
         React.createElement("div", null),
         React.createElement("div", { key: "a" }),
@@ -141,13 +141,13 @@ describe("utils", () => {
         12,
         verticalCompactor,
       );
-      expect(next.map((entry) => entry.i)).toEqual(["a"]);
+      expect(next.map((entry) => entry.id)).toEqual(["a"]);
     });
 
     it("skips compaction when allowOverlap is true", () => {
       const initialLayout = [
-        createLayoutItem({ i: "a", x: 0, y: 0, w: 2, h: 2 }),
-        createLayoutItem({ i: "b", x: 0, y: 0, w: 2, h: 2 }),
+        createLayoutItem({ id: "a", x: 0, y: 0, w: 2, h: 2 }),
+        createLayoutItem({ id: "b", x: 0, y: 0, w: 2, h: 2 }),
       ];
       const children = [
         React.createElement("div", { key: "a" }),
@@ -159,8 +159,8 @@ describe("utils", () => {
         12,
         verticalOverlapCompactor,
       );
-      const itemA = next.find((entry) => entry.i === "a");
-      const itemB = next.find((entry) => entry.i === "b");
+      const itemA = next.find((entry) => entry.id === "a");
+      const itemB = next.find((entry) => entry.id === "b");
       expect(itemA?.x).toBe(0);
       expect(itemB?.x).toBe(0);
       expect(itemA?.y).toBe(0);
@@ -175,7 +175,7 @@ describe("utils", () => {
         missingLayoutItems: new Set<string>(),
         unusedLayoutItems: new Set<string>(),
       };
-      const initialLayout = [createLayoutItem({ i: "a", x: 1, y: 2 })];
+      const initialLayout = [createLayoutItem({ id: "a", x: 1, y: 2 })];
       const children = [
         React.createElement("div", { key: "a" }),
         React.createElement("div", { key: "b" }),
@@ -197,7 +197,7 @@ describe("utils", () => {
 
       expect(consoleWarn).toHaveBeenCalledTimes(1);
       expect(consoleWarn).toHaveBeenCalledWith(
-        'DndGrid: Missing layout item for child key "b". Add a layout entry with i: "b".',
+        'DndGrid: Missing layout item for child key "b". Add a layout entry with id: "b".',
       );
       consoleWarn.mockRestore();
     });
@@ -210,7 +210,7 @@ describe("utils", () => {
         missingLayoutItems: new Set<string>(),
         unusedLayoutItems: new Set<string>(),
       };
-      const initialLayout = [createLayoutItem({ i: "a", x: 1, y: 2 })];
+      const initialLayout = [createLayoutItem({ id: "a", x: 1, y: 2 })];
       const children = null;
       synchronizeLayoutWithChildren(
         initialLayout,

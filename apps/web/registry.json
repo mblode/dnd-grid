@@ -71,7 +71,7 @@
       "name": "compactor-showcase-example",
       "type": "registry:component",
       "title": "Compactor showcase",
-      "description": "Switch between vertical, horizontal, wrap, and none.",
+      "description": "Switch between vertical, horizontal, and none.",
       "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
       "css": {
         "@import \"@dnd-grid/react/styles.css\"": {}

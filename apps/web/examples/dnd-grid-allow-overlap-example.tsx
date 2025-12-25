@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AutoWidthDndGrid,
+  DndGrid,
   type Layout,
   verticalCompactor,
   verticalOverlapCompactor,
@@ -9,10 +9,10 @@ import {
 import { useState } from "react";
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 3, h: 2 },
-  { i: "b", x: 1, y: 0, w: 3, h: 2 },
-  { i: "c", x: 2, y: 1, w: 3, h: 2 },
-  { i: "d", x: 6, y: 0, w: 3, h: 3 },
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 1, y: 0, w: 3, h: 2 },
+  { id: "c", x: 2, y: 1, w: 3, h: 2 },
+  { id: "d", x: 6, y: 0, w: 3, h: 3 },
 ];
 
 export function AllowOverlapExample() {
@@ -26,7 +26,7 @@ export function AllowOverlapExample() {
         {allowOverlap ? "Disable overlap" : "Enable overlap"}
       </button>
 
-      <AutoWidthDndGrid
+      <DndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
@@ -34,11 +34,11 @@ export function AllowOverlapExample() {
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
-          <div key={item.i} className="grid-item">
-            {item.i}
+          <div key={item.id} className="grid-item">
+            {item.id}
           </div>
         ))}
-      </AutoWidthDndGrid>
+      </DndGrid>
     </div>
   );
 }

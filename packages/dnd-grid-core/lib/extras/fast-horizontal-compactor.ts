@@ -137,7 +137,7 @@ const compactHorizontalFast = <TData>(
       if (targetY > maxRowLimit) {
         if (typeof console !== "undefined" && console.warn) {
           console.warn(
-            `Fast horizontal compactor: Item "${item.i}" exceeded max row limit (${targetY}). ` +
+            `Fast horizontal compactor: Item "${item.id}" exceeded max row limit (${targetY}). ` +
               "This may indicate a layout that cannot be compacted within grid bounds.",
           );
         }

@@ -51,7 +51,7 @@ export const examples: ExampleEntry[] = [
   {
     slug: "compactor-showcase-example",
     title: "Compactor showcase",
-    description: "Switch between vertical, horizontal, wrap, and none.",
+    description: "Switch between vertical, horizontal, and none.",
     Component: CompactorShowcaseExample,
   },
   {

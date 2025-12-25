@@ -13,8 +13,8 @@ import { type Layout } from "@dnd-grid/react";
 type CardData = { kind: "chart" | "text" };
 
 const layout: Layout<CardData> = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2, data: { kind: "chart" } },
-  { i: "b", x: 2, y: 0, w: 2, h: 2, data: { kind: "text" } },
+  { id: "a", x: 0, y: 0, w: 2, h: 2, data: { kind: "chart" } },
+  { id: "b", x: 2, y: 0, w: 2, h: 2, data: { kind: "text" } },
 ];
 ```
 
@@ -22,7 +22,7 @@ const layout: Layout<CardData> = [
 
 ### Required
 
-<ResponseField name="i" type="string" required>
+<ResponseField name="id" type="string" required>
   Unique id. Must match the child's `key`.
 </ResponseField>
 
@@ -68,15 +68,15 @@ const layout: Layout<CardData> = [
   If true, the item is locked.
 </ResponseField>
 
-<ResponseField name="isDraggable" type="boolean">
+<ResponseField name="draggable" type="boolean">
   Override grid drag setting.
 </ResponseField>
 
-<ResponseField name="isResizable" type="boolean">
+<ResponseField name="resizable" type="boolean">
   Override grid resize setting.
 </ResponseField>
 
-<ResponseField name="isBounded" type="boolean">
+<ResponseField name="bounded" type="boolean">
   Override grid bounded setting.
 </ResponseField>
 
@@ -95,7 +95,7 @@ const layout: Layout<CardData> = [
 ```tsx
 const layout: Layout = [
   {
-    i: "constrained",
+    id: "constrained",
     x: 0, y: 0, w: 4, h: 3,
     minW: 2, maxW: 8,
     minH: 2, maxH: 6,

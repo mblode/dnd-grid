@@ -56,19 +56,19 @@ describe("calculate-utils", () => {
       expect(calcGridColWidth({ ...defaultPositionParams, cols: -1 })).toBe(0);
     });
 
-    it("handles different margins", () => {
+    it("handles different gaps", () => {
       const params = {
         ...defaultPositionParams,
-        margin: [5, 5, 5, 5] as [number, number, number, number],
+        gap: [5, 5, 5, 5] as [number, number, number, number],
       };
       const width = calcGridColWidth(params);
       expect(width).toBeGreaterThan(0);
     });
 
-    it("handles zero margins", () => {
+    it("handles zero gaps", () => {
       const params = {
         ...defaultPositionParams,
-        margin: [0, 0, 0, 0] as [number, number, number, number],
+        gap: [0, 0, 0, 0] as [number, number, number, number],
         containerPadding: [0, 0, 0, 0] as [number, number, number, number],
       };
       const width = calcGridColWidth(params);

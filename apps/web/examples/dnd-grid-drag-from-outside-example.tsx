@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  AutoWidthDndGrid,
-  type Layout,
-  type LayoutItem,
-} from "@dnd-grid/react";
+import { DndGrid, type Layout, type LayoutItem } from "@dnd-grid/react";
 import { useRef, useState } from "react";
 
 type PaletteItem = {
@@ -21,10 +17,10 @@ const paletteItems: PaletteItem[] = [
 ];
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 3, h: 2 },
-  { i: "b", x: 3, y: 0, w: 3, h: 3 },
-  { i: "c", x: 6, y: 0, w: 3, h: 2 },
-  { i: "d", x: 9, y: 0, w: 3, h: 2 },
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 3, y: 0, w: 3, h: 3 },
+  { id: "c", x: 6, y: 0, w: 3, h: 2 },
+  { id: "d", x: 9, y: 0, w: 3, h: 2 },
 ];
 
 export function DragFromOutsideExample() {
@@ -43,7 +39,7 @@ export function DragFromOutsideExample() {
     nextIdRef.current += 1;
     setLayout((prev) => [
       ...prev,
-      { i: nextId, x: item.x, y: item.y, w: item.w, h: item.h },
+      { id: nextId, x: item.x, y: item.y, w: item.w, h: item.h },
     ]);
   };
 
@@ -74,7 +70,7 @@ export function DragFromOutsideExample() {
         ))}
       </div>
 
-      <AutoWidthDndGrid
+      <DndGrid
         layout={layout}
         cols={12}
         rowHeight={50}
@@ -83,11 +79,11 @@ export function DragFromOutsideExample() {
         onLayoutChange={setLayout}
       >
         {layout.map((item) => (
-          <div key={item.i} className="grid-item">
-            {item.i}
+          <div key={item.id} className="grid-item">
+            {item.id}
           </div>
         ))}
-      </AutoWidthDndGrid>
+      </DndGrid>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AutoWidthDndGrid,
+  DndGrid,
   type DndGrid as DndGridHandle,
   type Layout,
   type LayoutItem,
@@ -29,7 +29,7 @@ type PaletteItem = {
 };
 
 type GridItem = {
-  i: string;
+  id: string;
   title: string;
   w: number;
   h: number;
@@ -45,10 +45,10 @@ const paletteItems: PaletteItem[] = [
 ];
 
 const initialItems: GridItem[] = [
-  { i: "a", title: "Text", x: 0, y: 0, w: 4, h: 4 },
-  { i: "b", title: "Media", x: 0, y: 4, w: 2, h: 3 },
-  { i: "c", title: "CTA", x: 2, y: 4, w: 2, h: 2 },
-  { i: "d", title: "Quote", x: 0, y: 7, w: 4, h: 3 },
+  { id: "a", title: "Text", x: 0, y: 0, w: 4, h: 4 },
+  { id: "b", title: "Media", x: 0, y: 4, w: 2, h: 3 },
+  { id: "c", title: "CTA", x: 2, y: 4, w: 2, h: 2 },
+  { id: "d", title: "Quote", x: 0, y: 7, w: 4, h: 3 },
 ];
 
 const findEmptyPosition = ({
@@ -111,7 +111,7 @@ const getSm = ({
   currentBlock?: { w: number; h: number };
 }) => {
   const foundItem = selectedBlockId
-    ? layouts.find((item) => item.i === selectedBlockId)
+    ? layouts.find((item) => item.id === selectedBlockId)
     : undefined;
 
   if (foundItem && currentBlock) {
@@ -169,7 +169,7 @@ const resolveDropLayout = ({
   const placed: LayoutItem[] = [{ ...dropItem }];
   const next: LayoutItem[] = [{ ...dropItem }];
   const sorted = layout
-    .filter((item) => item.i !== dropItem.i)
+    .filter((item) => item.id !== dropItem.id)
     .map((item) => ({ ...item }))
     .sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
 
@@ -283,8 +283,8 @@ export function KitchenSinkExample() {
 
   const layout = useMemo<Layout>(
     () =>
-      items.map(({ i, x, y, w, h }) => ({
-        i,
+      items.map(({ id, x, y, w, h }) => ({
+        id,
         x,
         y,
         w,
@@ -316,21 +316,21 @@ export function KitchenSinkExample() {
   const handleLayoutChange = (nextLayout: Layout) => {
     setItems((prev) =>
       prev.map((item) => {
-        const next = nextLayout.find((layoutItem) => layoutItem.i === item.i);
+        const next = nextLayout.find((layoutItem) => layoutItem.id === item.id);
         return next ? { ...item, ...next } : item;
       }),
     );
   };
 
   const handleDelete = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.i !== id));
+    setItems((prev) => prev.filter((item) => item.id !== id));
     if (selectedId === id) {
       selectItem(null);
     }
   };
 
   const handleDuplicate = (id: string) => {
-    const source = items.find((item) => item.i === id);
+    const source = items.find((item) => item.id === id);
     if (!source) return;
     const sm = getSm({ layouts: layout, selectedBlockId: id });
     if (!sm) return;
@@ -340,7 +340,7 @@ export function KitchenSinkExample() {
       ...prev,
       {
         ...source,
-        i: nextId,
+        id: nextId,
         x: sm.x,
         y: sm.y,
         w: sm.w,
@@ -361,7 +361,7 @@ export function KitchenSinkExample() {
     setItems((prev) => [
       ...prev,
       {
-        i: nextId,
+        id: nextId,
         title: item.title,
         w: sm.w,
         h: sm.h,
@@ -383,15 +383,15 @@ export function KitchenSinkExample() {
     const nextId = `k${nextIdRef.current}`;
     nextIdRef.current += 1;
     setItems((prev) => {
-      const prevLayout = prev.map(({ i, x, y, w, h }) => ({
-        i,
+      const prevLayout = prev.map(({ id, x, y, w, h }) => ({
+        id,
         x,
         y,
         w,
         h,
       }));
       const dropItem: LayoutItem = {
-        i: nextId,
+        id: nextId,
         x: item.x,
         y: item.y,
         w: item.w,
@@ -401,15 +401,15 @@ export function KitchenSinkExample() {
         layout: prevLayout,
         dropItem,
       });
-      const layoutById = new Map(nextLayout.map((entry) => [entry.i, entry]));
+      const layoutById = new Map(nextLayout.map((entry) => [entry.id, entry]));
       const nextItems = prev.map((entry) => {
-        const next = layoutById.get(entry.i);
+        const next = layoutById.get(entry.id);
         return next ? { ...entry, ...next } : entry;
       });
       const dropLayout = layoutById.get(nextId);
       if (dropLayout) {
         nextItems.push({
-          i: nextId,
+          id: nextId,
           title: active.title,
           w: dropLayout.w,
           h: dropLayout.h,
@@ -509,7 +509,7 @@ export function KitchenSinkExample() {
     gridApiRef.current?.handleDndRect();
   }, [resetDndState]);
 
-  const selectedItem = items.find((item) => item.i === selectedId) ?? null;
+  const selectedItem = items.find((item) => item.id === selectedId) ?? null;
   const isAddPanel = !isEditing;
   const isEditPanel = isEditing;
 
@@ -529,7 +529,7 @@ export function KitchenSinkExample() {
         }}
       >
         <div ref={gridRef}>
-          <AutoWidthDndGrid
+          <DndGrid
             ref={gridApiRef}
             layout={layout}
             cols={4}
@@ -541,12 +541,12 @@ export function KitchenSinkExample() {
             dragCancel=".kitchen-sink-action"
           >
             {items.map((item) => {
-              const isSelected = selectedId === item.i;
-              const isHovered = hoveredId === item.i;
+              const isSelected = selectedId === item.id;
+              const isHovered = hoveredId === item.id;
 
               return (
                 <div
-                  key={item.i}
+                  key={item.id}
                   style={{
                     height: "100%",
                     position: "relative",
@@ -555,10 +555,10 @@ export function KitchenSinkExample() {
                 >
                   <button
                     type="button"
-                    onMouseEnter={() => setHoveredId(item.i)}
-                    onFocus={() => setHoveredId(item.i)}
-                    onMouseDown={() => selectItem(item.i)}
-                    onClick={() => selectItem(item.i)}
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onFocus={() => setHoveredId(item.id)}
+                    onMouseDown={() => selectItem(item.id)}
+                    onClick={() => selectItem(item.id)}
                     style={{
                       appearance: "none",
                       width: "100%",
@@ -597,18 +597,18 @@ export function KitchenSinkExample() {
                         zIndex: 130,
                       }}
                     >
-                      <button type="button" onClick={() => selectItem(item.i)}>
+                      <button type="button" onClick={() => selectItem(item.id)}>
                         Edit
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDuplicate(item.i)}
+                        onClick={() => handleDuplicate(item.id)}
                       >
                         Duplicate
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(item.i)}
+                        onClick={() => handleDelete(item.id)}
                       >
                         Delete
                       </button>
@@ -617,7 +617,7 @@ export function KitchenSinkExample() {
                 </div>
               );
             })}
-          </AutoWidthDndGrid>
+          </DndGrid>
         </div>
 
         <div
@@ -679,7 +679,7 @@ export function KitchenSinkExample() {
                   onChange={(event) =>
                     setItems((prev) =>
                       prev.map((item) =>
-                        item.i === selectedItem.i
+                        item.id === selectedItem.id
                           ? { ...item, title: event.target.value }
                           : item,
                       ),

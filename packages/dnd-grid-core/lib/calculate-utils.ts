@@ -1,11 +1,11 @@
 import type { Position, PositionParams } from "./types";
 
 export const calcGridColWidth = (positionParams: PositionParams): number => {
-  const { margin, containerPadding, containerWidth, cols } = positionParams;
+  const { gap, containerPadding, containerWidth, cols } = positionParams;
   if (cols <= 0) return 0;
   return (
     (containerWidth -
-      margin[1] * (cols - 1) -
+      gap[1] * (cols - 1) -
       containerPadding[1] -
       containerPadding[3]) /
     cols
@@ -47,7 +47,7 @@ export const calcGridItemPosition = (
     | null
     | undefined,
 ): Position => {
-  const { margin, containerPadding, rowHeight } = positionParams;
+  const { gap, containerPadding, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
   const rotation = deg ?? 0;
   const out: Position = {
@@ -62,8 +62,8 @@ export const calcGridItemPosition = (
     out.width = Math.round(state.resizing.width);
     out.height = Math.round(state.resizing.height);
   } else {
-    out.width = calcGridItemWHPx(w, colWidth, margin[1]);
-    out.height = calcGridItemWHPx(h, rowHeight, margin[0]);
+    out.width = calcGridItemWHPx(w, colWidth, gap[1]);
+    out.height = calcGridItemWHPx(h, rowHeight, gap[0]);
   }
 
   if (state?.dragging) {
@@ -79,29 +79,29 @@ export const calcGridItemPosition = (
     out.left = Math.round(state.resizing.left);
     out.deg = rotation;
   } else {
-    out.top = Math.round((rowHeight + margin[0]) * y + containerPadding[0]);
-    out.left = Math.round((colWidth + margin[1]) * x + containerPadding[3]);
+    out.top = Math.round((rowHeight + gap[0]) * y + containerPadding[0]);
+    out.left = Math.round((colWidth + gap[1]) * x + containerPadding[3]);
     out.deg = rotation;
   }
 
   if (!state?.dragging && !state?.resizing) {
     if (Number.isFinite(w)) {
       const siblingLeft = Math.round(
-        (colWidth + margin[1]) * (x + w) + containerPadding[3],
+        (colWidth + gap[1]) * (x + w) + containerPadding[3],
       );
       const actualMarginRight = siblingLeft - out.left - out.width;
-      if (actualMarginRight !== margin[1]) {
-        out.width += actualMarginRight - margin[1];
+      if (actualMarginRight !== gap[1]) {
+        out.width += actualMarginRight - gap[1];
       }
     }
 
     if (Number.isFinite(h)) {
       const siblingTop = Math.round(
-        (rowHeight + margin[0]) * (y + h) + containerPadding[0],
+        (rowHeight + gap[0]) * (y + h) + containerPadding[0],
       );
       const actualMarginBottom = siblingTop - out.top - out.height;
-      if (actualMarginBottom !== margin[0]) {
-        out.height += actualMarginBottom - margin[0];
+      if (actualMarginBottom !== gap[0]) {
+        out.height += actualMarginBottom - gap[0];
       }
     }
   }
@@ -117,10 +117,10 @@ export const calcXYRaw = (
   x: number;
   y: number;
 } => {
-  const { margin, containerPadding, rowHeight } = positionParams;
+  const { gap, containerPadding, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
-  const x = Math.round((left - containerPadding[3]) / (colWidth + margin[1]));
-  const y = Math.round((top - containerPadding[0]) / (rowHeight + margin[0]));
+  const x = Math.round((left - containerPadding[3]) / (colWidth + gap[1]));
+  const y = Math.round((top - containerPadding[0]) / (rowHeight + gap[0]));
   return { x, y };
 };
 
@@ -152,10 +152,10 @@ export const calcWHRaw = (
   w: number;
   h: number;
 } => {
-  const { margin, rowHeight } = positionParams;
+  const { gap, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
-  const w = Math.round((width + margin[1]) / (colWidth + margin[1]));
-  const h = Math.round((height + margin[0]) / (rowHeight + margin[0]));
+  const w = Math.round((width + gap[1]) / (colWidth + gap[1]));
+  const h = Math.round((height + gap[0]) / (rowHeight + gap[0]));
   return { w, h };
 };
 

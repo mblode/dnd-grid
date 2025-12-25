@@ -28,7 +28,7 @@ export const useOptionalDndGridItemState = <
  *   const { item, state } = useDndGridItemState();
  *   return (
  *     <div className={state.dragging ? 'opacity-80' : ''}>
- *       {state.dragging ? 'Moving...' : `Item ${item.i}`}
+ *       {state.dragging ? 'Moving...' : `Item ${item.id}`}
  *     </div>
  *   );
  * };

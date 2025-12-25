@@ -12,7 +12,7 @@
     {
       "path": "examples/dnd-grid-resizable-handles-example.tsx",
       "type": "registry:component",
-      "content": "\"use client\";\n\nimport { DndGrid, type Layout } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst GRID_WIDTH = 1200;\n\nconst initialLayout: Layout = [\n  { i: \"a\", x: 0, y: 0, w: 3, h: 2 },\n  { i: \"b\", x: 3, y: 0, w: 3, h: 2 },\n  { i: \"c\", x: 6, y: 0, w: 3, h: 2 },\n];\n\nexport function ResizableHandlesExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n\n  return (\n    <DndGrid\n      layout={layout}\n      cols={12}\n      rowHeight={50}\n      width={GRID_WIDTH}\n      resizeHandles={[\"n\", \"e\", \"s\", \"w\", \"ne\", \"nw\", \"se\", \"sw\"]}\n      onLayoutChange={setLayout}\n    >\n      {layout.map((item) => (\n        <div key={item.i} className=\"grid-item\">\n          {item.i}\n        </div>\n      ))}\n    </DndGrid>\n  );\n}\n"
+      "content": "\"use client\";\n\nimport { DndGrid, type Layout } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst initialLayout: Layout = [\n  { id: \"a\", x: 0, y: 0, w: 3, h: 2 },\n  { id: \"b\", x: 3, y: 0, w: 3, h: 2 },\n  { id: \"c\", x: 6, y: 0, w: 3, h: 2 },\n];\n\nexport function ResizableHandlesExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n\n  return (\n    <DndGrid\n      layout={layout}\n      cols={12}\n      rowHeight={50}\n      resizeHandles={[\"n\", \"e\", \"s\", \"w\", \"ne\", \"nw\", \"se\", \"sw\"]}\n      onLayoutChange={setLayout}\n    >\n      {layout.map((item) => (\n        <div key={item.id} className=\"grid-item\">\n          {item.id}\n        </div>\n      ))}\n    </DndGrid>\n  );\n}\n"
     }
   ]
 }

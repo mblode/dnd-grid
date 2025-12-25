@@ -69,7 +69,7 @@ Initial release of `dnd-grid`, a drag-and-drop, resizable grid layout library fo
 - **Collision detection**: automatic collision handling and item displacement
 - **Compaction**: vertical, horizontal, or no compaction modes
 - **Static items**: mark items as static to prevent dragging/resizing
-- **Bounds checking**: keep items within container bounds with `isBounded`
+- **Bounds checking**: keep items within container bounds with `bounded`
 - **Overlap support**: allow items to overlap with `allowOverlap`
 - **CSS transforms**: GPU-accelerated positioning via CSS transforms
 - **TypeScript**: full TypeScript support with exported types

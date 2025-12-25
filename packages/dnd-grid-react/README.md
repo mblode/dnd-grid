@@ -16,9 +16,9 @@ import { DndGrid, type Layout } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2 },
-  { i: "c", x: 4, y: 0, w: 2, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 2 },
+  { id: "b", x: 2, y: 0, w: 2, h: 2 },
+  { id: "c", x: 4, y: 0, w: 2, h: 2 },
 ];
 
 function MyGrid() {
@@ -29,7 +29,6 @@ function MyGrid() {
       layout={currentLayout}
       cols={12}
       rowHeight={30}
-      width={1200}
       onLayoutChange={(newLayout) => setLayout(newLayout)}
     >
       <div key="a">A</div>
@@ -48,17 +47,50 @@ control item rendering, use the headless `useDndGrid` hook and render
 
 Docs: https://dnd-grid.com/docs/hooks/use-dnd-grid
 
-## Measuring container width
+## Auto width by default
 
-If you want the grid to measure its container width and avoid width jumps on
-load, use `useContainerWidth` and render once measured:
+`DndGrid` measures its container width with `ResizeObserver`. Use
+`containerProps` to style the measurement wrapper, and `measureBeforeMount` /
+`initialWidth` to control the first render.
 
 ```tsx
-import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
+import { DndGrid, type Layout } from "@dnd-grid/react";
 
 const layout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 2 },
+  { id: "b", x: 2, y: 0, w: 2, h: 2 },
+];
+
+function MyGrid() {
+  return (
+    <DndGrid
+      layout={layout}
+      cols={12}
+      rowHeight={30}
+      containerProps={{ className: "w-full", style: { maxWidth: 600 } }}
+    >
+      <div key="a">A</div>
+      <div key="b">B</div>
+    </DndGrid>
+  );
+}
+```
+
+## Fixed width (when you already have it)
+
+If you already measure width (responsive layouts, SSR), use
+`FixedWidthDndGrid` and pass the width yourself:
+
+```tsx
+import {
+  FixedWidthDndGrid,
+  type Layout,
+  useContainerWidth,
+} from "@dnd-grid/react";
+
+const layout: Layout = [
+  { id: "a", x: 0, y: 0, w: 2, h: 2 },
+  { id: "b", x: 2, y: 0, w: 2, h: 2 },
 ];
 
 function MyGrid() {
@@ -70,19 +102,20 @@ function MyGrid() {
   return (
     <div ref={containerRef} className="w-full" style={{ maxWidth: 600 }}>
       {mounted && width > 0 && (
-        <DndGrid layout={layout} cols={12} rowHeight={30} width={width}>
+        <FixedWidthDndGrid
+          layout={layout}
+          cols={12}
+          rowHeight={30}
+          width={width}
+        >
           <div key="a">A</div>
           <div key="b">B</div>
-        </DndGrid>
+        </FixedWidthDndGrid>
       )}
     </div>
   );
 }
 ```
-
-If you prefer a convenience wrapper, `AutoWidthDndGrid` exposes the same
-behavior with `measureBeforeMount` (default `true`) and `initialWidth`. Use
-`containerProps` to style the measurement wrapper.
 
 ## Features
 
@@ -103,21 +136,23 @@ behavior with `measureBeforeMount` (default `true`) and `initialWidth`. Use
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | required | Grid items; each child `key` must match a layout `i`. |
+| `children` | `ReactNode` | required | Grid items; each child `key` must match a layout `id`. |
 | `layout` | `Layout` | `[]` | Array of layout items; missing entries are derived from children (dev warning). |
-| `width` | `number` | required | Width of the grid container |
+| `measureBeforeMount` | `boolean` | `true` | Delay rendering until the container width is measured. |
+| `initialWidth` | `number` | `1280` | Width used before measurement when rendering early. |
+| `containerProps` | `HTMLAttributes<HTMLDivElement>` | `undefined` | Props applied to the measurement wrapper. |
 | `cols` | `number` | `12` | Number of columns |
 | `rowHeight` | `number` | `150` | Height of a row in pixels |
 | `autoSize` | `boolean` | `true` | Auto-size the container height |
 | `maxRows` | `number` | `Infinity` | Maximum number of rows |
-| `margin` | `number \| { top: number; right: number; bottom: number; left: number }` | `10` | Margin around items |
-| `containerPadding` | `number \| { top: number; right: number; bottom: number; left: number } \| null` | `null` | Container padding (null uses margin) |
+| `gap` | `number \| { top: number; right: number; bottom: number; left: number }` | `10` | Gap around items |
+| `containerPadding` | `number \| { top: number; right: number; bottom: number; left: number } \| null` | `null` | Container padding (null uses gap) |
 | `className` | `string` | `""` | Extra class for the grid container |
 | `style` | `CSSProperties` | `{}` | Inline styles for the grid container |
-| `isDraggable` | `boolean` | `true` | Enable dragging |
-| `isResizable` | `boolean` | `true` | Enable resizing |
+| `draggable` | `boolean` | `true` | Enable dragging |
+| `resizable` | `boolean` | `true` | Enable resizing |
 | `autoScroll` | `boolean \| AutoScrollOptions` | `true` | Auto-scroll when dragging near scroll edges |
-| `isBounded` | `boolean` | `false` | Keep items within container bounds |
+| `bounded` | `boolean` | `false` | Keep items within container bounds |
 | `compactor` | `Compactor` | `verticalCompactor` | Compaction strategy |
 | `constraints` | `LayoutConstraint[]` | `defaultConstraints` | Constraints applied during drag/resize |
 | `validation` | `boolean` | `true in dev, false in prod` | Validate layouts at runtime with Zod |
@@ -130,7 +165,7 @@ behavior with `measureBeforeMount` (default `true`) and `initialWidth`. Use
 | `dragTouchDelayDuration` | `number` | `250` | Touch delay before drag starts (ms) |
 | `dragHandle` | `string` | `""` | Selector for drag handles |
 | `dragCancel` | `string` | `""` | Selector for elements that cancel drag |
-| `droppingItem` | `Partial<LayoutItem>` | `{ i: "__dropping-elem__", w: 1, h: 1 }` | Defaults for the dropping placeholder |
+| `droppingItem` | `Partial<LayoutItem>` | `{ id: "__dropping-elem__", w: 1, h: 1 }` | Defaults for the dropping placeholder |
 | `slotProps` | `SlotProps` | `undefined` | Slot styling for items, placeholders, and handles |
 | `liveAnnouncements` | `LiveAnnouncementsOptions \| false` | `enabled` | Configure aria-live announcements or disable |
 | `innerRef` | `Ref<HTMLDivElement>` | `undefined` | Ref to the container element |
@@ -150,11 +185,15 @@ Drop behavior is enabled when you provide `onDrop` or `onDropDragOver`.
 Compose responsive behavior with hooks:
 
 ```tsx
-import { DndGrid, useContainerWidth, useDndGridResponsiveLayout } from "@dnd-grid/react";
+import {
+  FixedWidthDndGrid,
+  useContainerWidth,
+  useDndGridResponsiveLayout,
+} from "@dnd-grid/react";
 
 const layouts = {
-  lg: [{ i: "a", x: 0, y: 0, w: 3, h: 2 }],
-  md: [{ i: "a", x: 0, y: 0, w: 4, h: 2 }],
+  lg: [{ id: "a", x: 0, y: 0, w: 3, h: 2 }],
+  md: [{ id: "a", x: 0, y: 0, w: 4, h: 2 }],
 };
 
 function ResponsiveGrid() {
@@ -165,17 +204,21 @@ function ResponsiveGrid() {
   const { gridProps, handleLayoutChange } = useDndGridResponsiveLayout({
     width,
     layouts,
-    margin: { lg: 16, md: { top: 12, right: 16, bottom: 12, left: 16 } },
+    gap: { lg: 16, md: { top: 12, right: 16, bottom: 12, left: 16 } },
     containerPadding: 16,
   });
 
   return (
     <div ref={containerRef}>
       {mounted && (
-        <DndGrid width={width} {...gridProps} onLayoutChange={handleLayoutChange}>
+        <FixedWidthDndGrid
+          width={width}
+          {...gridProps}
+          onLayoutChange={handleLayoutChange}
+        >
           <div key="a">A</div>
           <div key="b">B</div>
-        </DndGrid>
+        </FixedWidthDndGrid>
       )}
     </div>
   );
@@ -188,7 +231,7 @@ Each item in the layout array has these properties:
 
 ```ts
 interface LayoutItem {
-  i: string;      // Unique identifier
+  id: string;     // Unique identifier
   x: number;      // X position in grid units
   y: number;      // Y position in grid units
   w: number;      // Width in grid units
@@ -201,9 +244,9 @@ interface LayoutItem {
   resizeHandles?: ResizeHandleAxis[]; // Override resize handle positions
   constraints?: LayoutConstraint[]; // Per-item constraints
   static?: boolean;     // Cannot be moved or resized
-  isDraggable?: boolean; // Override grid isDraggable
-  isResizable?: boolean; // Override grid isResizable
-  isBounded?: boolean;   // Override grid isBounded
+  draggable?: boolean; // Override grid draggable
+  resizable?: boolean; // Override grid resizable
+  bounded?: boolean;   // Override grid bounded
 }
 ```
 
@@ -250,14 +293,12 @@ import {
   verticalCompactor,
   horizontalCompactor,
   noCompactor,
-  wrapCompactor,
   fastVerticalCompactor,
 } from "@dnd-grid/react";
 
 <DndGrid compactor={verticalCompactor} />;
 <DndGrid compactor={horizontalCompactor} />;
 <DndGrid compactor={noCompactor} />;
-<DndGrid compactor={wrapCompactor} />;
 <DndGrid compactor={fastVerticalCompactor} />;
 ```
 
@@ -282,7 +323,7 @@ function Card() {
   const { item, state } = useDndGridItemState();
   return (
     <div className={state.resizing ? "is-resizing" : ""}>
-      Item {item.i}
+      Item {item.id}
     </div>
   );
 }
@@ -297,10 +338,10 @@ The hook must be used inside a `DndGrid` item (it throws if rendered elsewhere).
 | `onLayoutChange` | `(layout: Layout) => void` | Called when layout changes |
 | `onDragStart` | `(event: GridDragEvent) => void` | Called when drag starts |
 | `onDrag` | `(event: GridDragEvent) => void` | Called during drag |
-| `onDragStop` | `(event: GridDragEvent) => void` | Called when drag stops |
+| `onDragEnd` | `(event: GridDragEvent) => void` | Called when drag ends |
 | `onResizeStart` | `(event: GridResizeEvent) => void` | Called when resize starts |
 | `onResize` | `(event: GridResizeEvent) => void` | Called during resize |
-| `onResizeStop` | `(event: GridResizeEvent) => void` | Called when resize stops |
+| `onResizeEnd` | `(event: GridResizeEvent) => void` | Called when resize ends |
 | `onDrop` | `(layout, item, e) => void` | Called when item is dropped |
 | `onDropDragOver` | `(e) => { w?: number; h?: number } \| false` | Customise dropping item |
 

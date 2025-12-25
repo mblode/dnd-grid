@@ -14,7 +14,7 @@ import { AutoScrollActivator, useEdgeScroll } from "@dnd-grid/react";
 
 export function EdgeScrollCard() {
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const { handleDragStart, handleDrag, handleDragStop, isScrolling } =
+  const { handleDragStart, handleDrag, handleDragEnd, isScrolling } =
     useEdgeScroll({
       activator: AutoScrollActivator.Pointer,
       threshold: { x: 0.15, y: 0.15 },
@@ -28,7 +28,7 @@ export function EdgeScrollCard() {
         event.currentTarget.setPointerCapture(event.pointerId);
       }}
       onPointerMove={(event) => handleDrag(event, cardRef.current)}
-      onPointerUp={() => handleDragStop()}
+      onPointerUp={() => handleDragEnd()}
       style={{ cursor: "grab", userSelect: "none" }}
     >
       {isScrolling ? "Scrolling..." : "Drag me near the edges"}
@@ -56,7 +56,7 @@ export function EdgeScrollCard() {
 |-------|-------------|
 | `handleDragStart` | Call on drag start with the event, node, and optional `{ left, top }` position. |
 | `handleDrag` | Call on drag move with the event, node, and optional `{ left, top }` position. |
-| `handleDragStop` | Call on drag end. |
+| `handleDragEnd` | Call on drag end. |
 | `isScrolling` | `true` while auto-scroll is active. |
 
 <Note>

@@ -11,26 +11,26 @@ import { useDndGridResponsiveLayout } from "../use-dnd-grid-responsive-layout";
 type TestProps = {
   width: number;
   layouts: ResponsiveLayouts;
-  margin?: Spacing | Record<string, Spacing>;
+  gap?: Spacing | Record<string, Spacing>;
   missingLayoutStrategy?: MissingLayoutStrategy;
 };
 
 const TestComponent = ({
   width,
   layouts,
-  margin,
+  gap,
   missingLayoutStrategy,
 }: TestProps) => {
   const result = useDndGridResponsiveLayout({
     width,
     layouts,
-    margin: margin ?? 10,
+    gap: gap ?? 10,
     missingLayoutStrategy,
   });
-  const serializedMargin =
-    typeof result.margin === "number"
-      ? String(result.margin)
-      : JSON.stringify(result.margin);
+  const serializedGap =
+    typeof result.gap === "number"
+      ? String(result.gap)
+      : JSON.stringify(result.gap);
 
   return (
     <div
@@ -38,7 +38,7 @@ const TestComponent = ({
       data-breakpoint={result.breakpoint}
       data-cols={result.cols}
       data-layout={JSON.stringify(result.layout)}
-      data-margin={serializedMargin}
+      data-gap={serializedGap}
     />
   );
 };
@@ -46,8 +46,8 @@ const TestComponent = ({
 describe("useDndGridResponsiveLayout", () => {
   it("returns layout for the active breakpoint", () => {
     const layouts: ResponsiveLayouts = {
-      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
-      md: [{ i: "a", x: 1, y: 0, w: 3, h: 2 }],
+      lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
+      md: [{ id: "a", x: 1, y: 0, w: 3, h: 2 }],
     };
     render(<TestComponent width={1200} layouts={layouts} />);
 
@@ -57,15 +57,15 @@ describe("useDndGridResponsiveLayout", () => {
 
     const parsedLayout = JSON.parse(node.dataset.layout || "[]") as Layout;
     expect(parsedLayout[0]?.x).toBe(0);
-    expect(node.dataset.margin).toBe("10");
+    expect(node.dataset.gap).toBe("10");
   });
 
   it("updates breakpoint and cols when width changes", () => {
     const layouts: ResponsiveLayouts = {
-      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
-      md: [{ i: "a", x: 1, y: 0, w: 3, h: 2 }],
+      lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
+      md: [{ id: "a", x: 1, y: 0, w: 3, h: 2 }],
     };
-    const margin = {
+    const gap = {
       lg: 16,
       md: { top: 12, right: 16, bottom: 12, left: 16 },
     };
@@ -73,7 +73,7 @@ describe("useDndGridResponsiveLayout", () => {
       <TestComponent
         width={1200}
         layouts={layouts}
-        margin={margin}
+        gap={gap}
         missingLayoutStrategy="derive"
       />,
     );
@@ -82,7 +82,7 @@ describe("useDndGridResponsiveLayout", () => {
       <TestComponent
         width={800}
         layouts={layouts}
-        margin={margin}
+        gap={gap}
         missingLayoutStrategy="derive"
       />,
     );
@@ -94,7 +94,7 @@ describe("useDndGridResponsiveLayout", () => {
 
   it("returns empty layout when missingLayoutStrategy is empty", () => {
     const layouts: ResponsiveLayouts = {
-      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
+      lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
     };
     render(
       <TestComponent
@@ -110,7 +110,7 @@ describe("useDndGridResponsiveLayout", () => {
 
   it("throws when missingLayoutStrategy is error and layout is missing", () => {
     const layouts: ResponsiveLayouts = {
-      lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }],
+      lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
     };
     const consoleError = vi
       .spyOn(console, "error")
@@ -121,7 +121,7 @@ describe("useDndGridResponsiveLayout", () => {
         <TestComponent
           width={800}
           layouts={layouts}
-          margin={10}
+          gap={10}
           missingLayoutStrategy="error"
         />,
       ),

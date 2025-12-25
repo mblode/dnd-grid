@@ -10,7 +10,7 @@ layouts, and returns ready-to-spread props for `DndGrid`.
 
 ```tsx
 import {
-  DndGrid,
+  FixedWidthDndGrid,
   type Layout,
   useContainerWidth,
   useDndGridResponsiveLayout,
@@ -19,12 +19,12 @@ import "@dnd-grid/react/styles.css";
 
 const layouts: Record<string, Layout> = {
   lg: [
-    { i: "a", x: 0, y: 0, w: 4, h: 2 },
-    { i: "b", x: 4, y: 0, w: 4, h: 2 },
+    { id: "a", x: 0, y: 0, w: 4, h: 2 },
+    { id: "b", x: 4, y: 0, w: 4, h: 2 },
   ],
   md: [
-    { i: "a", x: 0, y: 0, w: 6, h: 2 },
-    { i: "b", x: 0, y: 2, w: 6, h: 2 },
+    { id: "a", x: 0, y: 0, w: 6, h: 2 },
+    { id: "b", x: 0, y: 2, w: 6, h: 2 },
   ],
 };
 
@@ -37,7 +37,7 @@ export function ResponsiveGrid() {
     useDndGridResponsiveLayout({
       width,
       layouts,
-      margin: { lg: 16, md: 12 },
+      gap: { lg: 16, md: 12 },
       containerPadding: 16,
     });
 
@@ -45,14 +45,14 @@ export function ResponsiveGrid() {
     <div ref={containerRef}>
       <p>Breakpoint: {breakpoint}</p>
       {mounted && (
-        <DndGrid
+        <FixedWidthDndGrid
           width={width}
           {...gridProps}
           onLayoutChange={handleLayoutChange}
         >
           <div key="a">A</div>
           <div key="b">B</div>
-        </DndGrid>
+        </FixedWidthDndGrid>
       )}
     </div>
   );
@@ -68,14 +68,14 @@ export function ResponsiveGrid() {
 | `cols` | `Record<Breakpoint, number>` | Column count per breakpoint. |
 | `layouts` | `ResponsiveLayouts` | Controlled layouts per breakpoint. |
 | `defaultLayouts` | `ResponsiveLayouts` | Uncontrolled initial layouts. |
-| `margin` | `ResponsiveSpacing` | Gap per breakpoint (number or spacing object). |
-| `containerPadding` | `ResponsiveSpacing | null` | Padding per breakpoint (or `null` to use margin). |
+| `gap` | `ResponsiveSpacing` | Gap per breakpoint (number or spacing object). |
+| `containerPadding` | `ResponsiveSpacing | null` | Padding per breakpoint (or `null` to use gap). |
 | `compactor` | `Compactor` | Compaction strategy for generated layouts. |
 | `missingLayoutStrategy` | `"derive" \| "warn" \| "error" \| "empty"` | Control how missing breakpoint layouts are handled. |
 | `onBreakpointChange` | `(bp, cols) => void` | Fires when the active breakpoint changes. |
 | `onLayoutsChange` | `(layouts) => void` | Fires when any breakpoint layout changes. |
 | `onLayoutChange` | `(layout, layouts) => void` | Fires when the active layout changes. |
-| `onWidthChange` | `(width, margin, cols, padding) => void` | Fires on width or breakpoint config changes. |
+| `onWidthChange` | `(width, gap, cols, padding) => void` | Fires on width or breakpoint config changes. |
 
 ## Returns
 
@@ -85,9 +85,9 @@ export function ResponsiveGrid() {
 | `layouts` | Full breakpoint layout map. |
 | `breakpoint` | Current breakpoint key. |
 | `cols` | Column count for the current breakpoint. |
-| `margin` | Resolved margin for the current breakpoint. |
+| `gap` | Resolved gap for the current breakpoint. |
 | `containerPadding` | Resolved container padding for the current breakpoint. |
-| `gridProps` | `{ layout, cols, margin, containerPadding }` to spread onto `DndGrid`. |
+| `gridProps` | `{ layout, cols, gap, containerPadding }` to spread onto `DndGrid`. |
 | `setLayoutForBreakpoint` | Update a specific breakpoint layout. |
 | `setLayouts` | Replace all layouts. |
 | `handleLayoutChange` | Helper for `DndGrid`'s `onLayoutChange`. |

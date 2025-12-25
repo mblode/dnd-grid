@@ -10,10 +10,10 @@ interface ResizeState {
 interface GridInteractionsHandlers {
   handleDragStart: (event: GridDragEvent) => void;
   handleDrag: (event: GridDragEvent) => void;
-  handleDragStop: (event: GridDragEvent) => void;
+  handleDragEnd: (event: GridDragEvent) => void;
   handleResizeStart: (event: GridResizeEvent) => void;
   handleResize: (event: GridResizeEvent) => void;
-  handleResizeStop: (event: GridResizeEvent) => void;
+  handleResizeEnd: (event: GridResizeEvent) => void;
   handleSelect: (id: string) => void;
   handleHover: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
@@ -22,9 +22,9 @@ interface GridInteractionsHandlers {
 
 interface UseGridInteractionsOptions {
   onDragStart?: (id: string) => void;
-  onDragStop?: (id: string) => void;
+  onDragEnd?: (id: string) => void;
   onResizeStart?: (id: string) => void;
-  onResizeStop?: (id: string) => void;
+  onResizeEnd?: (id: string) => void;
   onSelect?: (id: string) => void;
   onHover?: (id: string | null) => void;
 }
@@ -40,7 +40,7 @@ export function useGridInteractions(
   const handleDragStart = useCallback(
     (event: GridDragEvent) => {
       const item = event.item ?? event.previousItem;
-      const id = item?.i ?? null;
+      const id = item?.id ?? null;
       setHoveredId(id);
       setDragId(id);
       if (id) {
@@ -54,12 +54,12 @@ export function useGridInteractions(
     // Can be extended for edge scroll or other drag-time behaviors
   }, []);
 
-  const handleDragStop = useCallback(
+  const handleDragEnd = useCallback(
     (event: GridDragEvent) => {
       const item = event.item ?? event.previousItem;
       setDragId(null);
-      if (item?.i) {
-        options.onDragStop?.(item.i);
+      if (item?.id) {
+        options.onDragEnd?.(item.id);
       }
     },
     [options],
@@ -68,12 +68,12 @@ export function useGridInteractions(
   const handleResizeStart = useCallback(
     (event: GridResizeEvent) => {
       const item = event.item ?? event.previousItem;
-      const id = item?.i ?? null;
+      const id = item?.id ?? null;
       setHoveredId(id);
       setSelectedId(id);
       if (item) {
-        setResizeState({ id: item.i, w: item.w, h: item.h });
-        options.onResizeStart?.(item.i);
+        setResizeState({ id: item.id, w: item.w, h: item.h });
+        options.onResizeStart?.(item.id);
       }
     },
     [options],
@@ -82,16 +82,16 @@ export function useGridInteractions(
   const handleResize = useCallback((event: GridResizeEvent) => {
     const item = event.item ?? event.previousItem;
     if (item) {
-      setResizeState({ id: item.i, w: item.w, h: item.h });
+      setResizeState({ id: item.id, w: item.w, h: item.h });
     }
   }, []);
 
-  const handleResizeStop = useCallback(
+  const handleResizeEnd = useCallback(
     (event: GridResizeEvent) => {
       const item = event.item ?? event.previousItem;
       setResizeState(null);
-      if (item?.i) {
-        options.onResizeStop?.(item.i);
+      if (item?.id) {
+        options.onResizeEnd?.(item.id);
       }
     },
     [options],
@@ -120,13 +120,12 @@ export function useGridInteractions(
     handleDragStart:
       handleDragStart as GridInteractionsHandlers["handleDragStart"],
     handleDrag: handleDrag as GridInteractionsHandlers["handleDrag"],
-    handleDragStop:
-      handleDragStop as GridInteractionsHandlers["handleDragStop"],
+    handleDragEnd: handleDragEnd as GridInteractionsHandlers["handleDragEnd"],
     handleResizeStart:
       handleResizeStart as GridInteractionsHandlers["handleResizeStart"],
     handleResize: handleResize as GridInteractionsHandlers["handleResize"],
-    handleResizeStop:
-      handleResizeStop as GridInteractionsHandlers["handleResizeStop"],
+    handleResizeEnd:
+      handleResizeEnd as GridInteractionsHandlers["handleResizeEnd"],
     handleSelect,
     handleHover,
     setHoveredId,

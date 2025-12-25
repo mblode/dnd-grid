@@ -128,14 +128,14 @@ export type UseDndGridApi<TData = unknown> = {
   containerHeight: () => string | undefined;
   onDragStart: (event: GridItemDragEvent) => void;
   onDrag: (event: GridItemDragEvent) => void;
-  onDragStop: (event: GridItemDragEvent) => void;
+  onDragEnd: (event: GridItemDragEvent) => void;
   onDragOver: React.DragEventHandler<HTMLDivElement>;
   onDragEnter: React.DragEventHandler<HTMLDivElement>;
   onDragLeave: React.DragEventHandler<HTMLDivElement>;
   onDrop: React.DragEventHandler<HTMLDivElement>;
   onResizeStart: (event: GridItemResizeEvent) => void;
   onResize: (event: GridItemResizeEvent) => void;
-  onResizeStop: (event: GridItemResizeEvent) => void;
+  onResizeEnd: (event: GridItemResizeEvent) => void;
   onSettleComplete: (id: string) => void;
   handleDndRect: (
     e?: Event | undefined | null,
@@ -214,8 +214,8 @@ const getFocusableItemIds = <TData>(
 ): string[] => {
   const childKeys = getChildKeys(children);
   return sortLayoutItems(layout, compactor)
-    .filter((item) => !item.static && childKeys.has(item.i))
-    .map((item) => item.i);
+    .filter((item) => !item.static && childKeys.has(item.id))
+    .map((item) => item.id);
 };
 
 // Try...catch will protect from navigator not existing (e.g. node) or a bad implementation of navigator
@@ -251,7 +251,7 @@ const defaultGetItemLabel = <TData>(
 ): string => {
   const nodeLabel = resolveNodeLabel(node);
   if (nodeLabel) return nodeLabel;
-  if (item?.i) return `item ${item.i}`;
+  if (item?.id) return `item ${item.id}`;
   return "item";
 };
 
@@ -282,7 +282,7 @@ const createDefaultLiveAnnouncements = <TData>(): LiveAnnouncements<TData> => ({
     const position = formatGridPosition(item);
     return position ? `Moved ${label} to ${position}.` : `Moved ${label}.`;
   },
-  onDragStop: ({ item, node, getItemLabel }) => {
+  onDragEnd: ({ item, node, getItemLabel }) => {
     if (!item) return undefined;
     const label = getItemLabel(item, node);
     const position = formatGridPosition(item);
@@ -300,7 +300,7 @@ const createDefaultLiveAnnouncements = <TData>(): LiveAnnouncements<TData> => ({
     const size = formatGridSize(item);
     return size ? `Resized ${label} to ${size}.` : `Resized ${label}.`;
   },
-  onResizeStop: ({ item, node, getItemLabel }) => {
+  onResizeEnd: ({ item, node, getItemLabel }) => {
     if (!item) return undefined;
     const label = getItemLabel(item, node);
     const size = formatGridSize(item);
@@ -349,15 +349,15 @@ export const defaultProps: DefaultProps = {
   maxRows: Number.POSITIVE_INFINITY,
   // infinite vertical growth
   layout: [],
-  margin: 10,
-  isBounded: false,
-  isDraggable: true,
-  isResizable: true,
+  gap: 10,
+  bounded: false,
+  draggable: true,
+  resizable: true,
   transformScale: 1,
   validation: isDevelopment,
   compactor: verticalCompactor,
   droppingItem: {
-    i: "__dropping-elem__",
+    id: "__dropping-elem__",
     h: 1,
     w: 1,
   },
@@ -365,10 +365,10 @@ export const defaultProps: DefaultProps = {
   onLayoutChange: noop,
   onDragStart: noop,
   onDrag: noop,
-  onDragStop: noop,
+  onDragEnd: noop,
   onResizeStart: noop,
   onResize: noop,
-  onResizeStop: noop,
+  onResizeEnd: noop,
 };
 
 const resolveCompactor = <TData>(props: Props<TData>): Compactor<TData> =>
@@ -583,12 +583,12 @@ export const useDndGrid = <TData = unknown>(
   );
 
   const resolveSpacing = React.useCallback(() => {
-    const resolvedMargin = normalizeSpacing(propsRef.current.margin);
+    const resolvedGap = normalizeSpacing(propsRef.current.gap);
     const resolvedContainerPadding = normalizeSpacing(
-      propsRef.current.containerPadding ?? propsRef.current.margin,
+      propsRef.current.containerPadding ?? propsRef.current.gap,
     );
     return {
-      margin: resolvedMargin,
+      gap: resolvedGap,
       containerPadding: resolvedContainerPadding,
     };
   }, []);
@@ -722,12 +722,12 @@ export const useDndGrid = <TData = unknown>(
     if (!propsRef.current.autoSize) return;
     const nbRow = bottom(stateRef.current.layout);
     const { rowHeight } = propsRef.current;
-    const { margin, containerPadding } = resolveSpacing();
+    const { gap, containerPadding } = resolveSpacing();
     const containerPaddingTop = containerPadding[0];
     const containerPaddingBottom = containerPadding[2];
     return (
       nbRow * rowHeight +
-      (nbRow - 1) * margin[0] +
+      (nbRow - 1) * gap[0] +
       containerPaddingTop +
       containerPaddingBottom +
       "px"
@@ -736,11 +736,11 @@ export const useDndGrid = <TData = unknown>(
 
   const measure = React.useCallback((): DndGridMeasurements => {
     const node = containerRef.current;
-    const { margin, containerPadding } = resolveSpacing();
+    const { gap, containerPadding } = resolveSpacing();
     const { cols, rowHeight, maxRows, width } = propsRef.current;
     const positionParams: PositionParams = {
       cols,
-      margin,
+      gap,
       maxRows,
       rowHeight,
       containerWidth: width,
@@ -856,7 +856,7 @@ export const useDndGrid = <TData = unknown>(
             h,
             x: x ?? l.x,
             y: y ?? l.y,
-          }).filter((layoutItem) => layoutItem.i !== l.i);
+          }).filter((layoutItem) => layoutItem.id !== l.id);
 
           if (collisions.length > 0) {
             y = l.y;
@@ -914,7 +914,7 @@ export const useDndGrid = <TData = unknown>(
         x: l.x,
         y: l.y,
         placeholder: true,
-        i: id,
+        id,
       };
       setState((prevState) => ({
         ...prevState,
@@ -922,7 +922,7 @@ export const useDndGrid = <TData = unknown>(
         oldLayout: layout,
         activeDrag: placeholder,
       }));
-      lastDragAnnouncementRef.current = { id: l.i, x: l.x, y: l.y };
+      lastDragAnnouncementRef.current = { id: l.id, x: l.x, y: l.y };
       announceEvent("onDragStart", {
         item: l,
         node,
@@ -972,21 +972,21 @@ export const useDndGrid = <TData = unknown>(
         x: updatedItem.x,
         y: updatedItem.y,
         placeholder: true,
-        i: updatedItem.i,
+        id: updatedItem.id,
       };
       const lastDrag = lastDragAnnouncementRef.current;
       const previousItem =
-        lastDrag && lastDrag.id === updatedItem.i
+        lastDrag && lastDrag.id === updatedItem.id
           ? { ...updatedItem, x: lastDrag.x, y: lastDrag.y }
           : undefined;
       if (
         !lastDrag ||
-        lastDrag.id !== updatedItem.i ||
+        lastDrag.id !== updatedItem.id ||
         lastDrag.x !== updatedItem.x ||
         lastDrag.y !== updatedItem.y
       ) {
         lastDragAnnouncementRef.current = {
-          id: updatedItem.i,
+          id: updatedItem.id,
           x: updatedItem.x,
           y: updatedItem.y,
         };
@@ -1020,10 +1020,10 @@ export const useDndGrid = <TData = unknown>(
     [announceEvent],
   );
 
-  const onDragStop = React.useCallback(
+  const onDragEnd = React.useCallback(
     (dragEvent: GridItemDragEvent) => {
       const { id, x, y, event, node } = dragEvent;
-      edgeScrollRef.current.handleDragStop();
+      edgeScrollRef.current.handleDragEnd();
       if (!stateRef.current.activeDrag) return;
       const { oldDragItem, oldLayout } = stateRef.current;
       const { layout } = stateRef.current;
@@ -1048,22 +1048,22 @@ export const useDndGrid = <TData = unknown>(
       dragCallbackThrottleRef.current.flush(propsRef.current.onDrag);
       const lastDrag = lastDragAnnouncementRef.current;
       const previousItem =
-        lastDrag && lastDrag.id === updatedItem.i
+        lastDrag && lastDrag.id === updatedItem.id
           ? { ...updatedItem, x: lastDrag.x, y: lastDrag.y }
           : undefined;
       lastDragAnnouncementRef.current = {
-        id: updatedItem.i,
+        id: updatedItem.id,
         x: updatedItem.x,
         y: updatedItem.y,
       };
-      announceEvent("onDragStop", {
+      announceEvent("onDragEnd", {
         item: updatedItem,
         previousItem,
         node,
         layout: newLayout,
       });
       const callbackEvent: GridDragEvent<TData> = {
-        type: "dragStop",
+        type: "dragEnd",
         layout: newLayout,
         previousItem: oldDragItem,
         item: updatedItem,
@@ -1071,7 +1071,7 @@ export const useDndGrid = <TData = unknown>(
         event,
         node,
       };
-      propsRef.current.onDragStop(callbackEvent);
+      propsRef.current.onDragEnd(callbackEvent);
       if (
         reducedMotionRef.current ||
         !animationConfigRef.current.springs.enabled
@@ -1091,7 +1091,7 @@ export const useDndGrid = <TData = unknown>(
           x: updatedItem.x,
           y: updatedItem.y,
           placeholder: true,
-          i: updatedItem.i,
+          id: updatedItem.id,
         };
         setState((prevState) => ({
           ...prevState,
@@ -1107,9 +1107,9 @@ export const useDndGrid = <TData = unknown>(
     [announceEvent, onLayoutMaybeChanged],
   );
 
-  const onSettleComplete = React.useCallback((i: string) => {
+  const onSettleComplete = React.useCallback((id: string) => {
     setState((prevState) => {
-      if (prevState.settlingItem !== i) return prevState;
+      if (prevState.settlingItem !== id) return prevState;
       return {
         ...prevState,
         activeDrag: null,
@@ -1130,7 +1130,7 @@ export const useDndGrid = <TData = unknown>(
         oldLayout: stateRef.current.layout,
         resizing: true,
       }));
-      lastResizeAnnouncementRef.current = { id: l.i, w: l.w, h: l.h };
+      lastResizeAnnouncementRef.current = { id: l.id, w: l.w, h: l.h };
       announceEvent("onResizeStart", {
         item: l,
         node,
@@ -1190,7 +1190,7 @@ export const useDndGrid = <TData = unknown>(
             h,
             x: x ?? l.x,
             y: y ?? l.y,
-          }).filter((layoutItem) => layoutItem.i !== l.i);
+          }).filter((layoutItem) => layoutItem.id !== l.id);
 
           if (collisions.length > 0) {
             y = l.y;
@@ -1230,21 +1230,21 @@ export const useDndGrid = <TData = unknown>(
         x: updatedItem.x,
         y: updatedItem.y,
         static: true,
-        i: updatedItem.i,
+        id: updatedItem.id,
       };
       const lastResize = lastResizeAnnouncementRef.current;
       const previousItem =
-        lastResize && lastResize.id === updatedItem.i
+        lastResize && lastResize.id === updatedItem.id
           ? { ...updatedItem, w: lastResize.w, h: lastResize.h }
           : undefined;
       if (
         !lastResize ||
-        lastResize.id !== updatedItem.i ||
+        lastResize.id !== updatedItem.id ||
         lastResize.w !== updatedItem.w ||
         lastResize.h !== updatedItem.h
       ) {
         lastResizeAnnouncementRef.current = {
-          id: updatedItem.i,
+          id: updatedItem.id,
           w: updatedItem.w,
           h: updatedItem.h,
         };
@@ -1279,7 +1279,7 @@ export const useDndGrid = <TData = unknown>(
     [announceEvent],
   );
 
-  const onResizeStop = React.useCallback(
+  const onResizeEnd = React.useCallback(
     (resizeEvent: GridItemResizeEvent) => {
       const { id, event, node, handle } = resizeEvent;
       const { layout, oldResizeItem, oldLayout } = stateRef.current;
@@ -1295,22 +1295,22 @@ export const useDndGrid = <TData = unknown>(
       resizeCallbackThrottleRef.current.flush(propsRef.current.onResize);
       const lastResize = lastResizeAnnouncementRef.current;
       const previousItem =
-        lastResize && lastResize.id === updatedItem.i
+        lastResize && lastResize.id === updatedItem.id
           ? { ...updatedItem, w: lastResize.w, h: lastResize.h }
           : undefined;
       lastResizeAnnouncementRef.current = {
-        id: updatedItem.i,
+        id: updatedItem.id,
         w: updatedItem.w,
         h: updatedItem.h,
       };
-      announceEvent("onResizeStop", {
+      announceEvent("onResizeEnd", {
         item: updatedItem,
         previousItem,
         node,
         layout: newLayout,
       });
       const callbackEvent: GridResizeEvent<TData> = {
-        type: "resizeStop",
+        type: "resizeEnd",
         layout: newLayout,
         previousItem: oldResizeItem,
         item: updatedItem,
@@ -1319,7 +1319,7 @@ export const useDndGrid = <TData = unknown>(
         node,
         handle,
       };
-      propsRef.current.onResizeStop(callbackEvent);
+      propsRef.current.onResizeEnd(callbackEvent);
       setState((prevState) => ({
         ...prevState,
         activeDrag: null,
@@ -1338,7 +1338,7 @@ export const useDndGrid = <TData = unknown>(
     const { layout } = stateRef.current;
     const compactor = resolveCompactor(propsRef.current);
     const newLayout = compactor.compact(
-      layout.filter((l) => l.i !== droppingItem.i),
+      layout.filter((l) => l.id !== droppingItem.id),
       cols as number,
     );
     setState((prevState) => ({
@@ -1370,7 +1370,7 @@ export const useDndGrid = <TData = unknown>(
         width,
         transformScale,
       } = propsRef.current;
-      const { margin, containerPadding } = resolveSpacing();
+      const { gap, containerPadding } = resolveSpacing();
       const onDragOverResult = onDropDragOver?.(dragOverEvent);
 
       if (onDragOverResult === false) {
@@ -1386,7 +1386,7 @@ export const useDndGrid = <TData = unknown>(
       const gridRect = gridEl.getBoundingClientRect();
       const positionParams: PositionParams = {
         cols,
-        margin,
+        gap,
         maxRows,
         rowHeight,
         containerWidth: width,
@@ -1396,12 +1396,12 @@ export const useDndGrid = <TData = unknown>(
       const itemPixelWidth = calcGridItemWHPx(
         finalDroppingItem.w ?? 1,
         colWidth,
-        margin[1],
+        gap[1],
       );
       const itemPixelHeight = calcGridItemWHPx(
         finalDroppingItem.h ?? 1,
         rowHeight,
-        margin[0],
+        gap[0],
       );
       const { clampedGridX, clampedGridY } = resolveDroppingCoords(
         gridEl,
@@ -1431,12 +1431,12 @@ export const useDndGrid = <TData = unknown>(
           x: calculatedPosition.x,
           y: calculatedPosition.y,
           static: false,
-          isDraggable: true,
+          draggable: true,
         } as LayoutItem<TData>;
         setState((prevState) => ({
           ...prevState,
           droppingDOMNode: React.createElement("div", {
-            key: finalDroppingItem.i,
+            key: finalDroppingItem.id,
           }),
           droppingPosition,
           layout: [...layout, nextDroppingItem],
@@ -1502,7 +1502,7 @@ export const useDndGrid = <TData = unknown>(
       if (!dndRect || !e) {
         const { droppingItem } = propsRef.current;
         const { layout } = stateRef.current;
-        const item = layout.find((l) => l.i === droppingItem.i);
+        const item = layout.find((l) => l.id === droppingItem.id);
         dragEnterCounterRef.current = 0;
         removeDroppingPlaceholder();
         if (!e) return;
@@ -1553,7 +1553,7 @@ export const useDndGrid = <TData = unknown>(
       e.stopPropagation();
       const { droppingItem } = propsRef.current;
       const { layout } = stateRef.current;
-      const item = layout.find((l) => l.i === droppingItem.i);
+      const item = layout.find((l) => l.id === droppingItem.id);
       dragEnterCounterRef.current = 0;
       removeDroppingPlaceholder();
       propsRef.current.onDrop?.(layout, item, e.nativeEvent);
@@ -1572,7 +1572,7 @@ export const useDndGrid = <TData = unknown>(
     const {
       width,
       cols,
-      margin,
+      gap,
       containerPadding,
       rowHeight,
       maxRows,
@@ -1580,7 +1580,7 @@ export const useDndGrid = <TData = unknown>(
       slotProps,
       animationConfig,
     } = propsRef.current;
-    const isSettling = settlingItem === activeDrag.i;
+    const isSettling = settlingItem === activeDrag.id;
     const isResizing = resizing;
     const placeholderState: ItemState = {
       dragging: Boolean(activeDrag && !isResizing && !isSettling),
@@ -1609,17 +1609,17 @@ export const useDndGrid = <TData = unknown>(
       h: activeDrag.h,
       x: activeDrag.x,
       y: activeDrag.y,
-      i: activeDrag.i,
+      id: activeDrag.id,
       className: placeholderClassName,
       containerWidth: width,
       cols: cols as number,
-      margin,
-      containerPadding: containerPadding ?? margin,
+      gap,
+      containerPadding: containerPadding ?? gap,
       maxRows,
       rowHeight,
-      isDraggable: false,
-      isResizable: false,
-      isBounded: false,
+      draggable: false,
+      resizable: false,
+      bounded: false,
       transformScale,
       reducedMotion,
       animationConfig,
@@ -1637,19 +1637,19 @@ export const useDndGrid = <TData = unknown>(
     if (Number.isFinite(props.maxRows)) return props.maxRows as number;
     const ariaLayout = hasLayoutProp ? props.layout : state.layout;
     const layoutWithChildren = ariaLayout.filter((item) =>
-      childKeys.has(item.i),
+      childKeys.has(item.id),
     );
     return layoutWithChildren.length === 0 ? 0 : bottom(layoutWithChildren);
   }, [childKeys, hasLayoutProp, props.layout, props.maxRows, state.layout]);
   const ariaItemIndices = React.useMemo(() => {
     const sortedItems = sortLayoutItems(state.layout, compactor);
     const indexableItems = sortedItems.filter(
-      (item) => childKeys.has(item.i) && !item.static,
+      (item) => childKeys.has(item.id) && !item.static,
     );
     const setSize = indexableItems.length;
     const posInSetById = new Map<string, number>();
     indexableItems.forEach((item, index) => {
-      posInSetById.set(item.i, index + 1);
+      posInSetById.set(item.id, index + 1);
     });
 
     const indices = new Map<
@@ -1662,9 +1662,9 @@ export const useDndGrid = <TData = unknown>(
       }
     >();
     sortedItems.forEach((item) => {
-      if (!childKeys.has(item.i)) return;
-      const posInSet = posInSetById.get(item.i);
-      indices.set(item.i, {
+      if (!childKeys.has(item.id)) return;
+      const posInSet = posInSetById.get(item.id);
+      indices.set(item.id, {
         rowIndex: item.y + 1,
         colIndex: item.x + 1,
         posInSet,
@@ -1695,7 +1695,7 @@ export const useDndGrid = <TData = unknown>(
           if (!warnedKeys.has(childKey)) {
             warnedKeys.add(childKey);
             console.warn(
-              `DndGrid: Missing layout item for child key "${childKey}". Add a layout entry with i: "${childKey}".`,
+              `DndGrid: Missing layout item for child key "${childKey}". Add a layout entry with id: "${childKey}".`,
             );
           }
         }
@@ -1704,14 +1704,14 @@ export const useDndGrid = <TData = unknown>(
       const {
         width,
         cols,
-        margin,
+        gap,
         containerPadding,
         rowHeight,
         maxRows,
-        isDraggable,
+        draggable: gridDraggable,
         dragTouchDelayDuration,
-        isResizable,
-        isBounded,
+        resizable: gridResizable,
+        bounded: gridBounded,
         transformScale,
         dragCancel,
         dragHandle,
@@ -1721,41 +1721,41 @@ export const useDndGrid = <TData = unknown>(
         slotProps,
         animationConfig,
       } = propsRef.current;
-      const draggable =
-        typeof l.isDraggable === "boolean"
-          ? l.isDraggable
-          : !l.static && isDraggable;
-      const resizable =
-        typeof l.isResizable === "boolean"
-          ? l.isResizable
-          : !l.static && isResizable;
+      const itemDraggable =
+        typeof l.draggable === "boolean"
+          ? l.draggable
+          : !l.static && gridDraggable;
+      const itemResizable =
+        typeof l.resizable === "boolean"
+          ? l.resizable
+          : !l.static && gridResizable;
       const resizeHandlesOptions = l.resizeHandles || resizeHandles;
-      const bounded = draggable && isBounded && l.isBounded !== false;
-      const ariaIndices = ariaItemIndices.get(l.i);
-      const isFocusable = focusableItemIdSet.has(l.i);
-      const tabIndex = isFocusable ? (l.i === activeItemId ? 0 : -1) : -1;
+      const itemBounded = itemDraggable && gridBounded && l.bounded !== false;
+      const ariaIndices = ariaItemIndices.get(l.id);
+      const isFocusable = focusableItemIdSet.has(l.id);
+      const tabIndex = isFocusable ? (l.id === activeItemId ? 0 : -1) : -1;
       return {
         containerWidth: width,
         cols: cols as number,
-        margin,
-        containerPadding: containerPadding ?? margin,
+        gap,
+        containerPadding: containerPadding ?? gap,
         maxRows,
         rowHeight,
         layout: layoutState,
         constraints,
         cancel: dragCancel,
         handle: dragHandle,
-        onDragStop,
+        onDragEnd,
         onDragStart,
         onDrag,
         onResizeStart,
         onResize,
-        onResizeStop,
+        onResizeEnd,
         onSettleComplete,
-        isDraggable: draggable,
+        draggable: itemDraggable,
         dragTouchDelayDuration,
-        isResizable: resizable,
-        isBounded: bounded,
+        resizable: itemResizable,
+        bounded: itemBounded,
         transformScale,
         reducedMotion,
         animationConfig,
@@ -1763,7 +1763,7 @@ export const useDndGrid = <TData = unknown>(
         h: l.h,
         x: l.x,
         y: l.y,
-        i: l.i,
+        id: l.id,
         minH: l.minH,
         minW: l.minW,
         maxH: l.maxH,
@@ -1792,12 +1792,12 @@ export const useDndGrid = <TData = unknown>(
       focusableItemIdSet,
       onDrag,
       onDragStart,
-      onDragStop,
+      onDragEnd,
       onItemFocus,
       onItemKeyDown,
       onResize,
       onResizeStart,
-      onResizeStop,
+      onResizeEnd,
       onSettleComplete,
       reducedMotion,
       registerItemRef,
@@ -1973,14 +1973,14 @@ export const useDndGrid = <TData = unknown>(
       containerHeight,
       onDragStart,
       onDrag,
-      onDragStop,
+      onDragEnd,
       onDragOver,
       onDragEnter,
       onDragLeave,
       onDrop,
       onResizeStart,
       onResize,
-      onResizeStop,
+      onResizeEnd,
       onSettleComplete,
       handleDndRect,
       removeDroppingPlaceholder,

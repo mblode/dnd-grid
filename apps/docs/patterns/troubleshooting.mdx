@@ -5,13 +5,13 @@ description: Fix common setup issues.
 
 ## The grid is empty or items do not render
 
-- Ensure every child `key` matches a layout item `i`.
-- Pass a non-zero `width` to `DndGrid` (use `useContainerWidth` if needed).
+- Ensure every child `key` matches a layout item `id`.
+- Ensure the grid container has a non-zero width (block-level or explicit size).
 - Make sure each layout item has `w` and `h` greater than 0.
 
 ## Dragging or resizing does not work
 
-- Check `isDraggable` and `isResizable` on the grid and items.
+- Check `draggable` and `resizable` on the grid and items.
 - `static: true` disables drag and resize.
 - Make sure `dragHandle` and `dragCancel` selectors match your DOM.
 
@@ -22,8 +22,9 @@ description: Fix common setup issues.
 
 ## Layout jumps on hydration
 
-- Use `useContainerWidth({ measureBeforeMount: true })` and render once mounted.
-- Provide a stable `initialWidth` that matches your container.
+- Keep `measureBeforeMount` enabled (default) to wait for measurement.
+- If you render early, set `initialWidth` to an expected container width.
+- Use `FixedWidthDndGrid` when you already know the width.
 
 ## Auto-scroll does not trigger
 

@@ -9,9 +9,9 @@ import {
 import * as React from "react";
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 3, h: 2 },
-  { i: "b", x: 3, y: 0, w: 3, h: 2 },
-  { i: "c", x: 6, y: 0, w: 3, h: 2 },
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 3, y: 0, w: 3, h: 2 },
+  { id: "c", x: 6, y: 0, w: 3, h: 2 },
 ];
 
 export function HeadlessExample() {
@@ -20,8 +20,8 @@ export function HeadlessExample() {
     measureBeforeMount: true,
   });
   const children = layout.map((item) => (
-    <div key={item.i} className="grid-item">
-      {item.i}
+    <div key={item.id} className="grid-item">
+      {item.id}
     </div>
   ));
 

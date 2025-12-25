@@ -13,7 +13,7 @@ Drag and resize callbacks receive an event object:
 
 ```tsx
 type GridDragEvent<TData = unknown> = {
-  type: "dragStart" | "drag" | "dragStop";
+  type: "dragStart" | "drag" | "dragEnd";
   layout: Layout<TData>;
   previousItem: LayoutItem<TData> | null | undefined;
   item: LayoutItem<TData> | null | undefined;
@@ -23,7 +23,7 @@ type GridDragEvent<TData = unknown> = {
 };
 
 type GridResizeEvent<TData = unknown> = {
-  type: "resizeStart" | "resize" | "resizeStop";
+  type: "resizeStart" | "resize" | "resizeEnd";
   layout: Layout<TData>;
   previousItem: LayoutItem<TData> | null | undefined;
   item: LayoutItem<TData> | null | undefined;
@@ -50,7 +50,7 @@ type GridResizeEvent<TData = unknown> = {
   Fires continuously during drag.
 </ResponseField>
 
-<ResponseField name="onDragStop" type="(event: GridDragEvent) => void">
+<ResponseField name="onDragEnd" type="(event: GridDragEvent) => void">
   Fires when a drag operation ends.
 </ResponseField>
 
@@ -64,7 +64,7 @@ type GridResizeEvent<TData = unknown> = {
   Fires continuously during resize.
 </ResponseField>
 
-<ResponseField name="onResizeStop" type="(event: GridResizeEvent) => void">
+<ResponseField name="onResizeEnd" type="(event: GridResizeEvent) => void">
   Fires when a resize operation ends.
 </ResponseField>
 
@@ -84,5 +84,5 @@ type GridResizeEvent<TData = unknown> = {
   `onDrag` and `onResize` fire frequently. Avoid expensive work in these callbacks.
 </Warning>
 
-For expensive updates, prefer `onDragStop` or `onResizeStop`, or set
+For expensive updates, prefer `onDragEnd` or `onResizeEnd`, or set
 `callbackThrottle` on `DndGrid` to limit call frequency.

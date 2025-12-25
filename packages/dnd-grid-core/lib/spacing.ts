@@ -22,7 +22,7 @@ export const normalizeSpacing = (value: Spacing): SpacingArray => {
   }
   if (Array.isArray(value)) {
     throw new Error(
-      "DndGrid: margin/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }.",
+      "DndGrid: gap/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }.",
     );
   }
 

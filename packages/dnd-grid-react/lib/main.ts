@@ -12,10 +12,15 @@ export {
   verticalOverlapCompactor,
 } from "./compactors";
 export {
-  AutoWidthDndGrid,
-  type AutoWidthDndGridProps,
-} from "./components/auto-width-dnd-grid";
-export { DndGrid } from "./components/dnd-grid";
+  DndGrid,
+  type DndGridHandle,
+  type DndGridProps,
+} from "./components/dnd-grid";
+export {
+  FixedWidthDndGrid,
+  type FixedWidthDndGridHandle,
+  type FixedWidthDndGridProps,
+} from "./components/fixed-width-dnd-grid";
 export type { GridItemProps } from "./components/grid-item";
 export { GridItem } from "./components/grid-item";
 export { ResizeHandle } from "./components/resize-handle";
@@ -38,8 +43,6 @@ export {
   fastHorizontalOverlapCompactor,
   fastVerticalCompactor,
   fastVerticalOverlapCompactor,
-  wrapCompactor,
-  wrapOverlapCompactor,
 } from "./extras";
 export { findEmptyPosition } from "./find-empty-position";
 export type {
@@ -87,7 +90,6 @@ export type {
   LiveRegionSettings,
   MissingLayoutStrategy,
   Position,
-  Props as DndGridProps,
   ReducedMotionSetting,
   ResizeHandleAxis,
   ResponsiveLayouts,

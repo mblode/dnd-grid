@@ -12,7 +12,7 @@ const baseOptions: LayoutEngineOptions = {
   cols: 12,
   maxRows: 100,
   rowHeight: 10,
-  margin: [0, 0, 0, 0],
+  gap: [0, 0, 0, 0],
   containerPadding: [0, 0, 0, 0],
   containerWidth: 1200,
   containerHeight: 800,
@@ -21,8 +21,8 @@ const baseOptions: LayoutEngineOptions = {
 };
 
 const createLayout = (): Layout => [
-  { i: "a", x: 0, y: 0, w: 1, h: 1 },
-  { i: "b", x: 2, y: 0, w: 1, h: 1 },
+  { id: "a", x: 0, y: 0, w: 1, h: 1 },
+  { id: "b", x: 2, y: 0, w: 1, h: 1 },
 ];
 
 describe("createLayoutEngine", () => {
@@ -32,7 +32,7 @@ describe("createLayoutEngine", () => {
 
     engine.commands.move({ type: "move", id: "a", x: 3, y: 0 });
     expect(
-      engine.getState().layout.find((item) => item.i === "a"),
+      engine.getState().layout.find((item) => item.id === "a"),
     ).toMatchObject({
       x: 3,
       y: 0,
@@ -40,7 +40,7 @@ describe("createLayoutEngine", () => {
 
     engine.commands.resize({ type: "resize", id: "a", w: 2, h: 2 });
     expect(
-      engine.getState().layout.find((item) => item.i === "a"),
+      engine.getState().layout.find((item) => item.id === "a"),
     ).toMatchObject({
       w: 2,
       h: 2,
@@ -58,7 +58,7 @@ describe("createLayoutEngine", () => {
 
     expect(listener).toHaveBeenCalled();
     const latestState = listener.mock.calls.at(-1)?.[0];
-    expect(latestState?.layout.find((item) => item.i === "a")).toMatchObject({
+    expect(latestState?.layout.find((item) => item.id === "a")).toMatchObject({
       x: 4,
       y: 0,
     });

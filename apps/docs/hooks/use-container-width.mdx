@@ -3,23 +3,23 @@ title: useContainerWidth
 description: Measure and track container width.
 ---
 
-`DndGrid` needs a fixed width. `useContainerWidth` watches a wrapper element
-with `ResizeObserver` and gives you a width that stays in sync as the container
-resizes.
+`DndGrid` measures its container width automatically. Use `useContainerWidth`
+when you need the width for responsive logic, custom constraints, or to drive
+`FixedWidthDndGrid`/`useDndGrid` directly.
 
 ## Example
 
 ```tsx
 import { useState } from "react";
-import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
+import { FixedWidthDndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 3, h: 2 },
-  { i: "b", x: 3, y: 0, w: 3, h: 2 },
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 3, y: 0, w: 3, h: 2 },
 ];
 
-export function AutoWidthGrid() {
+export function MeasuredGrid() {
   const [layout, setLayout] = useState(initialLayout);
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: true,
@@ -29,7 +29,7 @@ export function AutoWidthGrid() {
   return (
     <div ref={containerRef} style={{ width: "100%" }}>
       {mounted && width > 0 && (
-        <DndGrid
+        <FixedWidthDndGrid
           layout={layout}
           onLayoutChange={setLayout}
           cols={12}
@@ -38,7 +38,7 @@ export function AutoWidthGrid() {
         >
           <div key="a">A</div>
           <div key="b">B</div>
-        </DndGrid>
+        </FixedWidthDndGrid>
       )}
     </div>
   );
@@ -62,6 +62,6 @@ export function AutoWidthGrid() {
 | `measureWidth` | Trigger a manual measurement. |
 
 <Note>
-  Prefer `AutoWidthDndGrid` if you want the same behavior without wiring the
-  hook yourself.
+  `DndGrid` already measures width for you. Reach for this hook when you need
+  the width value outside the grid.
 </Note>

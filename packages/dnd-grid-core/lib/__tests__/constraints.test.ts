@@ -9,7 +9,7 @@ import {
 import type { ConstraintContext, LayoutItem } from "../types";
 
 const baseItem: LayoutItem = {
-  i: "a",
+  id: "a",
   x: 0,
   y: 0,
   w: 2,
@@ -22,7 +22,7 @@ const baseContext: ConstraintContext = {
   containerWidth: 400,
   containerHeight: 400,
   rowHeight: 100,
-  margin: [10, 10, 10, 10],
+  gap: [10, 10, 10, 10],
   containerPadding: [0, 0, 0, 0],
   layout: [baseItem],
 };

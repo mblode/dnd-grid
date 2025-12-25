@@ -19,15 +19,15 @@ import { GridItem, type Layout, useDndGrid } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  { i: "b", x: 2, y: 0, w: 2, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 2 },
+  { id: "b", x: 2, y: 0, w: 2, h: 2 },
 ];
 
 export function HeadlessGrid() {
   const [layout, setLayout] = React.useState(initialLayout);
   const children = layout.map((item) => (
-    <div key={item.i} className="card">
-      {item.i.toUpperCase()}
+    <div key={item.id} className="card">
+      {item.id.toUpperCase()}
     </div>
   ));
 
@@ -65,11 +65,11 @@ export function HeadlessGrid() {
 |--------|------|-------------|
 | `layout` | `Layout` | Controlled layout array. |
 | `width` | `number` | Required width in pixels. |
-| `children` | `ReactNode` | Items to render; each child `key` must match `layout.i`. |
+| `children` | `ReactNode` | Items to render; each child `key` must match `layout.id`. |
 | `onLayoutChange` | `(layout) => void` | Called when the layout changes. |
 
-All other `DndGrid` props are supported. See the
-[`DndGrid` props](/api-reference/dnd-grid) for the full list.
+All other grid behavior props are supported (not the auto-width wrapper
+options). See the [`DndGrid` props](/api-reference/dnd-grid) for the full list.
 
 ## Returns
 

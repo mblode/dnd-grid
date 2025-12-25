@@ -26,7 +26,7 @@ export const layoutItemSchema = z
     h: z.number().finite().positive(),
     x: z.number().finite(),
     y: z.number().finite(),
-    i: z.string().min(1),
+    id: z.string().min(1),
     data: z.unknown().optional(),
     minW: z.number().optional(),
     minH: z.number().optional(),
@@ -35,10 +35,10 @@ export const layoutItemSchema = z
     constraints: z.array(layoutConstraintSchema).optional(),
     moved: z.boolean().optional(),
     static: z.boolean().optional(),
-    isDraggable: z.boolean().nullable().optional(),
-    isResizable: z.boolean().nullable().optional(),
+    draggable: z.boolean().nullable().optional(),
+    resizable: z.boolean().nullable().optional(),
     resizeHandles: z.array(resizeHandleAxisSchema).optional(),
-    isBounded: z.boolean().nullable().optional(),
+    bounded: z.boolean().nullable().optional(),
   })
   .passthrough();
 
@@ -47,15 +47,15 @@ export const layoutSchema = z
   .superRefine((items, ctx) => {
     const seen = new Set<string>();
     items.forEach((item, index) => {
-      if (seen.has(item.i)) {
+      if (seen.has(item.id)) {
         ctx.addIssue({
           code: "custom",
           message: "Duplicate layout item id",
-          path: [index, "i"],
+          path: [index, "id"],
         });
         return;
       }
-      seen.add(item.i);
+      seen.add(item.id);
     });
   });
 

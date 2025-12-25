@@ -27,36 +27,36 @@ const isEditableElement = (target: EventTarget | null): boolean => {
 interface UseKeyboardMoveParams {
   onDragStart: DraggableEventHandler;
   onDrag: DraggableEventHandler;
-  onDragStop: DraggableEventHandler;
+  onDragEnd: DraggableEventHandler;
   onResizeStart: ResizeCallback;
   onResize: ResizeCallback;
-  onResizeStop: ResizeCallback;
+  onResizeEnd: ResizeCallback;
   getPositionParams: () => PositionParams;
-  i: string;
+  id: string;
   x: number;
   y: number;
   w: number;
   h: number;
-  isDraggable: boolean;
-  isResizable: boolean;
+  draggable: boolean;
+  resizable: boolean;
   nodeRef: React.RefObject<HTMLElement | null>;
 }
 
 export const useKeyboardMove = ({
   onDragStart,
   onDrag,
-  onDragStop,
+  onDragEnd,
   onResizeStart,
   onResize,
-  onResizeStop,
+  onResizeEnd,
   getPositionParams,
-  i: _i,
+  id: _id,
   x,
   y,
   w,
   h,
-  isDraggable,
-  isResizable,
+  draggable,
+  resizable,
   nodeRef,
 }: UseKeyboardMoveParams) => {
   const [isPressed, setIsPressed] = useState(false);
@@ -111,7 +111,7 @@ export const useKeyboardMove = ({
       const isEscape = e.key === "Escape";
       const isPressedState = isPressedRef.current;
       const isResizingState = isResizingRef.current;
-      const canPickUp = isDraggable || isResizable;
+      const canPickUp = draggable || resizable;
 
       if (isSpace || isEnter) {
         if (!isPressedState && !isResizingState) {
@@ -123,7 +123,7 @@ export const useKeyboardMove = ({
           originalGeometryRef.current = { x, y, w, h };
           resizeStartedRef.current = false;
           dragStartedRef.current = false;
-          if (isDraggable) {
+          if (draggable) {
             onDragStart(e as unknown as MouseEvent, {
               node,
               x: 0,
@@ -148,7 +148,7 @@ export const useKeyboardMove = ({
               h,
               0,
             );
-            onResizeStop(
+            onResizeEnd(
               e as unknown as Event,
               {
                 node,
@@ -158,7 +158,7 @@ export const useKeyboardMove = ({
               position,
             );
           } else if (dragStartedRef.current) {
-            onDragStop(e as unknown as MouseEvent, {
+            onDragEnd(e as unknown as MouseEvent, {
               node,
               x: 0,
               y: 0,
@@ -201,14 +201,14 @@ export const useKeyboardMove = ({
               handle: keyboardResizeHandle,
             };
             onResize(e as unknown as Event, resizeData, position);
-            onResizeStop(e as unknown as Event, resizeData, position);
+            onResizeEnd(e as unknown as Event, resizeData, position);
           } else if (dragStartedRef.current) {
             if (original) {
               const positionParams = getPositionParams();
-              const { margin, rowHeight } = positionParams;
+              const { gap, rowHeight } = positionParams;
               const colWidth = calcGridColWidth(positionParams);
-              const gridUnitX = colWidth + margin[1];
-              const gridUnitY = rowHeight + margin[0];
+              const gridUnitX = colWidth + gap[1];
+              const gridUnitY = rowHeight + gap[0];
               const deltaX = (original.x - x) * gridUnitX;
               const deltaY = (original.y - y) * gridUnitY;
               if (deltaX !== 0 || deltaY !== 0) {
@@ -223,7 +223,7 @@ export const useKeyboardMove = ({
                 });
               }
             }
-            onDragStop(e as unknown as MouseEvent, {
+            onDragEnd(e as unknown as MouseEvent, {
               node,
               x: 0,
               y: 0,
@@ -237,13 +237,13 @@ export const useKeyboardMove = ({
         }
       } else if (isArrow && isPressedState) {
         if (e.shiftKey) {
-          if (!isResizable) return;
+          if (!resizable) return;
           if (modeRef.current && modeRef.current !== "resize") return;
           e.preventDefault();
           const positionParams = getPositionParams();
           if (!resizeStartedRef.current) {
             if (dragStartedRef.current) {
-              onDragStop(e as unknown as MouseEvent, {
+              onDragEnd(e as unknown as MouseEvent, {
                 node,
                 x: 0,
                 y: 0,
@@ -306,17 +306,17 @@ export const useKeyboardMove = ({
             position,
           );
         } else {
-          if (!isDraggable) return;
+          if (!draggable) return;
           if (modeRef.current && modeRef.current !== "move") return;
           e.preventDefault();
           modeRef.current = "move";
           const positionParams = getPositionParams();
-          const { margin, rowHeight } = positionParams;
+          const { gap, rowHeight } = positionParams;
           const colWidth = calcGridColWidth(positionParams);
           let deltaX = 0;
           let deltaY = 0;
-          const gridUnitX = colWidth + margin[1];
-          const gridUnitY = rowHeight + margin[0];
+          const gridUnitX = colWidth + gap[1];
+          const gridUnitY = rowHeight + gap[0];
 
           if (e.key === "ArrowRight") deltaX = gridUnitX;
           if (e.key === "ArrowLeft") deltaX = -gridUnitX;
@@ -337,14 +337,14 @@ export const useKeyboardMove = ({
     },
     [
       getPositionParams,
-      isDraggable,
-      isResizable,
+      draggable,
+      resizable,
       onDrag,
       onDragStart,
-      onDragStop,
+      onDragEnd,
       onResize,
       onResizeStart,
-      onResizeStop,
+      onResizeEnd,
       resetInteraction,
       setPressed,
       setResizing,

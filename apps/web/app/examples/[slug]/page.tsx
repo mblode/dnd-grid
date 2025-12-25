@@ -70,14 +70,14 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
   const githubUrl = `https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-${example.slug}.tsx`;
   const frame = (
     <div className="overflow-x-auto">
-      <div className="p-4">
+      <div className="p-2">
         <Component />
       </div>
     </div>
   );
 
   return (
-    <main className={isEmbed ? "p-4" : "py-12"}>
+    <main className={isEmbed ? "p-2" : "py-8"}>
       {!isEmbed && (
         <div className="container-wrapper">
           <div className="mb-8 space-y-3">

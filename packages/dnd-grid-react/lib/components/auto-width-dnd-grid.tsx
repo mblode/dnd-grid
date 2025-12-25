@@ -1,10 +1,10 @@
 import * as React from "react";
-import type { Props as DndGridProps } from "../types";
 import { useContainerWidth } from "../use-container-width";
+import type { UseDndGridOptions } from "../use-dnd-grid";
 import { DndGrid, type DndGridHandle } from "./dnd-grid";
 
 export type AutoWidthDndGridProps<TData = unknown> = Omit<
-  DndGridProps<TData>,
+  UseDndGridOptions<TData>,
   "width"
 > & {
   /**

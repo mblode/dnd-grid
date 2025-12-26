@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- 75b54a9: improve the dx
+- Updated dependencies [75b54a9]
+  - @dnd-grid/core@1.1.2
+
 ## 1.1.1
 
 ### Patch Changes

@@ -10,6 +10,7 @@ Common exports:
 ```tsx
 import {
   DndGrid,
+  ResponsiveDndGrid,
   FixedWidthDndGrid,
   GridItem,
   ResizeHandle,
@@ -41,11 +42,13 @@ import {
 | Component | Description |
 |-----------|-------------|
 | [`DndGrid`](/api-reference/dnd-grid) | Main grid layout component |
+| [`ResponsiveDndGrid`](/api-reference/responsive-dnd-grid) | Breakpoint-aware responsive grid |
 
-Most apps should start with `DndGrid`. Use
+Most apps should start with `DndGrid` for single-layout grids and
+`ResponsiveDndGrid` for breakpoint layouts. Use
 [`useDndGrid`](/hooks/use-dnd-grid) when you need a custom wrapper or want to
 control rendering.
-DndGrid measures its container width automatically.
+Both components measure their container width automatically.
 
 Also exported: `FixedWidthDndGrid` (explicit width), `GridItem`, and
 `ResizeHandle`.
@@ -113,6 +116,16 @@ Common classes you can target:
 >
   {children}
 </DndGrid>
+```
+
+```tsx
+<ResponsiveDndGrid
+  layouts={layouts}
+  breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+  cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+>
+  {children}
+</ResponsiveDndGrid>
 ```
 
 ## Import styles

@@ -3,9 +3,9 @@ title: SSR
 description: Server rendering and hydration tips.
 ---
 
-`dnd-grid` is safe to render on the server. `DndGrid` measures its container
-width on the client, so use the patterns below to avoid layout jumps and
-hydration warnings.
+`dnd-grid` is safe to render on the server. `DndGrid` and `ResponsiveDndGrid`
+measure their container width on the client, so use the patterns below to
+avoid layout jumps and hydration warnings.
 
 ## Use a client component
 
@@ -20,8 +20,9 @@ import { DndGrid } from "@dnd-grid/react";
 
 ## Auto width (default)
 
-`DndGrid` waits for its first measurement by default. If you want to render
-immediately, pass `measureBeforeMount={false}` and an `initialWidth`.
+`DndGrid` and `ResponsiveDndGrid` wait for their first measurement by default.
+If you want to render immediately, pass `measureBeforeMount={false}` and an
+`initialWidth`.
 
 ```tsx
 import { DndGrid } from "@dnd-grid/react";

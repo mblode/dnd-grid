@@ -37,11 +37,7 @@ npm install @dnd-grid/react
 ```tsx title="components/dnd-grid-dynamic-add-remove-example.tsx"
 "use client";
 
-import {
-  DndGrid,
-  findEmptyPosition,
-  type Layout,
-} from "@dnd-grid/react";
+import { DndGrid, findEmptyPosition, type Layout } from "@dnd-grid/react";
 import { type CSSProperties, useCallback, useState } from "react";
 
 const removeButtonStyle: CSSProperties = {
@@ -155,5 +151,6 @@ export default function Page() {
   return <DynamicAddRemoveExample />;
 }
 ```
+
 
 

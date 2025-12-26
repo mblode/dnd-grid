@@ -58,7 +58,10 @@ export function StaticElementsExample() {
       onLayoutChange={setLayout}
     >
       {layout.map((item) => (
-        <div key={item.id} className={item.static ? "static-item" : "grid-item"}>
+        <div
+          key={item.id}
+          className={item.static ? "static-item" : "grid-item"}
+        >
           {item.id} {item.static ? "(static)" : ""}
         </div>
       ))}
@@ -79,6 +82,7 @@ export default function Page() {
   return <StaticElementsExample />;
 }
 ```
+
 
 
 

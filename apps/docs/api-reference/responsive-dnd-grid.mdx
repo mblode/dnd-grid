@@ -1,0 +1,103 @@
+---
+title: ResponsiveDndGrid
+description: Breakpoint-aware grid layout component.
+---
+
+## Import
+
+```tsx
+import { ResponsiveDndGrid } from "@dnd-grid/react";
+```
+
+<Note>
+  Use `ResponsiveDndGrid` when you need breakpoint layouts. For a single layout,
+  use [`DndGrid`](/api-reference/dnd-grid). If you already have a measured
+  width, pass `width` directly or use `FixedWidthDndGrid`.
+</Note>
+
+## Props
+
+### Core props
+
+<ResponseField name="layouts" type="ResponsiveLayouts">
+  Breakpoint → layout map. Missing layouts are derived from the nearest larger
+  breakpoint (default behavior).
+</ResponseField>
+
+<ResponseField name="children" type="ReactNode" required>
+  Grid items; each child `key` must match a layout item `id`.
+</ResponseField>
+
+### Measurement
+
+<ResponseField name="width" type="number">
+  Optional container width in pixels. When provided, measurement is skipped.
+</ResponseField>
+
+<ResponseField name="measureBeforeMount" type="boolean" default="true">
+  Delay rendering until the container width is measured.
+</ResponseField>
+
+<ResponseField name="initialWidth" type="number" default="1280">
+  Width value used before measuring when rendering early.
+</ResponseField>
+
+<ResponseField name="containerProps" type="HTMLAttributes<HTMLDivElement>">
+  Props applied to the measurement wrapper.
+</ResponseField>
+
+### Responsive configuration
+
+<ResponseField name="breakpoints" type="Breakpoints">
+  Breakpoint map, defaults to `lg`, `md`, `sm`, `xs`, `xxs`.
+</ResponseField>
+
+<ResponseField name="cols" type="BreakpointCols">
+  Column count per breakpoint.
+</ResponseField>
+
+<ResponseField name="gap" type="ResponsiveSpacing" default="10">
+  Gap per breakpoint (number or spacing object).
+</ResponseField>
+
+<ResponseField
+  name="containerPadding"
+  type="ResponsiveSpacing | null"
+  default="null"
+>
+  Padding per breakpoint (or `null` to use gap).
+</ResponseField>
+
+<ResponseField name="defaultLayouts" type="ResponsiveLayouts">
+  Uncontrolled initial layouts per breakpoint.
+</ResponseField>
+
+<ResponseField name="compactor" type="Compactor">
+  Compaction strategy used for layout generation and collisions.
+</ResponseField>
+
+<ResponseField name="missingLayoutStrategy" type='"derive" | "warn" | "error" | "empty"'>
+  Control how missing breakpoint layouts are handled.
+</ResponseField>
+
+<ResponseField name="onBreakpointChange" type="(bp, cols) => void">
+  Fires when the active breakpoint changes.
+</ResponseField>
+
+<ResponseField name="onLayoutsChange" type="(layouts) => void">
+  Fires when any breakpoint layout changes.
+</ResponseField>
+
+<ResponseField name="onLayoutChange" type="(layout, layouts) => void">
+  Fires when the active breakpoint layout changes.
+</ResponseField>
+
+<ResponseField name="onWidthChange" type="(width, gap, cols, padding) => void">
+  Fires on width or breakpoint configuration changes.
+</ResponseField>
+
+### Grid configuration & behavior
+
+`ResponsiveDndGrid` supports the same grid configuration, behavior, accessibility,
+and styling props as [`DndGrid`](/api-reference/dnd-grid) (e.g. `rowHeight`,
+`draggable`, `resizable`, `autoSize`, `slotProps`, and callbacks).

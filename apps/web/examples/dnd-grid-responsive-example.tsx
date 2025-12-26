@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  FixedWidthDndGrid,
-  type ResponsiveLayouts,
-  useContainerWidth,
-  useDndGridResponsiveLayout,
-} from "@dnd-grid/react";
+import { ResponsiveDndGrid, type ResponsiveLayouts } from "@dnd-grid/react";
 
 const layouts: ResponsiveLayouts = {
   lg: [
@@ -25,31 +20,16 @@ const layouts: ResponsiveLayouts = {
 const cards = ["a", "b", "c", "d"];
 
 export function ResponsiveExample() {
-  const { width, containerRef, mounted } = useContainerWidth({
-    measureBeforeMount: true,
-  });
-
-  const { gridProps, handleLayoutChange } = useDndGridResponsiveLayout({
-    width,
-    layouts,
-    gap: { lg: 16, sm: 12 },
-    containerPadding: { lg: 16, sm: 12 },
-  });
-
   return (
-    <div ref={containerRef}>
-      {mounted && (
-        <FixedWidthDndGrid
-          {...gridProps}
-          width={width}
-          rowHeight={48}
-          onLayoutChange={handleLayoutChange}
-        >
-          {cards.map((id) => (
-            <div key={id}>{id}</div>
-          ))}
-        </FixedWidthDndGrid>
-      )}
-    </div>
+    <ResponsiveDndGrid
+      layouts={layouts}
+      gap={{ lg: 16, sm: 12 }}
+      containerPadding={{ lg: 16, sm: 12 }}
+      rowHeight={48}
+    >
+      {cards.map((id) => (
+        <div key={id}>{id}</div>
+      ))}
+    </ResponsiveDndGrid>
   );
 }

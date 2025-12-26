@@ -49,9 +49,9 @@ Docs: https://dnd-grid.com/docs/hooks/use-dnd-grid
 
 ## Auto width by default
 
-`DndGrid` measures its container width with `ResizeObserver`. Use
-`containerProps` to style the measurement wrapper, and `measureBeforeMount` /
-`initialWidth` to control the first render.
+`DndGrid` and `ResponsiveDndGrid` measure container width with
+`ResizeObserver`. Use `containerProps` to style the measurement wrapper, and
+`measureBeforeMount` / `initialWidth` to control the first render.
 
 ```tsx
 import { DndGrid, type Layout } from "@dnd-grid/react";
@@ -78,7 +78,7 @@ function MyGrid() {
 
 ## Fixed width (when you already have it)
 
-If you already measure width (responsive layouts, SSR), use
+If you already measure width (SSR or custom measurement), use
 `FixedWidthDndGrid` and pass the width yourself:
 
 ```tsx
@@ -182,48 +182,32 @@ Drop behavior is enabled when you provide `onDrop` or `onDropDragOver`.
 
 ## Responsive layouts
 
-Compose responsive behavior with hooks:
+Use `ResponsiveDndGrid` for breakpoint-aware layouts:
 
 ```tsx
-import {
-  FixedWidthDndGrid,
-  useContainerWidth,
-  useDndGridResponsiveLayout,
-} from "@dnd-grid/react";
+import { ResponsiveDndGrid, type ResponsiveLayouts } from "@dnd-grid/react";
 
-const layouts = {
+const layouts: ResponsiveLayouts = {
   lg: [{ id: "a", x: 0, y: 0, w: 3, h: 2 }],
   md: [{ id: "a", x: 0, y: 0, w: 4, h: 2 }],
 };
 
 function ResponsiveGrid() {
-  const { width, containerRef, mounted } = useContainerWidth({
-    measureBeforeMount: true,
-  });
-
-  const { gridProps, handleLayoutChange } = useDndGridResponsiveLayout({
-    width,
-    layouts,
-    gap: { lg: 16, md: { top: 12, right: 16, bottom: 12, left: 16 } },
-    containerPadding: 16,
-  });
-
   return (
-    <div ref={containerRef}>
-      {mounted && (
-        <FixedWidthDndGrid
-          width={width}
-          {...gridProps}
-          onLayoutChange={handleLayoutChange}
-        >
-          <div key="a">A</div>
-          <div key="b">B</div>
-        </FixedWidthDndGrid>
-      )}
-    </div>
+    <ResponsiveDndGrid
+      layouts={layouts}
+      gap={{ lg: 16, md: { top: 12, right: 16, bottom: 12, left: 16 } }}
+      containerPadding={16}
+    >
+      <div key="a">A</div>
+      <div key="b">B</div>
+    </ResponsiveDndGrid>
   );
 }
 ```
+
+For custom wrappers or manual width control, compose
+`useDndGridResponsiveLayout` with `FixedWidthDndGrid`.
 
 ## Layout item
 

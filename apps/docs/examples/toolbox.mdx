@@ -106,7 +106,11 @@ export function ToolboxExample() {
       <div className="toolbox">
         <div>Toolbox (click to add)</div>
         {hiddenItems.map((item) => (
-          <button key={item.id} type="button" onClick={() => toggleItem(item.id)}>
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => toggleItem(item.id)}
+          >
             {item.id}
           </button>
         ))}
@@ -150,6 +154,7 @@ export default function Page() {
   return <ToolboxExample />;
 }
 ```
+
 
 
 

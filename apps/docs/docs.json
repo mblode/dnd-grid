@@ -29,6 +29,7 @@
         "pages": [
           "api-reference/overview",
           "api-reference/dnd-grid",
+          "api-reference/responsive-dnd-grid",
           "api-reference/layout-item",
           "api-reference/callbacks"
         ]

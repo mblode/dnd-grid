@@ -25,6 +25,11 @@ export type { GridItemProps } from "./components/grid-item";
 export { GridItem } from "./components/grid-item";
 export { ResizeHandle } from "./components/resize-handle";
 export {
+  ResponsiveDndGrid,
+  type ResponsiveDndGridHandle,
+  type ResponsiveDndGridProps,
+} from "./components/responsive-dnd-grid";
+export {
   applyPositionConstraints,
   applySizeConstraints,
   aspectRatio,

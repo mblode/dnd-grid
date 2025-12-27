@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3
+
+### Patch Changes
+
+- 5e0444a: remove fixed width dnd grid
+- Updated dependencies [5e0444a]
+  - @dnd-grid/core@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

@@ -753,21 +753,19 @@ export const BlocksGrid = () => {
           </div>
         </div>
 
-        {!isDesktop && (
-          <div className="sticky inset-x-0 bottom-4 z-40 px-4 pb-[max(8px,env(safe-area-inset-bottom))]">
-            <div className="mx-auto w-full">
-              <Button
-                type="button"
-                size="lg"
-                className="w-full justify-center"
-                onClick={handleOpenAdd}
-              >
-                <Plus className="size-4" />
-                Add block
-              </Button>
-            </div>
+        <div className="sticky inset-x-0 bottom-4 z-40 px-4 pb-[max(8px,env(safe-area-inset-bottom))] lg:hidden">
+          <div className="mx-auto w-full">
+            <Button
+              type="button"
+              size="lg"
+              className="w-full justify-center"
+              onClick={handleOpenAdd}
+            >
+              <Plus className="size-4" />
+              Add block
+            </Button>
           </div>
-        )}
+        </div>
 
         <MobilePaletteSheet
           open={!isDesktop && isPaletteOpen}

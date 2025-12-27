@@ -1,12 +1,16 @@
-<p align="center">
-  <a href="https://dnd-grid.com">
-    <img alt="dnd-grid – A drag-and-drop, resizable grid layout for React" src=".github/assets/banner.png">
-  </a>
-</p>
+# dnd-grid
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@dnd-grid/react"><img src="https://img.shields.io/npm/v/@dnd-grid/react.svg" alt="npm version"></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT Licence"></a>
+</p>
+
+A drag-and-drop, resizable grid layout for React
+
+<p align="center">
+  <a href="https://dnd-grid.com">
+    <img alt="dnd-grid – A drag-and-drop, resizable grid layout for React" src=".github/assets/banner.png">
+  </a>
 </p>
 
 ## Installation
@@ -26,16 +30,11 @@ Add the styles to your global CSS:
 ```tsx
 import { DndGrid, type Layout } from "@dnd-grid/react";
 
-<DndGrid
-  layout={layout}
-  cols={12}
-  rowHeight={50}
-  onLayoutChange={setLayout}
->
+<DndGrid layout={layout} cols={12} rowHeight={50} onLayoutChange={setLayout}>
   {layout.map((item) => (
     <div key={item.id}>{item.id}</div>
   ))}
-</DndGrid>
+</DndGrid>;
 ```
 
 ## Documentation

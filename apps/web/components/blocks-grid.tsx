@@ -262,6 +262,7 @@ export const BlocksGrid = () => {
     null,
   );
   const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY);
+  const canHover = useMediaQuery("(any-hover: hover)");
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [dndRect, setDndRect] = useState<DndRect | null>(null);
   const [dndEvent, setDndEvent] = useState<Event | null>(null);
@@ -588,8 +589,11 @@ export const BlocksGrid = () => {
         },
       ]);
       selectItem(nextId);
+      if (!isDesktop) {
+        setIsPaletteOpen(false);
+      }
     },
-    [layout, selectItem],
+    [isDesktop, layout, selectItem],
   );
 
   const handleDropDragOver = useCallback(() => {
@@ -700,7 +704,7 @@ export const BlocksGrid = () => {
       onDragCancel={handleDndDragCancel}
     >
       <div className="relative" style={scaleStyle}>
-        <div className="grid gap-fluid-4 lg:grid-cols-[minmax(0,1fr)_260px] pb-12 md:pb-0">
+        <div className="grid gap-fluid-4 lg:grid-cols-[minmax(0,1fr)_260px] pb-12 lg:pb-0">
           <div
             ref={containerRef}
             className="w-full"
@@ -731,6 +735,7 @@ export const BlocksGrid = () => {
                     item={item}
                     isSelected={selectedId === item.id}
                     isHovered={hoveredId === item.id}
+                    canHover={canHover}
                     onHover={() => handlers.handleHover(item.id)}
                     onHoverEnd={() => handlers.handleHover(null)}
                     onSelect={() => handleItemClick(item.id)}

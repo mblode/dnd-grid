@@ -31,7 +31,7 @@ export const BlockSwitch = ({ kind, title }: Props) => {
             />
             {title && (
               <div className="absolute bottom-fluid-3 left-fluid-3 z-10">
-                <div className="rounded-[calc((var(--dnd-grid-radius)-12px)*var(--dnd-grid-scale))] bg-white/70 px-2 py-1.5 text-[14px] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06)] backdrop-blur-[20px]">
+                <div className="rounded-[calc((var(--dnd-grid-radius)-12px)*var(--dnd-grid-scale))] bg-white/70 px-2 py-1.5 text-[14px] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06)] text-black backdrop-blur-[20px]">
                   <div className="line-clamp-2 font-normal">{title}</div>
                 </div>
               </div>

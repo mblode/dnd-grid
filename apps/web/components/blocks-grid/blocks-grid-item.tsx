@@ -11,6 +11,7 @@ type Props = {
   item: GridItem;
   isSelected: boolean;
   isHovered: boolean;
+  canHover: boolean;
   onHover: () => void;
   onHoverEnd?: () => void;
   onSelect: () => void;
@@ -25,6 +26,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
       item,
       isSelected,
       isHovered,
+      canHover,
       onHover,
       onHoverEnd,
       onSelect,
@@ -39,6 +41,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
     ref,
   ) => {
     const showControls = isHovered || isSelected;
+    const showActionBar = isHovered;
     const showHandles = showControls;
 
     return (
@@ -53,9 +56,15 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
         )}
         onPointerEnter={(event) => {
           event.stopPropagation();
-          onHover();
+          if (canHover) {
+            onHover();
+          }
         }}
-        onPointerLeave={() => onHoverEnd?.()}
+        onPointerLeave={() => {
+          if (canHover) {
+            onHoverEnd?.();
+          }
+        }}
         {...rest}
       >
         <button
@@ -71,7 +80,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
           />
         </button>
 
-        {isHovered && (
+        {showActionBar && (
           <ActionBar w={item.w} x={item.x}>
             <ActionButton onClick={onEdit}>
               <Pencil className="size-3" />

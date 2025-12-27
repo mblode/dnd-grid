@@ -1,11 +1,11 @@
 # dnd-grid
 
-<p align="center">
+A drag-and-drop, resizable grid layout for React
+
+<p>
   <a href="https://www.npmjs.com/package/@dnd-grid/react"><img src="https://img.shields.io/npm/v/@dnd-grid/react.svg" alt="npm version"></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT Licence"></a>
 </p>
-
-A drag-and-drop, resizable grid layout for React
 
 <p align="center">
   <a href="https://dnd-grid.com">

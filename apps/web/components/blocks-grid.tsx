@@ -636,6 +636,7 @@ export const BlocksGrid = () => {
           nextItems.push({
             id: nextId,
             kind: active.kind,
+            name: active.name,
             title: active.title,
             w: dropLayout.w,
             h: dropLayout.h,

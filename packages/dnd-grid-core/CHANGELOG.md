@@ -1,5 +1,11 @@
 # @dnd-grid/core
 
+## 1.1.4
+
+### Patch Changes
+
+- 72b78fc: update readme
+
 ## 1.1.3
 
 ### Patch Changes

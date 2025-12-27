@@ -4,8 +4,8 @@ import {
   applySizeConstraints,
   aspectRatio,
   type ConstraintContext,
+  DndGrid,
   defaultConstraints,
-  FixedWidthDndGrid,
   type Layout,
   useContainerWidth,
 } from "@dnd-grid/react";
@@ -74,7 +74,7 @@ export function AspectRatioConstraintsExample() {
   return (
     <div ref={containerRef}>
       {mounted && ready && (
-        <FixedWidthDndGrid
+        <DndGrid
           layout={layout}
           cols={COLS}
           rowHeight={ROW_HEIGHT}
@@ -88,7 +88,7 @@ export function AspectRatioConstraintsExample() {
               {item.id}
             </div>
           ))}
-        </FixedWidthDndGrid>
+        </DndGrid>
       )}
     </div>
   );

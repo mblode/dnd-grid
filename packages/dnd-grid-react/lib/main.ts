@@ -16,11 +16,6 @@ export {
   type DndGridHandle,
   type DndGridProps,
 } from "./components/dnd-grid";
-export {
-  FixedWidthDndGrid,
-  type FixedWidthDndGridHandle,
-  type FixedWidthDndGridProps,
-} from "./components/fixed-width-dnd-grid";
 export type { GridItemProps } from "./components/grid-item";
 export { GridItem } from "./components/grid-item";
 export { ResizeHandle } from "./components/resize-handle";

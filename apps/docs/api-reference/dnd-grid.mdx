@@ -13,7 +13,7 @@ import { DndGrid } from "@dnd-grid/react";
   Need a headless wrapper? Use [`useDndGrid`](/hooks/use-dnd-grid) to build your
   own container while keeping the same drag/resize behavior.
   For breakpoint layouts, use `ResponsiveDndGrid`.
-  If you already have a measured width, use `FixedWidthDndGrid`.
+  If you already have a measured width, pass `width`.
 </Note>
 
 ## Props
@@ -30,6 +30,10 @@ import { DndGrid } from "@dnd-grid/react";
 </ResponseField>
 
 ### Measurement
+
+<ResponseField name="width" type="number">
+  Optional container width in pixels. When provided, measurement is skipped.
+</ResponseField>
 
 <ResponseField name="measureBeforeMount" type="boolean" default="true">
   Delay rendering until the container width is measured.

@@ -5,13 +5,13 @@ description: Measure and track container width.
 
 `DndGrid` and `ResponsiveDndGrid` measure container width automatically. Use
 `useContainerWidth` when you need the width for custom constraints or to drive
-`FixedWidthDndGrid`/`useDndGrid` directly.
+`DndGrid`/`useDndGrid` directly.
 
 ## Example
 
 ```tsx
 import { useState } from "react";
-import { FixedWidthDndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
+import { DndGrid, type Layout, useContainerWidth } from "@dnd-grid/react";
 import "@dnd-grid/react/styles.css";
 
 const initialLayout: Layout = [
@@ -29,7 +29,7 @@ export function MeasuredGrid() {
   return (
     <div ref={containerRef} style={{ width: "100%" }}>
       {mounted && width > 0 && (
-        <FixedWidthDndGrid
+        <DndGrid
           layout={layout}
           onLayoutChange={setLayout}
           cols={12}
@@ -38,7 +38,7 @@ export function MeasuredGrid() {
         >
           <div key="a">A</div>
           <div key="b">B</div>
-        </FixedWidthDndGrid>
+        </DndGrid>
       )}
     </div>
   );

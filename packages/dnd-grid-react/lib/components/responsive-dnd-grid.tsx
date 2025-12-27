@@ -7,10 +7,7 @@ import {
   type UseDndGridResponsiveLayoutOptions,
   useDndGridResponsiveLayout,
 } from "../use-dnd-grid-responsive-layout";
-import {
-  FixedWidthDndGrid,
-  type FixedWidthDndGridHandle,
-} from "./fixed-width-dnd-grid";
+import { DndGridCore, type DndGridCoreHandle } from "./dnd-grid-core";
 
 export type ResponsiveDndGridProps<
   B extends Breakpoint = DefaultBreakpoints,
@@ -46,8 +43,7 @@ export type ResponsiveDndGridProps<
     containerProps?: Omit<React.HTMLAttributes<HTMLDivElement>, "children">;
   };
 
-export type ResponsiveDndGridHandle<TData = unknown> =
-  FixedWidthDndGridHandle<TData>;
+export type ResponsiveDndGridHandle<TData = unknown> = DndGridCoreHandle<TData>;
 export type ResponsiveDndGrid<TData = unknown> = ResponsiveDndGridHandle<TData>;
 
 type ResponsiveDndGridComponent = (<
@@ -120,7 +116,7 @@ const ResponsiveDndGrid = React.forwardRef(
     return (
       <div {...containerProps} ref={shouldMeasure ? containerRef : undefined}>
         {canRender && width > 0 && (
-          <FixedWidthDndGrid
+          <DndGridCore
             {...gridProps}
             {...responsiveGridProps}
             width={width}
@@ -129,7 +125,7 @@ const ResponsiveDndGrid = React.forwardRef(
             ref={ref}
           >
             {children}
-          </FixedWidthDndGrid>
+          </DndGridCore>
         )}
       </div>
     );

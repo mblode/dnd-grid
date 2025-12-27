@@ -59,8 +59,10 @@ export default async function Home() {
           <div className="bg-linear-to-b from-white to-[#f7ecd2] dark:from-card dark:to-card">
             <section className="py-16 md:py-24 text-center">
               <div className="container-wrapper">
-                <h1 className="text-7xl font-light tracking-tight">dnd-grid</h1>
-                <p className="mt-4 text-2xl md:text-3xl text-balance mx-auto text-center text-foreground/60 max-w-125">
+                <h1 className="text-7xl font-light tracking-tight font-serif">
+                  dnd-grid
+                </h1>
+                <p className="mt-4 text-2xl md:text-3xl text-balance mx-auto text-center text-foreground/60 max-w-125 font-serif">
                   A drag-and-drop, resizable grid layout for React
                 </p>
 
@@ -101,7 +103,7 @@ export default async function Home() {
               <div className="mx-auto max-w-5xl">
                 <div className="mt-16 space-y-10">
                   <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                    <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">
                       Installation
                     </h2>
                     <div className="relative rounded-2xl bg-muted/50 p-4">
@@ -135,7 +137,7 @@ export default async function Home() {
                   </div>
 
                   <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                    <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">
                       Usage
                     </h2>
                     <div className="relative rounded-2xl bg-muted/50 p-4">

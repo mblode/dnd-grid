@@ -11,7 +11,6 @@ Common exports:
 import {
   DndGrid,
   ResponsiveDndGrid,
-  FixedWidthDndGrid,
   GridItem,
   ResizeHandle,
   useContainerWidth,
@@ -48,10 +47,10 @@ Most apps should start with `DndGrid` for single-layout grids and
 `ResponsiveDndGrid` for breakpoint layouts. Use
 [`useDndGrid`](/hooks/use-dnd-grid) when you need a custom wrapper or want to
 control rendering.
-Both components measure their container width automatically.
+Both components measure their container width automatically (or accept a
+`width` prop when you already know it).
 
-Also exported: `FixedWidthDndGrid` (explicit width), `GridItem`, and
-`ResizeHandle`.
+Also exported: `GridItem` and `ResizeHandle`.
 
 ## Hooks
 

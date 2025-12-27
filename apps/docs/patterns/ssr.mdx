@@ -36,15 +36,14 @@ return (
 );
 ```
 
-## Fixed width (known ahead of time)
+## Explicit width (known ahead of time)
 
-If you already have a width (layout shells, SSR constraints), use the fixed
-width component:
+If you already have a width (layout shells, SSR constraints), pass it directly:
 
 ```tsx
-import { FixedWidthDndGrid } from "@dnd-grid/react";
+import { DndGrid } from "@dnd-grid/react";
 
-return <FixedWidthDndGrid width={800} {...props} />;
+return <DndGrid width={800} {...props} />;
 ```
 
 ## Keep styles global

@@ -88,18 +88,18 @@ export default function App() {
 }
 ```
 
-## Fixed width (when you already have it)
+## Explicit width (when you already have it)
 
 If you already measure width (responsive layouts, SSR), pass it explicitly:
 
 ```tsx
-import { FixedWidthDndGrid } from "@dnd-grid/react";
+import { DndGrid } from "@dnd-grid/react";
 
 export default function App() {
   return (
-    <FixedWidthDndGrid layout={layout} cols={12} rowHeight={30} width={1200}>
+    <DndGrid layout={layout} cols={12} rowHeight={30} width={1200}>
       <div key="a">A</div>
-    </FixedWidthDndGrid>
+    </DndGrid>
   );
 }
 ```

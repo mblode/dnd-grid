@@ -1,5 +1,4 @@
-import { cache } from "react";
-import { createHighlighter } from "shiki";
+import { getSingletonHighlighter } from "shiki";
 import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
 import { BlocksGrid } from "@/components/blocks-grid";
 import { SiteFooter } from "@/components/site-footer";
@@ -20,12 +19,19 @@ const USAGE_COMPONENT_SNIPPET = `<DndGrid
   ))}
 </DndGrid>`;
 
-const getHighlighter = cache(async () =>
-  createHighlighter({
-    themes: ["github-light", "github-dark"],
-    langs: ["bash", "css", "tsx"],
-  }),
-);
+const highlighterOptions = {
+  themes: ["github-light", "github-dark"],
+  langs: ["bash", "css", "tsx"],
+};
+let highlighterPromise: ReturnType<typeof getSingletonHighlighter> | null =
+  null;
+
+const getHighlighter = () => {
+  if (!highlighterPromise) {
+    highlighterPromise = getSingletonHighlighter(highlighterOptions);
+  }
+  return highlighterPromise;
+};
 
 async function getCodeHtml(code: string, lang: "bash" | "css" | "tsx") {
   const highlighter = await getHighlighter();

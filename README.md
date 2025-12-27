@@ -13,6 +13,16 @@ A drag-and-drop, resizable grid layout for React
   </a>
 </p>
 
+## Demo
+
+Try the live demo.
+
+<p>
+<a href="https://dnd-grid.com">
+<img alt="View dnd-grid demo" src=".github/assets/demo.svg" width="200" />
+</a>
+</p>
+
 ## Installation
 
 ```bash

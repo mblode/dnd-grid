@@ -579,6 +579,7 @@ export const BlocksGrid = () => {
         {
           id: nextId,
           kind: item.kind,
+          name: item.name,
           title: item.title,
           w: sm.w,
           h: sm.h,

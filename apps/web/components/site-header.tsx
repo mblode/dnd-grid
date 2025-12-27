@@ -9,10 +9,10 @@ export function SiteHeader() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2 text-lg underline-offset-2 hover:underline"
+            className="flex items-center gap-2 text-lg underline-offset-2 hover:underline font-serif"
           >
             <Logo className="h-6 w-6 text-foreground" />
-            <span>dnd-kit</span>
+            <span>dnd-grid</span>
           </Link>
           <nav className="flex items-center gap-6 text-lg">
             <a

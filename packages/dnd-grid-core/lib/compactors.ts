@@ -118,6 +118,14 @@ export const verticalCompactor: Compactor = {
     let maxY = bottom(compareWith);
     const sorted = sortLayoutItemsByRowCol(layout);
     const out: LayoutItem<TLayoutData>[] = new Array(layout.length);
+    const indexByItem = new Map<LayoutItem<TLayoutData>, number>();
+
+    for (let i = 0; i < layout.length; i++) {
+      const item = layout[i];
+      if (item) {
+        indexByItem.set(item, i);
+      }
+    }
 
     for (let i = 0; i < sorted.length; i++) {
       const sortedItem = sorted[i];
@@ -131,7 +139,8 @@ export const verticalCompactor: Compactor = {
         compareWith.push(l);
       }
 
-      const originalIndex = layout.indexOf(sortedItem);
+      const originalIndex = indexByItem.get(sortedItem);
+      if (originalIndex === undefined) continue;
       out[originalIndex] = l;
       l.moved = false;
     }
@@ -158,6 +167,14 @@ export const horizontalCompactor: Compactor = {
     const compareWith = getStatics(layout);
     const sorted = sortLayoutItemsByColRow(layout);
     const out: LayoutItem<TLayoutData>[] = new Array(layout.length);
+    const indexByItem = new Map<LayoutItem<TLayoutData>, number>();
+
+    for (let i = 0; i < layout.length; i++) {
+      const item = layout[i];
+      if (item) {
+        indexByItem.set(item, i);
+      }
+    }
 
     for (let i = 0; i < sorted.length; i++) {
       const sortedItem = sorted[i];
@@ -170,7 +187,8 @@ export const horizontalCompactor: Compactor = {
         compareWith.push(l);
       }
 
-      const originalIndex = layout.indexOf(sortedItem);
+      const originalIndex = indexByItem.get(sortedItem);
+      if (originalIndex === undefined) continue;
       out[originalIndex] = l;
       l.moved = false;
     }

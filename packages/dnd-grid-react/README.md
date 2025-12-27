@@ -76,14 +76,14 @@ function MyGrid() {
 }
 ```
 
-## Fixed width (when you already have it)
+## Explicit width (when you already have it)
 
-If you already measure width (SSR or custom measurement), use
-`FixedWidthDndGrid` and pass the width yourself:
+If you already measure width (SSR or custom measurement), pass the width
+directly:
 
 ```tsx
 import {
-  FixedWidthDndGrid,
+  DndGrid,
   type Layout,
   useContainerWidth,
 } from "@dnd-grid/react";
@@ -102,7 +102,7 @@ function MyGrid() {
   return (
     <div ref={containerRef} className="w-full" style={{ maxWidth: 600 }}>
       {mounted && width > 0 && (
-        <FixedWidthDndGrid
+        <DndGrid
           layout={layout}
           cols={12}
           rowHeight={30}
@@ -110,7 +110,7 @@ function MyGrid() {
         >
           <div key="a">A</div>
           <div key="b">B</div>
-        </FixedWidthDndGrid>
+        </DndGrid>
       )}
     </div>
   );
@@ -138,6 +138,7 @@ function MyGrid() {
 |------|------|---------|-------------|
 | `children` | `ReactNode` | required | Grid items; each child `key` must match a layout `id`. |
 | `layout` | `Layout` | `[]` | Array of layout items; missing entries are derived from children (dev warning). |
+| `width` | `number` | `undefined` | Optional container width in pixels. When provided, measurement is skipped. |
 | `measureBeforeMount` | `boolean` | `true` | Delay rendering until the container width is measured. |
 | `initialWidth` | `number` | `1280` | Width used before measurement when rendering early. |
 | `containerProps` | `HTMLAttributes<HTMLDivElement>` | `undefined` | Props applied to the measurement wrapper. |
@@ -207,7 +208,7 @@ function ResponsiveGrid() {
 ```
 
 For custom wrappers or manual width control, compose
-`useDndGridResponsiveLayout` with `FixedWidthDndGrid`.
+`useDndGridResponsiveLayout` with `DndGrid`.
 
 ## Layout item
 

@@ -61,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${albra.variable} ${geistMono.variable} font-serif antialiased min-h-screen`}
+      className={`${albra.variable} ${geistMono.variable} font-sans antialiased min-h-screen`}
     >
       <body className="flex min-h-screen flex-col">
         <Script

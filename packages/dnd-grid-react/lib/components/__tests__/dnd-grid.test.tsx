@@ -20,7 +20,7 @@ import type {
   Size,
 } from "../../types";
 import { bottom } from "../../utils";
-import { FixedWidthDndGrid as DndGrid } from "../fixed-width-dnd-grid";
+import { DndGrid } from "../dnd-grid";
 
 type MockGridItemProps = {
   children: React.ReactNode;

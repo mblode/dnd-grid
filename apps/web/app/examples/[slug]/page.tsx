@@ -6,13 +6,16 @@ import { cn } from "@/lib/utils";
 const siteUrl = "https://dnd-grid.com";
 
 type PageProps = {
-  params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ embed?: string }>;
+  params: { slug: string };
+  searchParams?: { embed?: string };
 };
 
 const docsSlugFromExample = (slug: string) => slug.replace(/-example$/, "");
 
-const resolveExample = (slug: string) => {
+const resolveExample = (slug?: string | null) => {
+  if (!slug) {
+    return null;
+  }
   if (examplesBySlug[slug]) {
     return examplesBySlug[slug];
   }
@@ -32,10 +35,8 @@ export function generateStaticParams() {
   return params;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+export function generateMetadata({ params }: PageProps): Metadata {
+  const { slug } = params;
   const example = resolveExample(slug);
   if (!example) {
     return {};
@@ -53,17 +54,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function ExamplePage({ params, searchParams }: PageProps) {
-  const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
+export default function ExamplePage({ params, searchParams }: PageProps) {
+  const { slug } = params;
   const example = resolveExample(slug);
   if (!example) {
     notFound();
   }
 
-  const isEmbed =
-    resolvedSearchParams?.embed === "1" ||
-    resolvedSearchParams?.embed === "true";
+  const isEmbed = searchParams?.embed === "1" || searchParams?.embed === "true";
   const Component = example.Component;
   const sourceUrl = `${siteUrl}/docs/examples/${docsSlugFromExample(
     example.slug,

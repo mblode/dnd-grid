@@ -4,14 +4,14 @@ description: Manage responsive layouts and breakpoint state.
 ---
 
 `useDndGridResponsiveLayout` keeps a layout per breakpoint, generates missing
-layouts, and returns ready-to-spread props for `FixedWidthDndGrid`. Use
+layouts, and returns ready-to-spread props for `DndGrid`. Use
 `ResponsiveDndGrid` for the default responsive component.
 
 ## Example
 
 ```tsx
 import {
-  FixedWidthDndGrid,
+  DndGrid,
   type Layout,
   useContainerWidth,
   useDndGridResponsiveLayout,
@@ -46,14 +46,14 @@ export function ResponsiveGrid() {
     <div ref={containerRef}>
       <p>Breakpoint: {breakpoint}</p>
       {mounted && (
-        <FixedWidthDndGrid
+        <DndGrid
           width={width}
           {...gridProps}
           onLayoutChange={handleLayoutChange}
         >
           <div key="a">A</div>
           <div key="b">B</div>
-        </FixedWidthDndGrid>
+        </DndGrid>
       )}
     </div>
   );

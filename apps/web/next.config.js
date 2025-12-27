@@ -3,7 +3,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
   "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com",
-  "img-src 'self' data: https://www.google-analytics.com",
+  "img-src 'self' data: https://www.google-analytics.com https://images.unsplash.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "object-src 'none'",
@@ -32,6 +32,14 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
   async headers() {
     return [
       {

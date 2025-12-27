@@ -6,6 +6,46 @@
   --breakpoint-4xl: 2000px;
   --font-serif: var(--font-albra);
   --font-mono: var(--font-geist-mono);
+  /* Fluid type - scales with --dnd-grid-scale */
+  --text-fluid-xxs: calc(8px * var(--dnd-grid-scale, 1));
+  --text-fluid-xs: calc(11px * var(--dnd-grid-scale, 1));
+  --text-fluid-sm: calc(12px * var(--dnd-grid-scale, 1));
+  --text-fluid-base: calc(14px * var(--dnd-grid-scale, 1));
+  --text-fluid-lg: calc(20px * var(--dnd-grid-scale, 1));
+  --text-fluid-xl: calc(22px * var(--dnd-grid-scale, 1));
+  --text-fluid-2xl: calc(24px * var(--dnd-grid-scale, 1));
+  --text-fluid-3xl: calc(32px * var(--dnd-grid-scale, 1));
+  --text-fluid-4xl: calc(36px * var(--dnd-grid-scale, 1));
+  --text-fluid-5xl: calc(48px * var(--dnd-grid-scale, 1));
+  --text-fluid-6xl: calc(60px * var(--dnd-grid-scale, 1));
+  /* Fluid spacing - scales with --dnd-grid-scale */
+  --spacing-scale: var(--dnd-grid-scale, 1);
+  --spacing-fluid-0: 0px;
+  --spacing-fluid-0_5: calc(2px * var(--spacing-scale));
+  --spacing-fluid-1: calc(4px * var(--spacing-scale));
+  --spacing-fluid-1_5: calc(6px * var(--spacing-scale));
+  --spacing-fluid-2: calc(8px * var(--spacing-scale));
+  --spacing-fluid-2_5: calc(10px * var(--spacing-scale));
+  --spacing-fluid-3: calc(12px * var(--spacing-scale));
+  --spacing-fluid-3_5: calc(14px * var(--spacing-scale));
+  --spacing-fluid-4: calc(16px * var(--spacing-scale));
+  --spacing-fluid-4_5: calc(18px * var(--spacing-scale));
+  --spacing-fluid-5: calc(20px * var(--spacing-scale));
+  --spacing-fluid-6: calc(24px * var(--spacing-scale));
+  --spacing-fluid-7: calc(28px * var(--spacing-scale));
+  --spacing-fluid-7_25: calc(29px * var(--spacing-scale));
+  --spacing-fluid-8: calc(32px * var(--spacing-scale));
+  --spacing-fluid-9: calc(36px * var(--spacing-scale));
+  --spacing-fluid-10: calc(40px * var(--spacing-scale));
+  --spacing-fluid-11: calc(44px * var(--spacing-scale));
+  --spacing-fluid-12: calc(48px * var(--spacing-scale));
+  --spacing-fluid-14: calc(56px * var(--spacing-scale));
+  --spacing-fluid-16: calc(64px * var(--spacing-scale));
+  --spacing-fluid-18: calc(72px * var(--spacing-scale));
+  --spacing-fluid-20: calc(80px * var(--spacing-scale));
+  --spacing-fluid-24: calc(96px * var(--spacing-scale));
+  --spacing-fluid-28: calc(112px * var(--spacing-scale));
+  --spacing-fluid-32: calc(128px * var(--spacing-scale));
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -60,39 +100,10 @@
   --widget-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
   --widget-shadow-hover:
     0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
-  --widget-background: rgba(255, 255, 255, 0.95);
+  --widget-background: rgba(255, 255, 255, 1);
   --widget-border: rgba(0, 0, 0, 0.06);
   --primary-color: #3b82f6;
   --danger-color: #ef4444;
-
-  /* Fluid spacing - scales with --dnd-grid-scale */
-  --spacing-scale: var(--dnd-grid-scale, 1);
-  --spacing-fluid-0: 0px;
-  --spacing-fluid-0_5: calc(2px * var(--spacing-scale));
-  --spacing-fluid-1: calc(4px * var(--spacing-scale));
-  --spacing-fluid-1_5: calc(6px * var(--spacing-scale));
-  --spacing-fluid-2: calc(8px * var(--spacing-scale));
-  --spacing-fluid-2_5: calc(10px * var(--spacing-scale));
-  --spacing-fluid-3: calc(12px * var(--spacing-scale));
-  --spacing-fluid-3_5: calc(14px * var(--spacing-scale));
-  --spacing-fluid-4: calc(16px * var(--spacing-scale));
-  --spacing-fluid-4_5: calc(18px * var(--spacing-scale));
-  --spacing-fluid-5: calc(20px * var(--spacing-scale));
-  --spacing-fluid-6: calc(24px * var(--spacing-scale));
-  --spacing-fluid-7: calc(28px * var(--spacing-scale));
-  --spacing-fluid-7_25: calc(29px * var(--spacing-scale));
-  --spacing-fluid-8: calc(32px * var(--spacing-scale));
-  --spacing-fluid-9: calc(36px * var(--spacing-scale));
-  --spacing-fluid-10: calc(40px * var(--spacing-scale));
-  --spacing-fluid-11: calc(44px * var(--spacing-scale));
-  --spacing-fluid-12: calc(48px * var(--spacing-scale));
-  --spacing-fluid-14: calc(56px * var(--spacing-scale));
-  --spacing-fluid-16: calc(64px * var(--spacing-scale));
-  --spacing-fluid-18: calc(72px * var(--spacing-scale));
-  --spacing-fluid-20: calc(80px * var(--spacing-scale));
-  --spacing-fluid-24: calc(96px * var(--spacing-scale));
-  --spacing-fluid-28: calc(112px * var(--spacing-scale));
-  --spacing-fluid-32: calc(128px * var(--spacing-scale));
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -166,6 +177,7 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
     --frame: oklch(0.203, 0.035, 285.102);
+    --widget-background: oklch(0.269 0 0);
   }
 }
 

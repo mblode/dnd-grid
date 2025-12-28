@@ -40,6 +40,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
+import { getPointerPosition } from "@/lib/dnd/pointer-tracker";
 import {
   TrackedMouseSensor,
   TrackedTouchSensor,
@@ -253,6 +254,30 @@ const resolveTranslatedRect = (event: DragMoveEvent): DndRect | null => {
   };
 };
 
+const getPointerCoordinates = (event?: Event | null) => {
+  if (!event) return null;
+  if ("touches" in event) {
+    const touchEvent = event as TouchEvent;
+    const touch = touchEvent.touches[0] ?? touchEvent.changedTouches[0];
+    if (touch) {
+      return { x: touch.clientX, y: touch.clientY };
+    }
+  }
+  if ("clientX" in event && "clientY" in event) {
+    const mouseEvent = event as MouseEvent;
+    return { x: mouseEvent.clientX, y: mouseEvent.clientY };
+  }
+  return null;
+};
+
+const createPointerEvent = (type: string, point: { x: number; y: number }) =>
+  new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX: point.x,
+    clientY: point.y,
+  });
+
 export const BlocksGrid = () => {
   const [items, setItems] = useState<GridItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -268,6 +293,7 @@ export const BlocksGrid = () => {
   const [dndEvent, setDndEvent] = useState<Event | null>(null);
   const gridApiRef = useRef<DndGridHandle | null>(null);
   const dragItemRef = useRef<PaletteItem | null>(null);
+  const dragStartPointerRef = useRef<{ x: number; y: number } | null>(null);
   const nextIdRef = useRef(1);
   const isOverGridRef = useRef(false);
   const { width, containerRef, mounted } = useContainerWidth({
@@ -375,6 +401,7 @@ export const BlocksGrid = () => {
     if (clearDragItem) {
       dragItemRef.current = null;
     }
+    dragStartPointerRef.current = null;
     isOverGridRef.current = false;
   }, []);
 
@@ -392,12 +419,14 @@ export const BlocksGrid = () => {
     if (!active) return;
     dragItemRef.current = active;
     setActivePaletteId(active.kind);
+    dragStartPointerRef.current = getPointerCoordinates(
+      event.activatorEvent ?? null,
+    );
   }, []);
 
   const handleDndDragMove = useCallback(
     (event: DragMoveEvent) => {
       const translated = resolveTranslatedRect(event);
-      if (!translated) return;
 
       if (!isDesktop && isPaletteOpen) {
         setIsPaletteOpen(false);
@@ -411,11 +440,38 @@ export const BlocksGrid = () => {
         return;
       }
 
-      const isOverGrid =
+      const trackedPointer = getPointerPosition();
+      const dragStartPointer = dragStartPointerRef.current;
+      let pointerX: number | null = null;
+      let pointerY: number | null = null;
+
+      if (trackedPointer) {
+        pointerX = trackedPointer.x;
+        pointerY = trackedPointer.y;
+      } else if (dragStartPointer) {
+        pointerX = dragStartPointer.x + event.delta.x;
+        pointerY = dragStartPointer.y + event.delta.y;
+      } else if (translated) {
+        pointerX = translated.left + translated.width / 2;
+        pointerY = translated.top + translated.height / 2;
+      }
+
+      if (pointerX === null || pointerY === null) {
+        return;
+      }
+
+      const pointerInside =
+        pointerX >= gridRect.left &&
+        pointerX <= gridRect.right &&
+        pointerY >= gridRect.top &&
+        pointerY <= gridRect.bottom;
+      const overlayIntersects =
+        !!translated &&
         translated.right > gridRect.left &&
         translated.left < gridRect.right &&
         translated.bottom > gridRect.top &&
         translated.top < gridRect.bottom;
+      const isOverGrid = pointerInside || overlayIntersects;
 
       isOverGridRef.current = isOverGrid;
 
@@ -425,18 +481,17 @@ export const BlocksGrid = () => {
         return;
       }
 
-      const pointerX = translated.left + translated.width / 2;
-      const pointerY = translated.top + translated.height / 2;
-
       setDndRect({
         top: pointerY,
         right: pointerX,
         bottom: pointerY,
         left: pointerX,
-        width: 0,
-        height: 0,
+        width: translated?.width ?? 0,
+        height: translated?.height ?? 0,
       });
-      setDndEvent(event.activatorEvent ?? new Event("dragover"));
+      setDndEvent(
+        createPointerEvent("mousemove", { x: pointerX, y: pointerY }),
+      );
     },
     [containerRef, isDesktop, isPaletteOpen],
   );

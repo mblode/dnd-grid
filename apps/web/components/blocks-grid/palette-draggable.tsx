@@ -9,6 +9,7 @@ type Props = {
   item: PaletteItem;
   isActive: boolean;
   previewHeight: number;
+  scaleFactor: number;
   onClick?: (item: PaletteItem) => void;
 };
 
@@ -17,13 +18,23 @@ type PaletteDragSwingOverlayProps = {
   style: CSSProperties;
 };
 
-export const PaletteDraggable = ({ item, previewHeight, onClick }: Props) => {
+export const PaletteDraggable = ({
+  item,
+  previewHeight,
+  scaleFactor,
+  onClick,
+}: Props) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.kind,
     data: {
       palette: item,
     },
   });
+
+  const previewStyle = {
+    height: previewHeight,
+    "--dnd-grid-scale": scaleFactor.toFixed(3),
+  } as CSSProperties;
 
   return (
     <button
@@ -36,7 +47,7 @@ export const PaletteDraggable = ({ item, previewHeight, onClick }: Props) => {
         onClick?.(item);
       }}
       className="block w-full cursor-grab text-left outline-none active:cursor-grabbing"
-      style={{ height: previewHeight }}
+      style={previewStyle}
     >
       <BlockCard kind={item.kind} title={item.title} isPalette />
     </button>

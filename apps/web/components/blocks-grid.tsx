@@ -40,7 +40,6 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
-import { getPointerPosition } from "@/lib/dnd/pointer-tracker";
 import {
   TrackedMouseSensor,
   TrackedTouchSensor,
@@ -256,6 +255,20 @@ const getPointerCoordinates = (event?: Event | null) => {
   return null;
 };
 
+const resolveTranslatedRect = (event: DragMoveEvent): DndRect | null => {
+  const translated = event.active.rect.current.translated;
+  if (translated) return translated;
+  const initial = event.active.rect.current.initial;
+  if (!initial) return null;
+  return {
+    ...initial,
+    left: initial.left + event.delta.x,
+    right: initial.right + event.delta.x,
+    top: initial.top + event.delta.y,
+    bottom: initial.bottom + event.delta.y,
+  };
+};
+
 export const BlocksGrid = () => {
   const [items, setItems] = useState<GridItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -411,9 +424,8 @@ export const BlocksGrid = () => {
 
   const handleDndDragMove = useCallback(
     (event: DragMoveEvent) => {
-      const translated = event.active.rect.current.translated;
-      const trackedPointer = getPointerPosition();
-      if (!translated && !trackedPointer) return;
+      const translated = resolveTranslatedRect(event);
+      if (!translated) return;
 
       if (!isDesktop && isPaletteOpen) {
         setIsPaletteOpen(false);
@@ -427,26 +439,11 @@ export const BlocksGrid = () => {
         return;
       }
 
-      let pointerX = 0;
-      let pointerY = 0;
-
-      if (trackedPointer) {
-        pointerX = trackedPointer.x;
-        pointerY = trackedPointer.y;
-      } else if (translated) {
-        const offset = dragPointerOffsetRef.current;
-        pointerX = offset
-          ? translated.left + offset.x
-          : translated.left + translated.width / 2;
-        pointerY = offset
-          ? translated.top + offset.y
-          : translated.top + translated.height / 2;
-      }
       const isOverGrid =
-        pointerX >= gridRect.left &&
-        pointerX <= gridRect.right &&
-        pointerY >= gridRect.top &&
-        pointerY <= gridRect.bottom;
+        translated.right > gridRect.left &&
+        translated.left < gridRect.right &&
+        translated.bottom > gridRect.top &&
+        translated.top < gridRect.bottom;
 
       isOverGridRef.current = isOverGrid;
 
@@ -455,6 +452,14 @@ export const BlocksGrid = () => {
         setDndEvent(null);
         return;
       }
+
+      const offset = dragPointerOffsetRef.current;
+      const pointerX = offset
+        ? translated.left + offset.x
+        : translated.left + translated.width / 2;
+      const pointerY = offset
+        ? translated.top + offset.y
+        : translated.top + translated.height / 2;
 
       setDndRect({
         top: pointerY,

@@ -38,7 +38,6 @@ const nextConfig = {
     // Enable filesystem caching for `next build`
     turbopackFileSystemCacheForBuild: true,
   },
-
   images: {
     remotePatterns: [
       {

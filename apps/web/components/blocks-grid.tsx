@@ -239,22 +239,6 @@ const resolveDropLayout = ({
   return next;
 };
 
-const getPointerCoordinates = (event?: Event | null) => {
-  if (!event) return null;
-  if ("touches" in event) {
-    const touchEvent = event as TouchEvent;
-    const touch = touchEvent.touches[0] ?? touchEvent.changedTouches[0];
-    if (touch) {
-      return { x: touch.clientX, y: touch.clientY };
-    }
-  }
-  if ("clientX" in event && "clientY" in event) {
-    const mouseEvent = event as MouseEvent;
-    return { x: mouseEvent.clientX, y: mouseEvent.clientY };
-  }
-  return null;
-};
-
 const resolveTranslatedRect = (event: DragMoveEvent): DndRect | null => {
   const translated = event.active.rect.current.translated;
   if (translated) return translated;
@@ -284,7 +268,6 @@ export const BlocksGrid = () => {
   const [dndEvent, setDndEvent] = useState<Event | null>(null);
   const gridApiRef = useRef<DndGridHandle | null>(null);
   const dragItemRef = useRef<PaletteItem | null>(null);
-  const dragPointerOffsetRef = useRef<{ x: number; y: number } | null>(null);
   const nextIdRef = useRef(1);
   const isOverGridRef = useRef(false);
   const { width, containerRef, mounted } = useContainerWidth({
@@ -392,7 +375,6 @@ export const BlocksGrid = () => {
     if (clearDragItem) {
       dragItemRef.current = null;
     }
-    dragPointerOffsetRef.current = null;
     isOverGridRef.current = false;
   }, []);
 
@@ -410,16 +392,6 @@ export const BlocksGrid = () => {
     if (!active) return;
     dragItemRef.current = active;
     setActivePaletteId(active.kind);
-    const initial = event.active.rect.current.initial;
-    const point = getPointerCoordinates(event.activatorEvent ?? null);
-    if (initial && point) {
-      dragPointerOffsetRef.current = {
-        x: point.x - initial.left,
-        y: point.y - initial.top,
-      };
-    } else {
-      dragPointerOffsetRef.current = null;
-    }
   }, []);
 
   const handleDndDragMove = useCallback(
@@ -453,13 +425,8 @@ export const BlocksGrid = () => {
         return;
       }
 
-      const offset = dragPointerOffsetRef.current;
-      const pointerX = offset
-        ? translated.left + offset.x
-        : translated.left + translated.width / 2;
-      const pointerY = offset
-        ? translated.top + offset.y
-        : translated.top + translated.height / 2;
+      const pointerX = translated.left + translated.width / 2;
+      const pointerY = translated.top + translated.height / 2;
 
       setDndRect({
         top: pointerY,

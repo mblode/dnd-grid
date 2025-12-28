@@ -7,6 +7,7 @@ type Props = {
   item: PaletteItem;
   isActive: boolean;
   previewHeight: number;
+  previewScale: number;
   onAdd: (item: PaletteItem) => void;
 };
 
@@ -14,6 +15,7 @@ export const PaletteListItem = ({
   item,
   isActive,
   previewHeight,
+  previewScale,
   onAdd,
 }: Props) => {
   return (
@@ -41,6 +43,7 @@ export const PaletteListItem = ({
         item={item}
         isActive={isActive}
         previewHeight={previewHeight}
+        scaleFactor={previewScale}
         onClick={onAdd}
       />
     </div>

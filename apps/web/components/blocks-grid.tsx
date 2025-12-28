@@ -22,6 +22,13 @@ import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BlocksGridItem } from "@/components/blocks-grid/blocks-grid-item";
 import { BlocksGridPanel } from "@/components/blocks-grid/blocks-grid-panel";
+import {
+  BLOCK_COLUMNS,
+  BLOCK_GAP,
+  BLOCK_HEIGHT,
+  DEFAULT_WIDTH,
+  MAX_WIDTH,
+} from "@/components/blocks-grid/constants";
 import { initialItems, paletteItems } from "@/components/blocks-grid/data";
 import { MobilePaletteSheet } from "@/components/blocks-grid/mobile-palette-sheet";
 import { PaletteDragSwingOverlay } from "@/components/blocks-grid/palette-draggable";
@@ -33,16 +40,12 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
+import { getPointerPosition } from "@/lib/dnd/pointer-tracker";
 import {
   TrackedMouseSensor,
   TrackedTouchSensor,
 } from "@/lib/dnd/tracked-sensors";
 
-export const BLOCK_GAP = 16;
-export const BLOCK_HEIGHT = 24;
-export const BLOCK_COLUMNS = 4;
-export const DEFAULT_WIDTH = 480;
-export const MAX_WIDTH = 643;
 const DEFAULT_GRID_ROWS = 12;
 const DEFAULT_GRID_HEIGHT =
   DEFAULT_GRID_ROWS * BLOCK_HEIGHT +
@@ -409,7 +412,8 @@ export const BlocksGrid = () => {
   const handleDndDragMove = useCallback(
     (event: DragMoveEvent) => {
       const translated = event.active.rect.current.translated;
-      if (!translated) return;
+      const trackedPointer = getPointerPosition();
+      if (!translated && !trackedPointer) return;
 
       if (!isDesktop && isPaletteOpen) {
         setIsPaletteOpen(false);
@@ -423,13 +427,21 @@ export const BlocksGrid = () => {
         return;
       }
 
-      const offset = dragPointerOffsetRef.current;
-      const pointerX = offset
-        ? translated.left + offset.x
-        : translated.left + translated.width / 2;
-      const pointerY = offset
-        ? translated.top + offset.y
-        : translated.top + translated.height / 2;
+      let pointerX = 0;
+      let pointerY = 0;
+
+      if (trackedPointer) {
+        pointerX = trackedPointer.x;
+        pointerY = trackedPointer.y;
+      } else if (translated) {
+        const offset = dragPointerOffsetRef.current;
+        pointerX = offset
+          ? translated.left + offset.x
+          : translated.left + translated.width / 2;
+        pointerY = offset
+          ? translated.top + offset.y
+          : translated.top + translated.height / 2;
+      }
       const isOverGrid =
         pointerX >= gridRect.left &&
         pointerX <= gridRect.right &&
@@ -667,10 +679,6 @@ export const BlocksGrid = () => {
     const available = Math.max(gridWidth - margin * (BLOCK_COLUMNS - 1), 0);
     return available / BLOCK_COLUMNS;
   }, [gridWidth, margin]);
-  const getPreviewHeight = useCallback(
-    (item: PaletteItem) => rowHeight * item.h + margin * (item.h - 1),
-    [rowHeight, margin],
-  );
   const dragOverlayStyle = useMemo(() => {
     if (!activePaletteItem) return null;
     const width =
@@ -692,7 +700,6 @@ export const BlocksGrid = () => {
     onPaletteClick: handlePaletteClick,
     onTitleChange: (id: string, nextTitle: string) =>
       updateItem(id, { title: nextTitle }),
-    getPreviewHeight,
   };
 
   return (
@@ -758,7 +765,7 @@ export const BlocksGrid = () => {
           </div>
         </div>
 
-        <div className="sticky inset-x-0 bottom-4 z-40 px-4 pb-[max(8px,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="px-4 lg:hidden">
           <div className="mx-auto w-full">
             <Button
               type="button"

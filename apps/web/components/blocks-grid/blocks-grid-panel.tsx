@@ -12,12 +12,11 @@ import {
 } from "./constants";
 import { paletteItems } from "./data";
 import { PaletteListItem } from "./palette-list-item";
-import type { BlockKind, GridItem, PaletteItem } from "./types";
+import type { GridItem, PaletteItem } from "./types";
 
 type Props = {
   isEditing: boolean;
   selectedItem: GridItem | null;
-  activePaletteId: BlockKind | null;
   onBack: () => void;
   onPaletteClick: (item: PaletteItem) => void;
   onTitleChange: (id: string, nextTitle: string) => void;
@@ -28,7 +27,6 @@ type Props = {
 export const BlocksGridPanel = ({
   isEditing,
   selectedItem,
-  activePaletteId,
   onBack,
   onPaletteClick,
   onTitleChange,
@@ -41,9 +39,10 @@ export const BlocksGridPanel = ({
   const isAddPanel = !isEditing;
   const isEditPanel = isEditing;
   const resolvedWidth = panelWidth > 0 ? panelWidth : DEFAULT_WIDTH;
-  const previewScale = Math.min(resolvedWidth, MAX_WIDTH) / DEFAULT_WIDTH;
-  const baseAvailableWidth = DEFAULT_WIDTH - BLOCK_GAP * (BLOCK_COLUMNS - 1);
-  const baseColumnWidth = baseAvailableWidth / BLOCK_COLUMNS;
+  const gridWidth = Math.min(resolvedWidth, MAX_WIDTH);
+  const previewScale = gridWidth / DEFAULT_WIDTH;
+  const baseColumnWidth =
+    (DEFAULT_WIDTH - BLOCK_GAP * (BLOCK_COLUMNS - 1)) / BLOCK_COLUMNS;
   const getPreviewHeight = (item: PaletteItem) => {
     const baseWidth = baseColumnWidth * item.w + BLOCK_GAP * (item.w - 1);
     const baseHeight = BLOCK_HEIGHT * item.h + BLOCK_GAP * (item.h - 1);
@@ -76,7 +75,6 @@ export const BlocksGridPanel = ({
             <PaletteListItem
               key={item.kind}
               item={item}
-              isActive={activePaletteId === item.kind}
               previewHeight={getPreviewHeight(item)}
               previewScale={previewScale}
               onAdd={onPaletteClick}

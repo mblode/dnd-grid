@@ -4,7 +4,6 @@ import type { BlockKind } from "./types";
 type Props = {
   kind: BlockKind;
   title: string;
-  subText?: string;
 };
 
 export const BlockSwitch = ({ kind, title }: Props) => {
@@ -24,10 +23,16 @@ export const BlockSwitch = ({ kind, title }: Props) => {
             <Image
               src="https://images.unsplash.com/photo-1766066198725-b18478cc23d7?auto=format&fit=crop&w=800&q=80"
               alt="Media placeholder"
-              className="object-cover"
+              className="object-cover pointer-events-none select-none"
               fill
               sizes="(min-width: 1024px) 240px, 50vw"
               draggable={false}
+              style={
+                {
+                  WebkitTouchCallout: "none",
+                  WebkitUserDrag: "none",
+                } as React.CSSProperties
+              }
             />
             {title && (
               <div className="absolute bottom-fluid-3 left-fluid-3 z-10">

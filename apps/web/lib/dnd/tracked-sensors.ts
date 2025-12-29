@@ -111,7 +111,6 @@ const stopPropagation = (event: Event) => {
 class TrackedPointerSensor implements SensorInstance {
   autoScrollEnabled = true;
   private props: TrackedPointerSensorProps;
-  private events: PointerEventHandlers;
   private document: Document;
   private activated = false;
   private initialCoordinates: { x: number; y: number } | null = null;
@@ -128,7 +127,6 @@ class TrackedPointerSensor implements SensorInstance {
     ),
   ) {
     this.props = props;
-    this.events = events;
     this.document = getOwnerDocument(props.event.target);
     this.documentListeners = new Listeners(this.document);
     this.listeners = new Listeners(listenerTarget);
@@ -136,12 +134,11 @@ class TrackedPointerSensor implements SensorInstance {
     this.initialCoordinates =
       getEventCoordinates(props.event) ?? defaultCoordinates;
 
-    this.attach();
+    this.attach(events);
   }
 
-  private attach() {
+  private attach(events: PointerEventHandlers) {
     const {
-      events,
       props: { options },
     } = this;
 

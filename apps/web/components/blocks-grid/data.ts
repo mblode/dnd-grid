@@ -7,7 +7,7 @@ export const paletteItems: PaletteItem[] = [
     title: "Howdy!",
     description: "Headline with supporting body copy.",
     w: 2,
-    h: 3,
+    h: 4,
   },
   {
     kind: "media",
@@ -15,7 +15,7 @@ export const paletteItems: PaletteItem[] = [
     title: "Sunset",
     description: "Image-first block with a caption.",
     w: 2,
-    h: 3,
+    h: 4,
   },
   {
     kind: "quote",
@@ -23,7 +23,7 @@ export const paletteItems: PaletteItem[] = [
     title: "Less is more",
     description: "Pull quote with attribution.",
     w: 2,
-    h: 3,
+    h: 4,
   },
 ];
 

@@ -26,14 +26,14 @@ export const BlockCard = ({
   className,
   style,
 }: Props) => {
+  const showHoverRing = isHovered && !isSelected;
+
   return (
     <div
       className={cn(
         blockCardClassName,
         isSelected && "outline outline-ring shadow-(--widget-shadow-hover)",
-        isHovered &&
-          !isSelected &&
-          "ring-1 ring-ring/40 shadow-(--widget-shadow-hover)",
+        showHoverRing && "ring-1 ring-ring/40 shadow-(--widget-shadow-hover)",
         className,
       )}
       style={style}

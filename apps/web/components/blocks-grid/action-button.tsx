@@ -15,6 +15,8 @@ export const ActionButton = ({
   onClick,
   tone = "default",
 }: Props) => {
+  const isDanger = tone === "danger";
+
   return (
     <Button
       type="button"
@@ -23,7 +25,7 @@ export const ActionButton = ({
       onClick={onClick}
       className={cn(
         "h-7 rounded-full px-2 text-[10px] cursor-pointer",
-        tone === "danger" && "text-destructive",
+        isDanger && "text-destructive",
       )}
     >
       {children}

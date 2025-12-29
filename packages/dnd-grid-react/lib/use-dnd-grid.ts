@@ -381,8 +381,12 @@ export const getDerivedStateFromProps = <TData>(
 ): Partial<DndGridState<TData>> | null => {
   let newLayoutBase: Layout<TData> | null | undefined;
   const nextCompactor = resolveCompactor(nextProps);
+  const activeDragId = prevState.activeDrag?.id;
+  const shouldClearActiveDrag =
+    activeDragId !== undefined &&
+    !getChildKeys(nextProps.children).has(activeDragId);
 
-  if (prevState.activeDrag) {
+  if (prevState.activeDrag && !shouldClearActiveDrag) {
     return null;
   }
 
@@ -415,6 +419,27 @@ export const getDerivedStateFromProps = <TData>(
       children: nextProps.children,
       propsLayout: nextProps.layout,
       compactor: nextCompactor,
+      ...(shouldClearActiveDrag
+        ? {
+            activeDrag: null,
+            settlingItem:
+              prevState.settlingItem === activeDragId
+                ? null
+                : prevState.settlingItem,
+            oldDragItem: null,
+            oldLayout: null,
+          }
+        : null),
+    };
+  }
+
+  if (shouldClearActiveDrag) {
+    return {
+      activeDrag: null,
+      settlingItem:
+        prevState.settlingItem === activeDragId ? null : prevState.settlingItem,
+      oldDragItem: null,
+      oldLayout: null,
     };
   }
 

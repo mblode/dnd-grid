@@ -1,10 +1,4 @@
-import type {
-  Compactor,
-  CompactType,
-  Layout,
-  LayoutItem,
-  Mutable,
-} from "./types";
+import type { Compactor, Layout, LayoutItem, Mutable } from "./types";
 import {
   bottom,
   cloneLayout,
@@ -247,24 +241,3 @@ export const horizontalOverlapCompactor: Compactor = {
 export const resolveCompactor = <TData>(
   compactor?: Compactor<TData>,
 ): Compactor<TData> => compactor ?? verticalCompactor;
-
-const compactorMap: Record<string, Compactor> = {
-  "vertical:false": verticalCompactor,
-  "vertical:true": verticalOverlapCompactor,
-  "horizontal:false": horizontalCompactor,
-  "horizontal:true": horizontalOverlapCompactor,
-};
-
-export function getCompactor<TData = unknown>(
-  compactType: CompactType,
-  allowOverlap: boolean = false,
-  preventCollision: boolean = false,
-): Compactor<TData> {
-  const key = `${compactType}:${allowOverlap}`;
-  const baseCompactor: Compactor<TData> = compactorMap[key] ?? noCompactor;
-
-  if (preventCollision) {
-    return { ...baseCompactor, preventCollision };
-  }
-  return baseCompactor;
-}

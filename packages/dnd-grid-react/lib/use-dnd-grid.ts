@@ -151,9 +151,24 @@ export type UseDndGridApi<TData = unknown> = {
       | null
       | undefined,
   ) => void;
+  handleExternalDrag: (update: ExternalDragUpdate) => void;
   removeDroppingPlaceholder: () => void;
   state: DndGridState<TData>;
 };
+
+export type ExternalDragUpdate =
+  | {
+      clientX: number;
+      clientY: number;
+      type?: "move" | "drop" | "cancel";
+      event?: Event | null;
+    }
+  | {
+      event: Event;
+      type?: "move" | "drop" | "cancel";
+      clientX?: number;
+      clientY?: number;
+    };
 
 export type UseDndGridResult<TData = unknown> = {
   gridProps: UseDndGridGridProps;
@@ -335,6 +350,59 @@ const resolveDroppingCoords = (
   };
 };
 
+const createPointerEvent = (type: string, clientX: number, clientY: number) =>
+  new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX,
+    clientY,
+  });
+
+const getEventCoordinates = (
+  event?: Event | null,
+): { clientX: number; clientY: number } | null => {
+  if (!event) return null;
+  const eventAny = event as
+    | MouseEvent
+    | TouchEvent
+    | PointerEvent
+    | (Event & { touches?: TouchList; changedTouches?: TouchList });
+
+  if ("touches" in eventAny && eventAny.touches?.length) {
+    const touch = eventAny.touches[0];
+    return { clientX: touch.clientX, clientY: touch.clientY };
+  }
+
+  if ("changedTouches" in eventAny && eventAny.changedTouches?.length) {
+    const touch = eventAny.changedTouches[0];
+    return { clientX: touch.clientX, clientY: touch.clientY };
+  }
+
+  if ("clientX" in eventAny && typeof eventAny.clientX === "number") {
+    return { clientX: eventAny.clientX, clientY: eventAny.clientY };
+  }
+
+  return null;
+};
+
+const resolveExternalCoordinates = (
+  update: ExternalDragUpdate,
+): { clientX: number; clientY: number } | null => {
+  if (
+    "clientX" in update &&
+    typeof update.clientX === "number" &&
+    typeof update.clientY === "number"
+  ) {
+    return { clientX: update.clientX, clientY: update.clientY };
+  }
+
+  if ("event" in update) {
+    return getEventCoordinates(update.event ?? undefined);
+  }
+
+  return null;
+};
+
 export const defaultProps: DefaultProps = {
   autoSize: true,
   autoScroll: true,
@@ -466,12 +534,15 @@ export const useDndGrid = <TData = unknown>(
   dropEnabledRef.current = dropEnabled;
   const missingLayoutItemWarningsRef = React.useRef(new Set<string>());
   const unusedLayoutItemWarningsRef = React.useRef(new Set<string>());
-  const layoutSyncWarnings = isDevelopment
-    ? {
-        missingLayoutItems: missingLayoutItemWarningsRef.current,
-        unusedLayoutItems: unusedLayoutItemWarningsRef.current,
-      }
-    : undefined;
+  const layoutSyncWarningsRef = React.useRef<LayoutSyncWarnings | undefined>(
+    isDevelopment
+      ? {
+          missingLayoutItems: missingLayoutItemWarningsRef.current,
+          unusedLayoutItems: unusedLayoutItemWarningsRef.current,
+        }
+      : undefined,
+  );
+  const layoutSyncWarnings = layoutSyncWarningsRef.current;
   const compactor = resolveCompactor(props);
   const initialLayout = synchronizeLayoutWithChildren(
     props.layout,
@@ -750,13 +821,12 @@ export const useDndGrid = <TData = unknown>(
     const { gap, containerPadding } = resolveSpacing();
     const containerPaddingTop = containerPadding[0];
     const containerPaddingBottom = containerPadding[2];
-    return (
+    const height =
       nbRow * rowHeight +
       (nbRow - 1) * gap[0] +
       containerPaddingTop +
-      containerPaddingBottom +
-      "px"
-    );
+      containerPaddingBottom;
+    return `${Math.max(height, 0)}px`;
   }, [resolveSpacing]);
 
   const measure = React.useCallback((): DndGridMeasurements => {
@@ -1547,12 +1617,59 @@ export const useDndGrid = <TData = unknown>(
     [removeDroppingPlaceholder, updateDroppingPlaceholder],
   );
 
+  const handleExternalDrag = React.useCallback(
+    (update: ExternalDragUpdate) => {
+      const { type = "move" } = update;
+      if (type === "cancel") {
+        handleDndRect(undefined, null);
+        return;
+      }
+
+      const coordinates = resolveExternalCoordinates(update);
+      const eventType = type === "drop" ? "drop" : "dragover";
+      const event =
+        "event" in update && update.event
+          ? update.event
+          : coordinates
+            ? createPointerEvent(
+                eventType,
+                coordinates.clientX,
+                coordinates.clientY,
+              )
+            : undefined;
+
+      if (type === "drop") {
+        if (event) {
+          handleDndRect(event, null);
+        } else {
+          handleDndRect(undefined, null);
+        }
+        return;
+      }
+
+      if (!coordinates || !event) return;
+
+      handleDndRect(event, {
+        top: coordinates.clientY,
+        right: coordinates.clientX,
+        bottom: coordinates.clientY,
+        left: coordinates.clientX,
+        width: 0,
+        height: 0,
+      });
+    },
+    [handleDndRect],
+  );
+
   const onDragLeave = React.useCallback<React.DragEventHandler<HTMLDivElement>>(
     (e) => {
       if (!dropEnabledRef.current) return;
       e.preventDefault();
       e.stopPropagation();
-      dragEnterCounterRef.current -= 1;
+      dragEnterCounterRef.current = Math.max(
+        0,
+        dragEnterCounterRef.current - 1,
+      );
 
       if (dragEnterCounterRef.current === 0) {
         removeDroppingPlaceholder();
@@ -2008,6 +2125,7 @@ export const useDndGrid = <TData = unknown>(
       onResizeEnd,
       onSettleComplete,
       handleDndRect,
+      handleExternalDrag,
       removeDroppingPlaceholder,
       state,
     };

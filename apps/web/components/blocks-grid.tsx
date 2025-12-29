@@ -9,6 +9,7 @@ import {
 } from "@dnd-grid/react";
 import {
   DndContext,
+  type DragCancelEvent,
   type DragEndEvent,
   type DragMoveEvent,
   DragOverlay,
@@ -40,7 +41,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
-import { getPointerPosition } from "@/lib/dnd/pointer-tracker";
+import { getPointerEvent, getPointerPosition } from "@/lib/dnd/pointer-tracker";
 import {
   TrackedMouseSensor,
   TrackedTouchSensor,
@@ -268,14 +269,6 @@ const getPointerCoordinates = (event?: Event | null) => {
   return null;
 };
 
-const createPointerEvent = (type: string, point: { x: number; y: number }) =>
-  new MouseEvent(type, {
-    bubbles: true,
-    cancelable: true,
-    clientX: point.x,
-    clientY: point.y,
-  });
-
 const resolvePointerFromDrag = ({
   event,
   translated,
@@ -319,11 +312,11 @@ export const BlocksGrid = () => {
   const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY);
   const canHover = useMediaQuery("(any-hover: hover)");
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [dndRect, setDndRect] = useState<DndRect | null>(null);
-  const [dndEvent, setDndEvent] = useState<Event | null>(null);
   const gridApiRef = useRef<DndGridHandle | null>(null);
   const dragItemRef = useRef<PaletteItem | null>(null);
   const dragStartPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const lastPointerEventRef = useRef<Event | null>(null);
   const nextIdRef = useRef(1);
   const isOverGridRef = useRef(false);
   const { width, containerRef, mounted } = useContainerWidth({
@@ -432,20 +425,10 @@ export const BlocksGrid = () => {
       dragItemRef.current = null;
     }
     dragStartPointerRef.current = null;
+    lastPointerRef.current = null;
+    lastPointerEventRef.current = null;
     isOverGridRef.current = false;
   }, []);
-
-  const clearDndOverlay = useCallback(() => {
-    setDndRect(null);
-    setDndEvent(null);
-  }, []);
-
-  useEffect(() => {
-    gridApiRef.current?.handleDndRect(
-      dndEvent ?? undefined,
-      dndRect ?? undefined,
-    );
-  }, [dndEvent, dndRect]);
 
   const handleDndDragStart = useCallback((event: DragStartEvent) => {
     const active = event.active.data.current?.palette as
@@ -457,11 +440,15 @@ export const BlocksGrid = () => {
     dragStartPointerRef.current = getPointerCoordinates(
       event.activatorEvent ?? null,
     );
+    lastPointerRef.current = dragStartPointerRef.current;
+    lastPointerEventRef.current = event.activatorEvent ?? null;
   }, []);
 
   const handleDndDragMove = useCallback(
     (event: DragMoveEvent) => {
       const translated = resolveTranslatedRect(event);
+      const activatorEvent = event.activatorEvent ?? undefined;
+      const pointerEvent = getPointerEvent() ?? activatorEvent;
 
       if (!isDesktop && isPaletteOpen) {
         setIsPaletteOpen(false);
@@ -470,7 +457,6 @@ export const BlocksGrid = () => {
       const gridRect = containerRef.current?.getBoundingClientRect();
       if (!gridRect) {
         isOverGridRef.current = false;
-        clearDndOverlay();
         return;
       }
 
@@ -484,6 +470,10 @@ export const BlocksGrid = () => {
         return;
       }
       const { x: pointerX, y: pointerY } = pointer;
+      lastPointerRef.current = { x: pointerX, y: pointerY };
+      if (pointerEvent) {
+        lastPointerEventRef.current = pointerEvent;
+      }
 
       const pointerInside =
         pointerX >= gridRect.left &&
@@ -498,48 +488,82 @@ export const BlocksGrid = () => {
         translated.top < gridRect.bottom;
       const isOverGrid = pointerInside || overlayIntersects;
 
+      const wasOverGrid = isOverGridRef.current;
       isOverGridRef.current = isOverGrid;
 
       if (!isOverGrid) {
-        clearDndOverlay();
+        if (wasOverGrid) {
+          gridApiRef.current?.handleExternalDrag({
+            clientX: pointerX,
+            clientY: pointerY,
+            event: pointerEvent,
+            type: "cancel",
+          });
+        }
         return;
       }
 
-      setDndRect({
-        top: pointerY,
-        right: pointerX,
-        bottom: pointerY,
-        left: pointerX,
-        width: translated?.width ?? 0,
-        height: translated?.height ?? 0,
+      gridApiRef.current?.handleExternalDrag({
+        clientX: pointerX,
+        clientY: pointerY,
+        event: pointerEvent,
       });
-      setDndEvent(
-        createPointerEvent("mousemove", { x: pointerX, y: pointerY }),
-      );
     },
-    [clearDndOverlay, containerRef, isDesktop, isPaletteOpen],
+    [containerRef, isDesktop, isPaletteOpen],
   );
 
   const handleDndDragEnd = useCallback(
     (event: DragEndEvent) => {
       const shouldDrop = isOverGridRef.current;
+      const activatorEvent = event.activatorEvent ?? undefined;
+      const pointerEvent =
+        lastPointerEventRef.current ?? getPointerEvent() ?? activatorEvent;
       resetDndState(!shouldDrop);
 
+      const lastPointer = lastPointerRef.current;
+      const dropPointer = lastPointer ?? dragStartPointerRef.current;
+
       if (shouldDrop) {
-        setDndRect(null);
-        setDndEvent(event.activatorEvent ?? new Event("drop"));
+        gridApiRef.current?.handleExternalDrag({
+          clientX: dropPointer?.x ?? 0,
+          clientY: dropPointer?.y ?? 0,
+          event: pointerEvent,
+          type: "drop",
+        });
         return;
       }
 
-      clearDndOverlay();
+      if (dropPointer) {
+        gridApiRef.current?.handleExternalDrag({
+          clientX: dropPointer.x,
+          clientY: dropPointer.y,
+          event: pointerEvent,
+          type: "cancel",
+        });
+      }
     },
-    [clearDndOverlay, resetDndState],
+    [resetDndState],
   );
 
-  const handleDndDragCancel = useCallback(() => {
-    resetDndState();
-    clearDndOverlay();
-  }, [clearDndOverlay, resetDndState]);
+  const handleDndDragCancel = useCallback(
+    (event: DragCancelEvent) => {
+      resetDndState();
+      const lastPointer = lastPointerRef.current ?? dragStartPointerRef.current;
+      if (lastPointer) {
+        gridApiRef.current?.handleExternalDrag({
+          clientX: lastPointer.x,
+          clientY: lastPointer.y,
+          event:
+            lastPointerEventRef.current ??
+            getPointerEvent() ??
+            event.activatorEvent ??
+            undefined,
+          type: "cancel",
+        });
+      }
+    },
+    [resetDndState],
+  );
 
   const activePaletteItem = useMemo(
     () => paletteItems.find((item) => item.kind === activePaletteId) ?? null,

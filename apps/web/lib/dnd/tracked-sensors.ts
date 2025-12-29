@@ -19,6 +19,7 @@ import type {
 } from "react";
 import {
   clearPointerPosition,
+  setPointerEvent,
   setPointerPosition,
   setPointerPositionFromEvent,
 } from "./pointer-tracker";
@@ -239,6 +240,7 @@ class TrackedPointerSensor implements SensorInstance {
 
     const coordinates = getEventCoordinates(event);
     setPointerPosition(coordinates);
+    setPointerEvent(event);
 
     const resolvedCoordinates = coordinates ?? defaultCoordinates;
     const delta = subtract(initialCoordinates, resolvedCoordinates);

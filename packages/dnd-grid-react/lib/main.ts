@@ -3,7 +3,6 @@ import "./styles/index.css";
 export {
   compactItemHorizontal,
   compactItemVertical,
-  getCompactor,
   horizontalCompactor,
   horizontalOverlapCompactor,
   noCompactor,
@@ -107,6 +106,7 @@ export { useContainerWidth } from "./use-container-width";
 export type {
   DndGridMeasurements,
   DndGridState,
+  ExternalDragUpdate,
   UseDndGridApi,
   UseDndGridGridProps,
   UseDndGridItemProps,

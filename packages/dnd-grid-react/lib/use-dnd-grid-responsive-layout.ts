@@ -139,6 +139,8 @@ export const useDndGridResponsiveLayout = <
   const prevBreakpointsRef = useRef(breakpoints);
   const prevColsRef = useRef(colsConfig);
   const warnedBreakpointsRef = useRef(new Set<B>());
+  const layoutsChanged =
+    Boolean(propsLayouts) && !deepEqual(propsLayouts, prevLayoutsRef.current);
 
   const gap = useMemo(
     () => resolveResponsiveSpacing(gapProp, breakpoint),
@@ -173,11 +175,13 @@ export const useDndGridResponsiveLayout = <
   ]);
 
   useEffect(() => {
-    if (propsLayouts && !deepEqual(propsLayouts, prevLayoutsRef.current)) {
-      setLayoutsState(cloneLayouts(propsLayouts));
-      prevLayoutsRef.current = propsLayouts;
+    if (!propsLayouts || !layoutsChanged) {
+      return;
     }
-  }, [propsLayouts]);
+    const nextLayouts = cloneLayouts(propsLayouts);
+    setLayoutsState(nextLayouts);
+    prevLayoutsRef.current = nextLayouts;
+  }, [layoutsChanged, propsLayouts]);
 
   useEffect(() => {
     const widthChanged = width !== prevWidthRef.current;

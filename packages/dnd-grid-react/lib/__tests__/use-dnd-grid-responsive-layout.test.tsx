@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type {
   Layout,
@@ -128,5 +128,27 @@ describe("useDndGridResponsiveLayout", () => {
     ).toThrow(/Responsive layout.*missing/i);
 
     consoleError.mockRestore();
+  });
+
+  it("responds to in-place layout mutations", async () => {
+    const layouts: ResponsiveLayouts = {
+      lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
+    };
+    const { rerender } = render(
+      <TestComponent width={1200} layouts={layouts} />,
+    );
+
+    const layoutLg = layouts.lg;
+    if (!layoutLg) {
+      throw new Error("Expected lg layout");
+    }
+    layoutLg[0].x = 3;
+    rerender(<TestComponent width={1200} layouts={layouts} />);
+
+    await waitFor(() => {
+      const node = screen.getByTestId("result");
+      const parsedLayout = JSON.parse(node.dataset.layout || "[]") as Layout;
+      expect(parsedLayout[0]?.x).toBe(3);
+    });
   });
 });

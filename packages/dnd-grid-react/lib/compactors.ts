@@ -1,7 +1,6 @@
 export {
   compactItemHorizontal,
   compactItemVertical,
-  getCompactor,
   horizontalCompactor,
   horizontalOverlapCompactor,
   noCompactor,

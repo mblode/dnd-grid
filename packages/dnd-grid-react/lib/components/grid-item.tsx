@@ -462,7 +462,9 @@ const GridItem = React.forwardRef(
         resizeHandles,
         bounded,
       } = propsRef.current;
-      const data = layout.find((item) => item.id === id)?.data;
+      const currentItem = layout.find((item) => item.id === id);
+      const data = currentItem?.data;
+      const constraints = currentItem?.constraints;
       return {
         id,
         x,
@@ -474,7 +476,7 @@ const GridItem = React.forwardRef(
         maxW,
         maxH,
         data,
-        constraints: layout.find((item) => item.id === id)?.constraints,
+        constraints,
         static: isStatic,
         draggable,
         resizable,
@@ -864,10 +866,12 @@ const GridItem = React.forwardRef(
       (e, { node }) => {
         const { onDragStart, transformScale, dragTouchDelayDuration } =
           propsRef.current;
+        const isDroppingItem = Boolean(propsRef.current.droppingPosition);
 
         // For touch events with delay enabled, block if delay hasn't elapsed
         const isTouchEvent = "touches" in e;
         if (
+          !isDroppingItem &&
           isTouchEvent &&
           dragTouchDelayDuration &&
           isTouchCapable() &&

@@ -1,5 +1,11 @@
 # @dnd-grid/core
 
+## 1.1.5
+
+### Patch Changes
+
+- d450b2e: Improve external drag API
+
 ## 1.1.4
 
 ### Patch Changes

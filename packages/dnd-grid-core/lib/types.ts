@@ -107,10 +107,8 @@ export type LayoutConstraint<TData = unknown> = {
   ): { w: number; h: number };
 };
 
-export type CompactType = "horizontal" | "vertical" | null;
-
 export type Compactor<TData = unknown> = {
-  type: CompactType;
+  type: "horizontal" | "vertical" | null;
   allowOverlap: boolean;
   preventCollision?: boolean;
   compact<TLayoutData extends TData>(

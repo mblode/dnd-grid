@@ -8,7 +8,7 @@ import type { PaletteItem } from "./types";
 type Props = {
   item: PaletteItem;
   previewHeight: number;
-  scaleFactor: number;
+  style?: CSSProperties;
   onClick?: (item: PaletteItem) => void;
 };
 
@@ -20,7 +20,7 @@ type PaletteDragSwingOverlayProps = {
 export const PaletteDraggable = ({
   item,
   previewHeight,
-  scaleFactor,
+  style,
   onClick,
 }: Props) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -30,10 +30,9 @@ export const PaletteDraggable = ({
     },
   });
 
-  const scaleValue = scaleFactor.toFixed(3);
   const previewStyle = {
+    ...style,
     height: previewHeight,
-    "--dnd-grid-scale": scaleValue,
   } as CSSProperties;
 
   return (

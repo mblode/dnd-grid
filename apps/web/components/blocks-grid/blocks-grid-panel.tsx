@@ -8,7 +8,6 @@ import {
   BLOCK_GAP,
   BLOCK_HEIGHT,
   DEFAULT_WIDTH,
-  MAX_WIDTH,
 } from "./constants";
 import { paletteItems } from "./data";
 import { PaletteListItem } from "./palette-list-item";
@@ -39,15 +38,16 @@ export const BlocksGridPanel = ({
   const isAddPanel = !isEditing;
   const isEditPanel = isEditing;
   const resolvedWidth = panelWidth > 0 ? panelWidth : DEFAULT_WIDTH;
-  const gridWidth = Math.min(resolvedWidth, MAX_WIDTH);
-  const previewScale = gridWidth / DEFAULT_WIDTH;
   const baseColumnWidth =
     (DEFAULT_WIDTH - BLOCK_GAP * (BLOCK_COLUMNS - 1)) / BLOCK_COLUMNS;
-  const getPreviewHeight = (item: PaletteItem) => {
+  const getPreviewMetrics = (item: PaletteItem) => {
     const baseWidth = baseColumnWidth * item.w + BLOCK_GAP * (item.w - 1);
     const baseHeight = BLOCK_HEIGHT * item.h + BLOCK_GAP * (item.h - 1);
-    const fillScale = resolvedWidth / baseWidth;
-    return baseHeight * fillScale;
+    const scale = resolvedWidth / baseWidth;
+    return {
+      height: baseHeight * scale,
+      scale,
+    };
   };
 
   return (
@@ -71,15 +71,18 @@ export const BlocksGridPanel = ({
 
       {isAddPanel ? (
         <div ref={containerRef} className="flex flex-col">
-          {paletteItems.map((item) => (
-            <PaletteListItem
-              key={item.kind}
-              item={item}
-              previewHeight={getPreviewHeight(item)}
-              previewScale={previewScale}
-              onAdd={onPaletteClick}
-            />
-          ))}
+          {paletteItems.map((item) => {
+            const { height, scale } = getPreviewMetrics(item);
+            return (
+              <PaletteListItem
+                key={item.kind}
+                item={item}
+                previewHeight={height}
+                previewScale={scale}
+                onAdd={onPaletteClick}
+              />
+            );
+          })}
         </div>
       ) : (
         selectedItem && (

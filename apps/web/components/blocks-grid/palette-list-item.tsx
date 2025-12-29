@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { PaletteDraggable } from "./palette-draggable";
 import type { PaletteItem } from "./types";
@@ -16,6 +17,8 @@ export const PaletteListItem = ({
   previewScale,
   onAdd,
 }: Props) => {
+  const scaleValue = previewScale.toFixed(4);
+
   return (
     <div className="border-b-2 border-border pb-fluid-5 pt-fluid-4 last:border-b-0 last:pb-0">
       <div className="mb-fluid-3 flex items-start gap-2">
@@ -40,7 +43,11 @@ export const PaletteListItem = ({
       <PaletteDraggable
         item={item}
         previewHeight={previewHeight}
-        scaleFactor={previewScale}
+        style={
+          {
+            "--dnd-grid-scale": scaleValue,
+          } as CSSProperties
+        }
         onClick={onAdd}
       />
     </div>

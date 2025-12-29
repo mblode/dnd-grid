@@ -252,7 +252,7 @@ export type Props<TData = unknown> = {
     item: LayoutItem<TData> | null | undefined,
     e: Event,
   ) => void;
-  children: ReactNode;
+  children?: ReactNode;
   innerRef?: Ref<HTMLDivElement>;
 };
 

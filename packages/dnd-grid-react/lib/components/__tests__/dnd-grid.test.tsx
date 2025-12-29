@@ -570,6 +570,22 @@ describe("DndGrid", () => {
 
       expect(ref.current?.containerHeight()).toBe("60px");
     });
+
+    it("clamps empty layouts to zero height", () => {
+      const ref = React.createRef<DndGrid>();
+      renderGrid(
+        <DndGrid
+          {...defaultProps}
+          ref={ref}
+          layout={[]}
+          rowHeight={50}
+          gap={10}
+          containerPadding={0}
+        />,
+      );
+
+      expect(ref.current?.containerHeight()).toBe("0px");
+    });
   });
 
   describe("compaction", () => {
@@ -934,6 +950,69 @@ describe("DndGrid", () => {
 
       expect(ref.current?.state.droppingDOMNode).not.toBeNull();
       getElementByIdSpy.mockRestore();
+    });
+
+    it("updates dropping placeholder with handleExternalDrag", () => {
+      const ref = React.createRef<DndGrid>();
+      renderGrid(
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={() => undefined}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+            A
+          </div>
+        </DndGrid>,
+      );
+
+      act(() => {
+        ref.current?.handleExternalDrag({ clientX: 10, clientY: 10 });
+      });
+
+      expect(ref.current?.state.droppingDOMNode).not.toBeNull();
+    });
+
+    it("uses event coordinates for handleExternalDrag", () => {
+      const ref = React.createRef<DndGrid>();
+      renderGrid(
+        <DndGrid {...defaultProps} ref={ref} onDropDragOver={() => undefined}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+            A
+          </div>
+        </DndGrid>,
+      );
+
+      act(() => {
+        ref.current?.handleExternalDrag({
+          event: new MouseEvent("mousemove", { clientX: 10, clientY: 10 }),
+        });
+      });
+
+      expect(ref.current?.state.droppingDOMNode).not.toBeNull();
+    });
+
+    it("commits drops with handleExternalDrag", () => {
+      const onDrop = vi.fn();
+      const ref = React.createRef<DndGrid>();
+      renderGrid(
+        <DndGrid {...defaultProps} ref={ref} onDrop={onDrop}>
+          <div key="a" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+            A
+          </div>
+        </DndGrid>,
+      );
+
+      act(() => {
+        ref.current?.handleExternalDrag({ clientX: 10, clientY: 10 });
+      });
+
+      act(() => {
+        ref.current?.handleExternalDrag({
+          clientX: 10,
+          clientY: 10,
+          type: "drop",
+        });
+      });
+
+      expect(onDrop).toHaveBeenCalled();
+      expect(ref.current?.state.droppingDOMNode).toBeNull();
     });
   });
 

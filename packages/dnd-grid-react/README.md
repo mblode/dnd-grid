@@ -316,6 +316,41 @@ function Card() {
 
 The hook must be used inside a `DndGrid` item (it throws if rendered elsewhere).
 
+## External drag sources
+
+If you manage drag state outside of the grid (for example with `@dnd-kit`), use
+the grid handle to drive the dropping placeholder and commit the drop:
+
+```tsx
+const gridRef = useRef<DndGridHandle>(null);
+
+const handleMove = (clientX: number, clientY: number) => {
+  gridRef.current?.handleExternalDrag({ clientX, clientY });
+};
+
+const handleDrop = (clientX: number, clientY: number, event?: Event) => {
+  gridRef.current?.handleExternalDrag({
+    clientX,
+    clientY,
+    event,
+    type: "drop",
+  });
+};
+
+const handleCancel = (clientX: number, clientY: number, event?: Event) => {
+  gridRef.current?.handleExternalDrag({
+    clientX,
+    clientY,
+    event,
+    type: "cancel",
+  });
+};
+```
+
+Use `onDropDragOver` to override the dropping placeholder size while dragging.
+If your drag library exposes a native event, pass it via `event` instead of
+generating one.
+
 ## Callbacks
 
 | Callback | Type | Description |

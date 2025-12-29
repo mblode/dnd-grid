@@ -5,7 +5,6 @@ import type { PaletteItem } from "./types";
 
 type Props = {
   item: PaletteItem;
-  isActive: boolean;
   previewHeight: number;
   previewScale: number;
   onAdd: (item: PaletteItem) => void;
@@ -13,7 +12,6 @@ type Props = {
 
 export const PaletteListItem = ({
   item,
-  isActive,
   previewHeight,
   previewScale,
   onAdd,
@@ -41,7 +39,6 @@ export const PaletteListItem = ({
       </div>
       <PaletteDraggable
         item={item}
-        isActive={isActive}
         previewHeight={previewHeight}
         scaleFactor={previewScale}
         onClick={onAdd}

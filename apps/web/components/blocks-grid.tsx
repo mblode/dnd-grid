@@ -206,8 +206,7 @@ const resolveDropLayout = ({
   layout: Layout;
   dropItem: LayoutItem;
 }): Layout => {
-  const placed: LayoutItem[] = [{ ...dropItem }];
-  const next: LayoutItem[] = [{ ...dropItem }];
+  const resolved: LayoutItem[] = [{ ...dropItem }];
   const sorted = layout
     .filter((item) => item.id !== dropItem.id)
     .map((item) => ({ ...item }))
@@ -221,7 +220,7 @@ const resolveDropLayout = ({
       needsPlacement = false;
       let nextY = candidate.y;
 
-      for (const placedItem of placed) {
+      for (const placedItem of resolved) {
         if (collides(candidate, placedItem)) {
           nextY = Math.max(nextY, placedItem.y + placedItem.h);
           needsPlacement = true;
@@ -233,11 +232,10 @@ const resolveDropLayout = ({
       }
     }
 
-    placed.push(candidate);
-    next.push(candidate);
+    resolved.push(candidate);
   }
 
-  return next;
+  return resolved;
 };
 
 const resolveTranslatedRect = (event: DragMoveEvent): DndRect | null => {
@@ -277,6 +275,38 @@ const createPointerEvent = (type: string, point: { x: number; y: number }) =>
     clientX: point.x,
     clientY: point.y,
   });
+
+const resolvePointerFromDrag = ({
+  event,
+  translated,
+  dragStartPointer,
+}: {
+  event: DragMoveEvent;
+  translated: DndRect | null;
+  dragStartPointer: { x: number; y: number } | null;
+}): { x: number; y: number } | null => {
+  const trackedPointer = getPointerPosition();
+
+  if (trackedPointer) {
+    return trackedPointer;
+  }
+
+  if (dragStartPointer) {
+    return {
+      x: dragStartPointer.x + event.delta.x,
+      y: dragStartPointer.y + event.delta.y,
+    };
+  }
+
+  if (translated) {
+    return {
+      x: translated.left + translated.width / 2,
+      y: translated.top + translated.height / 2,
+    };
+  }
+
+  return null;
+};
 
 export const BlocksGrid = () => {
   const [items, setItems] = useState<GridItem[]>(initialItems);
@@ -405,6 +435,11 @@ export const BlocksGrid = () => {
     isOverGridRef.current = false;
   }, []);
 
+  const clearDndOverlay = useCallback(() => {
+    setDndRect(null);
+    setDndEvent(null);
+  }, []);
+
   useEffect(() => {
     gridApiRef.current?.handleDndRect(
       dndEvent ?? undefined,
@@ -435,30 +470,20 @@ export const BlocksGrid = () => {
       const gridRect = containerRef.current?.getBoundingClientRect();
       if (!gridRect) {
         isOverGridRef.current = false;
-        setDndRect(null);
-        setDndEvent(null);
+        clearDndOverlay();
         return;
       }
 
-      const trackedPointer = getPointerPosition();
       const dragStartPointer = dragStartPointerRef.current;
-      let pointerX: number | null = null;
-      let pointerY: number | null = null;
-
-      if (trackedPointer) {
-        pointerX = trackedPointer.x;
-        pointerY = trackedPointer.y;
-      } else if (dragStartPointer) {
-        pointerX = dragStartPointer.x + event.delta.x;
-        pointerY = dragStartPointer.y + event.delta.y;
-      } else if (translated) {
-        pointerX = translated.left + translated.width / 2;
-        pointerY = translated.top + translated.height / 2;
-      }
-
-      if (pointerX === null || pointerY === null) {
+      const pointer = resolvePointerFromDrag({
+        event,
+        translated,
+        dragStartPointer,
+      });
+      if (!pointer) {
         return;
       }
+      const { x: pointerX, y: pointerY } = pointer;
 
       const pointerInside =
         pointerX >= gridRect.left &&
@@ -476,8 +501,7 @@ export const BlocksGrid = () => {
       isOverGridRef.current = isOverGrid;
 
       if (!isOverGrid) {
-        setDndRect(null);
-        setDndEvent(null);
+        clearDndOverlay();
         return;
       }
 
@@ -493,7 +517,7 @@ export const BlocksGrid = () => {
         createPointerEvent("mousemove", { x: pointerX, y: pointerY }),
       );
     },
-    [containerRef, isDesktop, isPaletteOpen],
+    [clearDndOverlay, containerRef, isDesktop, isPaletteOpen],
   );
 
   const handleDndDragEnd = useCallback(
@@ -507,17 +531,15 @@ export const BlocksGrid = () => {
         return;
       }
 
-      setDndRect(null);
-      setDndEvent(null);
+      clearDndOverlay();
     },
-    [resetDndState],
+    [clearDndOverlay, resetDndState],
   );
 
   const handleDndDragCancel = useCallback(() => {
     resetDndState();
-    setDndRect(null);
-    setDndEvent(null);
-  }, [resetDndState]);
+    clearDndOverlay();
+  }, [clearDndOverlay, resetDndState]);
 
   const activePaletteItem = useMemo(
     () => paletteItems.find((item) => item.kind === activePaletteId) ?? null,
@@ -525,16 +547,16 @@ export const BlocksGrid = () => {
   );
 
   const measuredWidth = width > 0 ? width : DEFAULT_WIDTH;
-  const scaleFactor = useMemo(
-    () => Math.min(measuredWidth, MAX_WIDTH) / DEFAULT_WIDTH,
-    [measuredWidth],
-  );
+  const gridWidth = Math.min(measuredWidth, MAX_WIDTH);
+  const scaleFactor = gridWidth / DEFAULT_WIDTH;
+  const scaleValue = scaleFactor.toFixed(3);
   const scaleStyle = useMemo(
     () =>
       ({
-        "--dnd-grid-scale": scaleFactor.toFixed(3),
+        "--dnd-grid-scale": scaleValue,
+        "--blocks-grid-max": `${MAX_WIDTH}px`,
       }) as CSSProperties,
-    [scaleFactor],
+    [scaleValue],
   );
 
   const layout = useMemo<Layout>(
@@ -558,9 +580,12 @@ export const BlocksGrid = () => {
   }, []);
 
   const handleLayoutChange = useCallback((nextLayout: Layout) => {
+    const layoutById = new Map(
+      nextLayout.map((layoutItem) => [layoutItem.id, layoutItem]),
+    );
     setItems((prev) =>
       prev.map((item) => {
-        const next = nextLayout.find((layoutItem) => layoutItem.id === item.id);
+        const next = layoutById.get(item.id);
         return next
           ? { ...item, x: next.x, y: next.y, w: next.w, h: next.h }
           : item;
@@ -698,10 +723,6 @@ export const BlocksGrid = () => {
 
   const rowHeight = BLOCK_HEIGHT * scaleFactor;
   const margin = BLOCK_GAP * scaleFactor;
-  const gridWidth = Math.min(
-    measuredWidth > 0 ? measuredWidth : DEFAULT_WIDTH,
-    MAX_WIDTH,
-  );
   const columnWidth = useMemo(() => {
     const available = Math.max(gridWidth - margin * (BLOCK_COLUMNS - 1), 0);
     return available / BLOCK_COLUMNS;
@@ -715,14 +736,13 @@ export const BlocksGrid = () => {
     return {
       width,
       height,
-      "--dnd-grid-scale": scaleFactor.toFixed(3),
+      "--dnd-grid-scale": scaleValue,
     } as CSSProperties;
-  }, [activePaletteItem, columnWidth, margin, rowHeight, scaleFactor]);
+  }, [activePaletteItem, columnWidth, margin, rowHeight, scaleValue]);
 
   const panelProps = {
     isEditing,
     selectedItem,
-    activePaletteId,
     onBack: () => setIsEditing(false),
     onPaletteClick: handlePaletteClick,
     onTitleChange: (id: string, nextTitle: string) =>
@@ -738,10 +758,10 @@ export const BlocksGrid = () => {
       onDragCancel={handleDndDragCancel}
     >
       <div className="relative" style={scaleStyle}>
-        <div className="grid gap-fluid-4 lg:grid-cols-[minmax(0,1fr)_260px] pb-12 lg:pb-0">
+        <div className="grid gap-fluid-4 lg:grid-cols-[minmax(0,var(--blocks-grid-max))_260px] lg:justify-center pb-12 lg:pb-0">
           <div
             ref={containerRef}
-            className="w-full"
+            className="w-full mx-auto"
             style={{ maxWidth: MAX_WIDTH }}
           >
             {mounted && measuredWidth > 0 ? (

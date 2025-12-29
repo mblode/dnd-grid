@@ -40,9 +40,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
     },
     ref,
   ) => {
-    const showControls = isHovered || isSelected;
-    const showActionBar = isHovered;
-    const showHandles = showControls;
+    const isActive = isHovered || isSelected;
 
     return (
       <div
@@ -50,7 +48,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
         style={style}
         className={cn(
           "relative size-full overflow-visible",
-          showHandles && "is-hovered",
+          isActive && "is-hovered",
           isHovered && "z-[1]",
           className,
         )}
@@ -80,7 +78,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
           />
         </button>
 
-        {showActionBar && (
+        {isHovered && (
           <ActionBar w={item.w} x={item.x}>
             <ActionButton onClick={onEdit}>
               <Pencil className="size-3" />

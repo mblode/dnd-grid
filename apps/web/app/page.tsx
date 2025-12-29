@@ -96,7 +96,7 @@ export default async function Home() {
             </section>
 
             <section className="flex-1 pb-16">
-              <div className="container-wrapper">
+              <div className="mx-auto w-full max-w-screen-2xl px-2 lg:px-4">
                 <div className="mx-auto max-w-5xl">
                   <BlocksGrid />
                 </div>

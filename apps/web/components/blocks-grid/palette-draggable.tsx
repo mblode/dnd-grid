@@ -7,7 +7,6 @@ import type { PaletteItem } from "./types";
 
 type Props = {
   item: PaletteItem;
-  isActive: boolean;
   previewHeight: number;
   scaleFactor: number;
   onClick?: (item: PaletteItem) => void;
@@ -31,9 +30,10 @@ export const PaletteDraggable = ({
     },
   });
 
+  const scaleValue = scaleFactor.toFixed(3);
   const previewStyle = {
     height: previewHeight,
-    "--dnd-grid-scale": scaleFactor.toFixed(3),
+    "--dnd-grid-scale": scaleValue,
   } as CSSProperties;
 
   return (

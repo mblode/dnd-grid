@@ -1,13 +1,13 @@
 export function SiteFooter() {
   return (
-    <footer className="mt-auto py-8 text-center text-sm text-muted-foreground">
+    <footer className="mt-auto py-8 text-center text-sm">
       <div className="container-wrapper">
-        Built by{" "}
+        <span className="text-muted-foreground">Built by</span>{" "}
         <a
           href="https://matthewblode.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-colors underline-offset-2 hover:underline hover:text-foreground"
+          className="underline-offset-2 hover:underline"
         >
           Matthew Blode
         </a>

@@ -14,7 +14,7 @@ export function SiteHeader() {
             <Logo className="h-6 w-6 text-foreground" />
             <span>dnd-grid</span>
           </Link>
-          <nav className="flex items-center gap-6 text-lg">
+          <nav className="flex items-center gap-6">
             <a
               href={siteConfig.links.docs}
               className="underline-offset-2 hover:underline"

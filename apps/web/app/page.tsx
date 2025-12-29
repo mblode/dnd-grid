@@ -45,7 +45,7 @@ async function getCodeHtml(code: string, lang: "bash" | "css" | "tsx") {
 }
 
 const shikiClassName =
-  "overflow-x-auto text-xs md:text-sm [&>pre]:m-0 [&>pre]:p-0 [&>pre]:!bg-transparent [&>pre]:!font-mono [&>pre>code]:!font-mono dark:[&>pre]:!text-[color:var(--shiki-dark)] dark:[&>pre_span]:!text-[color:var(--shiki-dark)]";
+  "overflow-x-auto pb-4 text-xs md:text-sm [&>pre]:m-0 [&>pre]:p-0 [&>pre]:!bg-transparent [&>pre]:!font-mono [&>pre>code]:!font-mono dark:[&>pre]:!text-[color:var(--shiki-dark)] dark:[&>pre_span]:!text-[color:var(--shiki-dark)]";
 
 export default async function Home() {
   const [installHtml, styleHtml, usageImportHtml, usageComponentHtml] =
@@ -62,7 +62,7 @@ export default async function Home() {
 
       <main className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col">
-          <div className="bg-linear-to-b from-white to-[#f7ecd2] dark:from-card dark:to-card">
+          <div className="bg-linear-to-b from-white to-[#f7ecd2] dark:from-background dark:to-card">
             <section className="py-16 md:py-24 text-center">
               <div className="container-wrapper">
                 <h1 className="text-7xl font-light tracking-tight font-serif">
@@ -112,7 +112,7 @@ export default async function Home() {
                     <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">
                       Installation
                     </h2>
-                    <div className="relative rounded-2xl bg-muted/50 p-4">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
                       <CopyButton
                         content={INSTALL_COMMAND}
                         variant="ghost"
@@ -128,7 +128,7 @@ export default async function Home() {
                       Add the styles to your global CSS file (e.g.{" "}
                       <code className="text-foreground">globals.css</code>):
                     </p>
-                    <div className="relative rounded-2xl bg-muted/50 p-4">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
                       <CopyButton
                         content={STYLE_IMPORT}
                         variant="ghost"
@@ -146,7 +146,7 @@ export default async function Home() {
                     <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">
                       Usage
                     </h2>
-                    <div className="relative rounded-2xl bg-muted/50 p-4">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
                       <CopyButton
                         content={USAGE_IMPORT_SNIPPET}
                         variant="ghost"
@@ -158,7 +158,7 @@ export default async function Home() {
                         dangerouslySetInnerHTML={{ __html: usageImportHtml }}
                       />
                     </div>
-                    <div className="relative rounded-2xl bg-muted/50 p-4">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
                       <CopyButton
                         content={USAGE_COMPONENT_SNIPPET}
                         variant="ghost"

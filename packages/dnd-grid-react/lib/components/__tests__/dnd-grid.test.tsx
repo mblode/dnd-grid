@@ -436,6 +436,44 @@ describe("DndGrid", () => {
 
       expect(derived?.layout?.[0].id).toBe("b");
     });
+
+    it("clears active drag when the active item is removed", () => {
+      const prevLayout: Layout = [
+        { id: "a", x: 0, y: 0, w: 1, h: 1 },
+        { id: "b", x: 0, y: 2, w: 1, h: 1 },
+      ];
+      const nextLayout: Layout = [{ id: "b", x: 0, y: 2, w: 1, h: 1 }];
+      const prevState = {
+        activeDrag: { id: "a", x: 0, y: 0, w: 1, h: 1 },
+        activeItemId: null,
+        settlingItem: "a",
+        layout: prevLayout,
+        mounted: false,
+        oldDragItem: { id: "a", x: 0, y: 0, w: 1, h: 1 },
+        oldLayout: prevLayout,
+        oldResizeItem: null,
+        resizing: false,
+        droppingDOMNode: null,
+        propsLayout: prevLayout,
+        compactor: verticalCompactor,
+        children: [<div key="a" />, <div key="b" />],
+      } as DerivedState;
+
+      const derived = DndGrid.getDerivedStateFromProps(
+        {
+          ...defaultProps,
+          layout: nextLayout,
+          children: <div key="b" />,
+        } as DerivedProps,
+        prevState,
+      );
+
+      expect(derived).not.toBeNull();
+      expect(derived?.activeDrag).toBeNull();
+      expect(derived?.settlingItem).toBeNull();
+      expect(derived?.layout?.[0].id).toBe("b");
+      expect(derived?.layout?.[0].y).toBe(0);
+    });
   });
 
   describe("validation", () => {

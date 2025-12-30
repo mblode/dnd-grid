@@ -49,6 +49,15 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: "/opengraph-image.png",
+        headers: [
+          ...securityHeaders.filter(
+            (h) => h.key !== "Cross-Origin-Resource-Policy"
+          ),
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: securityHeaders,
       },

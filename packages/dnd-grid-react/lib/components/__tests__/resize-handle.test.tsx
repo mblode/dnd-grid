@@ -30,12 +30,12 @@ describe("ResizeHandle", () => {
 
   it("forwards ref correctly", () => {
     const ref = React.createRef<HTMLDivElement>();
-    render(<ResizeHandle ref={ref} handleAxis="sw" />);
+    render(<ResizeHandle handleAxis="sw" ref={ref} />);
     expect(ref.current).toBeInstanceOf(HTMLDivElement);
   });
 
   it("spreads additional props", () => {
-    render(<ResizeHandle handleAxis="w" data-testid="resize-handle" />);
+    render(<ResizeHandle data-testid="resize-handle" handleAxis="w" />);
     expect(screen.getByTestId("resize-handle")).toBeInTheDocument();
   });
 
@@ -44,20 +44,20 @@ describe("ResizeHandle", () => {
     for (const axis of axes) {
       const { container, unmount } = render(<ResizeHandle handleAxis={axis} />);
       expect(
-        container.querySelector(`.react-resizable-handle-${axis}`),
+        container.querySelector(`.react-resizable-handle-${axis}`)
       ).toBeInTheDocument();
       unmount();
     }
   });
 
   it("renders a div element", () => {
-    render(<ResizeHandle handleAxis="se" data-testid="handle" />);
+    render(<ResizeHandle data-testid="handle" handleAxis="se" />);
     const handle = screen.getByTestId("handle");
     expect(handle.tagName).toBe("DIV");
   });
 
   it("combines all expected classes", () => {
-    render(<ResizeHandle handleAxis="se" data-testid="handle" />);
+    render(<ResizeHandle data-testid="handle" handleAxis="se" />);
     const handle = screen.getByTestId("handle");
     expect(handle).toHaveClass("react-resizable-handle");
     expect(handle).toHaveClass("react-resizable-handle-se");
@@ -67,10 +67,10 @@ describe("ResizeHandle", () => {
   it("accepts custom data attributes via rest props", () => {
     render(
       <ResizeHandle
-        handleAxis="se"
-        data-testid="handle"
         data-custom="custom-value"
-      />,
+        data-testid="handle"
+        handleAxis="se"
+      />
     );
     const handle = screen.getByTestId("handle");
     // This tests the spread behavior for data attributes

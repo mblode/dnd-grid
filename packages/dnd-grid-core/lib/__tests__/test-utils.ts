@@ -6,11 +6,11 @@ export const defaultPositionParams: PositionParams = {
   containerWidth: 1200,
   cols: 12,
   rowHeight: 150,
-  maxRows: Infinity,
+  maxRows: Number.POSITIVE_INFINITY,
 };
 
 export const createLayoutItem = (
-  overrides: Partial<LayoutItem> = {},
+  overrides: Partial<LayoutItem> = {}
 ): LayoutItem => ({
   id: "test-item",
   x: 0,
@@ -22,5 +22,5 @@ export const createLayoutItem = (
 
 export const createLayout = (items: Partial<LayoutItem>[]): Layout =>
   items.map((item, index) =>
-    createLayoutItem({ id: `item-${index}`, ...item }),
+    createLayoutItem({ id: `item-${index}`, ...item })
   );

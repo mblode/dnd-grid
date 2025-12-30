@@ -5,7 +5,7 @@ import {
 } from "./spring";
 import type { AnimationConfig, AnimationSpringConfig } from "./types";
 
-type ResolvedAnimationConfig = {
+interface ResolvedAnimationConfig {
   springs: {
     enabled: boolean;
     rotation: AnimationSpringConfig;
@@ -19,7 +19,7 @@ type ResolvedAnimationConfig = {
     dragStartEasing: string;
     dragStopEasing: string;
   };
-};
+}
 
 const defaultRotationSpring: AnimationSpringConfig = {
   stiffness: SPRING_DEFAULTS.stiffness,
@@ -40,14 +40,14 @@ const defaultPositionSpring: AnimationSpringConfig = {
 
 const resolveSpringConfig = (
   base: AnimationSpringConfig,
-  overrides?: AnimationSpringConfig,
+  overrides?: AnimationSpringConfig
 ): AnimationSpringConfig => ({
   ...base,
   ...overrides,
 });
 
 export const resolveAnimationConfig = (
-  config?: AnimationConfig,
+  config?: AnimationConfig
 ): ResolvedAnimationConfig => {
   const springs = config?.springs;
   const shadow = config?.shadow;

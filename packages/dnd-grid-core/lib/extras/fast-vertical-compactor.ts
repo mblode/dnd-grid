@@ -4,17 +4,29 @@ import { cloneLayout, collides, simpleOnMove } from "../utils";
 const compactVerticalFast = <TData>(
   layout: LayoutItem<TData>[],
   cols: number,
-  allowOverlap: boolean,
+  allowOverlap: boolean
 ): void => {
   const numItems = layout.length;
 
   layout.sort((a, b) => {
-    if (a.y < b.y) return -1;
-    if (a.y > b.y) return 1;
-    if (a.x < b.x) return -1;
-    if (a.x > b.x) return 1;
-    if (a.static && !b.static) return -1;
-    if (!a.static && b.static) return 1;
+    if (a.y < b.y) {
+      return -1;
+    }
+    if (a.y > b.y) {
+      return 1;
+    }
+    if (a.x < b.x) {
+      return -1;
+    }
+    if (a.x > b.x) {
+      return 1;
+    }
+    if (a.static && !b.static) {
+      return -1;
+    }
+    if (!a.static && b.static) {
+      return 1;
+    }
     return 0;
   });
 
@@ -49,7 +61,9 @@ const compactVerticalFast = <TData>(
 
       for (let j = staticOffset; !allowOverlap && j < numStatics; ++j) {
         const staticItem = staticItems[j];
-        if (!staticItem) continue;
+        if (!staticItem) {
+          continue;
+        }
         if (staticItem.y >= item.y + item.h) {
           break;
         }
@@ -91,7 +105,7 @@ export const fastVerticalCompactor: Compactor = {
     item: LayoutItem<TLayoutData>,
     x: number,
     y: number,
-    _cols: number,
+    _cols: number
   ) {
     return simpleOnMove(layout, item, x, y);
   },

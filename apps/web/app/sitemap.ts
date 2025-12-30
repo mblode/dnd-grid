@@ -10,8 +10,12 @@ const getChangeFrequency = (route: string) =>
   route === "" || route === "docs" ? "weekly" : "monthly";
 
 const getPriority = (route: string) => {
-  if (route === "") return 1;
-  if (route === "docs") return 0.8;
+  if (route === "") {
+    return 1;
+  }
+  if (route === "docs") {
+    return 0.8;
+  }
   return 0.6;
 };
 

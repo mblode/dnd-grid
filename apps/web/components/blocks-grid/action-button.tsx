@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 
 type Tone = "default" | "danger";
 
-type Props = {
+interface Props {
   children: ReactNode;
   onClick?: () => void;
   tone?: Tone;
-};
+}
 
 export const ActionButton = ({
   children,
@@ -19,14 +19,14 @@ export const ActionButton = ({
 
   return (
     <Button
+      className={cn(
+        "h-7 cursor-pointer rounded-full px-2 text-[10px]",
+        isDanger && "text-destructive"
+      )}
+      onClick={onClick}
+      size="sm"
       type="button"
       variant="outline"
-      size="sm"
-      onClick={onClick}
-      className={cn(
-        "h-7 rounded-full px-2 text-[10px] cursor-pointer",
-        isDanger && "text-destructive",
-      )}
     >
       {children}
     </Button>

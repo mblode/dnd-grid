@@ -14,14 +14,14 @@ export function ResizableHandlesExample() {
 
   return (
     <DndGrid
-      layout={layout}
       cols={12}
-      rowHeight={50}
-      resizeHandles={["n", "e", "s", "w", "ne", "nw", "se", "sw"]}
+      layout={layout}
       onLayoutChange={setLayout}
+      resizeHandles={["n", "e", "s", "w", "ne", "nw", "se", "sw"]}
+      rowHeight={50}
     >
       {layout.map((item) => (
-        <div key={item.id} className="grid-item">
+        <div className="grid-item" key={item.id}>
           {item.id}
         </div>
       ))}

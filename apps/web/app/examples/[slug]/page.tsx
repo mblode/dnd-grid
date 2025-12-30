@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 
 const siteUrl = "https://dnd-grid.com";
 
-type PageProps = {
+interface PageProps {
   params: { slug: string };
   searchParams?: { embed?: string };
-};
+}
 
 const docsSlugFromExample = (slug: string) => slug.replace(/-example$/, "");
 
@@ -64,7 +64,7 @@ export default function ExamplePage({ params, searchParams }: PageProps) {
   const isEmbed = searchParams?.embed === "1" || searchParams?.embed === "true";
   const Component = example.Component;
   const sourceUrl = `${siteUrl}/docs/examples/${docsSlugFromExample(
-    example.slug,
+    example.slug
   )}`;
   const githubUrl = `https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-${example.slug}.tsx`;
   const frame = <Component />;
@@ -74,7 +74,7 @@ export default function ExamplePage({ params, searchParams }: PageProps) {
       {!isEmbed && (
         <div className="container-wrapper">
           <div className="mb-8 space-y-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            <h1 className="font-semibold text-3xl text-foreground tracking-tight">
               {example.title}
             </h1>
             <p className="text-base text-muted-foreground">
@@ -82,14 +82,14 @@ export default function ExamplePage({ params, searchParams }: PageProps) {
             </p>
             <div className="flex flex-wrap gap-3 text-sm">
               <a
-                href={sourceUrl}
                 className="rounded-full border border-border px-3 py-1 transition hover:bg-muted"
+                href={sourceUrl}
               >
                 View docs
               </a>
               <a
-                href={githubUrl}
                 className="rounded-full border border-border px-3 py-1 transition hover:bg-muted"
+                href={githubUrl}
               >
                 View source on GitHub
               </a>

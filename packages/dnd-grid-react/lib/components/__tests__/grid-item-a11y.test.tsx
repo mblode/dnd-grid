@@ -45,7 +45,7 @@ const defaultProps = {
   gap: 10,
   containerPadding: 10,
   rowHeight: 150,
-  maxRows: Infinity,
+  maxRows: Number.POSITIVE_INFINITY,
   draggable: true,
   resizable: true,
   bounded: false,
@@ -61,7 +61,7 @@ const defaultProps = {
   minW: 1,
   maxW: 12,
   minH: 1,
-  maxH: Infinity,
+  maxH: Number.POSITIVE_INFINITY,
   id: "test-item",
 };
 
@@ -81,11 +81,11 @@ describe("GridItem A11y", () => {
     render(
       <GridItem
         {...defaultProps}
-        ariaRowIndex={2}
         ariaColIndex={3}
         ariaPosInSet={1}
+        ariaRowIndex={2}
         ariaSetSize={4}
-      />,
+      />
     );
     const item = screen.getByTestId("child");
 
@@ -110,7 +110,7 @@ describe("GridItem A11y", () => {
       <GridItem
         {...defaultProps}
         droppingPosition={{ left: 0, top: 0, e: new MouseEvent("mousemove") }}
-      />,
+      />
     );
     const item = screen.getByTestId("child");
 
@@ -175,10 +175,10 @@ describe("GridItem A11y", () => {
     render(
       <GridItem
         {...defaultProps}
+        layout={[{ id: "test-item", x: 1, y: 0, w: 2, h: 2 }]}
         onDrag={onDrag}
         x={1}
-        layout={[{ id: "test-item", x: 1, y: 0, w: 2, h: 2 }]}
-      />,
+      />
     );
 
     await user.tab();
@@ -210,10 +210,10 @@ describe("GridItem A11y", () => {
     render(
       <GridItem
         {...defaultProps}
+        layout={[{ id: "test-item", x: 0, y: 1, w: 2, h: 2 }]}
         onDrag={onDrag}
         y={1}
-        layout={[{ id: "test-item", x: 0, y: 1, w: 2, h: 2 }]}
-      />,
+      />
     );
 
     await user.tab();
@@ -263,7 +263,7 @@ describe("GridItem A11y", () => {
         {...defaultProps}
         onResize={onResize}
         onResizeEnd={onResizeEnd}
-      />,
+      />
     );
 
     await user.tab();
@@ -272,8 +272,7 @@ describe("GridItem A11y", () => {
     await user.keyboard("{Escape}");
 
     expect(onResizeEnd).toHaveBeenCalled();
-    const lastResizeEvent =
-      onResize.mock.calls[onResize.mock.calls.length - 1][0];
+    const lastResizeEvent = onResize.mock.calls.at(-1)[0];
     expect(lastResizeEvent.w).toBe(2);
     expect(lastResizeEvent.h).toBe(2);
   });

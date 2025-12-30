@@ -28,7 +28,10 @@
     "typescript": "^5.9.3"
   },
   "lint-staged": {
-    "*": "biome check --write --no-errors-on-unmatched"
+    "*": "biome check --write --no-errors-on-unmatched",
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "npx ultracite fix"
+    ]
   },
   "engines": {
     "node": ">=18"

@@ -9,14 +9,22 @@ const hasCollision = <TData>(
   x: number,
   y: number,
   w: number,
-  h: number,
+  h: number
 ): boolean => {
   for (let i = 0; i < layout.length; i += 1) {
     const item = layout[i];
-    if (x + w <= item.x) continue;
-    if (x >= item.x + item.w) continue;
-    if (y + h <= item.y) continue;
-    if (y >= item.y + item.h) continue;
+    if (x + w <= item.x) {
+      continue;
+    }
+    if (x >= item.x + item.w) {
+      continue;
+    }
+    if (y + h <= item.y) {
+      continue;
+    }
+    if (y >= item.y + item.h) {
+      continue;
+    }
     return true;
   }
 
@@ -25,13 +33,19 @@ const hasCollision = <TData>(
 
 const getFiniteBottom = <TData>(layout: Layout<TData>): number => {
   const layoutBottom = bottom(layout);
-  if (Number.isFinite(layoutBottom)) return layoutBottom;
+  if (Number.isFinite(layoutBottom)) {
+    return layoutBottom;
+  }
 
   let max = 0;
   for (let i = 0; i < layout.length; i += 1) {
     const itemBottom = layout[i].y + layout[i].h;
-    if (!Number.isFinite(itemBottom)) continue;
-    if (itemBottom > max) max = itemBottom;
+    if (!Number.isFinite(itemBottom)) {
+      continue;
+    }
+    if (itemBottom > max) {
+      max = itemBottom;
+    }
   }
 
   return max;
@@ -40,7 +54,7 @@ const getFiniteBottom = <TData>(layout: Layout<TData>): number => {
 export const findEmptyPosition = <TData>(
   layout: Layout<TData>,
   size: GridSize,
-  cols: number,
+  cols: number
 ): GridPosition => {
   const w = size.w;
   const h = size.h;
@@ -48,8 +62,7 @@ export const findEmptyPosition = <TData>(
   const layoutBottom = getFiniteBottom(layout);
 
   if (
-    !Number.isFinite(w) ||
-    !Number.isFinite(h) ||
+    !(Number.isFinite(w) && Number.isFinite(h)) ||
     maxCols <= 0 ||
     w <= 0 ||
     h <= 0 ||

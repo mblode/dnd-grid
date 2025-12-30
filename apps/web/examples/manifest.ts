@@ -16,12 +16,12 @@ import { ScaleExample } from "./dnd-grid-scale-example";
 import { StaticElementsExample } from "./dnd-grid-static-elements-example";
 import { ToolboxExample } from "./dnd-grid-toolbox-example";
 
-export type ExampleEntry = {
+export interface ExampleEntry {
   slug: string;
   title: string;
   description: string;
   Component: ComponentType;
-};
+}
 
 export const examples: ExampleEntry[] = [
   {
@@ -124,5 +124,5 @@ export const examples: ExampleEntry[] = [
 ];
 
 export const examplesBySlug = Object.fromEntries(
-  examples.map((example) => [example.slug, example]),
+  examples.map((example) => [example.slug, example])
 ) as Record<string, ExampleEntry>;

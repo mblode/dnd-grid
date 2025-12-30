@@ -29,13 +29,13 @@ describe("DndGrid roving tabindex", () => {
           { id: "b", x: 0, y: 0, w: 2, h: 2 },
         ]}
       >
-        <div key="a" data-testid="item-a">
+        <div data-testid="item-a" key="a">
           A
         </div>
-        <div key="b" data-testid="item-b">
+        <div data-testid="item-b" key="b">
           B
         </div>
-      </DndGrid>,
+      </DndGrid>
     );
 
     const itemA = screen.getByTestId("item-a");
@@ -55,13 +55,13 @@ describe("DndGrid roving tabindex", () => {
           { id: "b", x: 2, y: 0, w: 2, h: 2 },
         ]}
       >
-        <div key="a" data-testid="item-a">
+        <div data-testid="item-a" key="a">
           A
         </div>
-        <div key="b" data-testid="item-b">
+        <div data-testid="item-b" key="b">
           B
         </div>
-      </DndGrid>,
+      </DndGrid>
     );
 
     const itemA = screen.getByTestId("item-a");

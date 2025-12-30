@@ -5,21 +5,25 @@ import type { Position, PositionParams, ResizeHandleAxis } from "./types";
 
 const keyboardResizeHandle: ResizeHandleAxis = "se";
 
-type ResizeCallbackData = {
+interface ResizeCallbackData {
   node: HTMLElement;
   size: { width: number; height: number };
   handle: ResizeHandleAxis;
-};
+}
 
 type ResizeCallback = (
   e: Event,
   data: ResizeCallbackData,
-  position: Position,
+  position: Position
 ) => void;
 
 const isEditableElement = (target: EventTarget | null): boolean => {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  if (target.isContentEditable) {
+    return true;
+  }
   const tagName = target.tagName;
   return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
 };
@@ -95,10 +99,18 @@ export const useKeyboardMove = ({
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const node = nodeRef.current;
-      if (!node) return;
-      if (e.defaultPrevented) return;
-      if (e.altKey || e.ctrlKey || e.metaKey) return;
-      if (isEditableElement(e.target)) return;
+      if (!node) {
+        return;
+      }
+      if (e.defaultPrevented) {
+        return;
+      }
+      if (e.altKey || e.ctrlKey || e.metaKey) {
+        return;
+      }
+      if (isEditableElement(e.target)) {
+        return;
+      }
 
       const isSpace = e.key === " ";
       const isEnter = e.key === "Enter";
@@ -114,9 +126,45 @@ export const useKeyboardMove = ({
       const canPickUp = draggable || resizable;
 
       if (isSpace || isEnter) {
-        if (!isPressedState && !isResizingState) {
+        if (isPressedState || isResizingState) {
+          // Drop
+          e.preventDefault();
+          if (isResizingState && resizeStartedRef.current) {
+            const positionParams = getPositionParams();
+            const position = calcGridItemPosition(
+              positionParams,
+              x,
+              y,
+              w,
+              h,
+              0
+            );
+            onResizeEnd(
+              e as unknown as Event,
+              {
+                node,
+                size: { width: position.width, height: position.height },
+                handle: keyboardResizeHandle,
+              },
+              position
+            );
+          } else if (dragStartedRef.current) {
+            onDragEnd(e as unknown as MouseEvent, {
+              node,
+              x: 0,
+              y: 0,
+              deltaX: 0,
+              deltaY: 0,
+              lastX: 0,
+              lastY: 0,
+            });
+          }
+          resetInteraction();
+        } else {
           // Pickup
-          if (!canPickUp) return;
+          if (!canPickUp) {
+            return;
+          }
           e.preventDefault();
           setPressed(true);
           modeRef.current = null;
@@ -135,40 +183,6 @@ export const useKeyboardMove = ({
             });
             dragStartedRef.current = true;
           }
-        } else {
-          // Drop
-          e.preventDefault();
-          if (isResizingState && resizeStartedRef.current) {
-            const positionParams = getPositionParams();
-            const position = calcGridItemPosition(
-              positionParams,
-              x,
-              y,
-              w,
-              h,
-              0,
-            );
-            onResizeEnd(
-              e as unknown as Event,
-              {
-                node,
-                size: { width: position.width, height: position.height },
-                handle: keyboardResizeHandle,
-              },
-              position,
-            );
-          } else if (dragStartedRef.current) {
-            onDragEnd(e as unknown as MouseEvent, {
-              node,
-              x: 0,
-              y: 0,
-              deltaX: 0,
-              deltaY: 0,
-              lastX: 0,
-              lastY: 0,
-            });
-          }
-          resetInteraction();
         }
       } else if (isEscape) {
         if (isPressedState || isResizingState) {
@@ -182,7 +196,7 @@ export const useKeyboardMove = ({
               y,
               w,
               h,
-              0,
+              0
             );
             const targetPosition = calcGridItemPosition(
               positionParams,
@@ -190,7 +204,7 @@ export const useKeyboardMove = ({
               y,
               original.w,
               original.h,
-              0,
+              0
             );
             const resizeData = {
               node,
@@ -237,8 +251,12 @@ export const useKeyboardMove = ({
         }
       } else if (isArrow && isPressedState) {
         if (e.shiftKey) {
-          if (!resizable) return;
-          if (modeRef.current && modeRef.current !== "resize") return;
+          if (!resizable) {
+            return;
+          }
+          if (modeRef.current && modeRef.current !== "resize") {
+            return;
+          }
           e.preventDefault();
           const positionParams = getPositionParams();
           if (!resizeStartedRef.current) {
@@ -260,7 +278,7 @@ export const useKeyboardMove = ({
               y,
               w,
               h,
-              0,
+              0
             );
             onResizeStart(
               e as unknown as Event,
@@ -269,7 +287,7 @@ export const useKeyboardMove = ({
                 size: { width: position.width, height: position.height },
                 handle: keyboardResizeHandle,
               },
-              position,
+              position
             );
             resizeStartedRef.current = true;
             setResizing(true);
@@ -277,13 +295,23 @@ export const useKeyboardMove = ({
           modeRef.current = "resize";
           let deltaW = 0;
           let deltaH = 0;
-          if (e.key === "ArrowRight") deltaW = 1;
-          if (e.key === "ArrowLeft") deltaW = -1;
-          if (e.key === "ArrowDown") deltaH = 1;
-          if (e.key === "ArrowUp") deltaH = -1;
+          if (e.key === "ArrowRight") {
+            deltaW = 1;
+          }
+          if (e.key === "ArrowLeft") {
+            deltaW = -1;
+          }
+          if (e.key === "ArrowDown") {
+            deltaH = 1;
+          }
+          if (e.key === "ArrowUp") {
+            deltaH = -1;
+          }
           const nextW = Math.max(1, w + deltaW);
           const nextH = Math.max(1, h + deltaH);
-          if (nextW === w && nextH === h) return;
+          if (nextW === w && nextH === h) {
+            return;
+          }
           const position = calcGridItemPosition(positionParams, x, y, w, h, 0);
           const nextPosition = calcGridItemPosition(
             positionParams,
@@ -291,7 +319,7 @@ export const useKeyboardMove = ({
             y,
             nextW,
             nextH,
-            0,
+            0
           );
           onResize(
             e as unknown as Event,
@@ -303,11 +331,15 @@ export const useKeyboardMove = ({
               },
               handle: keyboardResizeHandle,
             },
-            position,
+            position
           );
         } else {
-          if (!draggable) return;
-          if (modeRef.current && modeRef.current !== "move") return;
+          if (!draggable) {
+            return;
+          }
+          if (modeRef.current && modeRef.current !== "move") {
+            return;
+          }
           e.preventDefault();
           modeRef.current = "move";
           const positionParams = getPositionParams();
@@ -318,10 +350,18 @@ export const useKeyboardMove = ({
           const gridUnitX = colWidth + gap[1];
           const gridUnitY = rowHeight + gap[0];
 
-          if (e.key === "ArrowRight") deltaX = gridUnitX;
-          if (e.key === "ArrowLeft") deltaX = -gridUnitX;
-          if (e.key === "ArrowDown") deltaY = gridUnitY;
-          if (e.key === "ArrowUp") deltaY = -gridUnitY;
+          if (e.key === "ArrowRight") {
+            deltaX = gridUnitX;
+          }
+          if (e.key === "ArrowLeft") {
+            deltaX = -gridUnitX;
+          }
+          if (e.key === "ArrowDown") {
+            deltaY = gridUnitY;
+          }
+          if (e.key === "ArrowUp") {
+            deltaY = -gridUnitY;
+          }
 
           onDrag(e as unknown as MouseEvent, {
             node,
@@ -353,7 +393,7 @@ export const useKeyboardMove = ({
       y,
       w,
       h,
-    ],
+    ]
   );
 
   return {

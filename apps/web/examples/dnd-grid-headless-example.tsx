@@ -20,7 +20,7 @@ export function HeadlessExample() {
     measureBeforeMount: true,
   });
   const children = layout.map((item) => (
-    <div key={item.id} className="grid-item">
+    <div className="grid-item" key={item.id}>
       {item.id}
     </div>
   ));
@@ -47,7 +47,7 @@ export function HeadlessExample() {
           node;
       }
     },
-    [containerRef, gridRef],
+    [containerRef, gridRef]
   );
 
   const droppingProps = itemProps.getDroppingItemProps();

@@ -16,7 +16,7 @@ export function resolveCompactionCollision<TData>(
   item: LayoutItem<TData>,
   moveToCoord: number,
   axis: "x" | "y",
-  hasStatics?: boolean,
+  hasStatics?: boolean
 ): void {
   const sizeProp = axis === "x" ? "w" : "h";
 
@@ -27,9 +27,15 @@ export function resolveCompactionCollision<TData>(
 
   for (let i = itemIndex + 1; i < layout.length; i++) {
     const otherItem = layout[i];
-    if (otherItem === undefined) continue;
-    if (otherItem.static) continue;
-    if (!layoutHasStatics && otherItem.y > item.y + item.h) break;
+    if (otherItem === undefined) {
+      continue;
+    }
+    if (otherItem.static) {
+      continue;
+    }
+    if (!layoutHasStatics && otherItem.y > item.y + item.h) {
+      break;
+    }
 
     if (collides(item, otherItem)) {
       resolveCompactionCollision(
@@ -37,7 +43,7 @@ export function resolveCompactionCollision<TData>(
         otherItem,
         moveToCoord + item[sizeProp],
         axis,
-        layoutHasStatics,
+        layoutHasStatics
       );
     }
   }
@@ -49,7 +55,7 @@ export function compactItemVertical<TData>(
   compareWith: Layout<TData>,
   l: LayoutItem<TData>,
   fullLayout: Layout<TData>,
-  maxY: number,
+  maxY: number
 ): LayoutItem<TData> {
   (l as Mutable<LayoutItem<TData>>).y = Math.min(maxY, l.y);
 
@@ -59,7 +65,7 @@ export function compactItemVertical<TData>(
 
   let collision: LayoutItem<TData> | undefined = getFirstCollision(
     compareWith,
-    l,
+    l
   );
   while (collision !== undefined) {
     resolveCompactionCollision(fullLayout, l, collision.y + collision.h, "y");
@@ -74,7 +80,7 @@ export function compactItemHorizontal<TData>(
   compareWith: Layout<TData>,
   l: LayoutItem<TData>,
   cols: number,
-  fullLayout: Layout<TData>,
+  fullLayout: Layout<TData>
 ): LayoutItem<TData> {
   while (l.x > 0 && !getFirstCollision(compareWith, l)) {
     (l as Mutable<LayoutItem<TData>>).x--;
@@ -82,7 +88,7 @@ export function compactItemHorizontal<TData>(
 
   let collision: LayoutItem<TData> | undefined = getFirstCollision(
     compareWith,
-    l,
+    l
   );
   while (collision !== undefined) {
     resolveCompactionCollision(fullLayout, l, collision.x + collision.w, "x");
@@ -123,7 +129,9 @@ export const verticalCompactor: Compactor = {
 
     for (let i = 0; i < sorted.length; i++) {
       const sortedItem = sorted[i];
-      if (sortedItem === undefined) continue;
+      if (sortedItem === undefined) {
+        continue;
+      }
 
       let l = cloneLayoutItem(sortedItem);
 
@@ -134,7 +142,9 @@ export const verticalCompactor: Compactor = {
       }
 
       const originalIndex = indexByItem.get(sortedItem);
-      if (originalIndex === undefined) continue;
+      if (originalIndex === undefined) {
+        continue;
+      }
       out[originalIndex] = l;
       l.moved = false;
     }
@@ -147,7 +157,7 @@ export const verticalCompactor: Compactor = {
     item: LayoutItem<TLayoutData>,
     x: number,
     y: number,
-    _cols: number,
+    _cols: number
   ) {
     return simpleOnMove(layout, item, x, y);
   },
@@ -172,7 +182,9 @@ export const horizontalCompactor: Compactor = {
 
     for (let i = 0; i < sorted.length; i++) {
       const sortedItem = sorted[i];
-      if (sortedItem === undefined) continue;
+      if (sortedItem === undefined) {
+        continue;
+      }
 
       let l = cloneLayoutItem(sortedItem);
 
@@ -182,7 +194,9 @@ export const horizontalCompactor: Compactor = {
       }
 
       const originalIndex = indexByItem.get(sortedItem);
-      if (originalIndex === undefined) continue;
+      if (originalIndex === undefined) {
+        continue;
+      }
       out[originalIndex] = l;
       l.moved = false;
     }
@@ -195,7 +209,7 @@ export const horizontalCompactor: Compactor = {
     item: LayoutItem<TLayoutData>,
     x: number,
     y: number,
-    _cols: number,
+    _cols: number
   ) {
     return simpleOnMove(layout, item, x, y);
   },
@@ -214,7 +228,7 @@ export const noCompactor: Compactor = {
     item: LayoutItem<TLayoutData>,
     x: number,
     y: number,
-    _cols: number,
+    _cols: number
   ) {
     return simpleOnMove(layout, item, x, y);
   },
@@ -239,5 +253,5 @@ export const horizontalOverlapCompactor: Compactor = {
 };
 
 export const resolveCompactor = <TData>(
-  compactor?: Compactor<TData>,
+  compactor?: Compactor<TData>
 ): Compactor<TData> => compactor ?? verticalCompactor;

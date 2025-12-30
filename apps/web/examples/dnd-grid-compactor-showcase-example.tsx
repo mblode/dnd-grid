@@ -42,8 +42,8 @@ export function CompactorShowcaseExample() {
         ).map((option) => (
           <button
             key={option.id}
-            type="button"
             onClick={() => setCompactorKey(option.id)}
+            type="button"
           >
             {option.label}
           </button>
@@ -51,14 +51,14 @@ export function CompactorShowcaseExample() {
       </div>
 
       <DndGrid
-        layout={layout}
         cols={12}
-        rowHeight={50}
         compactor={compactors[compactorKey]}
+        layout={layout}
         onLayoutChange={setLayout}
+        rowHeight={50}
       >
         {layout.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             {item.id}
           </div>
         ))}

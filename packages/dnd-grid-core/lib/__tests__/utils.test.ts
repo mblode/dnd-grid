@@ -135,7 +135,7 @@ describe("utils", () => {
       const [newLayout, item] = withLayoutItem(
         simpleLayout,
         "nonexistent",
-        (l) => l,
+        (l) => l
       );
 
       expect(newLayout).toBe(simpleLayout);
@@ -286,9 +286,9 @@ describe("utils", () => {
     it("skips compaction when overlap is allowed", () => {
       const compacted = verticalOverlapCompactor.compact(collidingLayout, 12);
       expect(
-        compacted.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })),
+        compacted.map(({ id, x, y, w, h }) => ({ id, x, y, w, h }))
       ).toEqual(
-        collidingLayout.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })),
+        collidingLayout.map(({ id, x, y, w, h }) => ({ id, x, y, w, h }))
       );
     });
 
@@ -300,7 +300,7 @@ describe("utils", () => {
     it("preserves positions with no compaction", () => {
       const compacted = noCompactor.compact(gappyLayout, 12);
       expect(
-        compacted.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })),
+        compacted.map(({ id, x, y, w, h }) => ({ id, x, y, w, h }))
       ).toEqual(gappyLayout.map(({ id, x, y, w, h }) => ({ id, x, y, w, h })));
     });
   });
@@ -393,7 +393,7 @@ describe("utils", () => {
         5,
         true,
         verticalCompactor,
-        12,
+        12
       );
       expect(newLayout.find((item) => item.id === "a")?.x).toBe(5);
       expect(newLayout.find((item) => item.id === "a")?.y).toBe(5);
@@ -409,7 +409,7 @@ describe("utils", () => {
         5,
         true,
         verticalCompactor,
-        12,
+        12
       );
       expect(newLayout[0].x).toBe(0);
       expect(newLayout[0].y).toBe(0);
@@ -425,7 +425,7 @@ describe("utils", () => {
         l.y,
         true,
         verticalCompactor,
-        12,
+        12
       );
       expect(newLayout).not.toBe(layout);
     });
@@ -440,7 +440,7 @@ describe("utils", () => {
         0,
         true,
         { ...verticalCompactor, preventCollision: true },
-        12,
+        12
       );
       expect(newLayout[1].x).toBe(2);
     });
@@ -455,7 +455,7 @@ describe("utils", () => {
         0,
         true,
         verticalOverlapCompactor,
-        12,
+        12
       );
       expect(newLayout.find((item) => item.id === "b")?.x).toBe(0);
     });
@@ -470,7 +470,7 @@ describe("utils", () => {
         layout[1],
         true,
         verticalCompactor,
-        12,
+        12
       );
       expect(newLayout.length).toBe(layout.length);
     });
@@ -483,7 +483,7 @@ describe("utils", () => {
         layout[1],
         true,
         horizontalCompactor,
-        12,
+        12
       );
       expect(newLayout.length).toBe(layout.length);
     });
@@ -506,7 +506,7 @@ describe("utils", () => {
         layout[1],
         true,
         verticalCompactor,
-        12,
+        12
       );
       expect(newLayout.find((item) => item.id === "moving")?.y).toBe(2);
     });

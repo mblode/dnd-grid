@@ -51,7 +51,7 @@ const defaultProps = {
   gap: 10,
   containerPadding: 10,
   rowHeight: 150,
-  maxRows: Infinity,
+  maxRows: Number.POSITIVE_INFINITY,
   draggable: true,
   resizable: true,
   bounded: false,
@@ -67,15 +67,15 @@ const defaultProps = {
   minW: 1,
   maxW: 12,
   minH: 1,
-  maxH: Infinity,
+  maxH: Number.POSITIVE_INFINITY,
   id: "test-item",
 };
 
-type ResizeCallbackData = {
+interface ResizeCallbackData {
   node: HTMLElement;
   size: Size;
   handle: ResizeHandleAxis;
-};
+}
 
 const getHandle = (ref: React.RefObject<GridItem | null>): GridItem => {
   const handle = ref.current;
@@ -87,7 +87,7 @@ const getHandle = (ref: React.RefObject<GridItem | null>): GridItem => {
 
 const createDragData = (
   node: HTMLElement,
-  overrides: Partial<DraggableData> = {},
+  overrides: Partial<DraggableData> = {}
 ): DraggableData => ({
   node,
   x: 0,
@@ -102,7 +102,7 @@ const createDragData = (
 const createResizeData = (
   node: HTMLElement,
   size: Size,
-  handle: ResizeHandleAxis,
+  handle: ResizeHandleAxis
 ): ResizeCallbackData => ({
   node,
   size,
@@ -169,7 +169,7 @@ describe("GridItem", () => {
         <GridItem
           {...defaultProps}
           slotProps={{ item: { className: "slot-item-class" } }}
-        />,
+        />
       );
       const element = screen.getByTestId("child");
       expect(element).toHaveClass("slot-item-class");
@@ -187,7 +187,7 @@ describe("GridItem", () => {
               }),
             },
           }}
-        />,
+        />
       );
       const element = screen.getByTestId("child");
       expect(element.style.backgroundColor).toBe("blue");
@@ -196,10 +196,10 @@ describe("GridItem", () => {
     it("preserves child className", () => {
       render(
         <GridItem {...defaultProps}>
-          <div data-testid="child" className="child-class">
+          <div className="child-class" data-testid="child">
             Content
           </div>
-        </GridItem>,
+        </GridItem>
       );
       const element = screen.getByTestId("child");
       expect(element).toHaveClass("child-class");
@@ -237,7 +237,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem ref={ref} {...defaultProps} />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -267,7 +267,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem ref={ref} {...defaultProps} />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -306,7 +306,7 @@ describe("GridItem", () => {
     });
 
     it("is not draggable when static is true", () => {
-      render(<GridItem {...defaultProps} static={true} draggable={true} />);
+      render(<GridItem {...defaultProps} draggable={true} static={true} />);
       const element = screen.getByTestId("child");
       // Static items are rendered with draggable=false passed to component
       expect(element).toHaveClass("static");
@@ -345,8 +345,8 @@ describe("GridItem", () => {
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
-          <GridItem {...defaultProps} ref={ref} dragTouchDelayDuration={50} />
-        </div>,
+          <GridItem {...defaultProps} dragTouchDelayDuration={50} ref={ref} />
+        </div>
       );
 
       const handle = getHandle(ref);
@@ -372,11 +372,11 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onDragStart={onDragStart}
             dragTouchDelayDuration={200}
+            onDragStart={onDragStart}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -395,8 +395,8 @@ describe("GridItem", () => {
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
-          <GridItem {...defaultProps} ref={ref} onDrag={onDrag} />
-        </div>,
+          <GridItem {...defaultProps} onDrag={onDrag} ref={ref} />
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -404,7 +404,7 @@ describe("GridItem", () => {
       act(() => {
         handle.onDrag(
           new MouseEvent("mousemove"),
-          createDragData(node, { deltaX: 10, deltaY: 10 }),
+          createDragData(node, { deltaX: 10, deltaY: 10 })
         );
       });
 
@@ -420,11 +420,11 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onDragStart={onDragStart}
             onDrag={onDrag}
+            onDragStart={onDragStart}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
 
       const handle = getHandle(ref);
@@ -438,7 +438,7 @@ describe("GridItem", () => {
         const pointerEvent = { clientX: 123, clientY: 456 } as PointerEvent;
         handle.onDrag(
           pointerEvent,
-          createDragData(node, { deltaX: 5, deltaY: 5 }),
+          createDragData(node, { deltaX: 5, deltaY: 5 })
         );
       });
 
@@ -450,8 +450,8 @@ describe("GridItem", () => {
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
-          <GridItem {...defaultProps} ref={ref} onDragEnd={onDragEnd} />
-        </div>,
+          <GridItem {...defaultProps} onDragEnd={onDragEnd} ref={ref} />
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -472,19 +472,19 @@ describe("GridItem", () => {
         <div className="dnd-grid" data-testid="grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onDragStart={onDragStart}
-            onDrag={onDrag}
             bounded={true}
-            containerWidth={300}
             cols={3}
-            rowHeight={100}
-            gap={0}
             containerPadding={0}
-            w={1}
+            containerWidth={300}
+            gap={0}
             h={1}
+            onDrag={onDrag}
+            onDragStart={onDragStart}
+            ref={ref}
+            rowHeight={100}
+            w={1}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
       vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
@@ -500,7 +500,7 @@ describe("GridItem", () => {
       act(() => {
         handle.onDrag(
           new MouseEvent("mousemove", { clientX: 500, clientY: 500 }),
-          createDragData(node, { deltaX: 500, deltaY: 500 }),
+          createDragData(node, { deltaX: 500, deltaY: 500 })
         );
       });
 
@@ -518,11 +518,11 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onDragStart={onDragStart}
             onDragEnd={onDragEnd}
+            onDragStart={onDragStart}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
       vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
@@ -551,7 +551,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem {...defaultProps} ref={ref} />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
       vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
@@ -579,7 +579,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem {...defaultProps} dragTouchDelayDuration={250} />
-        </div>,
+        </div>
       );
       expect(lastAllowMobileScroll).toBe(true);
       setNavigatorMaxTouchPoints(originalMaxTouchPoints);
@@ -590,7 +590,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem {...defaultProps} ref={ref} />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -611,7 +611,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem {...defaultProps} ref={ref} />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -632,7 +632,7 @@ describe("GridItem", () => {
       render(
         <div className="dnd-grid">
           <GridItem {...defaultProps} ref={ref} />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -655,10 +655,10 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
             onSettleComplete={onSettleComplete}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
       const node = screen.getByTestId("child");
@@ -680,11 +680,11 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
             onDragEnd={onDragEnd}
             onSettleComplete={onSettleComplete}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -714,8 +714,8 @@ describe("GridItem", () => {
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
-          <GridItem {...defaultProps} ref={ref} reducedMotion="always" />
-        </div>,
+          <GridItem {...defaultProps} reducedMotion="always" ref={ref} />
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -732,8 +732,8 @@ describe("GridItem", () => {
       const ref = React.createRef<GridItem>();
       render(
         <div className="dnd-grid">
-          <GridItem {...defaultProps} ref={ref} reducedMotion="always" />
-        </div>,
+          <GridItem {...defaultProps} reducedMotion="always" ref={ref} />
+        </div>
       );
       const handle = getHandle(ref);
       const node = screen.getByTestId("child");
@@ -753,11 +753,11 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            reducedMotion="always"
             onSettleComplete={onSettleComplete}
+            reducedMotion="always"
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
       const node = screen.getByTestId("child");
@@ -778,10 +778,10 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
             animationConfig={{ springs: { enabled: false } }}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -800,7 +800,6 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
             animationConfig={{
               shadow: {
                 dragStartDuration: 140,
@@ -809,8 +808,9 @@ describe("GridItem", () => {
                 dragStopEasing: "ease-in",
               },
             }}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
       const node = screen.getByTestId("child");
@@ -841,7 +841,7 @@ describe("GridItem", () => {
       rerender(
         <GridItem {...defaultProps}>
           <div data-testid="new-child">New Content</div>
-        </GridItem>,
+        </GridItem>
       );
       expect(screen.getByTestId("new-child")).toBeInTheDocument();
     });
@@ -854,8 +854,8 @@ describe("GridItem", () => {
     });
 
     it("updates when dimensions change", () => {
-      const { rerender } = render(<GridItem {...defaultProps} w={2} h={2} />);
-      rerender(<GridItem {...defaultProps} w={4} h={3} />);
+      const { rerender } = render(<GridItem {...defaultProps} h={2} w={2} />);
+      rerender(<GridItem {...defaultProps} h={3} w={4} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
   });
@@ -900,7 +900,7 @@ describe("GridItem", () => {
     it("accepts onSettleComplete callback", () => {
       const onSettleComplete = vi.fn();
       render(
-        <GridItem {...defaultProps} onSettleComplete={onSettleComplete} />,
+        <GridItem {...defaultProps} onSettleComplete={onSettleComplete} />
       );
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
@@ -914,7 +914,7 @@ describe("GridItem", () => {
         e: new Event("dragover"),
       };
       render(
-        <GridItem {...defaultProps} droppingPosition={droppingPosition} />,
+        <GridItem {...defaultProps} droppingPosition={droppingPosition} />
       );
       const element = screen.getByTestId("child");
       expect(element).toHaveClass("dropping");
@@ -940,7 +940,7 @@ describe("GridItem", () => {
           <div data-testid="child" style={{ color: "blue" }}>
             Content
           </div>
-        </GridItem>,
+        </GridItem>
       );
       const element = screen.getByTestId("child");
       expect(element.style.color).toBe("blue");
@@ -956,11 +956,11 @@ describe("GridItem", () => {
     it("accepts custom resizeHandle prop", () => {
       const customHandle = (
         axis: ResizeHandleAxis,
-        ref: ReactRef<HTMLElement>,
+        ref: ReactRef<HTMLElement>
       ) => (
         <div
-          ref={ref as React.Ref<HTMLDivElement>}
           className={`custom-handle-${axis}`}
+          ref={ref as React.Ref<HTMLDivElement>}
         />
       );
       render(<GridItem {...defaultProps} resizeHandle={customHandle} />);
@@ -970,12 +970,12 @@ describe("GridItem", () => {
 
   describe("constraints", () => {
     it("accepts min/max width constraints", () => {
-      render(<GridItem {...defaultProps} minW={2} maxW={8} />);
+      render(<GridItem {...defaultProps} maxW={8} minW={2} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
 
     it("accepts min/max height constraints", () => {
-      render(<GridItem {...defaultProps} minH={1} maxH={4} />);
+      render(<GridItem {...defaultProps} maxH={4} minH={1} />);
       expect(screen.getByTestId("child")).toBeInTheDocument();
     });
   });
@@ -988,12 +988,12 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onResize={onResize}
-            minW={2}
             minH={2}
+            minW={2}
+            onResize={onResize}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -1016,12 +1016,12 @@ describe("GridItem", () => {
         handle.onResizeStart(
           new Event("resize"),
           createResizeData(node, size, "se"),
-          position,
+          position
         );
         handle.onResize(
           new Event("resize"),
           createResizeData(node, size, "se"),
-          position,
+          position
         );
       });
 
@@ -1040,11 +1040,11 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
+            onResizeStart={onResizeStart}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 
@@ -1065,7 +1065,7 @@ describe("GridItem", () => {
 
       expect(document.body.classList.contains("dnd-grid-resizing")).toBe(true);
       expect(
-        document.body.style.getPropertyValue("--dnd-grid-resize-cursor"),
+        document.body.style.getPropertyValue("--dnd-grid-resize-cursor")
       ).toBe("se-resize");
 
       act(() => {
@@ -1074,7 +1074,7 @@ describe("GridItem", () => {
 
       expect(document.body.classList.contains("dnd-grid-resizing")).toBe(false);
       expect(
-        document.body.style.getPropertyValue("--dnd-grid-resize-cursor"),
+        document.body.style.getPropertyValue("--dnd-grid-resize-cursor")
       ).toBe("");
     });
 
@@ -1087,12 +1087,12 @@ describe("GridItem", () => {
         <div className="dnd-grid">
           <GridItem
             {...defaultProps}
-            ref={ref}
-            onResizeStart={onResizeStart}
             onResize={onResize}
             onResizeEnd={onResizeEnd}
+            onResizeStart={onResizeStart}
+            ref={ref}
           />
-        </div>,
+        </div>
       );
       const handle = getHandle(ref);
 

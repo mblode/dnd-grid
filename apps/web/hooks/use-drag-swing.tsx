@@ -50,7 +50,7 @@ export function useDragSwing(): UseDragSwingReturn {
       mass: store.dragSwingSettings.rotationSpring.mass,
       restSpeed: store.dragSwingSettings.rotationSpring.restSpeed,
       restDistance: store.dragSwingSettings.rotationSpring.restDistance,
-    }),
+    })
   );
   const scaleSpringRef = useRef(
     createLiveSpring({
@@ -58,7 +58,7 @@ export function useDragSwing(): UseDragSwingReturn {
       damping: store.dragSwingSettings.scaleSpring.damping,
       restSpeed: store.dragSwingSettings.scaleSpring.restSpeed,
       restDistance: store.dragSwingSettings.scaleSpring.restDistance,
-    }),
+    })
   );
 
   useEffect(() => {
@@ -190,7 +190,7 @@ export function useDragSwing(): UseDragSwingReturn {
       rotationSpringRef.current.setTarget(targetRotation);
       scaleSpringRef.current.setTarget(targetScale);
     },
-    [],
+    []
   );
 
   // Apply initial scale/shadow and start physics loop on mount
@@ -216,7 +216,7 @@ export function useDragSwing(): UseDragSwingReturn {
 
     // Animate shadow on the card element
     const cardElement = overlayRef.current?.querySelector(
-      "[data-overlay-card]",
+      "[data-overlay-card]"
     ) as HTMLElement | null;
 
     if (cardElement) {
@@ -232,7 +232,7 @@ export function useDragSwing(): UseDragSwingReturn {
           duration: 200,
           easing: "cubic-bezier(.2, 0, 0, 1)",
           fill: "forwards",
-        },
+        }
       );
     }
   }, [startSpringAnimation, updateRotation, updateScale]);
@@ -282,7 +282,7 @@ export function useDragSwing(): UseDragSwingReturn {
       // Start continuous spring animation (matches swing-card.tsx useSpring behavior)
       startSpringAnimation();
     },
-    [startSpringAnimation],
+    [startSpringAnimation]
   );
 
   /**
@@ -337,13 +337,13 @@ export function useDragSwing(): UseDragSwingReturn {
 
       // Keep only the most recent velocity window of history
       positionHistory = positionHistory.filter(
-        (entry) => now - entry.timestamp < settingsRef.current.velocityWindowMs,
+        (entry) => now - entry.timestamp < settingsRef.current.velocityWindowMs
       );
 
       // Calculate velocity from history using Bento algorithm
       const velocity = calculateVelocityFromHistory(
         positionHistory,
-        settingsRef.current.velocityWindowMs,
+        settingsRef.current.velocityWindowMs
       );
 
       // Convert velocity to rotation using Bento formula
@@ -351,7 +351,7 @@ export function useDragSwing(): UseDragSwingReturn {
       const targetRotation = velocityToRotation(
         velocity.x,
         settingsRef.current.velocityScale,
-        settingsRef.current.maxRotation,
+        settingsRef.current.maxRotation
       );
 
       // Update spring targets - spring will smoothly animate toward targetRotation
@@ -360,7 +360,7 @@ export function useDragSwing(): UseDragSwingReturn {
 
       positionHistoryRef.current = positionHistory;
     },
-    [updateSpringTargets],
+    [updateSpringTargets]
   );
 
   const handleDragEnd = useCallback(
@@ -378,7 +378,7 @@ export function useDragSwing(): UseDragSwingReturn {
       settleFrameCountRef.current = 0;
 
       const cardElement = overlayRef.current?.querySelector(
-        "[data-overlay-card]",
+        "[data-overlay-card]"
       ) as HTMLElement | null;
       if (cardElement) {
         const rect = cardElement.getBoundingClientRect();
@@ -397,14 +397,14 @@ export function useDragSwing(): UseDragSwingReturn {
         store.startSettling(
           startRect,
           currentRotationRef.current,
-          currentScaleRef.current || REST_SCALE,
+          currentScaleRef.current || REST_SCALE
         );
       }
 
       positionHistoryRef.current = [];
       startSpringAnimation();
     },
-    [startSpringAnimation, store, updateSpringTargets],
+    [startSpringAnimation, store, updateSpringTargets]
   );
 
   // Cleanup on unmount

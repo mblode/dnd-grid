@@ -34,7 +34,7 @@ describe("constraints", () => {
       baseItem,
       5,
       5,
-      baseContext,
+      baseContext
     );
     expect(result.x).toBe(2);
     expect(result.y).toBe(2);
@@ -46,7 +46,7 @@ describe("constraints", () => {
       baseItem,
       3,
       3,
-      baseContext,
+      baseContext
     );
     expect(result.x).toBe(4);
     expect(result.y).toBe(4);
@@ -59,7 +59,7 @@ describe("constraints", () => {
       2,
       1,
       "se",
-      baseContext,
+      baseContext
     );
     expect(result.h).toBe(2);
   });

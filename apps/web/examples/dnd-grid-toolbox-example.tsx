@@ -44,15 +44,15 @@ export function ToolboxExample() {
   const toggleItem = (id: string) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, visible: !item.visible } : item,
-      ),
+        item.id === id ? { ...item, visible: !item.visible } : item
+      )
     );
   };
 
   const visibleItems = items.filter((item) => item.visible);
   const hiddenItems = items.filter((item) => !item.visible);
   const visibleLayout: Layout = visibleItems.map(
-    ({ visible, ...item }) => item,
+    ({ visible, ...item }) => item
   );
 
   const handleLayoutChange = (newLayout: Layout) => {
@@ -60,7 +60,7 @@ export function ToolboxExample() {
       prev.map((item) => {
         const updated = newLayout.find((l) => l.id === item.id);
         return updated ? { ...item, ...updated } : item;
-      }),
+      })
     );
   };
 
@@ -71,8 +71,8 @@ export function ToolboxExample() {
         {hiddenItems.map((item) => (
           <button
             key={item.id}
-            type="button"
             onClick={() => toggleItem(item.id)}
+            type="button"
           >
             {item.id}
           </button>
@@ -80,20 +80,20 @@ export function ToolboxExample() {
       </div>
 
       <DndGrid
-        layout={visibleLayout}
         cols={12}
-        rowHeight={50}
+        layout={visibleLayout}
         onLayoutChange={handleLayoutChange}
+        rowHeight={50}
       >
         {visibleItems.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             <span>{item.id}</span>
             <button
-              type="button"
+              aria-label={`Remove ${item.id}`}
               onClick={() => toggleItem(item.id)}
               style={removeButtonStyle}
-              aria-label={`Remove ${item.id}`}
               title="Remove"
+              type="button"
             >
               x
             </button>

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-export type UseContainerWidthOptions = {
+export interface UseContainerWidthOptions {
   /**
    * Delay initial render until width is measured.
    */
@@ -16,20 +16,20 @@ export type UseContainerWidthOptions = {
    * Initial width before measurement.
    */
   initialWidth?: number;
-};
+}
 
-export type UseContainerWidthResult = {
+export interface UseContainerWidthResult {
   width: number;
   mounted: boolean;
   containerRef: RefObject<HTMLDivElement | null>;
   measureWidth: () => void;
-};
+}
 
 const useIsomorphicLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export const useContainerWidth = (
-  options: UseContainerWidthOptions = {},
+  options: UseContainerWidthOptions = {}
 ): UseContainerWidthResult => {
   const { measureBeforeMount = false, initialWidth = 1280 } = options;
   const [width, setWidth] = useState(initialWidth);
@@ -39,7 +39,9 @@ export const useContainerWidth = (
 
   const measureWidth = useCallback(() => {
     const node = containerRef.current;
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
     const nextWidth = node.offsetWidth;
     setWidth(nextWidth);
@@ -50,14 +52,18 @@ export const useContainerWidth = (
 
   useIsomorphicLayoutEffect(() => {
     const node = containerRef.current;
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
     measureWidth();
 
     if (typeof ResizeObserver !== "undefined") {
       observerRef.current = new ResizeObserver((entries) => {
         const entry = entries[0];
-        if (!entry) return;
+        if (!entry) {
+          return;
+        }
         setWidth(entry.contentRect.width);
       });
       observerRef.current.observe(node);

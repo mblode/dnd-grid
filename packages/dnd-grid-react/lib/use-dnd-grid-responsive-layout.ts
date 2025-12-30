@@ -29,10 +29,10 @@ declare const process: { env?: { NODE_ENV?: string } };
 const isDevelopment =
   typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
 
-export type UseDndGridResponsiveLayoutOptions<
+export interface UseDndGridResponsiveLayoutOptions<
   B extends Breakpoint = DefaultBreakpoints,
   TData = unknown,
-> = {
+> {
   width: number;
   breakpoints?: Breakpoints<B>;
   cols?: BreakpointCols<B>;
@@ -46,20 +46,20 @@ export type UseDndGridResponsiveLayoutOptions<
   onLayoutsChange?: (layouts: ResponsiveLayouts<B, TData>) => void;
   onLayoutChange?: (
     layout: Layout<TData>,
-    layouts: ResponsiveLayouts<B, TData>,
+    layouts: ResponsiveLayouts<B, TData>
   ) => void;
   onWidthChange?: (
     width: number,
     gap: Spacing,
     cols: number,
-    containerPadding: Spacing | null,
+    containerPadding: Spacing | null
   ) => void;
-};
+}
 
-export type UseDndGridResponsiveLayoutResult<
+export interface UseDndGridResponsiveLayoutResult<
   B extends Breakpoint = DefaultBreakpoints,
   TData = unknown,
-> = {
+> {
   layout: Layout<TData>;
   layouts: ResponsiveLayouts<B, TData>;
   breakpoint: B;
@@ -76,10 +76,10 @@ export type UseDndGridResponsiveLayoutResult<
   setLayouts: (layouts: ResponsiveLayouts<B, TData>) => void;
   handleLayoutChange: (layout: Layout<TData>) => void;
   sortedBreakpoints: B[];
-};
+}
 
 const cloneLayouts = <B extends Breakpoint, TData>(
-  layouts: ResponsiveLayouts<B, TData>,
+  layouts: ResponsiveLayouts<B, TData>
 ): ResponsiveLayouts<B, TData> => {
   const cloned = {} as ResponsiveLayouts<B, TData>;
   for (const key of Object.keys(layouts) as B[]) {
@@ -95,7 +95,7 @@ export const useDndGridResponsiveLayout = <
   B extends Breakpoint = DefaultBreakpoints,
   TData = unknown,
 >(
-  options: UseDndGridResponsiveLayoutOptions<B, TData>,
+  options: UseDndGridResponsiveLayoutOptions<B, TData>
 ): UseDndGridResponsiveLayoutResult<B, TData> => {
   const {
     width,
@@ -114,12 +114,12 @@ export const useDndGridResponsiveLayout = <
   } = options;
   const compactor = useMemo(
     () => resolveCompactor(compactorProp),
-    [compactorProp],
+    [compactorProp]
   );
 
   const sortedBreakpoints = useMemo(
     () => sortBreakpoints(breakpoints),
-    [breakpoints],
+    [breakpoints]
   );
 
   const initialBreakpoint = getBreakpointFromWidth(breakpoints, width);
@@ -129,8 +129,8 @@ export const useDndGridResponsiveLayout = <
   const [cols, setCols] = useState<number>(initialCols);
   const [layouts, setLayoutsState] = useState<ResponsiveLayouts<B, TData>>(() =>
     cloneLayouts(
-      propsLayouts ?? defaultLayouts ?? ({} as ResponsiveLayouts<B, TData>),
-    ),
+      propsLayouts ?? defaultLayouts ?? ({} as ResponsiveLayouts<B, TData>)
+    )
   );
 
   const prevWidthRef = useRef(width);
@@ -144,10 +144,12 @@ export const useDndGridResponsiveLayout = <
 
   const gap = useMemo(
     () => resolveResponsiveSpacing(gapProp, breakpoint),
-    [gapProp, breakpoint],
+    [gapProp, breakpoint]
   );
   const containerPadding = useMemo(() => {
-    if (containerPaddingProp === null) return null;
+    if (containerPaddingProp === null) {
+      return null;
+    }
     return resolveResponsiveSpacing(containerPaddingProp, breakpoint);
   }, [containerPaddingProp, breakpoint]);
 
@@ -163,7 +165,7 @@ export const useDndGridResponsiveLayout = <
       {
         missingLayoutStrategy,
         warnedBreakpoints: warnedBreakpointsRef.current,
-      },
+      }
     );
   }, [
     layouts,
@@ -175,7 +177,7 @@ export const useDndGridResponsiveLayout = <
   ]);
 
   useEffect(() => {
-    if (!propsLayouts || !layoutsChanged) {
+    if (!(propsLayouts && layoutsChanged)) {
       return;
     }
     const nextLayouts = cloneLayouts(propsLayouts);
@@ -187,11 +189,11 @@ export const useDndGridResponsiveLayout = <
     const widthChanged = width !== prevWidthRef.current;
     const breakpointsChanged = !deepEqual(
       breakpoints,
-      prevBreakpointsRef.current,
+      prevBreakpointsRef.current
     );
     const colsChanged = !deepEqual(colsConfig, prevColsRef.current);
 
-    if (!widthChanged && !breakpointsChanged && !colsChanged) {
+    if (!(widthChanged || breakpointsChanged || colsChanged)) {
       return;
     }
 
@@ -223,7 +225,7 @@ export const useDndGridResponsiveLayout = <
         {
           missingLayoutStrategy,
           warnedBreakpoints: warnedBreakpointsRef.current,
-        },
+        }
       );
 
       (nextLayouts as Record<B, Layout<TData>>)[nextBreakpoint] = nextLayout;
@@ -275,7 +277,7 @@ export const useDndGridResponsiveLayout = <
         {
           missingLayoutStrategy,
           warnedBreakpoints: warnedBreakpointsRef.current,
-        },
+        }
       );
       onLayoutChange?.(nextLayout, cloned);
     },
@@ -287,7 +289,7 @@ export const useDndGridResponsiveLayout = <
       missingLayoutStrategy,
       onLayoutsChange,
       onLayoutChange,
-    ],
+    ]
   );
 
   const setLayoutForBreakpoint = useCallback(
@@ -305,7 +307,7 @@ export const useDndGridResponsiveLayout = <
         return nextLayouts;
       });
     },
-    [breakpoint, onLayoutsChange, onLayoutChange],
+    [breakpoint, onLayoutsChange, onLayoutChange]
   );
 
   const handleLayoutChange = useCallback(
@@ -321,7 +323,7 @@ export const useDndGridResponsiveLayout = <
         return nextLayouts;
       });
     },
-    [breakpoint, onLayoutsChange, onLayoutChange],
+    [breakpoint, onLayoutsChange, onLayoutChange]
   );
 
   const gridProps = useMemo(
@@ -331,7 +333,7 @@ export const useDndGridResponsiveLayout = <
       gap,
       containerPadding,
     }),
-    [layout, cols, gap, containerPadding],
+    [layout, cols, gap, containerPadding]
   );
 
   return {

@@ -31,7 +31,7 @@ export function DynamicAddRemoveExample() {
       y: 0,
       w: 2,
       h: 2,
-    })),
+    }))
   );
 
   const addItem = useCallback(() => {
@@ -62,35 +62,35 @@ export function DynamicAddRemoveExample() {
   return (
     <div>
       <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <button type="button" onClick={addItem}>
+        <button onClick={addItem} type="button">
           Add Item
         </button>
         <button
-          type="button"
-          onClick={removeLastItem}
           disabled={layout.length === 0}
+          onClick={removeLastItem}
+          type="button"
         >
           Remove Last Item
         </button>
       </div>
 
       <DndGrid
-        layout={layout}
         cols={12}
-        rowHeight={50}
         dragCancel=".grid-item-remove"
+        layout={layout}
         onLayoutChange={setLayout}
+        rowHeight={50}
       >
         {layout.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             <span>{item.id}</span>
             <button
-              type="button"
+              aria-label={`Remove ${item.id}`}
+              className="grid-item-remove"
               onClick={() => removeItem(item.id)}
               style={removeButtonStyle}
-              className="grid-item-remove"
-              aria-label={`Remove ${item.id}`}
               title="Remove"
+              type="button"
             >
               x
             </button>

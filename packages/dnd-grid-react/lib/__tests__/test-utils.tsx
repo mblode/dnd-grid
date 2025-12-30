@@ -2,7 +2,7 @@ import type { LayoutItem } from "../types";
 
 // Create a layout item with defaults
 export function createLayoutItem(
-  overrides: Partial<LayoutItem> = {},
+  overrides: Partial<LayoutItem> = {}
 ): LayoutItem {
   return {
     id: "test-item",

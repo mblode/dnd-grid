@@ -28,7 +28,7 @@ export const DEFAULT_COLS: BreakpointCols<DefaultBreakpoints> = {
 };
 
 export const sortBreakpoints = <B extends Breakpoint>(
-  breakpoints: Breakpoints<B>,
+  breakpoints: Breakpoints<B>
 ): B[] => {
   const keys = Object.keys(breakpoints) as B[];
   return keys.sort((a, b) => breakpoints[a] - breakpoints[b]);
@@ -36,7 +36,7 @@ export const sortBreakpoints = <B extends Breakpoint>(
 
 export const getBreakpointFromWidth = <B extends Breakpoint>(
   breakpoints: Breakpoints<B>,
-  width: number,
+  width: number
 ): B => {
   const sorted = sortBreakpoints(breakpoints);
   let matching = sorted[0];
@@ -47,7 +47,9 @@ export const getBreakpointFromWidth = <B extends Breakpoint>(
 
   for (let i = 1; i < sorted.length; i++) {
     const breakpointName = sorted[i];
-    if (breakpointName === undefined) continue;
+    if (breakpointName === undefined) {
+      continue;
+    }
 
     const breakpointWidth = breakpoints[breakpointName];
     if (width >= breakpointWidth) {
@@ -60,21 +62,21 @@ export const getBreakpointFromWidth = <B extends Breakpoint>(
 
 export const getColsFromBreakpoint = <B extends Breakpoint>(
   breakpoint: B,
-  cols: BreakpointCols<B>,
+  cols: BreakpointCols<B>
 ): number => {
   const colCount = cols[breakpoint];
   if (colCount === undefined) {
     throw new Error(
-      `DndGrid: \`cols\` entry for breakpoint ${String(breakpoint)} is missing.`,
+      `DndGrid: \`cols\` entry for breakpoint ${String(breakpoint)} is missing.`
     );
   }
   return colCount;
 };
 
-type MissingLayoutOptions<B extends Breakpoint> = {
+interface MissingLayoutOptions<B extends Breakpoint> {
   missingLayoutStrategy?: MissingLayoutStrategy;
   warnedBreakpoints?: Set<B>;
-};
+}
 
 export const findOrGenerateResponsiveLayout = <B extends Breakpoint, TData>(
   layouts: ResponsiveLayouts<B, TData>,
@@ -83,7 +85,7 @@ export const findOrGenerateResponsiveLayout = <B extends Breakpoint, TData>(
   lastBreakpoint: B,
   cols: number,
   compactor: Compactor<TData>,
-  options: MissingLayoutOptions<B> = {},
+  options: MissingLayoutOptions<B> = {}
 ): Layout<TData> => {
   const existingLayout = layouts[breakpoint];
   if (existingLayout) {
@@ -102,7 +104,9 @@ export const findOrGenerateResponsiveLayout = <B extends Breakpoint, TData>(
 
   for (let i = 0; i < breakpointsAbove.length; i++) {
     const b = breakpointsAbove[i];
-    if (b === undefined) continue;
+    if (b === undefined) {
+      continue;
+    }
     const layoutForBreakpoint = layouts[b];
     if (layoutForBreakpoint) {
       layout = layoutForBreakpoint;
@@ -114,8 +118,8 @@ export const findOrGenerateResponsiveLayout = <B extends Breakpoint, TData>(
   if (missingLayoutStrategy === "error") {
     throw new Error(
       `DndGrid: Responsive layout for breakpoint "${String(
-        breakpoint,
-      )}" is missing. Provide a layout or change missingLayoutStrategy.`,
+        breakpoint
+      )}" is missing. Provide a layout or change missingLayoutStrategy.`
     );
   }
 
@@ -133,8 +137,8 @@ export const findOrGenerateResponsiveLayout = <B extends Breakpoint, TData>(
           : `derived from "${String(derivedFrom)}"`;
       console.warn(
         `DndGrid: Responsive layout for breakpoint "${String(
-          breakpoint,
-        )}" is missing (${fallback}). Provide a layout or change missingLayoutStrategy.`,
+          breakpoint
+        )}" is missing (${fallback}). Provide a layout or change missingLayoutStrategy.`
       );
     }
   }

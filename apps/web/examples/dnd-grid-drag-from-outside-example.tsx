@@ -3,12 +3,12 @@
 import { DndGrid, type Layout, type LayoutItem } from "@dnd-grid/react";
 import { useRef, useState } from "react";
 
-type PaletteItem = {
+interface PaletteItem {
   id: string;
   label: string;
   w: number;
   h: number;
-};
+}
 
 const paletteItems: PaletteItem[] = [
   { id: "small", label: "Small (2x2)", w: 2, h: 2 },
@@ -34,7 +34,9 @@ export function DragFromOutsideExample() {
   };
 
   const handleDrop = (_layout: Layout, item?: LayoutItem | null) => {
-    if (!item) return;
+    if (!item) {
+      return;
+    }
     const nextId = `n${nextIdRef.current}`;
     nextIdRef.current += 1;
     setLayout((prev) => [
@@ -48,9 +50,8 @@ export function DragFromOutsideExample() {
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         {paletteItems.map((palette) => (
           <button
-            key={palette.id}
-            type="button"
             draggable
+            key={palette.id}
             onDragStart={(event) => {
               dragItemRef.current = palette;
               event.dataTransfer.setData("text/plain", palette.id);
@@ -64,6 +65,7 @@ export function DragFromOutsideExample() {
               fontSize: "12px",
               cursor: "grab",
             }}
+            type="button"
           >
             {palette.label}
           </button>
@@ -71,15 +73,15 @@ export function DragFromOutsideExample() {
       </div>
 
       <DndGrid
-        layout={layout}
         cols={12}
-        rowHeight={50}
+        layout={layout}
         onDrop={handleDrop}
         onDropDragOver={handleDropDragOver}
         onLayoutChange={setLayout}
+        rowHeight={50}
       >
         {layout.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             {item.id}
           </div>
         ))}

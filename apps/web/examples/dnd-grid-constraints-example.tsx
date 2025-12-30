@@ -50,14 +50,14 @@ export function ConstraintsExample() {
 
   return (
     <DndGrid
-      layout={layout}
       cols={12}
-      rowHeight={50}
       constraints={gridConstraints}
+      layout={layout}
       onLayoutChange={setLayout}
+      rowHeight={50}
     >
       {layout.map((item) => (
-        <div key={item.id} className="grid-item">
+        <div className="grid-item" key={item.id}>
           {item.id}
         </div>
       ))}

@@ -38,19 +38,17 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
       style,
       ...rest
     },
-    ref,
+    ref
   ) => {
     const isActive = isHovered || isSelected;
 
     return (
       <div
-        ref={ref}
-        style={style}
         className={cn(
           "relative size-full overflow-visible",
           isActive && "is-hovered",
           isHovered && "z-[1]",
-          className,
+          className
         )}
         onPointerEnter={(event) => {
           event.stopPropagation();
@@ -63,18 +61,20 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
             onHoverEnd?.();
           }
         }}
+        ref={ref}
+        style={style}
         {...rest}
       >
         <button
-          type="button"
           className="group relative size-full cursor-move text-left outline-none"
           onClick={onSelect}
+          type="button"
         >
           <BlockCard
+            isHovered={isHovered}
+            isSelected={isSelected}
             kind={item.kind}
             title={item.title}
-            isSelected={isSelected}
-            isHovered={isHovered}
           />
         </button>
 
@@ -88,7 +88,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
               <Copy className="size-3" />
               Duplicate
             </ActionButton>
-            <ActionButton tone="danger" onClick={onDelete}>
+            <ActionButton onClick={onDelete} tone="danger">
               <Trash2 className="size-3" />
               Delete
             </ActionButton>
@@ -97,7 +97,7 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
         {children}
       </div>
     );
-  },
+  }
 );
 
 BlocksGridItem.displayName = "BlocksGridItem";

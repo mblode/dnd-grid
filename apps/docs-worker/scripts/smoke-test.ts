@@ -37,7 +37,7 @@ const run = async () => {
     requests.length = 0;
     await worker.fetch(
       new Request("https://dnd-grid.com/.well-known/test"),
-      env,
+      env
     );
     assert.equal(requests.length, 1);
     assertHost(requests[0], "dnd-grid.com");

@@ -146,7 +146,9 @@ describe("spring", () => {
       for (let t = 1016; t < 2000; t += 16) {
         const result = spring.step(t);
         velocities.push(Math.abs(result.velocity));
-        if (result.done) break;
+        if (result.done) {
+          break;
+        }
       }
 
       const avgFirst = velocities.slice(0, 3).reduce((a, b) => a + b, 0) / 3;
@@ -277,12 +279,12 @@ describe("spring", () => {
     });
 
     it("clamps to MAX_ROTATION for high positive velocity", () => {
-      const rotation = velocityToRotation(100000);
+      const rotation = velocityToRotation(100_000);
       expect(rotation).toBe(-MAX_ROTATION);
     });
 
     it("clamps to -MAX_ROTATION for high negative velocity", () => {
-      const rotation = velocityToRotation(-100000);
+      const rotation = velocityToRotation(-100_000);
       expect(rotation).toBe(MAX_ROTATION);
     });
 
@@ -311,7 +313,7 @@ describe("spring", () => {
 
     it("increases weight for larger items", () => {
       expect(calculateRotationWeight(200, 200, 100, 100)).toBeCloseTo(
-        16 ** 0.4,
+        16 ** 0.4
       );
     });
 
@@ -321,7 +323,9 @@ describe("spring", () => {
     });
 
     it("falls back to 1 for invalid inputs", () => {
-      expect(calculateRotationWeight(Infinity, 100, 100, 100)).toBe(1);
+      expect(
+        calculateRotationWeight(Number.POSITIVE_INFINITY, 100, 100, 100)
+      ).toBe(1);
       expect(calculateRotationWeight(100, 100, 0, 100)).toBe(1);
       expect(calculateRotationWeight(100, -10, 100, 100)).toBe(1);
     });

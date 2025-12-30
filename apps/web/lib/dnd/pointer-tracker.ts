@@ -1,12 +1,15 @@
 import { getEventCoordinates } from "@dnd-kit/utilities";
 
-export type PointerPosition = { x: number; y: number };
+export interface PointerPosition {
+  x: number;
+  y: number;
+}
 
 let lastPointerPosition: PointerPosition | null = null;
 let lastPointerEvent: Event | null = null;
 
 export const setPointerPosition = (
-  coordinates: PointerPosition | null,
+  coordinates: PointerPosition | null
 ): void => {
   if (!coordinates) {
     return;

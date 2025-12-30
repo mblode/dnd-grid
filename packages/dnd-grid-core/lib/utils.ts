@@ -12,14 +12,16 @@ export const bottom = <TData>(layout: Layout<TData>): number => {
 
   for (let i = 0, len = layout.length; i < len; i++) {
     bottomY = layout[i].y + layout[i].h;
-    if (bottomY > max) max = bottomY;
+    if (bottomY > max) {
+      max = bottomY;
+    }
   }
 
   return max;
 };
 
 export const cloneLayout = <TData>(
-  layout: Layout<TData>,
+  layout: Layout<TData>
 ): LayoutItem<TData>[] => {
   const newLayout: LayoutItem<TData>[] = new Array(layout.length);
 
@@ -33,7 +35,7 @@ export const cloneLayout = <TData>(
 export const withLayoutItem = <TData>(
   layout: Layout<TData>,
   itemKey: string,
-  cb: (arg0: LayoutItem<TData>) => LayoutItem<TData>,
+  cb: (arg0: LayoutItem<TData>) => LayoutItem<TData>
 ): [Layout<TData>, LayoutItem<TData> | null | undefined] => {
   let item: LayoutItem<TData> | null = null;
   let itemIndex = -1;
@@ -46,10 +48,12 @@ export const withLayoutItem = <TData>(
     }
   }
 
-  if (!item) return [layout, null];
+  if (!item) {
+    return [layout, null];
+  }
 
   const nextItem = cb(cloneLayoutItem(item));
-  const nextLayout = Array(layout.length);
+  const nextLayout = new Array(layout.length);
 
   for (let i = 0, len = layout.length; i < len; i++) {
     nextLayout[i] = i === itemIndex ? nextItem : layout[i];
@@ -59,7 +63,7 @@ export const withLayoutItem = <TData>(
 };
 
 export const cloneLayoutItem = <TData>(
-  layoutItem: LayoutItem<TData>,
+  layoutItem: LayoutItem<TData>
 ): LayoutItem<TData> => {
   const nextItem: LayoutItem<TData> = {
     w: layoutItem.w,
@@ -89,36 +93,49 @@ export const cloneLayoutItem = <TData>(
 
 export const collides = <TData>(
   l1: LayoutItem<TData>,
-  l2: LayoutItem<TData>,
+  l2: LayoutItem<TData>
 ): boolean => {
-  if (l1.id === l2.id) return false;
-  if (l1.x + l1.w <= l2.x) return false;
-  if (l1.x >= l2.x + l2.w) return false;
-  if (l1.y + l1.h <= l2.y) return false;
-  if (l1.y >= l2.y + l2.h) return false;
+  if (l1.id === l2.id) {
+    return false;
+  }
+  if (l1.x + l1.w <= l2.x) {
+    return false;
+  }
+  if (l1.x >= l2.x + l2.w) {
+    return false;
+  }
+  if (l1.y + l1.h <= l2.y) {
+    return false;
+  }
+  if (l1.y >= l2.y + l2.h) {
+    return false;
+  }
   return true;
 };
 
 export const correctBounds = <TData>(
   layout: Layout<TData>,
-  bounds: { cols: number },
+  bounds: { cols: number }
 ): Layout<TData> => {
   const collidesWith = getStatics(layout);
 
   for (let i = 0, len = layout.length; i < len; i++) {
     const l = layout[i];
-    if (l.x + l.w > bounds.cols) l.x = bounds.cols - l.w;
+    if (l.x + l.w > bounds.cols) {
+      l.x = bounds.cols - l.w;
+    }
 
     if (l.x < 0) {
       l.x = 0;
       l.w = bounds.cols;
     }
 
-    if (!l.static) collidesWith.push(l);
-    else {
+    if (l.static) {
       while (getFirstCollision(collidesWith, l)) {
         l.y++;
       }
+    } else {
+      collidesWith.push(l);
     }
   }
 
@@ -127,25 +144,29 @@ export const correctBounds = <TData>(
 
 export const getLayoutItem = <TData>(
   layout: Layout<TData>,
-  id: string,
+  id: string
 ): LayoutItem<TData> | null | undefined => {
   for (let i = 0, len = layout.length; i < len; i++) {
-    if (layout[i].id === id) return layout[i];
+    if (layout[i].id === id) {
+      return layout[i];
+    }
   }
 };
 
 export const getFirstCollision = <TData>(
   layout: Layout<TData>,
-  layoutItem: LayoutItem<TData>,
+  layoutItem: LayoutItem<TData>
 ): LayoutItem<TData> | undefined => {
   for (let i = 0, len = layout.length; i < len; i++) {
-    if (collides(layout[i], layoutItem)) return layout[i];
+    if (collides(layout[i], layoutItem)) {
+      return layout[i];
+    }
   }
 };
 
 export const getAllCollisions = <TData>(
   layout: Layout<TData>,
-  layoutItem: LayoutItem<TData>,
+  layoutItem: LayoutItem<TData>
 ): LayoutItem<TData>[] => layout.filter((l) => collides(l, layoutItem));
 
 export const getStatics = <TData>(layout: Layout<TData>): LayoutItem<TData>[] =>
@@ -158,17 +179,25 @@ export const moveElement = <TData>(
   y: number | null | undefined,
   isUserAction: boolean | null | undefined,
   compactor: Compactor<TData>,
-  cols: number,
+  cols: number
 ): LayoutItem<TData>[] => {
-  if (l.static && l.draggable !== true) return [...layout];
-  if (l.y === y && l.x === x) return [...layout];
+  if (l.static && l.draggable !== true) {
+    return [...layout];
+  }
+  if (l.y === y && l.x === x) {
+    return [...layout];
+  }
   const compactorType = compactor.type;
   const preventCollision = compactor.preventCollision === true;
   const { allowOverlap } = compactor;
   const oldX = l.x;
   const oldY = l.y;
-  if (typeof x === "number") l.x = x;
-  if (typeof y === "number") l.y = y;
+  if (typeof x === "number") {
+    l.x = x;
+  }
+  if (typeof y === "number") {
+    l.y = y;
+  }
   l.moved = true;
 
   let sorted = [...sortLayoutItems(layout, compactor)];
@@ -178,13 +207,16 @@ export const moveElement = <TData>(
       : compactorType === "horizontal" && typeof x === "number"
         ? oldX >= x
         : false;
-  if (movingUp) sorted = sorted.reverse();
+  if (movingUp) {
+    sorted = sorted.reverse();
+  }
   const collisions = getAllCollisions(sorted, l);
   const hasCollisions = collisions.length > 0;
 
   if (hasCollisions && allowOverlap) {
     return cloneLayout(layout);
-  } else if (hasCollisions && preventCollision) {
+  }
+  if (hasCollisions && preventCollision) {
     l.x = oldX;
     l.y = oldY;
     l.moved = false;
@@ -194,7 +226,9 @@ export const moveElement = <TData>(
   let resultLayout: LayoutItem<TData>[] = [...layout];
   for (let i = 0, len = collisions.length; i < len; i++) {
     const collision = collisions[i];
-    if (collision.moved) continue;
+    if (collision.moved) {
+      continue;
+    }
 
     if (collision.static) {
       resultLayout = moveElementAwayFromCollision(
@@ -203,7 +237,7 @@ export const moveElement = <TData>(
         l,
         isUserAction,
         compactor,
-        cols,
+        cols
       );
     } else {
       resultLayout = moveElementAwayFromCollision(
@@ -212,7 +246,7 @@ export const moveElement = <TData>(
         collision,
         isUserAction,
         compactor,
-        cols,
+        cols
       );
     }
   }
@@ -226,7 +260,7 @@ export const moveElementAwayFromCollision = <TData>(
   itemToMove: LayoutItem<TData>,
   isUserAction: boolean | null | undefined,
   compactor: Compactor<TData>,
-  cols: number,
+  cols: number
 ): LayoutItem<TData>[] => {
   const compactorType = compactor.type;
   const compactH = compactorType === "horizontal";
@@ -258,9 +292,10 @@ export const moveElementAwayFromCollision = <TData>(
         compactV ? fakeItem.y : undefined,
         isUserAction,
         { ...compactor, preventCollision },
-        cols,
+        cols
       );
-    } else if (collisionNorth && compactV) {
+    }
+    if (collisionNorth && compactV) {
       return moveElement(
         layout,
         itemToMove,
@@ -268,13 +303,15 @@ export const moveElementAwayFromCollision = <TData>(
         itemToMove.y + 1,
         isUserAction,
         { ...compactor, preventCollision },
-        cols,
+        cols
       );
-    } else if (collisionNorth && compactorType === null) {
+    }
+    if (collisionNorth && compactorType === null) {
       collidesWith.y = itemToMove.y;
-      itemToMove.y = itemToMove.y + itemToMove.h;
+      itemToMove.y += itemToMove.h;
       return [...layout];
-    } else if (collisionWest && compactH) {
+    }
+    if (collisionWest && compactH) {
       return moveElement(
         layout,
         collidesWith,
@@ -282,7 +319,7 @@ export const moveElementAwayFromCollision = <TData>(
         undefined,
         isUserAction,
         { ...compactor, preventCollision },
-        cols,
+        cols
       );
     }
   }
@@ -301,7 +338,7 @@ export const moveElementAwayFromCollision = <TData>(
     newY,
     isUserAction,
     { ...compactor, preventCollision },
-    cols,
+    cols
   );
 };
 
@@ -309,7 +346,7 @@ const constrainWidth = (
   left: number,
   currentWidth: number,
   newWidth: number,
-  containerWidth: number,
+  containerWidth: number
 ) => {
   return left + newWidth > containerWidth ? currentWidth : newWidth;
 };
@@ -317,7 +354,7 @@ const constrainWidth = (
 const constrainHeight = (
   top: number,
   currentHeight: number,
-  newHeight: number,
+  newHeight: number
 ) => {
   return top < 0 ? currentHeight : newHeight;
 };
@@ -331,13 +368,13 @@ type SizePosition = Pick<Position, "top" | "left" | "width" | "height">;
 type ResizeHandler = (
   currentSize: SizePosition,
   nextSize: SizePosition,
-  containerWidth: number,
+  containerWidth: number
 ) => SizePosition;
 
 const resizeNorth: ResizeHandler = (
   currentSize,
   { left, height, width },
-  _containerWidth,
+  _containerWidth
 ) => {
   const top = currentSize.top - (height - currentSize.height);
   return {
@@ -351,7 +388,7 @@ const resizeNorth: ResizeHandler = (
 const resizeEast: ResizeHandler = (
   currentSize,
   { top, left, height, width },
-  containerWidth,
+  containerWidth
 ) => ({
   top,
   height,
@@ -359,7 +396,7 @@ const resizeEast: ResizeHandler = (
     currentSize.left,
     currentSize.width,
     width,
-    containerWidth,
+    containerWidth
   ),
   left: constrainLeft(left),
 });
@@ -367,7 +404,7 @@ const resizeEast: ResizeHandler = (
 const resizeWest: ResizeHandler = (
   currentSize,
   { top, height, width },
-  _containerWidth,
+  _containerWidth
 ) => {
   const left = currentSize.left + currentSize.width - width;
   return {
@@ -381,7 +418,7 @@ const resizeWest: ResizeHandler = (
 const resizeSouth: ResizeHandler = (
   currentSize,
   { top, left, height, width },
-  _containerWidth,
+  _containerWidth
 ) => ({
   width,
   left,
@@ -392,45 +429,45 @@ const resizeSouth: ResizeHandler = (
 const resizeNorthEast: ResizeHandler = (
   currentSize,
   nextSize,
-  containerWidth,
+  containerWidth
 ) =>
   resizeNorth(
     currentSize,
     resizeEast(currentSize, nextSize, containerWidth),
-    containerWidth,
+    containerWidth
   );
 
 const resizeNorthWest: ResizeHandler = (
   currentSize,
   nextSize,
-  containerWidth,
+  containerWidth
 ) =>
   resizeNorth(
     currentSize,
     resizeWest(currentSize, nextSize, containerWidth),
-    containerWidth,
+    containerWidth
   );
 
 const resizeSouthEast: ResizeHandler = (
   currentSize,
   nextSize,
-  containerWidth,
+  containerWidth
 ) =>
   resizeSouth(
     currentSize,
     resizeEast(currentSize, nextSize, containerWidth),
-    containerWidth,
+    containerWidth
   );
 
 const resizeSouthWest: ResizeHandler = (
   currentSize,
   nextSize,
-  containerWidth,
+  containerWidth
 ) =>
   resizeSouth(
     currentSize,
     resizeWest(currentSize, nextSize, containerWidth),
-    containerWidth,
+    containerWidth
   );
 
 const ordinalResizeHandlerMap: Record<ResizeHandleAxis, ResizeHandler> = {
@@ -448,40 +485,50 @@ export const resizeItemInDirection = (
   direction: ResizeHandleAxis,
   currentSize: Position,
   newSize: Partial<Position>,
-  containerWidth: number,
+  containerWidth: number
 ): Position => {
   const ordinalHandler = ordinalResizeHandlerMap[direction];
-  if (!ordinalHandler) return { ...currentSize, ...newSize };
+  if (!ordinalHandler) {
+    return { ...currentSize, ...newSize };
+  }
   return ordinalHandler(
     currentSize,
     { ...currentSize, ...newSize },
-    containerWidth,
+    containerWidth
   );
 };
 
 export const sortLayoutItems = <TData>(
   layout: Layout<TData>,
-  compactor: Compactor<TData>,
+  compactor: Compactor<TData>
 ): Layout<TData> => {
   const compactorType = compactor.type;
-  if (compactorType === "horizontal") return sortLayoutItemsByColRow(layout);
-  if (compactorType === "vertical") return sortLayoutItemsByRowCol(layout);
+  if (compactorType === "horizontal") {
+    return sortLayoutItemsByColRow(layout);
+  }
+  if (compactorType === "vertical") {
+    return sortLayoutItemsByRowCol(layout);
+  }
   return layout.slice(0);
 };
 
 export const sortLayoutItemsByRowCol = <TData>(
-  layout: Layout<TData>,
+  layout: Layout<TData>
 ): Layout<TData> =>
   layout.slice(0).sort((a, b) => {
-    if (a.y !== b.y) return a.y - b.y;
+    if (a.y !== b.y) {
+      return a.y - b.y;
+    }
     return a.x - b.x;
   });
 
 export const sortLayoutItemsByColRow = <TData>(
-  layout: Layout<TData>,
+  layout: Layout<TData>
 ): Layout<TData> =>
   layout.slice(0).sort((a, b) => {
-    if (a.x !== b.x) return a.x - b.x;
+    if (a.x !== b.x) {
+      return a.x - b.x;
+    }
     return a.y - b.y;
   });
 
@@ -489,7 +536,7 @@ export const simpleOnMove = <TData>(
   layout: Layout<TData>,
   item: LayoutItem<TData>,
   x: number,
-  y: number,
+  y: number
 ): Layout<TData> => {
   const newLayout = cloneLayout(layout);
   const movedItem = newLayout.find((l) => l.id === item.id);

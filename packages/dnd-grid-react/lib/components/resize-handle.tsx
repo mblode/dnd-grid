@@ -12,18 +12,18 @@ export const ResizeHandle = React.forwardRef<HTMLDivElement, ResizeHandleProps>(
 
     return (
       <div
-        ref={ref}
         className={clsx(
           "react-resizable-handle",
           `react-resizable-handle-${handleAxis}`,
           "dnd-grid-resize-handle",
-          className,
+          className
         )}
-        style={style}
         data-dnd-grid-handle=""
         data-handle-axis={handleAxis}
+        ref={ref}
+        style={style}
         {...restProps}
       />
     );
-  },
+  }
 );

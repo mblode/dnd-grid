@@ -35,7 +35,7 @@ describe("useDndGridItemState", () => {
     render(
       <DndGridItemContext.Provider value={{ item, state }}>
         <TestConsumer />
-      </DndGridItemContext.Provider>,
+      </DndGridItemContext.Provider>
     );
 
     expect(screen.getByTestId("state")).toHaveTextContent("a:dragging");
@@ -46,7 +46,7 @@ describe("useDndGridItemState", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
     expect(() => render(<TestConsumer />)).toThrow(
-      /useDndGridItemState must be used within a DndGrid item/i,
+      /useDndGridItemState must be used within a DndGrid item/i
     );
     consoleError.mockRestore();
   });

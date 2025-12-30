@@ -27,10 +27,10 @@ export {
   withLayoutItem,
 };
 
-export type LayoutSyncWarnings = {
+export interface LayoutSyncWarnings {
   missingLayoutItems: Set<string>;
   unusedLayoutItems: Set<string>;
-};
+}
 
 /**
  * Comparing React `children` is a bit difficult. This is a good way to compare them.
@@ -41,7 +41,7 @@ export const childrenEqual = (a: ReactNode, b: ReactNode): boolean => {
   // ensure the results are arrays before passing to deepEqual.
   const mapChildrenKeys = (children: ReactNode) =>
     React.Children.map(children, (c) =>
-      React.isValidElement(c) ? c.key : null,
+      React.isValidElement(c) ? c.key : null
     ) || [];
   return deepEqual(mapChildrenKeys(a), mapChildrenKeys(b));
 };
@@ -57,7 +57,7 @@ export const synchronizeLayoutWithChildren = <TData>(
   children: ReactNode,
   cols: number,
   compactor: Compactor<TData>,
-  layoutSyncWarnings?: LayoutSyncWarnings,
+  layoutSyncWarnings?: LayoutSyncWarnings
 ): Layout<TData> => {
   const initial = initialLayout || [];
   // Generate one layout item per child.
@@ -65,7 +65,9 @@ export const synchronizeLayoutWithChildren = <TData>(
   const childKeys = new Set<string>();
   React.Children.forEach(children, (child) => {
     // Child may not exist
-    if (!React.isValidElement(child) || child.key == null) return;
+    if (!React.isValidElement(child) || child.key == null) {
+      return;
+    }
     const childKey = String(child.key);
     childKeys.add(childKey);
     const exists = getLayoutItem(initial, childKey);
@@ -79,7 +81,7 @@ export const synchronizeLayoutWithChildren = <TData>(
         if (!missingLayoutItems.has(childKey)) {
           missingLayoutItems.add(childKey);
           console.warn(
-            `DndGrid: Missing layout item for child key "${childKey}". Add a layout entry with id: "${childKey}".`,
+            `DndGrid: Missing layout item for child key "${childKey}". Add a layout entry with id: "${childKey}".`
           );
         }
       }
@@ -92,18 +94,22 @@ export const synchronizeLayoutWithChildren = <TData>(
           x: 0,
           y: bottom(layout),
           id: childKey,
-        }),
+        })
       );
     }
   });
   if (layoutSyncWarnings) {
     const { unusedLayoutItems } = layoutSyncWarnings;
     initial.forEach((item) => {
-      if (childKeys.has(item.id)) return;
-      if (unusedLayoutItems.has(item.id)) return;
+      if (childKeys.has(item.id)) {
+        return;
+      }
+      if (unusedLayoutItems.has(item.id)) {
+        return;
+      }
       unusedLayoutItems.add(item.id);
       console.warn(
-        `DndGrid: Layout item "${item.id}" has no matching child and will be ignored.`,
+        `DndGrid: Layout item "${item.id}" has no matching child and will be ignored.`
       );
     });
   }
@@ -116,7 +122,7 @@ export const synchronizeLayoutWithChildren = <TData>(
 
 export const setTransform = (
   { top, left, width, height, deg }: Position,
-  scale = 1,
+  scale = 1
 ): Record<string, string> => {
   // Replace unitless items with px
   const transform = `translate(${left}px,${top}px) scale(${scale}) rotate(${deg || 0}deg)`;

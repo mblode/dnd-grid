@@ -51,7 +51,7 @@ type ResponsiveDndGridComponent = (<
   B extends Breakpoint = DefaultBreakpoints,
 >(
   props: React.PropsWithoutRef<ResponsiveDndGridProps<B, TData>> &
-    React.RefAttributes<ResponsiveDndGridHandle<TData>>,
+    React.RefAttributes<ResponsiveDndGridHandle<TData>>
 ) => React.ReactElement | null) & {
   displayName?: string;
 };
@@ -81,7 +81,7 @@ const ResponsiveDndGrid = React.forwardRef(
       children,
       ...gridProps
     }: ResponsiveDndGridProps<B, TData>,
-    ref: React.ForwardedRef<ResponsiveDndGridHandle<TData>>,
+    ref: React.ForwardedRef<ResponsiveDndGridHandle<TData>>
   ) => {
     const shouldMeasure = widthProp === undefined;
     const {
@@ -119,17 +119,17 @@ const ResponsiveDndGrid = React.forwardRef(
           <DndGridCore
             {...gridProps}
             {...responsiveGridProps}
-            width={width}
             compactor={compactor}
             onLayoutChange={handleLayoutChange}
             ref={ref}
+            width={width}
           >
             {children}
           </DndGridCore>
         )}
       </div>
     );
-  },
+  }
 ) as unknown as ResponsiveDndGridComponent;
 
 ResponsiveDndGrid.displayName = "ResponsiveDndGrid";

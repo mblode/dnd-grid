@@ -1,15 +1,15 @@
 export type BlockKind = "text" | "media" | "quote";
 
-export type PaletteItem = {
+export interface PaletteItem {
   kind: BlockKind;
   name: string;
   title: string;
   description: string;
   w: number;
   h: number;
-};
+}
 
-export type GridItem = {
+export interface GridItem {
   id: string;
   kind: BlockKind;
   name: string;
@@ -18,4 +18,4 @@ export type GridItem = {
   h: number;
   x: number;
   y: number;
-};
+}

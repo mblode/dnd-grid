@@ -48,8 +48,8 @@ const buildManifest = () => {
     (entry) =>
       `import { ${entry.exportName} } from "./${path.basename(
         entry.filePath,
-        path.extname(entry.filePath),
-      )}";`,
+        path.extname(entry.filePath)
+      )}";`
   );
 
   const exampleLines = entries.map((entry) =>
@@ -60,7 +60,7 @@ const buildManifest = () => {
       `    description: ${JSON.stringify(entry.description)},`,
       `    Component: ${entry.exportName},`,
       "  },",
-    ].join("\n"),
+    ].join("\n")
   );
 
   const fileContents = `${importLines.join("\n")}

@@ -2,7 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "strictNullChecks": true
   },
   "include": ["lib"],
   "exclude": ["lib/**/*.test.*", "lib/__tests__/**"]

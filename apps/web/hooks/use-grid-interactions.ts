@@ -30,7 +30,7 @@ interface UseGridInteractionsOptions {
 }
 
 export function useGridInteractions(
-  options: UseGridInteractionsOptions = {},
+  options: UseGridInteractionsOptions = {}
 ): GridInteractionsHandlers {
   const [_hoveredId, setHoveredId] = useState<string | null>(null);
   const [_selectedId, setSelectedId] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export function useGridInteractions(
         options.onDragStart?.(id);
       }
     },
-    [options],
+    [options]
   );
 
   const handleDrag = useCallback((_event: GridDragEvent) => {
@@ -62,7 +62,7 @@ export function useGridInteractions(
         options.onDragEnd?.(item.id);
       }
     },
-    [options],
+    [options]
   );
 
   const handleResizeStart = useCallback(
@@ -76,7 +76,7 @@ export function useGridInteractions(
         options.onResizeStart?.(item.id);
       }
     },
-    [options],
+    [options]
   );
 
   const handleResize = useCallback((event: GridResizeEvent) => {
@@ -94,7 +94,7 @@ export function useGridInteractions(
         options.onResizeEnd?.(item.id);
       }
     },
-    [options],
+    [options]
   );
 
   const handleSelect = useCallback(
@@ -102,18 +102,18 @@ export function useGridInteractions(
       setSelectedId(id);
       options.onSelect?.(id);
     },
-    [options],
+    [options]
   );
 
   const handleHover = useCallback(
     (id: string | null) => {
       // Don't update hover during drag or resize operations
-      if (!resizeState && !dragId) {
+      if (!(resizeState || dragId)) {
         setHoveredId(id);
         options.onHover?.(id);
       }
     },
-    [resizeState, dragId, options],
+    [resizeState, dragId, options]
   );
 
   return {

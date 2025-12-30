@@ -63,12 +63,12 @@ export default async function Home() {
       <main className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col">
           <div className="bg-linear-to-b from-white to-[#f7ecd2] dark:from-background dark:to-card">
-            <section className="py-16 md:py-24 text-center">
+            <section className="py-16 text-center md:py-24">
               <div className="container-wrapper">
-                <h1 className="text-7xl font-light tracking-tight font-serif">
+                <h1 className="font-light font-serif text-7xl tracking-tight">
                   dnd-grid
                 </h1>
-                <p className="mt-4 text-2xl md:text-3xl text-balance mx-auto text-center text-foreground/60 max-w-125 font-serif">
+                <p className="mx-auto mt-4 max-w-125 text-balance text-center font-serif text-2xl text-foreground/60 md:text-3xl">
                   A drag-and-drop, resizable grid layout for React
                 </p>
 
@@ -82,14 +82,14 @@ export default async function Home() {
                   </Button>
                 </div>
 
-                <code className="mt-8 relative font-mono text-sm inline-flex items-center gap-2">
-                  <div className="truncate max-w-100">
+                <code className="relative mt-8 inline-flex items-center gap-2 font-mono text-sm">
+                  <div className="max-w-100 truncate">
                     npm install @dnd-grid/react
                   </div>
                   <CopyButton
                     content="npm install @dnd-grid/react"
-                    variant="ghost"
                     size="xs"
+                    variant="ghost"
                   />
                 </code>
               </div>
@@ -109,31 +109,31 @@ export default async function Home() {
               <div className="mx-auto max-w-5xl">
                 <div className="mt-16 space-y-10">
                   <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">
+                    <h2 className="font-semibold font-serif text-2xl text-foreground tracking-tight">
                       Installation
                     </h2>
-                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
                       <CopyButton
+                        className="absolute top-3 right-3"
                         content={INSTALL_COMMAND}
-                        variant="ghost"
                         size="xs"
-                        className="absolute right-3 top-3"
+                        variant="ghost"
                       />
                       <div
                         className={shikiClassName}
                         dangerouslySetInnerHTML={{ __html: installHtml }}
                       />
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Add the styles to your global CSS file (e.g.{" "}
                       <code className="text-foreground">globals.css</code>):
                     </p>
-                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
                       <CopyButton
+                        className="absolute top-3 right-3"
                         content={STYLE_IMPORT}
-                        variant="ghost"
                         size="xs"
-                        className="absolute right-3 top-3"
+                        variant="ghost"
                       />
                       <div
                         className={shikiClassName}
@@ -143,27 +143,27 @@ export default async function Home() {
                   </div>
 
                   <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">
+                    <h2 className="font-semibold font-serif text-2xl text-foreground tracking-tight">
                       Usage
                     </h2>
-                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
                       <CopyButton
+                        className="absolute top-3 right-3"
                         content={USAGE_IMPORT_SNIPPET}
-                        variant="ghost"
                         size="xs"
-                        className="absolute right-3 top-3"
+                        variant="ghost"
                       />
                       <div
                         className={shikiClassName}
                         dangerouslySetInnerHTML={{ __html: usageImportHtml }}
                       />
                     </div>
-                    <div className="relative rounded-2xl bg-muted/50 p-4 pb-0 pr-14">
+                    <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
                       <CopyButton
+                        className="absolute top-3 right-3"
                         content={USAGE_COMPONENT_SNIPPET}
-                        variant="ghost"
                         size="xs"
-                        className="absolute right-3 top-3"
+                        variant="ghost"
                       />
                       <div
                         className={shikiClassName}

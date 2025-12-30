@@ -26,7 +26,7 @@ const baseLayout: Layout = [
 
 const createConstraintContext = (
   layout: Layout,
-  containerWidth: number,
+  containerWidth: number
 ): ConstraintContext => ({
   cols: COLS,
   maxRows: Number.POSITIVE_INFINITY,
@@ -40,20 +40,24 @@ const createConstraintContext = (
 
 const applyInitialConstraints = (
   layout: Layout,
-  containerWidth: number,
+  containerWidth: number
 ): Layout => {
   const context = createConstraintContext(layout, containerWidth);
   return layout.map((item) => {
-    if (!item.constraints?.length) return item;
+    if (!item.constraints?.length) {
+      return item;
+    }
     const size = applySizeConstraints(
       defaultConstraints,
       item,
       item.w,
       item.h,
       "se",
-      context,
+      context
     );
-    if (size.w === item.w && size.h === item.h) return item;
+    if (size.w === item.w && size.h === item.h) {
+      return item;
+    }
     return { ...item, ...size };
   });
 };
@@ -66,7 +70,9 @@ export function AspectRatioConstraintsExample() {
   const [ready, setReady] = React.useState(false);
 
   React.useEffect(() => {
-    if (!mounted || width <= 0 || ready) return;
+    if (!mounted || width <= 0 || ready) {
+      return;
+    }
     setLayout(applyInitialConstraints(baseLayout, width));
     setReady(true);
   }, [mounted, ready, width]);
@@ -75,16 +81,16 @@ export function AspectRatioConstraintsExample() {
     <div ref={containerRef}>
       {mounted && ready && (
         <DndGrid
-          layout={layout}
           cols={COLS}
+          containerPadding={GRID_SPACING}
+          gap={GRID_SPACING}
+          layout={layout}
+          onLayoutChange={setLayout}
           rowHeight={ROW_HEIGHT}
           width={width}
-          gap={GRID_SPACING}
-          containerPadding={GRID_SPACING}
-          onLayoutChange={setLayout}
         >
           {layout.map((item) => (
-            <div key={item.id} className="grid-item">
+            <div className="grid-item" key={item.id}>
               {item.id}
             </div>
           ))}

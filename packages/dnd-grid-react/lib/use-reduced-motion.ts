@@ -34,10 +34,14 @@ export const useReducedMotion = (): boolean =>
 
 export const resolveReducedMotion = (
   setting: ReducedMotionSetting | boolean | undefined,
-  prefersReducedMotion: boolean,
+  prefersReducedMotion: boolean
 ): boolean => {
-  if (setting === true) return true;
-  if (setting === false) return false;
+  if (setting === true) {
+    return true;
+  }
+  if (setting === false) {
+    return false;
+  }
   switch (setting) {
     case "always":
       return true;

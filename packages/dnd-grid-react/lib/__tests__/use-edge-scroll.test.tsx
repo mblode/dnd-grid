@@ -5,10 +5,10 @@ import type { AutoScrollOptions } from "../types";
 import { AutoScrollActivator, TraversalOrder } from "../types";
 import { type EdgeScrollHandlers, useEdgeScroll } from "../use-edge-scroll";
 
-type HarnessProps = {
+interface HarnessProps {
   options?: AutoScrollOptions;
   onReady: (handlers: EdgeScrollHandlers) => void;
-};
+}
 
 const mockRaf = () => {
   const originalRequest = window.requestAnimationFrame;
@@ -109,11 +109,11 @@ describe("useEdgeScroll", () => {
 
     render(
       <EdgeScrollHarness
-        options={{ order: TraversalOrder.ReversedTreeOrder, interval: 5 }}
         onReady={(value) => {
           handlers = value;
         }}
-      />,
+        options={{ order: TraversalOrder.ReversedTreeOrder, interval: 5 }}
+      />
     );
 
     act(() => {});
@@ -169,11 +169,11 @@ describe("useEdgeScroll", () => {
 
     render(
       <EdgeScrollHarness
-        options={{ interval: 5 }}
         onReady={(value) => {
           handlers = value;
         }}
-      />,
+        options={{ interval: 5 }}
+      />
     );
 
     act(() => {});
@@ -188,7 +188,7 @@ describe("useEdgeScroll", () => {
         const top = typeof arg1 === "object" ? (arg1.top ?? 0) : (arg2 ?? 0);
         container.scrollTop += top;
         container.scrollLeft += left;
-      },
+      }
     );
     container.scrollBy = scrollBySpy as typeof container.scrollBy;
 
@@ -233,14 +233,14 @@ describe("useEdgeScroll", () => {
 
     render(
       <EdgeScrollHarness
+        onReady={(value) => {
+          handlers = value;
+        }}
         options={{
           activator: AutoScrollActivator.DraggableRect,
           interval: 5,
         }}
-        onReady={(value) => {
-          handlers = value;
-        }}
-      />,
+      />
     );
 
     act(() => {});

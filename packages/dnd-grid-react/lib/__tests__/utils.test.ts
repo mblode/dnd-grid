@@ -90,7 +90,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        verticalCompactor,
+        verticalCompactor
       );
       const item = next.find((entry) => entry.id === "a");
       expect(item?.x).toBe(1);
@@ -106,7 +106,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        verticalCompactor,
+        verticalCompactor
       );
       expect(next.map((entry) => entry.id)).toEqual(["b"]);
     });
@@ -123,7 +123,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        verticalCompactor,
+        verticalCompactor
       );
       const item = next.find((entry) => entry.id === "b");
       expect(item?.y).toBe(1);
@@ -139,7 +139,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        verticalCompactor,
+        verticalCompactor
       );
       expect(next.map((entry) => entry.id)).toEqual(["a"]);
     });
@@ -157,7 +157,7 @@ describe("utils", () => {
         initialLayout,
         children,
         12,
-        verticalOverlapCompactor,
+        verticalOverlapCompactor
       );
       const itemA = next.find((entry) => entry.id === "a");
       const itemB = next.find((entry) => entry.id === "b");
@@ -185,19 +185,19 @@ describe("utils", () => {
         children,
         12,
         verticalCompactor,
-        warnings,
+        warnings
       );
       synchronizeLayoutWithChildren(
         initialLayout,
         children,
         12,
         verticalCompactor,
-        warnings,
+        warnings
       );
 
       expect(consoleWarn).toHaveBeenCalledTimes(1);
       expect(consoleWarn).toHaveBeenCalledWith(
-        'DndGrid: Missing layout item for child key "b". Add a layout entry with id: "b".',
+        'DndGrid: Missing layout item for child key "b". Add a layout entry with id: "b".'
       );
       consoleWarn.mockRestore();
     });
@@ -217,19 +217,19 @@ describe("utils", () => {
         children,
         12,
         verticalCompactor,
-        warnings,
+        warnings
       );
       synchronizeLayoutWithChildren(
         initialLayout,
         children,
         12,
         verticalCompactor,
-        warnings,
+        warnings
       );
 
       expect(consoleWarn).toHaveBeenCalledTimes(1);
       expect(consoleWarn).toHaveBeenCalledWith(
-        'DndGrid: Layout item "a" has no matching child and will be ignored.',
+        'DndGrid: Layout item "a" has no matching child and will be ignored.'
       );
       consoleWarn.mockRestore();
     });

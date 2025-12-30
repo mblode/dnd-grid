@@ -2,34 +2,34 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { AutoScrollOptions } from "./types";
 import { AutoScrollActivator, TraversalOrder } from "./types";
 
-type Coordinates = {
+interface Coordinates {
   x: number;
   y: number;
-};
+}
 
-type FrameHandle = {
+interface FrameHandle {
   id: number;
   type: "raf" | "timeout";
-};
+}
 
-type ClientRect = {
+interface ClientRect {
   top: number;
   right: number;
   bottom: number;
   left: number;
   width: number;
   height: number;
-};
+}
 
 enum Direction {
   Forward = 1,
   Backward = -1,
 }
 
-type ScrollIntent = {
+interface ScrollIntent {
   x: Record<Direction, boolean>;
   y: Record<Direction, boolean>;
-};
+}
 
 const defaultThreshold = {
   x: 0.2,
@@ -51,7 +51,9 @@ const canUseDOM =
   typeof window !== "undefined" && typeof document !== "undefined";
 
 const scheduleFrame = (callback: FrameRequestCallback): FrameHandle | null => {
-  if (!canUseDOM) return null;
+  if (!canUseDOM) {
+    return null;
+  }
   if (typeof window.requestAnimationFrame === "function") {
     return { id: window.requestAnimationFrame(callback), type: "raf" };
   }
@@ -59,14 +61,16 @@ const scheduleFrame = (callback: FrameRequestCallback): FrameHandle | null => {
     id: window.setTimeout(
       () =>
         callback(typeof performance !== "undefined" ? performance.now() : 0),
-      16,
+      16
     ),
     type: "timeout",
   };
 };
 
 const cancelFrame = (handle: FrameHandle | null) => {
-  if (!handle) return;
+  if (!handle) {
+    return;
+  }
   if (
     handle.type === "raf" &&
     typeof window.cancelAnimationFrame === "function"
@@ -94,12 +98,12 @@ const isSVGElement = (node: Node | null | undefined): node is SVGElement =>
   Boolean(
     node &&
       node.nodeType === Node.ELEMENT_NODE &&
-      (node as Element).namespaceURI === "http://www.w3.org/2000/svg",
+      (node as Element).namespaceURI === "http://www.w3.org/2000/svg"
   );
 
 const isScrollable = (
   element: Element,
-  computedStyle = getWindow(element).getComputedStyle(element),
+  computedStyle = getWindow(element).getComputedStyle(element)
 ): boolean => {
   const overflowRegex = /(auto|scroll|overlay)/;
   const properties = ["overflow", "overflowX", "overflowY"];
@@ -111,16 +115,16 @@ const isScrollable = (
 
 const isFixed = (
   node: Element,
-  computedStyle = getWindow(node).getComputedStyle(node),
+  computedStyle = getWindow(node).getComputedStyle(node)
 ): boolean => computedStyle.position === "fixed";
 
 const getScrollableAncestors = (
   element: Element | null,
-  limit?: number,
+  limit?: number
 ): Element[] => {
   const scrollParents: Element[] = [];
 
-  if (!canUseDOM || !element) {
+  if (!(canUseDOM && element)) {
     return scrollParents;
   }
 
@@ -167,7 +171,7 @@ const getScrollableAncestors = (
 };
 
 const getFirstScrollableAncestor = (
-  element: Element | null,
+  element: Element | null
 ): Element | null => {
   const [firstAncestor] = getScrollableAncestors(element, 1);
   return firstAncestor ?? null;
@@ -177,9 +181,11 @@ const isDocumentScrollingElement = (element: Element): boolean =>
   canUseDOM && element === document.scrollingElement;
 
 const getScrollEventTarget = (
-  element: Element,
+  element: Element
 ): HTMLElement | Window | null => {
-  if (!canUseDOM) return null;
+  if (!canUseDOM) {
+    return null;
+  }
   if (isDocumentScrollingElement(element)) {
     return getWindow(element);
   }
@@ -208,9 +214,9 @@ const getScrollPosition = (scrollContainer: Element) => {
 
 const getRectDelta = (
   rect: ClientRect | null,
-  initialRect: ClientRect | null,
+  initialRect: ClientRect | null
 ): Coordinates => {
-  if (!rect || !initialRect) {
+  if (!(rect && initialRect)) {
     return { x: 0, y: 0 };
   }
   return {
@@ -248,7 +254,7 @@ const getScrollDirectionAndSpeed = (
   scrollContainerRect: ClientRect,
   { top, left, right, bottom }: ClientRect,
   acceleration = 10,
-  thresholdPercentage = defaultThreshold,
+  thresholdPercentage = defaultThreshold
 ) => {
   const { isTop, isBottom, isLeft, isRight } =
     getScrollPosition(scrollContainer);
@@ -264,7 +270,7 @@ const getScrollDirectionAndSpeed = (
     speed.y =
       acceleration *
       Math.abs(
-        (scrollContainerRect.top + threshold.height - top) / threshold.height,
+        (scrollContainerRect.top + threshold.height - top) / threshold.height
       );
   } else if (
     !isBottom &&
@@ -275,7 +281,7 @@ const getScrollDirectionAndSpeed = (
       acceleration *
       Math.abs(
         (scrollContainerRect.bottom - threshold.height - bottom) /
-          threshold.height,
+          threshold.height
       );
   }
 
@@ -284,14 +290,14 @@ const getScrollDirectionAndSpeed = (
     speed.x =
       acceleration *
       Math.abs(
-        (scrollContainerRect.right - threshold.width - right) / threshold.width,
+        (scrollContainerRect.right - threshold.width - right) / threshold.width
       );
   } else if (!isLeft && left <= scrollContainerRect.left + threshold.width) {
     direction.x = Direction.Backward;
     speed.x =
       acceleration *
       Math.abs(
-        (scrollContainerRect.left + threshold.width - left) / threshold.width,
+        (scrollContainerRect.left + threshold.width - left) / threshold.width
       );
   }
 
@@ -299,7 +305,9 @@ const getScrollDirectionAndSpeed = (
 };
 
 const getEventCoordinates = (event?: Event | null): Coordinates | null => {
-  if (!event) return null;
+  if (!event) {
+    return null;
+  }
   const eventAny = event as
     | MouseEvent
     | TouchEvent
@@ -324,7 +332,7 @@ const getEventCoordinates = (event?: Event | null): Coordinates | null => {
 };
 
 const normalizeAutoScrollOptions = (
-  autoScroll?: boolean | AutoScrollOptions,
+  autoScroll?: boolean | AutoScrollOptions
 ): AutoScrollOptions => {
   if (typeof autoScroll === "object" && autoScroll !== null) {
     return {
@@ -341,7 +349,7 @@ const normalizeAutoScrollOptions = (
 };
 
 const resolveLayoutShiftCompensation = (
-  config: AutoScrollOptions["layoutShiftCompensation"],
+  config: AutoScrollOptions["layoutShiftCompensation"]
 ) => {
   if (typeof config === "boolean") {
     return { x: config, y: config };
@@ -355,23 +363,23 @@ const resolveLayoutShiftCompensation = (
   return { x: true, y: true };
 };
 
-export type EdgeScrollHandlers = {
+export interface EdgeScrollHandlers {
   handleDragStart: (
     event?: Event | null,
     node?: HTMLElement | null,
-    newPosition?: { left: number; top: number },
+    newPosition?: { left: number; top: number }
   ) => void;
   handleDrag: (
     event?: Event | null,
     node?: HTMLElement | null,
-    newPosition?: { left: number; top: number },
+    newPosition?: { left: number; top: number }
   ) => void;
   handleDragEnd: () => void;
   isScrolling: boolean;
-};
+}
 
 export const useEdgeScroll = (
-  autoScroll: boolean | AutoScrollOptions = true,
+  autoScroll: boolean | AutoScrollOptions = true
 ): EdgeScrollHandlers => {
   const [isScrolling, setIsScrolling] = useState(false);
   const optionsRef = useRef<AutoScrollOptions>({});
@@ -414,11 +422,13 @@ export const useEdgeScroll = (
   const setAutoScrollInterval = useCallback(
     (callback: () => void, interval: number) => {
       clearAutoScrollInterval();
-      if (!canUseDOM) return;
+      if (!canUseDOM) {
+        return;
+      }
       intervalRef.current = window.setInterval(callback, interval);
       setIsScrolling(true);
     },
-    [clearAutoScrollInterval],
+    [clearAutoScrollInterval]
   );
 
   const resetScrollIntent = useCallback(() => {
@@ -428,7 +438,7 @@ export const useEdgeScroll = (
 
   const updateScrollIntent = useCallback(
     (delta: Coordinates | null, enabled: boolean) => {
-      if (!enabled || !delta) {
+      if (!(enabled && delta)) {
         resetScrollIntent();
         return;
       }
@@ -466,15 +476,19 @@ export const useEdgeScroll = (
       };
       previousDeltaRef.current = delta;
     },
-    [resetScrollIntent],
+    [resetScrollIntent]
   );
 
   const autoScrollTick = useCallback(() => {
     const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) return;
+    if (!scrollContainer) {
+      return;
+    }
     const scrollLeft = scrollSpeedRef.current.x * scrollDirectionRef.current.x;
     const scrollTop = scrollSpeedRef.current.y * scrollDirectionRef.current.y;
-    if (scrollLeft === 0 && scrollTop === 0) return;
+    if (scrollLeft === 0 && scrollTop === 0) {
+      return;
+    }
     (scrollContainer as HTMLElement).scrollBy(scrollLeft, scrollTop);
   }, []);
 
@@ -494,14 +508,14 @@ export const useEdgeScroll = (
 
       return draggingRectRef.current;
     },
-    [],
+    []
   );
 
   const updateAutoScroll = useCallback(() => {
     const options = optionsRef.current;
     const enabled = options.enabled !== false;
 
-    if (!canUseDOM || !enabled) {
+    if (!(canUseDOM && enabled)) {
       clearAutoScrollInterval();
       return;
     }
@@ -534,7 +548,7 @@ export const useEdgeScroll = (
         scrollContainerRect,
         rect,
         options.acceleration,
-        options.threshold,
+        options.threshold
       );
 
       const scrollIntent = scrollIntentRef.current;
@@ -580,7 +594,9 @@ export const useEdgeScroll = (
   }, []);
 
   const scheduleScrollUpdate = useCallback(() => {
-    if (!canUseDOM || scrollUpdateFrameRef.current) return;
+    if (!canUseDOM || scrollUpdateFrameRef.current) {
+      return;
+    }
     scrollUpdateFrameRef.current = scheduleFrame(() => {
       scrollUpdateFrameRef.current = null;
       if (optionsRef.current.activator === AutoScrollActivator.DraggableRect) {
@@ -596,7 +612,9 @@ export const useEdgeScroll = (
 
   const updateScrollListeners = useCallback(
     (scrollableAncestors: Element[]) => {
-      if (!canUseDOM) return;
+      if (!canUseDOM) {
+        return;
+      }
       const nextTargets = new Set<HTMLElement | Window>();
 
       for (const ancestor of scrollableAncestors) {
@@ -620,7 +638,7 @@ export const useEdgeScroll = (
 
       scrollListenerTargetsRef.current = nextTargets;
     },
-    [handleScroll],
+    [handleScroll]
   );
 
   const clearScrollListeners = useCallback(() => {
@@ -633,9 +651,9 @@ export const useEdgeScroll = (
   const scheduleLayoutShiftCompensation = useCallback(
     (node: HTMLElement) => {
       const { x, y } = resolveLayoutShiftCompensation(
-        optionsRef.current.layoutShiftCompensation,
+        optionsRef.current.layoutShiftCompensation
       );
-      if (!x && !y) {
+      if (!(x || y)) {
         return;
       }
 
@@ -650,8 +668,12 @@ export const useEdgeScroll = (
         const rect = dragNodeRef.current.getBoundingClientRect();
         const rectDelta = getRectDelta(rect, layoutShiftRectRef.current);
 
-        if (!x) rectDelta.x = 0;
-        if (!y) rectDelta.y = 0;
+        if (!x) {
+          rectDelta.x = 0;
+        }
+        if (!y) {
+          rectDelta.y = 0;
+        }
 
         if (Math.abs(rectDelta.x) > 0 || Math.abs(rectDelta.y) > 0) {
           const scrollContainer =
@@ -667,25 +689,27 @@ export const useEdgeScroll = (
         }
       });
     },
-    [cancelLayoutShiftCompensation],
+    [cancelLayoutShiftCompensation]
   );
 
   const resolveDragNode = useCallback(
     (node?: HTMLElement | null, event?: Event | null) => {
-      if (node) return node;
+      if (node) {
+        return node;
+      }
       const eventTarget = event?.target;
       if (eventTarget instanceof HTMLElement) {
         return eventTarget;
       }
       return dragNodeRef.current;
     },
-    [],
+    []
   );
 
   const resolveDelta = useCallback(
     (
       newPosition?: { left: number; top: number },
-      pointerCoordinates?: Coordinates | null,
+      pointerCoordinates?: Coordinates | null
     ): Coordinates | null => {
       if (pointerCoordinates) {
         return pointerCoordinates;
@@ -695,17 +719,19 @@ export const useEdgeScroll = (
       }
       return null;
     },
-    [],
+    []
   );
 
   const handleDragStart = useCallback(
     (
       event?: Event | null,
       node?: HTMLElement | null,
-      newPosition?: { left: number; top: number },
+      newPosition?: { left: number; top: number }
     ) => {
       const enabled = optionsRef.current.enabled !== false;
-      if (!canUseDOM || !enabled) return;
+      if (!(canUseDOM && enabled)) {
+        return;
+      }
 
       const resolvedNode = resolveDragNode(node, event);
       if (resolvedNode) {
@@ -729,17 +755,19 @@ export const useEdgeScroll = (
       updateScrollIntent,
       updateScrollListeners,
       scheduleLayoutShiftCompensation,
-    ],
+    ]
   );
 
   const handleDrag = useCallback(
     (
       event?: Event | null,
       node?: HTMLElement | null,
-      newPosition?: { left: number; top: number },
+      newPosition?: { left: number; top: number }
     ) => {
       const enabled = optionsRef.current.enabled !== false;
-      if (!canUseDOM || !enabled) return;
+      if (!(canUseDOM && enabled)) {
+        return;
+      }
 
       const resolvedNode = resolveDragNode(node, event);
       if (resolvedNode && dragNodeRef.current !== resolvedNode) {
@@ -764,7 +792,7 @@ export const useEdgeScroll = (
       updateAutoScroll,
       updateScrollIntent,
       updateScrollListeners,
-    ],
+    ]
   );
 
   const handleDragEnd = useCallback(() => {
@@ -806,7 +834,7 @@ export const useEdgeScroll = (
       cancelScrollUpdateFrame,
       clearAutoScrollInterval,
       clearScrollListeners,
-    ],
+    ]
   );
 
   return {

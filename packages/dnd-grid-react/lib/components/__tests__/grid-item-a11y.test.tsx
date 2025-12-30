@@ -272,7 +272,10 @@ describe("GridItem A11y", () => {
     await user.keyboard("{Escape}");
 
     expect(onResizeEnd).toHaveBeenCalled();
-    const lastResizeEvent = onResize.mock.calls.at(-1)[0];
+    const lastResizeEvent = onResize.mock.calls.at(-1)?.[0];
+    if (!lastResizeEvent) {
+      throw new Error("Expected resize event to be recorded");
+    }
     expect(lastResizeEvent.w).toBe(2);
     expect(lastResizeEvent.h).toBe(2);
   });

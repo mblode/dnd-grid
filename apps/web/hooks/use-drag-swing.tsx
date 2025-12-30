@@ -38,6 +38,8 @@ export function useDragSwing(): UseDragSwingReturn {
   const settleStartTimeRef = useRef<number | null>(null);
   const settleFrameCountRef = useRef(0);
   const dragStartPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSampleTimeRef = useRef<number | null>(null);
   const currentRotationRef = useRef(0);
   const currentScaleRef = useRef(1);
   const settingsRef = useRef<DragSwingSettings>(store.dragSwingSettings);
@@ -106,6 +108,62 @@ export function useDragSwing(): UseDragSwingReturn {
   }, []);
 
   /**
+   * Update spring targets during drag
+   * This matches swing-card.tsx behavior where rotateRaw.set() updates the target
+   */
+  const updateSpringTargets = useCallback(
+    (targetRotation: number, targetScale: number) => {
+      rotationSpringRef.current.setTarget(targetRotation);
+      scaleSpringRef.current.setTarget(targetScale);
+    },
+    []
+  );
+
+  /**
+   * Record a pointer sample and update spring targets from velocity.
+   * This keeps velocity decaying to 0 even when no new drag events fire.
+   */
+  const recordPointerSample = useCallback(
+    (now: number, pointer: { x: number; y: number }) => {
+      let positionHistory: PointWithTimestamp[] = [
+        ...positionHistoryRef.current,
+        {
+          x: pointer.x,
+          y: pointer.y,
+          timestamp: now,
+        },
+      ];
+
+      // Keep only the most recent velocity window of history
+      positionHistory = positionHistory.filter(
+        (entry) => now - entry.timestamp < settingsRef.current.velocityWindowMs
+      );
+
+      // Calculate velocity from history using Bento algorithm
+      const velocity = calculateVelocityFromHistory(
+        positionHistory,
+        settingsRef.current.velocityWindowMs
+      );
+
+      // Convert velocity to rotation using Bento formula
+      // INVERTED: drag right = tilt left (negative rotation) due to inertia
+      const targetRotation = velocityToRotation(
+        velocity.x,
+        settingsRef.current.velocityScale,
+        settingsRef.current.maxRotation
+      );
+
+      // Update spring targets - spring will smoothly animate toward targetRotation
+      // This matches swing-card.tsx: rotateRaw.set(targetRotation)
+      updateSpringTargets(targetRotation, settingsRef.current.dragScale);
+
+      positionHistoryRef.current = positionHistory;
+      lastSampleTimeRef.current = now;
+    },
+    [updateSpringTargets]
+  );
+
+  /**
    * Start continuous spring animation loop
    * This matches swing-card.tsx useSpring behavior - continuously smoothing values
    */
@@ -156,6 +214,13 @@ export function useDragSwing(): UseDragSwingReturn {
         }
       }
 
+      if (isDraggingRef.current && lastPointerRef.current) {
+        const lastSampleTime = lastSampleTimeRef.current;
+        if (lastSampleTime === null || now - lastSampleTime > 16) {
+          recordPointerSample(now, lastPointerRef.current);
+        }
+      }
+
       const rotationState = rotationSpring.step(now);
       const scaleState = scaleSpring.step(now);
 
@@ -179,19 +244,7 @@ export function useDragSwing(): UseDragSwingReturn {
     };
 
     springAnimationFrameRef.current = requestAnimationFrame(animate);
-  }, [updateRotation, updateScale]);
-
-  /**
-   * Update spring targets during drag
-   * This matches swing-card.tsx behavior where rotateRaw.set() updates the target
-   */
-  const updateSpringTargets = useCallback(
-    (targetRotation: number, targetScale: number) => {
-      rotationSpringRef.current.setTarget(targetRotation);
-      scaleSpringRef.current.setTarget(targetScale);
-    },
-    []
-  );
+  }, [recordPointerSample, updateRotation, updateScale]);
 
   // Apply initial scale/shadow and start physics loop on mount
   // (component mounts after drag starts, so handleDragStart won't fire)
@@ -199,6 +252,8 @@ export function useDragSwing(): UseDragSwingReturn {
     isDraggingRef.current = true;
     isSettlingRef.current = false;
     positionHistoryRef.current = [];
+    lastSampleTimeRef.current = null;
+    lastPointerRef.current = getPointerPosition();
     settleStartTimeRef.current = null;
     settleFrameCountRef.current = 0;
 
@@ -244,6 +299,7 @@ export function useDragSwing(): UseDragSwingReturn {
       const trackedPointer = getPointerPosition();
       if (trackedPointer) {
         dragStartPointerRef.current = trackedPointer;
+        lastPointerRef.current = trackedPointer;
       } else {
         let pointerX: number | null = null;
         let pointerY: number | null = null;
@@ -267,9 +323,13 @@ export function useDragSwing(): UseDragSwingReturn {
           pointerX !== null && pointerY !== null
             ? { x: pointerX, y: pointerY }
             : null;
+        if (pointerX !== null && pointerY !== null) {
+          lastPointerRef.current = { x: pointerX, y: pointerY };
+        }
       }
 
       positionHistoryRef.current = [];
+      lastSampleTimeRef.current = null;
       isDraggingRef.current = true;
       isSettlingRef.current = false;
       settleStartTimeRef.current = null;
@@ -325,48 +385,19 @@ export function useDragSwing(): UseDragSwingReturn {
         }
       }
 
-      // Track pointer position history for velocity calculation (sliding window)
-      let positionHistory: PointWithTimestamp[] = [
-        ...positionHistoryRef.current,
-        {
-          x: pointerX,
-          y: pointerY,
-          timestamp: now,
-        },
-      ];
-
-      // Keep only the most recent velocity window of history
-      positionHistory = positionHistory.filter(
-        (entry) => now - entry.timestamp < settingsRef.current.velocityWindowMs
-      );
-
-      // Calculate velocity from history using Bento algorithm
-      const velocity = calculateVelocityFromHistory(
-        positionHistory,
-        settingsRef.current.velocityWindowMs
-      );
-
-      // Convert velocity to rotation using Bento formula
-      // INVERTED: drag right = tilt left (negative rotation) due to inertia
-      const targetRotation = velocityToRotation(
-        velocity.x,
-        settingsRef.current.velocityScale,
-        settingsRef.current.maxRotation
-      );
-
-      // Update spring targets - spring will smoothly animate toward targetRotation
-      // This matches swing-card.tsx: rotateRaw.set(targetRotation)
-      updateSpringTargets(targetRotation, settingsRef.current.dragScale);
-
-      positionHistoryRef.current = positionHistory;
+      const pointer = { x: pointerX, y: pointerY };
+      lastPointerRef.current = pointer;
+      recordPointerSample(now, pointer);
     },
-    [updateSpringTargets]
+    [recordPointerSample]
   );
 
   const handleDragEnd = useCallback(
     (_event: DragEndEvent) => {
       isDraggingRef.current = false;
       dragStartPointerRef.current = null;
+      lastPointerRef.current = null;
+      lastSampleTimeRef.current = null;
 
       // Set spring targets to 0 (rotation) and 1 (scale)
       // This matches swing-card.tsx handleDragEnd: rotateRaw.set(0), scaleRaw.set(1)

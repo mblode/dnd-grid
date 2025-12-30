@@ -358,6 +358,8 @@ const GridItem = React.forwardRef(
     const dragPositionRef = React.useRef<PartialPosition | null>(null);
     const resizePositionRef = React.useRef<Position | null>(null);
     const positionHistoryRef = React.useRef<PointWithTimestamp[]>([]);
+    const lastPointerRef = React.useRef<{ x: number; y: number } | null>(null);
+    const lastSampleTimeRef = React.useRef<number | null>(null);
     const isDraggingRef = React.useRef(false);
     const childEventsRef = React.useRef<
       {
@@ -686,6 +688,66 @@ const GridItem = React.forwardRef(
     );
 
     /**
+     * Update spring targets during drag
+     * This matches swing-card.tsx behavior where rotateRaw.set() updates the target
+     */
+    const updateSpringTargets = React.useCallback(
+      (targetRotation: number, targetScale: number) => {
+        if (
+          reducedMotionRef.current ||
+          !animationConfigRef.current.springs.enabled
+        ) {
+          setState((prevState) => ({
+            ...prevState,
+            currentRotation: 0,
+            currentScale: 1,
+          }));
+          return;
+        }
+        rotationSpringRef.current.setTarget(targetRotation);
+        scaleSpringRef.current.setTarget(targetScale);
+      },
+      []
+    );
+
+    /**
+     * Record a pointer sample and update spring targets from velocity.
+     * This keeps velocity decaying to 0 even when no new drag events fire.
+     */
+    const recordPointerSample = React.useCallback(
+      (now: number, pointer: { x: number; y: number }) => {
+        let positionHistory: PointWithTimestamp[] = [
+          ...positionHistoryRef.current,
+          {
+            x: pointer.x,
+            y: pointer.y,
+            timestamp: now,
+          },
+        ];
+
+        // Keep only last 100ms of history
+        positionHistory = positionHistory.filter(
+          (entry) => now - entry.timestamp < VELOCITY_WINDOW_MS
+        );
+
+        // Calculate velocity from history using Bento algorithm
+        const velocity = calculateVelocityFromHistory(positionHistory);
+
+        // Convert velocity to rotation using Bento formula
+        // INVERTED: drag right = tilt left (negative rotation) due to inertia
+        const targetRotation = velocityToRotation(velocity.x);
+
+        // Update spring targets - spring will smoothly animate toward targetRotation
+        // This matches swing-card.tsx: rotateRaw.set(targetRotation)
+        updateSpringTargets(targetRotation, 1.04);
+
+        positionHistoryRef.current = positionHistory;
+        lastSampleTimeRef.current = now;
+      },
+      [updateSpringTargets]
+    );
+
+    /**
      * Start continuous spring animation loop
      * This matches swing-card.tsx useSpring behavior - continuously smoothing values
      */
@@ -752,6 +814,13 @@ const GridItem = React.forwardRef(
           }
         }
 
+        if (isDraggingRef.current && lastPointerRef.current) {
+          const lastSampleTime = lastSampleTimeRef.current;
+          if (lastSampleTime === null || now - lastSampleTime > 16) {
+            recordPointerSample(now, lastPointerRef.current);
+          }
+        }
+
         const rotationState = rotationSpring.step(now);
         const scaleState = scaleSpring.step(now);
         const xState = xSpring.step(now);
@@ -800,30 +869,7 @@ const GridItem = React.forwardRef(
       };
 
       springAnimationFrameRef.current = requestAnimationFrame(animate);
-    }, []);
-
-    /**
-     * Update spring targets during drag
-     * This matches swing-card.tsx behavior where rotateRaw.set() updates the target
-     */
-    const updateSpringTargets = React.useCallback(
-      (targetRotation: number, targetScale: number) => {
-        if (
-          reducedMotionRef.current ||
-          !animationConfigRef.current.springs.enabled
-        ) {
-          setState((prevState) => ({
-            ...prevState,
-            currentRotation: 0,
-            currentScale: 1,
-          }));
-          return;
-        }
-        rotationSpringRef.current.setTarget(targetRotation);
-        scaleSpringRef.current.setTarget(targetScale);
-      },
-      []
-    );
+    }, [recordPointerSample]);
 
     const resetSpringState = React.useCallback(() => {
       if (springAnimationFrameRef.current !== null) {
@@ -833,6 +879,9 @@ const GridItem = React.forwardRef(
       isSettlingRef.current = false;
       settleStartTimeRef.current = null;
       settleFrameCountRef.current = 0;
+      positionHistoryRef.current = [];
+      lastPointerRef.current = null;
+      lastSampleTimeRef.current = null;
       rotationSpringRef.current.setCurrent(0);
       rotationSpringRef.current.setTarget(0);
       scaleSpringRef.current.setCurrent(1);
@@ -918,6 +967,22 @@ const GridItem = React.forwardRef(
         isDraggingRef.current = true;
         isSettlingRef.current = false;
         positionHistoryRef.current = [];
+        lastSampleTimeRef.current = null;
+        let startPointer: { x: number; y: number } | null = null;
+        if (e instanceof MouseEvent) {
+          startPointer = { x: e.clientX, y: e.clientY };
+        } else if (e instanceof TouchEvent && e.touches.length > 0) {
+          startPointer = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+          };
+        } else if ((e as unknown as PointerEvent).clientX !== undefined) {
+          startPointer = {
+            x: (e as unknown as PointerEvent).clientX,
+            y: (e as unknown as PointerEvent).clientY,
+          };
+        }
+        lastPointerRef.current = startPointer;
         settleStartTimeRef.current = null;
         settleFrameCountRef.current = 0;
         setState((prevState) => ({
@@ -1032,28 +1097,9 @@ const GridItem = React.forwardRef(
           pointerX = (e as unknown as PointerEvent).clientX;
           pointerY = (e as unknown as PointerEvent).clientY;
         }
-
-        // Track pointer position history for velocity calculation (100ms sliding window)
-        let positionHistory: PointWithTimestamp[] = [
-          ...positionHistoryRef.current,
-          {
-            x: pointerX,
-            y: pointerY,
-            timestamp: now,
-          },
-        ];
-
-        // Keep only last 100ms of history
-        positionHistory = positionHistory.filter(
-          (entry) => now - entry.timestamp < VELOCITY_WINDOW_MS
-        );
-
-        // Calculate velocity from history using Bento algorithm
-        const velocity = calculateVelocityFromHistory(positionHistory);
-
-        // Convert velocity to rotation using Bento formula
-        // INVERTED: drag right = tilt left (negative rotation) due to inertia
-        const targetRotation = velocityToRotation(velocity.x);
+        const pointer = { x: pointerX, y: pointerY };
+        lastPointerRef.current = pointer;
+        recordPointerSample(now, pointer);
 
         const { bounded, w, h, containerWidth } = propsRef.current;
         const positionParams = getPositionParams();
@@ -1083,12 +1129,7 @@ const GridItem = React.forwardRef(
           deg: stateRef.current.currentRotation, // Use current spring value for position
         };
 
-        // Update spring targets - spring will smoothly animate toward targetRotation
-        // This matches swing-card.tsx: rotateRaw.set(targetRotation)
-        updateSpringTargets(targetRotation, 1.04);
-
         dragPositionRef.current = newPosition;
-        positionHistoryRef.current = positionHistory;
         // Call callback with this data
         const constraints = resolveConstraints(propsRef.current.constraints);
         const rawPos = calcXYRaw(positionParams, top, left);
@@ -1115,7 +1156,7 @@ const GridItem = React.forwardRef(
         getPositionParams,
         getConstraintItem,
         getConstraintContext,
-        updateSpringTargets,
+        recordPointerSample,
       ]
     );
 
@@ -1150,6 +1191,8 @@ const GridItem = React.forwardRef(
           isDraggingRef.current = false;
           dragPositionRef.current = null;
           positionHistoryRef.current = [];
+          lastPointerRef.current = null;
+          lastSampleTimeRef.current = null;
           setGlobalDragActive(interactionIdRef.current, false);
 
           if (elementRef.current) {
@@ -1245,6 +1288,8 @@ const GridItem = React.forwardRef(
         isDraggingRef.current = false;
         dragPositionRef.current = null;
         positionHistoryRef.current = [];
+        lastPointerRef.current = null;
+        lastSampleTimeRef.current = null;
 
         // Remove grabbing cursor from body
         setGlobalDragActive(interactionIdRef.current, false);

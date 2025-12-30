@@ -32,7 +32,7 @@ describe("createLayoutEngine", () => {
 
     engine.commands.move({ type: "move", id: "a", x: 3, y: 0 });
     expect(
-      engine.getState().layout.find((item) => item.id === "a"),
+      engine.getState().layout.find((item) => item.id === "a")
     ).toMatchObject({
       x: 3,
       y: 0,
@@ -40,7 +40,7 @@ describe("createLayoutEngine", () => {
 
     engine.commands.resize({ type: "resize", id: "a", w: 2, h: 2 });
     expect(
-      engine.getState().layout.find((item) => item.id === "a"),
+      engine.getState().layout.find((item) => item.id === "a")
     ).toMatchObject({
       w: 2,
       h: 2,
@@ -93,11 +93,11 @@ describe("createLayoutEngine", () => {
     expect(onInit).toHaveBeenCalledTimes(1);
     expect(onCommand).toHaveBeenCalledWith(
       expect.objectContaining({ type: "move", id: "a" }),
-      expect.any(Object),
+      expect.any(Object)
     );
     expect(onCommand).toHaveBeenCalledWith(
       expect.objectContaining({ type: "compact" }),
-      expect.any(Object),
+      expect.any(Object)
     );
     expect(onStateChange).toHaveBeenCalled();
     expect(onOptionsChange).toHaveBeenCalled();
@@ -106,7 +106,7 @@ describe("createLayoutEngine", () => {
   it("throws on invalid options when validation is enabled", () => {
     const options = { ...baseOptions, cols: -1 };
     expect(() => createLayoutEngine(options)).toThrow(
-      /LayoutEngineOptions validation failed/,
+      /LayoutEngineOptions validation failed/
     );
   });
 });

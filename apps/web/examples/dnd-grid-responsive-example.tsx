@@ -22,9 +22,9 @@ const cards = ["a", "b", "c", "d"];
 export function ResponsiveExample() {
   return (
     <ResponsiveDndGrid
-      layouts={layouts}
-      gap={{ lg: 16, sm: 12 }}
       containerPadding={{ lg: 16, sm: 12 }}
+      gap={{ lg: 16, sm: 12 }}
+      layouts={layouts}
       rowHeight={48}
     >
       {cards.map((id) => (

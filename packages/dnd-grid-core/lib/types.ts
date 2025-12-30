@@ -10,7 +10,7 @@ export type ResizeHandleAxis =
   | "se"
   | "ne";
 
-export type LayoutItem<TData = unknown> = {
+export interface LayoutItem<TData = unknown> {
   w: number;
   h: number;
   x: number;
@@ -26,14 +26,14 @@ export type LayoutItem<TData = unknown> = {
   static?: boolean;
   draggable?: boolean | null | undefined;
   resizable?: boolean | null | undefined;
-  resizeHandles?: Array<ResizeHandleAxis>;
+  resizeHandles?: ResizeHandleAxis[];
   bounded?: boolean | null | undefined;
-};
+}
 
-export type Layout<TData = unknown> = ReadonlyArray<LayoutItem<TData>>;
+export type Layout<TData = unknown> = readonly LayoutItem<TData>[];
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
-export type GridDragEvent<TData = unknown> = {
+export interface GridDragEvent<TData = unknown> {
   type: "dragStart" | "drag" | "dragEnd";
   layout: Layout<TData>;
   previousItem: LayoutItem<TData> | null | undefined;
@@ -41,9 +41,9 @@ export type GridDragEvent<TData = unknown> = {
   placeholder: LayoutItem<TData> | null | undefined;
   event: Event;
   node: HTMLElement | null | undefined;
-};
+}
 
-export type GridResizeEvent<TData = unknown> = {
+export interface GridResizeEvent<TData = unknown> {
   type: "resizeStart" | "resize" | "resizeEnd";
   layout: Layout<TData>;
   previousItem: LayoutItem<TData> | null | undefined;
@@ -52,14 +52,14 @@ export type GridResizeEvent<TData = unknown> = {
   event: Event;
   node: HTMLElement | null | undefined;
   handle: ResizeHandleAxis;
-};
+}
 
-export type SpacingObject = {
+export interface SpacingObject {
   top: number;
   right: number;
   bottom: number;
   left: number;
-};
+}
 
 export type SpacingArray = [number, number, number, number];
 export type Spacing = number | SpacingObject;
@@ -79,7 +79,7 @@ export type ResponsiveSpacing<B extends Breakpoint = Breakpoint> =
   | Partial<Record<B, Spacing>>;
 export type MissingLayoutStrategy = "derive" | "warn" | "error" | "empty";
 
-export type ConstraintContext<TData = unknown> = {
+export interface ConstraintContext<TData = unknown> {
   cols: number;
   maxRows: number;
   containerWidth: number;
@@ -88,72 +88,72 @@ export type ConstraintContext<TData = unknown> = {
   gap: SpacingArray;
   containerPadding: SpacingArray;
   layout: Layout<TData>;
-};
+}
 
-export type LayoutConstraint<TData = unknown> = {
+export interface LayoutConstraint<TData = unknown> {
   name: string;
   constrainPosition?<TItemData extends TData>(
     item: LayoutItem<TItemData>,
     x: number,
     y: number,
-    context: ConstraintContext<TItemData>,
+    context: ConstraintContext<TItemData>
   ): { x: number; y: number };
   constrainSize?<TItemData extends TData>(
     item: LayoutItem<TItemData>,
     w: number,
     h: number,
     handle: ResizeHandleAxis,
-    context: ConstraintContext<TItemData>,
+    context: ConstraintContext<TItemData>
   ): { w: number; h: number };
-};
+}
 
-export type Compactor<TData = unknown> = {
+export interface Compactor<TData = unknown> {
   type: "horizontal" | "vertical" | null;
   allowOverlap: boolean;
   preventCollision?: boolean;
   compact<TLayoutData extends TData>(
     layout: Layout<TLayoutData>,
-    cols: number,
+    cols: number
   ): Layout<TLayoutData>;
   onMove<TLayoutData extends TData>(
     layout: Layout<TLayoutData>,
     item: LayoutItem<TLayoutData>,
     x: number,
     y: number,
-    cols: number,
+    cols: number
   ): Layout<TLayoutData>;
-};
+}
 
-export type Position = {
+export interface Position {
   left: number;
   top: number;
   width: number;
   height: number;
   deg?: number;
-};
+}
 
-export type PartialPosition = {
+export interface PartialPosition {
   left: number;
   top: number;
-};
+}
 
-export type Size = {
+export interface Size {
   width: number;
   height: number;
-};
+}
 
-export type PositionParams = {
+export interface PositionParams {
   gap: SpacingArray;
   containerPadding: SpacingArray;
   containerWidth: number;
   cols: number;
   rowHeight: number;
   maxRows: number;
-};
+}
 
 export type AnimationSpringConfig = SpringConfig;
 
-export type AnimationConfig = {
+export interface AnimationConfig {
   springs?: {
     enabled?: boolean;
     rotation?: AnimationSpringConfig;
@@ -167,4 +167,4 @@ export type AnimationConfig = {
     dragStartEasing?: string;
     dragStopEasing?: string;
   };
-};
+}

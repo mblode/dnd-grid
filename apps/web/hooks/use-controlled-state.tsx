@@ -8,16 +8,18 @@ interface CommonControlledStateProps<T> {
 export function useControlledState<T, Rest extends unknown[] = []>(
   props: CommonControlledStateProps<T> & {
     onChange?: (value: T, ...args: Rest) => void;
-  },
+  }
 ): readonly [T, (next: T, ...args: Rest) => void] {
   const { value, defaultValue, onChange } = props;
 
   const [state, setInternalState] = React.useState<T>(
-    value !== undefined ? value : (defaultValue as T),
+    value !== undefined ? value : (defaultValue as T)
   );
 
   React.useEffect(() => {
-    if (value !== undefined) setInternalState(value);
+    if (value !== undefined) {
+      setInternalState(value);
+    }
   }, [value]);
 
   const setState = React.useCallback(
@@ -25,7 +27,7 @@ export function useControlledState<T, Rest extends unknown[] = []>(
       setInternalState(next);
       onChange?.(next, ...args);
     },
-    [onChange],
+    [onChange]
   );
 
   return [state, setState] as const;

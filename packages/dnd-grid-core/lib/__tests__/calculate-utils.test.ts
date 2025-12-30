@@ -97,11 +97,15 @@ describe("calculate-utils", () => {
     });
 
     it("returns Infinity for infinite grid units", () => {
-      expect(calcGridItemWHPx(Infinity, 100, 10)).toBe(Infinity);
+      expect(calcGridItemWHPx(Number.POSITIVE_INFINITY, 100, 10)).toBe(
+        Number.POSITIVE_INFINITY
+      );
     });
 
     it("returns -Infinity for negative infinity", () => {
-      expect(calcGridItemWHPx(-Infinity, 100, 10)).toBe(-Infinity);
+      expect(calcGridItemWHPx(Number.NEGATIVE_INFINITY, 100, 10)).toBe(
+        Number.NEGATIVE_INFINITY
+      );
     });
 
     it("handles zero grid units", () => {
@@ -141,7 +145,7 @@ describe("calculate-utils", () => {
         1,
         1,
         0,
-        state,
+        state
       );
       expect(pos.width).toBe(200);
       expect(pos.height).toBe(300);
@@ -156,7 +160,7 @@ describe("calculate-utils", () => {
         1,
         1,
         0,
-        state,
+        state
       );
       expect(pos.top).toBe(50);
       expect(pos.left).toBe(100);
@@ -174,7 +178,7 @@ describe("calculate-utils", () => {
         1,
         1,
         45,
-        state,
+        state
       );
       expect(pos.top).toBe(75);
       expect(pos.left).toBe(125);
@@ -194,7 +198,7 @@ describe("calculate-utils", () => {
         1,
         1,
         0,
-        null,
+        null
       );
       expect(pos.left).toBe(10);
       expect(pos.top).toBe(10);
@@ -208,7 +212,7 @@ describe("calculate-utils", () => {
         1,
         1,
         0,
-        undefined,
+        undefined
       );
       expect(pos.left).toBe(10);
       expect(pos.top).toBe(10);
@@ -236,23 +240,23 @@ describe("calculate-utils", () => {
 
     it("respects maxRows constraint", () => {
       const params = { ...defaultPositionParams, maxRows: 5 };
-      const { y } = calcXY(params, 10000, 0, 1, 1);
+      const { y } = calcXY(params, 10_000, 0, 1, 1);
       expect(y).toBe(4);
     });
 
     it("respects cols constraint", () => {
-      const { x } = calcXY(defaultPositionParams, 0, 10000, 1, 1);
+      const { x } = calcXY(defaultPositionParams, 0, 10_000, 1, 1);
       expect(x).toBe(11);
     });
 
     it("accounts for item width when clamping x", () => {
-      const { x } = calcXY(defaultPositionParams, 0, 10000, 3, 1);
+      const { x } = calcXY(defaultPositionParams, 0, 10_000, 3, 1);
       expect(x).toBe(9);
     });
 
     it("accounts for item height when clamping y", () => {
       const params = { ...defaultPositionParams, maxRows: 10 };
-      const { y } = calcXY(params, 10000, 0, 1, 3);
+      const { y } = calcXY(params, 10_000, 0, 1, 3);
       expect(y).toBe(7);
     });
 
@@ -265,7 +269,7 @@ describe("calculate-utils", () => {
 
   describe("calcXYRaw", () => {
     it("does not clamp to grid bounds", () => {
-      const { x, y } = calcXYRaw(defaultPositionParams, 10000, 10000);
+      const { x, y } = calcXYRaw(defaultPositionParams, 10_000, 10_000);
       expect(x).toBeGreaterThan(11);
       expect(y).toBeGreaterThan(4);
     });

@@ -8,12 +8,12 @@ import type {
 } from "../types";
 import { useDndGridResponsiveLayout } from "../use-dnd-grid-responsive-layout";
 
-type TestProps = {
+interface TestProps {
   width: number;
   layouts: ResponsiveLayouts;
   gap?: Spacing | Record<string, Spacing>;
   missingLayoutStrategy?: MissingLayoutStrategy;
-};
+}
 
 const TestComponent = ({
   width,
@@ -34,11 +34,11 @@ const TestComponent = ({
 
   return (
     <div
-      data-testid="result"
       data-breakpoint={result.breakpoint}
       data-cols={result.cols}
-      data-layout={JSON.stringify(result.layout)}
       data-gap={serializedGap}
+      data-layout={JSON.stringify(result.layout)}
+      data-testid="result"
     />
   );
 };
@@ -49,7 +49,7 @@ describe("useDndGridResponsiveLayout", () => {
       lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
       md: [{ id: "a", x: 1, y: 0, w: 3, h: 2 }],
     };
-    render(<TestComponent width={1200} layouts={layouts} />);
+    render(<TestComponent layouts={layouts} width={1200} />);
 
     const node = screen.getByTestId("result");
     expect(node.dataset.breakpoint).toBe("lg");
@@ -71,20 +71,20 @@ describe("useDndGridResponsiveLayout", () => {
     };
     const { rerender } = render(
       <TestComponent
-        width={1200}
-        layouts={layouts}
         gap={gap}
+        layouts={layouts}
         missingLayoutStrategy="derive"
-      />,
+        width={1200}
+      />
     );
 
     rerender(
       <TestComponent
-        width={800}
-        layouts={layouts}
         gap={gap}
+        layouts={layouts}
         missingLayoutStrategy="derive"
-      />,
+        width={800}
+      />
     );
 
     const node = screen.getByTestId("result");
@@ -98,10 +98,10 @@ describe("useDndGridResponsiveLayout", () => {
     };
     render(
       <TestComponent
-        width={800}
         layouts={layouts}
         missingLayoutStrategy="empty"
-      />,
+        width={800}
+      />
     );
     const node = screen.getByTestId("result");
     const parsedLayout = JSON.parse(node.dataset.layout || "[]") as Layout;
@@ -119,12 +119,12 @@ describe("useDndGridResponsiveLayout", () => {
     expect(() =>
       render(
         <TestComponent
-          width={800}
-          layouts={layouts}
           gap={10}
+          layouts={layouts}
           missingLayoutStrategy="error"
-        />,
-      ),
+          width={800}
+        />
+      )
     ).toThrow(/Responsive layout.*missing/i);
 
     consoleError.mockRestore();
@@ -135,7 +135,7 @@ describe("useDndGridResponsiveLayout", () => {
       lg: [{ id: "a", x: 0, y: 0, w: 2, h: 2 }],
     };
     const { rerender } = render(
-      <TestComponent width={1200} layouts={layouts} />,
+      <TestComponent layouts={layouts} width={1200} />
     );
 
     const layoutLg = layouts.lg;
@@ -143,7 +143,7 @@ describe("useDndGridResponsiveLayout", () => {
       throw new Error("Expected lg layout");
     }
     layoutLg[0].x = 3;
-    rerender(<TestComponent width={1200} layouts={layouts} />);
+    rerender(<TestComponent layouts={layouts} width={1200} />);
 
     await waitFor(() => {
       const node = screen.getByTestId("result");

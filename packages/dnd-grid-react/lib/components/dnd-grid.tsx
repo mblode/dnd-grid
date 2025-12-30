@@ -35,7 +35,7 @@ export type DndGrid<TData = unknown> = DndGridHandle<TData>;
 
 type DndGridComponent = (<TData = unknown>(
   props: React.PropsWithoutRef<DndGridProps<TData>> &
-    React.RefAttributes<DndGridHandle<TData>>,
+    React.RefAttributes<DndGridHandle<TData>>
 ) => React.ReactElement | null) & {
   defaultProps?: typeof defaultProps;
   displayName?: string;
@@ -54,7 +54,7 @@ const DndGrid = React.forwardRef(
       width: widthProp,
       ...gridProps
     }: DndGridProps<TData>,
-    ref: React.ForwardedRef<DndGridHandle<TData>>,
+    ref: React.ForwardedRef<DndGridHandle<TData>>
   ) => {
     const shouldMeasure = widthProp === undefined;
     const {
@@ -74,11 +74,11 @@ const DndGrid = React.forwardRef(
     return (
       <div {...containerProps} ref={shouldMeasure ? containerRef : undefined}>
         {shouldRenderGrid && (
-          <DndGridCore {...gridProps} width={width} ref={ref} />
+          <DndGridCore {...gridProps} ref={ref} width={width} />
         )}
       </div>
     );
-  },
+  }
 ) as unknown as DndGridComponent;
 
 DndGrid.displayName = "DndGrid";

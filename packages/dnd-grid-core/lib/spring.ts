@@ -21,7 +21,7 @@ export const POSITION_SPRING_CONFIG = {
   restDistance: 0.5,
 };
 
-export type SpringConfig = {
+export interface SpringConfig {
   stiffness?: number;
   damping?: number;
   mass?: number;
@@ -30,20 +30,20 @@ export type SpringConfig = {
   velocity?: number;
   restSpeed?: number;
   restDistance?: number;
-};
+}
 
-export type SpringState = {
+export interface SpringState {
   done: boolean;
   hasReachedTarget: boolean;
   current: number;
   target: number;
-};
+}
 
-export type PointWithTimestamp = {
+export interface PointWithTimestamp {
   x: number;
   y: number;
   timestamp: number;
-};
+}
 
 export const createLiveSpring = (
   config: {
@@ -52,7 +52,7 @@ export const createLiveSpring = (
     mass?: number;
     restSpeed?: number;
     restDistance?: number;
-  } = {},
+  } = {}
 ) => {
   const {
     stiffness = SPRING_DEFAULTS.stiffness,
@@ -130,7 +130,7 @@ export const createLiveSpring = (
 };
 
 export const calculateVelocityFromHistory = (
-  history: PointWithTimestamp[],
+  history: PointWithTimestamp[]
 ): { x: number; y: number } => {
   if (history.length < 2) {
     return { x: 0, y: 0 };
@@ -138,7 +138,7 @@ export const calculateVelocityFromHistory = (
 
   let i = history.length - 1;
   let oldestSample: PointWithTimestamp | null = null;
-  const latest = history[history.length - 1];
+  const latest = history.at(-1);
 
   while (i >= 0) {
     oldestSample = history[i];
@@ -163,8 +163,12 @@ export const calculateVelocityFromHistory = (
     y: (latest.y - oldestSample.y) / timeDelta,
   };
 
-  if (velocity.x === Infinity) velocity.x = 0;
-  if (velocity.y === Infinity) velocity.y = 0;
+  if (velocity.x === Number.POSITIVE_INFINITY) {
+    velocity.x = 0;
+  }
+  if (velocity.y === Number.POSITIVE_INFINITY) {
+    velocity.y = 0;
+  }
 
   return velocity;
 };
@@ -178,13 +182,15 @@ export const calculateRotationWeight = (
   width: number,
   height: number,
   baselineWidth: number,
-  baselineHeight: number,
+  baselineHeight: number
 ): number => {
   if (
-    !Number.isFinite(width) ||
-    !Number.isFinite(height) ||
-    !Number.isFinite(baselineWidth) ||
-    !Number.isFinite(baselineHeight) ||
+    !(
+      Number.isFinite(width) &&
+      Number.isFinite(height) &&
+      Number.isFinite(baselineWidth) &&
+      Number.isFinite(baselineHeight)
+    ) ||
     width <= 0 ||
     height <= 0 ||
     baselineWidth <= 0 ||

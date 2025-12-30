@@ -4,7 +4,7 @@ import { useReducedMotion } from "../use-reduced-motion";
 
 const TestComponent = () => {
   const reduced = useReducedMotion();
-  return <div data-testid="value" data-reduced={String(reduced)} />;
+  return <div data-reduced={String(reduced)} data-testid="value" />;
 };
 
 const setupMatchMedia = (initial: boolean) => {
@@ -18,13 +18,13 @@ const setupMatchMedia = (initial: boolean) => {
     onchange: null,
     addEventListener: (
       _event: string,
-      listener: (event: MediaQueryListEvent) => void,
+      listener: (event: MediaQueryListEvent) => void
     ) => {
       listeners.add(listener);
     },
     removeEventListener: (
       _event: string,
-      listener: (event: MediaQueryListEvent) => void,
+      listener: (event: MediaQueryListEvent) => void
     ) => {
       listeners.delete(listener);
     },
@@ -68,7 +68,7 @@ describe("useReducedMotion", () => {
     render(<TestComponent />);
     expect(screen.getByTestId("value")).toHaveAttribute(
       "data-reduced",
-      "false",
+      "false"
     );
   });
 
@@ -77,7 +77,7 @@ describe("useReducedMotion", () => {
     render(<TestComponent />);
     expect(screen.getByTestId("value")).toHaveAttribute(
       "data-reduced",
-      "false",
+      "false"
     );
 
     act(() => {

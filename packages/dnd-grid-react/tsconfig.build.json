@@ -5,7 +5,8 @@
     "paths": {
       "@dnd-grid/core": ["../dnd-grid-core/dist/index.d.ts"],
       "@dnd-grid/core/*": ["../dnd-grid-core/dist/*"]
-    }
+    },
+    "strictNullChecks": true
   },
   "include": ["lib"],
   "exclude": ["lib/**/*.test.*", "lib/__tests__/**"]

@@ -22,19 +22,19 @@ export function AllowOverlapExample() {
 
   return (
     <div>
-      <button type="button" onClick={() => setAllowOverlap((prev) => !prev)}>
+      <button onClick={() => setAllowOverlap((prev) => !prev)} type="button">
         {allowOverlap ? "Disable overlap" : "Enable overlap"}
       </button>
 
       <DndGrid
-        layout={layout}
         cols={12}
-        rowHeight={50}
         compactor={compactor}
+        layout={layout}
         onLayoutChange={setLayout}
+        rowHeight={50}
       >
         {layout.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             {item.id}
           </div>
         ))}

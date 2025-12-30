@@ -1,15 +1,17 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
-};
+}
 
 export const MobilePaletteSheet = ({ open, onClose, children }: Props) => {
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
@@ -23,19 +25,21 @@ export const MobilePaletteSheet = ({ open, onClose, children }: Props) => {
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open) {
+    return null;
+  }
 
   return (
     <div
+      aria-modal="true"
       className="fixed inset-0 z-50 flex flex-col lg:hidden"
       role="dialog"
-      aria-modal="true"
     >
       <button
-        type="button"
+        aria-label="Close block palette"
         className="absolute inset-0 bg-transparent"
         onClick={onClose}
-        aria-label="Close block palette"
+        type="button"
       />
       <div className="relative mt-auto w-full pt-2">{children}</div>
     </div>

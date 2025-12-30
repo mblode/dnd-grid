@@ -8,22 +8,22 @@ export function SiteHeader() {
       <div className="container-wrapper">
         <div className="flex items-center justify-between">
           <Link
+            className="flex items-center gap-2 font-serif text-lg underline-offset-2 hover:underline"
             href="/"
-            className="flex items-center gap-2 text-lg underline-offset-2 hover:underline font-serif"
           >
             <Logo className="h-6 w-6 text-foreground" />
             <span>dnd-grid</span>
           </Link>
           <nav className="flex items-center gap-6">
             <a
-              href={siteConfig.links.docs}
               className="underline-offset-2 hover:underline"
+              href={siteConfig.links.docs}
             >
               Docs
             </a>
             <a
-              href={siteConfig.links.github}
               className="underline-offset-2 hover:underline"
+              href={siteConfig.links.github}
             >
               GitHub
             </a>

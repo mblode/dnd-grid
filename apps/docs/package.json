@@ -9,5 +9,11 @@
     "react-dom": "^19.2.0",
     "react-draggable": "^4.5.0",
     "react-resizable": "^3.0.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "ultracite": "^6.5.0"
   }
 }

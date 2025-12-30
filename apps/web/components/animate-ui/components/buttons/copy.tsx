@@ -13,7 +13,7 @@ import { useControlledState } from "@/hooks/use-controlled-state";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "flex items-center justify-center rounded-md transition-[box-shadow,_color,_background-color,_border-color,_outline-color,_text-decoration-color,_fill,_stroke] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "flex shrink-0 items-center justify-center rounded-md outline-none transition-[box-shadow,_color,_background-color,_border-color,_outline-color,_text-decoration-color,_fill,_stroke] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -21,9 +21,9 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         accent: "bg-accent text-accent-foreground shadow-xs hover:bg-accent/90",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
@@ -32,7 +32,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "size-9",
-        xs: "size-7 [&_svg:not([class*='size-'])]:size-3.5 rounded-md",
+        xs: "size-7 rounded-md [&_svg:not([class*='size-'])]:size-3.5",
         sm: "size-8 rounded-md",
         lg: "size-10 rounded-md",
       },
@@ -41,7 +41,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 );
 
 type CopyButtonProps = Omit<ButtonPrimitiveProps, "children"> &
@@ -71,7 +71,9 @@ function CopyButton({
   const handleCopy = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       onClick?.(e);
-      if (copied) return;
+      if (copied) {
+        return;
+      }
       if (content) {
         navigator.clipboard
           .writeText(content)
@@ -88,25 +90,25 @@ function CopyButton({
           });
       }
     },
-    [onClick, copied, content, setIsCopied, onCopiedChange, delay],
+    [onClick, copied, content, setIsCopied, onCopiedChange, delay]
   );
 
   const Icon = isCopied ? CheckIcon : CopyIcon;
 
   return (
     <ButtonPrimitive
-      data-slot="copy-button"
       className={cn(buttonVariants({ variant, size, className }))}
+      data-slot="copy-button"
       onClick={handleCopy}
       {...props}
     >
       <AnimatePresence mode="popLayout">
         <motion.span
-          key={isCopied ? "check" : "copy"}
-          data-slot="copy-button-icon"
-          initial={false}
           animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+          data-slot="copy-button-icon"
           exit={{ scale: 0, opacity: 0.4, filter: "blur(4px)" }}
+          initial={false}
+          key={isCopied ? "check" : "copy"}
           transition={{ duration: 0.25 }}
         >
           <Icon />

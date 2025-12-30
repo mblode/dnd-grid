@@ -27,22 +27,22 @@ export function ScaleExample() {
     <div>
       <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
         {scaleOptions.map((value) => (
-          <button key={value} type="button" onClick={() => setScale(value)}>
+          <button key={value} onClick={() => setScale(value)} type="button">
             {value}x
           </button>
         ))}
       </div>
 
       <DndGrid
-        layout={layout}
         cols={12}
+        containerProps={{ style: scaledStyle }}
+        layout={layout}
+        onLayoutChange={setLayout}
         rowHeight={50}
         transformScale={scale}
-        onLayoutChange={setLayout}
-        containerProps={{ style: scaledStyle }}
       >
         {layout.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             {item.id}
           </div>
         ))}

@@ -78,14 +78,14 @@ const useMediaQuery = (query: string) => {
   return matches;
 };
 
-type DndRect = {
+interface DndRect {
   top: number;
   right: number;
   bottom: number;
   left: number;
   width: number;
   height: number;
-};
+}
 
 const findEmptyPosition = ({
   layouts,
@@ -101,7 +101,7 @@ const findEmptyPosition = ({
   gridHeight: number;
 }): { x: number; y: number } => {
   const grid = Array.from({ length: gridHeight }, () =>
-    Array.from({ length: gridWidth }, () => false),
+    Array.from({ length: gridWidth }, () => false)
   );
 
   layouts.forEach((item) => {
@@ -138,7 +138,7 @@ const findEmptyPosition = ({
 
   return {
     x: 0,
-    y: Infinity,
+    y: Number.POSITIVE_INFINITY,
   };
 };
 
@@ -241,9 +241,13 @@ const resolveDropLayout = ({
 
 const resolveTranslatedRect = (event: DragMoveEvent): DndRect | null => {
   const translated = event.active.rect.current.translated;
-  if (translated) return translated;
+  if (translated) {
+    return translated;
+  }
   const initial = event.active.rect.current.initial;
-  if (!initial) return null;
+  if (!initial) {
+    return null;
+  }
   return {
     ...initial,
     left: initial.left + event.delta.x,
@@ -254,7 +258,9 @@ const resolveTranslatedRect = (event: DragMoveEvent): DndRect | null => {
 };
 
 const getPointerCoordinates = (event?: Event | null) => {
-  if (!event) return null;
+  if (!event) {
+    return null;
+  }
   if ("touches" in event) {
     const touchEvent = event as TouchEvent;
     const touch = touchEvent.touches[0] ?? touchEvent.changedTouches[0];
@@ -307,7 +313,7 @@ export const BlocksGrid = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activePaletteId, setActivePaletteId] = useState<BlockKind | null>(
-    null,
+    null
   );
   const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY);
   const canHover = useMediaQuery("(any-hover: hover)");
@@ -336,7 +342,7 @@ export const BlocksGrid = () => {
         tolerance: 10,
       },
     }),
-    useSensor(KeyboardSensor),
+    useSensor(KeyboardSensor)
   );
 
   const openPalette = useCallback(() => {
@@ -372,7 +378,7 @@ export const BlocksGrid = () => {
       handlers.setSelectedId(id);
       handlers.setHoveredId(id);
     },
-    [handlers],
+    [handlers]
   );
 
   const handleSelectItem = useCallback(
@@ -380,7 +386,7 @@ export const BlocksGrid = () => {
       selectItem(id);
       setIsEditing(false);
     },
-    [selectItem],
+    [selectItem]
   );
 
   const handleEditItem = useCallback(
@@ -389,7 +395,7 @@ export const BlocksGrid = () => {
       setIsEditing(true);
       openPalette();
     },
-    [openPalette, selectItem],
+    [openPalette, selectItem]
   );
 
   const handleItemClick = useCallback(
@@ -400,7 +406,7 @@ export const BlocksGrid = () => {
       }
       handleSelectItem(id);
     },
-    [handleEditItem, handleSelectItem, isDesktop],
+    [handleEditItem, handleSelectItem, isDesktop]
   );
 
   const clearSelection = useCallback(() => {
@@ -434,11 +440,13 @@ export const BlocksGrid = () => {
     const active = event.active.data.current?.palette as
       | PaletteItem
       | undefined;
-    if (!active) return;
+    if (!active) {
+      return;
+    }
     dragItemRef.current = active;
     setActivePaletteId(active.kind);
     dragStartPointerRef.current = getPointerCoordinates(
-      event.activatorEvent ?? null,
+      event.activatorEvent ?? null
     );
     lastPointerRef.current = dragStartPointerRef.current;
     lastPointerEventRef.current = event.activatorEvent ?? null;
@@ -509,7 +517,7 @@ export const BlocksGrid = () => {
         event: pointerEvent,
       });
     },
-    [containerRef, isDesktop, isPaletteOpen],
+    [containerRef, isDesktop, isPaletteOpen]
   );
 
   const handleDndDragEnd = useCallback(
@@ -542,7 +550,7 @@ export const BlocksGrid = () => {
         });
       }
     },
-    [resetDndState],
+    [resetDndState]
   );
 
   const handleDndDragCancel = useCallback(
@@ -562,12 +570,12 @@ export const BlocksGrid = () => {
         });
       }
     },
-    [resetDndState],
+    [resetDndState]
   );
 
   const activePaletteItem = useMemo(
     () => paletteItems.find((item) => item.kind === activePaletteId) ?? null,
-    [activePaletteId],
+    [activePaletteId]
   );
 
   const measuredWidth = width > 0 ? width : DEFAULT_WIDTH;
@@ -580,7 +588,7 @@ export const BlocksGrid = () => {
         "--dnd-grid-scale": scaleValue,
         "--blocks-grid-max": `${MAX_WIDTH}px`,
       }) as CSSProperties,
-    [scaleValue],
+    [scaleValue]
   );
 
   const layout = useMemo<Layout>(
@@ -592,20 +600,20 @@ export const BlocksGrid = () => {
         w,
         h,
       })),
-    [items],
+    [items]
   );
 
   const selectedItem = items.find((item) => item.id === selectedId) ?? null;
 
   const updateItem = useCallback((id: string, patch: Partial<GridItem>) => {
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+      prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
     );
   }, []);
 
   const handleLayoutChange = useCallback((nextLayout: Layout) => {
     const layoutById = new Map(
-      nextLayout.map((layoutItem) => [layoutItem.id, layoutItem]),
+      nextLayout.map((layoutItem) => [layoutItem.id, layoutItem])
     );
     setItems((prev) =>
       prev.map((item) => {
@@ -613,7 +621,7 @@ export const BlocksGrid = () => {
         return next
           ? { ...item, x: next.x, y: next.y, w: next.w, h: next.h }
           : item;
-      }),
+      })
     );
   }, []);
 
@@ -624,18 +632,22 @@ export const BlocksGrid = () => {
         clearSelection();
       }
     },
-    [clearSelection, selectedId],
+    [clearSelection, selectedId]
   );
 
   const handleDuplicate = useCallback(
     (id: string) => {
       const source = items.find((item) => item.id === id);
-      if (!source) return;
+      if (!source) {
+        return;
+      }
       const sm = getSm({
         layouts: layout,
         selectedBlockId: id,
       });
-      if (!sm) return;
+      if (!sm) {
+        return;
+      }
       const nextId = `k${nextIdRef.current}`;
       nextIdRef.current += 1;
       setItems((prev) => [
@@ -651,7 +663,7 @@ export const BlocksGrid = () => {
       ]);
       selectItem(nextId);
     },
-    [items, layout, selectItem],
+    [items, layout, selectItem]
   );
 
   const handlePaletteClick = useCallback(
@@ -660,7 +672,9 @@ export const BlocksGrid = () => {
         layouts: layout,
         currentBlock: { w: item.w, h: item.h },
       });
-      if (!sm) return;
+      if (!sm) {
+        return;
+      }
       const nextId = `k${nextIdRef.current}`;
       nextIdRef.current += 1;
       setItems((prev) => [
@@ -681,7 +695,7 @@ export const BlocksGrid = () => {
         setIsPaletteOpen(false);
       }
     },
-    [isDesktop, layout, selectItem],
+    [isDesktop, layout, selectItem]
   );
 
   const handleDropDragOver = useCallback(() => {
@@ -692,7 +706,9 @@ export const BlocksGrid = () => {
   const handleDrop = useCallback(
     (_layout: Layout, item?: LayoutItem | null) => {
       const active = dragItemRef.current;
-      if (!active || !item) return;
+      if (!(active && item)) {
+        return;
+      }
       const nextId = `k${nextIdRef.current}`;
       nextIdRef.current += 1;
       setItems((prev) => {
@@ -715,7 +731,7 @@ export const BlocksGrid = () => {
           dropItem,
         });
         const layoutById = new Map(
-          nextLayout.map((entry) => [entry.id, entry]),
+          nextLayout.map((entry) => [entry.id, entry])
         );
         const nextItems = prev.map((entry) => {
           const next = layoutById.get(entry.id);
@@ -742,7 +758,7 @@ export const BlocksGrid = () => {
       setActivePaletteId(null);
       selectItem(nextId);
     },
-    [selectItem],
+    [selectItem]
   );
 
   const rowHeight = BLOCK_HEIGHT * scaleFactor;
@@ -752,7 +768,9 @@ export const BlocksGrid = () => {
     return available / BLOCK_COLUMNS;
   }, [gridWidth, margin]);
   const dragOverlayStyle = useMemo(() => {
-    if (!activePaletteItem) return null;
+    if (!activePaletteItem) {
+      return null;
+    }
     const width =
       columnWidth * activePaletteItem.w + margin * (activePaletteItem.w - 1);
     const height =
@@ -775,51 +793,51 @@ export const BlocksGrid = () => {
 
   return (
     <DndContext
-      sensors={sensors}
-      onDragStart={handleDndDragStart}
-      onDragMove={handleDndDragMove}
-      onDragEnd={handleDndDragEnd}
       onDragCancel={handleDndDragCancel}
+      onDragEnd={handleDndDragEnd}
+      onDragMove={handleDndDragMove}
+      onDragStart={handleDndDragStart}
+      sensors={sensors}
     >
       <div className="relative" style={scaleStyle}>
-        <div className="grid gap-fluid-4 lg:grid-cols-[minmax(0,var(--blocks-grid-max))_260px] lg:justify-center pb-12 lg:pb-0">
+        <div className="grid gap-fluid-4 pb-12 lg:grid-cols-[minmax(0,var(--blocks-grid-max))_260px] lg:justify-center lg:pb-0">
           <div
+            className="mx-auto w-full"
             ref={containerRef}
-            className="w-full mx-auto"
             style={{ maxWidth: MAX_WIDTH }}
           >
             {mounted && measuredWidth > 0 ? (
               <DndGrid
-                ref={gridApiRef}
-                layout={layout}
                 cols={BLOCK_COLUMNS}
-                rowHeight={rowHeight}
+                dragCancel=".kitchen-sink-action"
                 gap={margin}
-                resizeHandles={["ne", "nw", "se", "sw"]}
+                layout={layout}
+                onDrag={handlers.handleDrag}
+                onDragEnd={handlers.handleDragEnd}
+                onDragStart={handlers.handleDragStart}
                 onDrop={handleDrop}
                 onDropDragOver={handleDropDragOver}
                 onLayoutChange={handleLayoutChange}
-                onDragStart={handlers.handleDragStart}
-                onDrag={handlers.handleDrag}
-                onDragEnd={handlers.handleDragEnd}
-                onResizeStart={handlers.handleResizeStart}
                 onResize={handlers.handleResize}
                 onResizeEnd={handlers.handleResizeEnd}
-                dragCancel=".kitchen-sink-action"
+                onResizeStart={handlers.handleResizeStart}
+                ref={gridApiRef}
+                resizeHandles={["ne", "nw", "se", "sw"]}
+                rowHeight={rowHeight}
               >
                 {items.map((item) => (
                   <BlocksGridItem
-                    key={item.id}
-                    item={item}
-                    isSelected={selectedId === item.id}
-                    isHovered={hoveredId === item.id}
                     canHover={canHover}
+                    isHovered={hoveredId === item.id}
+                    isSelected={selectedId === item.id}
+                    item={item}
+                    key={item.id}
+                    onDelete={() => handleDelete(item.id)}
+                    onDuplicate={() => handleDuplicate(item.id)}
+                    onEdit={() => handleEditItem(item.id)}
                     onHover={() => handlers.handleHover(item.id)}
                     onHoverEnd={() => handlers.handleHover(null)}
                     onSelect={() => handleItemClick(item.id)}
-                    onEdit={() => handleEditItem(item.id)}
-                    onDuplicate={() => handleDuplicate(item.id)}
-                    onDelete={() => handleDelete(item.id)}
                   />
                 ))}
               </DndGrid>
@@ -839,10 +857,10 @@ export const BlocksGrid = () => {
         <div className="px-4 lg:hidden">
           <div className="mx-auto w-full">
             <Button
-              type="button"
-              size="lg"
               className="w-full justify-center"
               onClick={handleOpenAdd}
+              size="lg"
+              type="button"
             >
               <Plus className="size-4" />
               Add block
@@ -851,17 +869,17 @@ export const BlocksGrid = () => {
         </div>
 
         <MobilePaletteSheet
-          open={!isDesktop && isPaletteOpen}
           onClose={handleClosePalette}
+          open={!isDesktop && isPaletteOpen}
         >
           <div className="mx-auto w-full">
-            <div className="px-4 mb-2 flex justify-end">
+            <div className="mb-2 flex justify-end px-4">
               <Button
+                className="bg-card! shadow-xs"
+                onClick={handleClosePalette}
+                size="sm"
                 type="button"
                 variant="outline"
-                size="sm"
-                className="shadow-xs bg-card!"
-                onClick={handleClosePalette}
               >
                 Done
               </Button>

@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type Props = {
+interface Props {
   w: number;
   x: number;
   children: ReactNode;
-};
+}
 
 export const ActionBar = ({ w, x, children }: Props) => {
   const positionClassName = cn({
@@ -24,20 +24,20 @@ export const ActionBar = ({ w, x, children }: Props) => {
     // biome-ignore lint/a11y/noStaticElementInteractions: stops event propagation to grid
     <div
       className={cn(
-        "kitchen-sink-action pointer-events-auto absolute bottom-0 pt-2 translate-y-full left-1/2 z-20",
-        positionClassName,
+        "kitchen-sink-action pointer-events-auto absolute bottom-0 left-1/2 z-20 translate-y-full pt-2",
+        positionClassName
       )}
       onMouseDown={stopPropagation}
       onPointerDown={stopPropagation}
     >
-      <div className="relative rounded-4xl bg-card p-2 font-sans font-normal text-foreground shadow-(--widget-shadow) ring-1 ring-transparent dark:ring-border">
-        <div className="flex items-center gap-1 text-[10px] font-medium">
+      <div className="relative rounded-4xl bg-card p-2 font-normal font-sans text-foreground shadow-(--widget-shadow) ring-1 ring-transparent dark:ring-border">
+        <div className="flex items-center gap-1 font-medium text-[10px]">
           {children}
         </div>
         <div
           className={cn(
-            "absolute z-10 size-3 bg-card border border-transparent dark:border-border top-0 rounded-tl-[3px] -translate-y-1/2 -translate-x-1/2 left-1/2 rotate-45",
-            pointerClassName,
+            "absolute top-0 left-1/2 z-10 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl-[3px] border border-transparent bg-card dark:border-border",
+            pointerClassName
           )}
           style={{ clipPath: "polygon(0 0, 0% 100%, 100% 0)" }}
         />

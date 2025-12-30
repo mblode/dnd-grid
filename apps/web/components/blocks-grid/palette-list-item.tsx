@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { PaletteDraggable } from "./palette-draggable";
 import type { PaletteItem } from "./types";
 
-type Props = {
+interface Props {
   item: PaletteItem;
   previewHeight: number;
   previewScale: number;
   onAdd: (item: PaletteItem) => void;
-};
+}
 
 export const PaletteListItem = ({
   item,
@@ -20,21 +20,21 @@ export const PaletteListItem = ({
   const scaleValue = previewScale.toFixed(4);
 
   return (
-    <div className="border-b-2 border-border pb-fluid-5 pt-fluid-4 last:border-b-0 last:pb-0">
+    <div className="border-border border-b-2 pt-fluid-4 pb-fluid-5 last:border-b-0 last:pb-0">
       <div className="mb-fluid-3 flex items-start gap-2">
         <div className="flex-1 space-y-1">
-          <div className="text-sm font-semibold text-foreground">
+          <div className="font-semibold text-foreground text-sm">
             {item.name}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             {item.description}
           </div>
         </div>
         <Button
+          onClick={() => onAdd(item)}
+          size="sm"
           type="button"
           variant="outline"
-          size="sm"
-          onClick={() => onAdd(item)}
         >
           <Plus className="size-3" />
           Add
@@ -42,13 +42,13 @@ export const PaletteListItem = ({
       </div>
       <PaletteDraggable
         item={item}
+        onClick={onAdd}
         previewHeight={previewHeight}
         style={
           {
             "--dnd-grid-scale": scaleValue,
           } as CSSProperties
         }
-        onClick={onAdd}
       />
     </div>
   );

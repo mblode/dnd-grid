@@ -13,7 +13,7 @@ import { paletteItems } from "./data";
 import { PaletteListItem } from "./palette-list-item";
 import type { GridItem, PaletteItem } from "./types";
 
-type Props = {
+interface Props {
   isEditing: boolean;
   selectedItem: GridItem | null;
   onBack: () => void;
@@ -21,7 +21,7 @@ type Props = {
   onTitleChange: (id: string, nextTitle: string) => void;
   className?: string;
   isPalette?: boolean;
-};
+}
 
 export const BlocksGridPanel = ({
   isEditing,
@@ -53,33 +53,33 @@ export const BlocksGridPanel = ({
   return (
     <div
       className={cn(
-        "rounded-t-[32px] md:rounded-b-[32px] bg-neutral-50 dark:bg-card border border-border p-4 text-xs shadow-2xl",
-        className,
+        "rounded-t-[32px] border border-border bg-neutral-50 p-4 text-xs shadow-2xl md:rounded-b-[32px] dark:bg-card",
+        className
       )}
     >
       {isEditPanel && !isPalette && (
         <div className="mb-3">
-          <Button type="button" variant="outline" size="sm" onClick={onBack}>
+          <Button onClick={onBack} size="sm" type="button" variant="outline">
             Back
           </Button>
         </div>
       )}
 
-      <div className="text-lg font-serif mb-3">
+      <div className="mb-3 font-serif text-lg">
         {isEditPanel ? selectedItem?.name : "Add block"}
       </div>
 
       {isAddPanel ? (
-        <div ref={containerRef} className="flex flex-col">
+        <div className="flex flex-col" ref={containerRef}>
           {paletteItems.map((item) => {
             const { height, scale } = getPreviewMetrics(item);
             return (
               <PaletteListItem
-                key={item.kind}
                 item={item}
+                key={item.kind}
+                onAdd={onPaletteClick}
                 previewHeight={height}
                 previewScale={scale}
-                onAdd={onPaletteClick}
               />
             );
           })}
@@ -90,10 +90,10 @@ export const BlocksGridPanel = ({
             <div className="space-y-1">
               <Label>Title</Label>
               <Input
-                value={selectedItem.title}
                 onChange={(event) =>
                   onTitleChange(selectedItem.id, event.target.value)
                 }
+                value={selectedItem.title}
               />
             </div>
           </div>

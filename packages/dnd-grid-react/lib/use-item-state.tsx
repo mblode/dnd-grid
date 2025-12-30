@@ -1,13 +1,13 @@
 import { createContext, useContext } from "react";
 import type { ItemState, LayoutItem } from "./types";
 
-type ItemContext<TData = unknown> = {
+interface ItemContext<TData = unknown> {
   item: LayoutItem<TData>;
   state: ItemState;
-};
+}
 
 export const DndGridItemContext = createContext<ItemContext<unknown> | null>(
-  null,
+  null
 );
 
 export const useOptionalDndGridItemState = <
@@ -39,7 +39,7 @@ export const useDndGridItemState = <TData = unknown>(): ItemContext<TData> => {
   if (!context) {
     throw new Error(
       "useDndGridItemState must be used within a DndGrid item. " +
-        "Make sure your component is rendered as a child of a DndGrid.",
+        "Make sure your component is rendered as a child of a DndGrid."
     );
   }
   return context as ItemContext<TData>;

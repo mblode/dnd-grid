@@ -1,8 +1,8 @@
-type Env = {
+interface Env {
   DOCS_URL?: string;
   CUSTOM_URL?: string;
   LANDING_URL?: string;
-};
+}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {

@@ -15,15 +15,15 @@ export function StaticElementsExample() {
 
   return (
     <DndGrid
-      layout={layout}
       cols={12}
-      rowHeight={50}
+      layout={layout}
       onLayoutChange={setLayout}
+      rowHeight={50}
     >
       {layout.map((item) => (
         <div
-          key={item.id}
           className={item.static ? "static-item" : "grid-item"}
+          key={item.id}
         >
           {item.id} {item.static ? "(static)" : ""}
         </div>

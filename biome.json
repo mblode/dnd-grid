@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -8,7 +8,6 @@
   "files": {
     "ignoreUnknown": true,
     "includes": [
-      "**",
       "!**/node_modules",
       "!**/dist",
       "!**/build",
@@ -32,10 +31,34 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noMisplacedAssertion": "off",
+        "useAwait": "off",
+        "noEmptyBlockStatements": "off",
+        "noEvolvingTypes": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off",
+        "useTopLevelRegex": "off",
+        "noBarrelFile": "off"
+      },
+      "a11y": {
+        "useSemanticElements": "off",
+        "noNoninteractiveElementInteractions": "off"
+      },
+      "style": {
+        "noExportedImports": "off",
+        "noEnum": "off",
+        "useForOf": "off",
+        "noNestedTernary": "off",
+        "noParameterAssign": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noExcessiveCognitiveComplexity": "off"
       }
     },
     "domains": {
@@ -49,5 +72,6 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "extends": ["ultracite/core", "ultracite/react", "ultracite/next"]
 }

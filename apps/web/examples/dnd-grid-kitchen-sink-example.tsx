@@ -21,21 +21,21 @@ import {
 } from "@dnd-kit/core";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-type PaletteItem = {
+interface PaletteItem {
   id: string;
   title: string;
   w: number;
   h: number;
-};
+}
 
-type GridItem = {
+interface GridItem {
   id: string;
   title: string;
   w: number;
   h: number;
   x: number;
   y: number;
-};
+}
 
 const paletteItems: PaletteItem[] = [
   { id: "text", title: "Text", w: 4, h: 4 },
@@ -65,7 +65,7 @@ const findEmptyPosition = ({
   gridHeight: number;
 }): { x: number; y: number } => {
   const grid = Array.from({ length: gridHeight }, () =>
-    Array.from({ length: gridWidth }, () => false),
+    Array.from({ length: gridWidth }, () => false)
   );
 
   layouts.forEach((item) => {
@@ -89,7 +89,9 @@ const findEmptyPosition = ({
             break;
           }
         }
-        if (!hasSpace) break;
+        if (!hasSpace) {
+          break;
+        }
       }
 
       if (hasSpace) {
@@ -98,7 +100,7 @@ const findEmptyPosition = ({
     }
   }
 
-  return { x: 0, y: Infinity };
+  return { x: 0, y: Number.POSITIVE_INFINITY };
 };
 
 const getSm = ({
@@ -201,7 +203,9 @@ const resolveDropLayout = ({
 };
 
 const getPointerCoordinates = (event?: Event | null) => {
-  if (!event) return null;
+  if (!event) {
+    return null;
+  }
   if ("touches" in event) {
     const touchEvent = event as TouchEvent;
     const touch = touchEvent.touches[0] ?? touchEvent.changedTouches[0];
@@ -216,11 +220,11 @@ const getPointerCoordinates = (event?: Event | null) => {
   return null;
 };
 
-type PaletteDraggableProps = {
+interface PaletteDraggableProps {
   item: PaletteItem;
   isActive: boolean;
   onClick?: (item: PaletteItem) => void;
-};
+}
 
 const PaletteDraggable = ({
   item,
@@ -241,7 +245,9 @@ const PaletteDraggable = ({
       {...listeners}
       {...attributes}
       onClick={() => {
-        if (isDragging) return;
+        if (isDragging) {
+          return;
+        }
         onClick?.(item);
       }}
       style={{
@@ -278,7 +284,7 @@ export function KitchenSinkExample() {
     useSensor(TouchSensor, {
       activationConstraint: { delay: 250, tolerance: 10 },
     }),
-    useSensor(KeyboardSensor),
+    useSensor(KeyboardSensor)
   );
 
   const layout = useMemo<Layout>(
@@ -290,12 +296,12 @@ export function KitchenSinkExample() {
         w,
         h,
       })),
-    [items],
+    [items]
   );
 
   const activePaletteItem = useMemo(
     () => paletteItems.find((item) => item.id === activePaletteId) ?? null,
-    [activePaletteId],
+    [activePaletteId]
   );
 
   const selectItem = useCallback((id: string | null) => {
@@ -318,7 +324,7 @@ export function KitchenSinkExample() {
       prev.map((item) => {
         const next = nextLayout.find((layoutItem) => layoutItem.id === item.id);
         return next ? { ...item, ...next } : item;
-      }),
+      })
     );
   };
 
@@ -331,9 +337,13 @@ export function KitchenSinkExample() {
 
   const handleDuplicate = (id: string) => {
     const source = items.find((item) => item.id === id);
-    if (!source) return;
+    if (!source) {
+      return;
+    }
     const sm = getSm({ layouts: layout, selectedBlockId: id });
-    if (!sm) return;
+    if (!sm) {
+      return;
+    }
     const nextId = `k${nextIdRef.current}`;
     nextIdRef.current += 1;
     setItems((prev) => [
@@ -355,7 +365,9 @@ export function KitchenSinkExample() {
       layouts: layout,
       currentBlock: { w: item.w, h: item.h },
     });
-    if (!sm) return;
+    if (!sm) {
+      return;
+    }
     const nextId = `k${nextIdRef.current}`;
     nextIdRef.current += 1;
     setItems((prev) => [
@@ -379,7 +391,9 @@ export function KitchenSinkExample() {
 
   const handleDrop = (_layout: Layout, item?: LayoutItem | null) => {
     const active = dragItemRef.current;
-    if (!active || !item) return;
+    if (!(active && item)) {
+      return;
+    }
     const nextId = `k${nextIdRef.current}`;
     nextIdRef.current += 1;
     setItems((prev) => {
@@ -428,7 +442,9 @@ export function KitchenSinkExample() {
     const active = event.active.data.current?.palette as
       | PaletteItem
       | undefined;
-    if (!active) return;
+    if (!active) {
+      return;
+    }
     dragItemRef.current = active;
     setActivePaletteId(active.id);
     const initial = event.active.rect.current.initial;
@@ -445,7 +461,9 @@ export function KitchenSinkExample() {
 
   const handleDndDragMove = useCallback((event: DragMoveEvent) => {
     const translated = event.active.rect.current.translated;
-    if (!translated) return;
+    if (!translated) {
+      return;
+    }
 
     const gridRect = gridRef.current?.getBoundingClientRect();
     if (!gridRect) {
@@ -483,7 +501,7 @@ export function KitchenSinkExample() {
         left: pointerX,
         width: 0,
         height: 0,
-      },
+      }
     );
   }, []);
 
@@ -494,14 +512,14 @@ export function KitchenSinkExample() {
 
       if (shouldDrop) {
         gridApiRef.current?.handleDndRect(
-          event.activatorEvent ?? new Event("drop"),
+          event.activatorEvent ?? new Event("drop")
         );
         return;
       }
 
       gridApiRef.current?.handleDndRect();
     },
-    [resetDndState],
+    [resetDndState]
   );
 
   const handleDndDragCancel = useCallback(() => {
@@ -515,11 +533,11 @@ export function KitchenSinkExample() {
 
   return (
     <DndContext
-      sensors={sensors}
-      onDragStart={handleDndDragStart}
-      onDragMove={handleDndDragMove}
-      onDragEnd={handleDndDragEnd}
       onDragCancel={handleDndDragCancel}
+      onDragEnd={handleDndDragEnd}
+      onDragMove={handleDndDragMove}
+      onDragStart={handleDndDragStart}
+      sensors={sensors}
     >
       <div
         style={{
@@ -530,15 +548,15 @@ export function KitchenSinkExample() {
       >
         <div ref={gridRef}>
           <DndGrid
-            ref={gridApiRef}
-            layout={layout}
             cols={4}
-            rowHeight={40}
-            resizeHandles={["ne", "nw", "se", "sw"]}
+            dragCancel=".kitchen-sink-action"
+            layout={layout}
             onDrop={handleDrop}
             onDropDragOver={handleDropDragOver}
             onLayoutChange={handleLayoutChange}
-            dragCancel=".kitchen-sink-action"
+            ref={gridApiRef}
+            resizeHandles={["ne", "nw", "se", "sw"]}
+            rowHeight={40}
           >
             {items.map((item) => {
               const isSelected = selectedId === item.id;
@@ -554,11 +572,10 @@ export function KitchenSinkExample() {
                   }}
                 >
                   <button
-                    type="button"
-                    onMouseEnter={() => setHoveredId(item.id)}
+                    onClick={() => selectItem(item.id)}
                     onFocus={() => setHoveredId(item.id)}
                     onMouseDown={() => selectItem(item.id)}
-                    onClick={() => selectItem(item.id)}
+                    onMouseEnter={() => setHoveredId(item.id)}
                     style={{
                       appearance: "none",
                       width: "100%",
@@ -576,6 +593,7 @@ export function KitchenSinkExample() {
                         : "none",
                       cursor: "grab",
                     }}
+                    type="button"
                   >
                     <div style={{ fontWeight: 600 }}>{item.title}</div>
                   </button>
@@ -597,18 +615,18 @@ export function KitchenSinkExample() {
                         zIndex: 130,
                       }}
                     >
-                      <button type="button" onClick={() => selectItem(item.id)}>
+                      <button onClick={() => selectItem(item.id)} type="button">
                         Edit
                       </button>
                       <button
-                        type="button"
                         onClick={() => handleDuplicate(item.id)}
+                        type="button"
                       >
                         Duplicate
                       </button>
                       <button
-                        type="button"
                         onClick={() => handleDelete(item.id)}
+                        type="button"
                       >
                         Delete
                       </button>
@@ -640,7 +658,6 @@ export function KitchenSinkExample() {
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {isEditPanel && (
                 <button
-                  type="button"
                   onClick={() => setIsEditing(false)}
                   style={{
                     borderRadius: 999,
@@ -649,6 +666,7 @@ export function KitchenSinkExample() {
                     border: "1px solid #e5e7eb",
                     background: "#fff",
                   }}
+                  type="button"
                 >
                   Back
                 </button>
@@ -663,9 +681,9 @@ export function KitchenSinkExample() {
             <div style={{ display: "grid", gap: 8 }}>
               {paletteItems.map((item) => (
                 <PaletteDraggable
-                  key={item.id}
-                  item={item}
                   isActive={activePaletteId === item.id}
+                  item={item}
+                  key={item.id}
                   onClick={handlePaletteClick}
                 />
               ))}
@@ -675,14 +693,13 @@ export function KitchenSinkExample() {
               <label style={{ display: "grid", gap: 4 }}>
                 <div style={{ fontSize: 10, color: "#6b7280" }}>Title</div>
                 <input
-                  value={selectedItem.title}
                   onChange={(event) =>
                     setItems((prev) =>
                       prev.map((item) =>
                         item.id === selectedItem.id
                           ? { ...item, title: event.target.value }
-                          : item,
-                      ),
+                          : item
+                      )
                     )
                   }
                   style={{
@@ -695,6 +712,7 @@ export function KitchenSinkExample() {
                     fontSize: 14,
                     boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
                   }}
+                  value={selectedItem.title}
                 />
               </label>
             )

@@ -8,7 +8,7 @@ export type DndGridCoreHandle<TData = unknown> = UseDndGridApi<TData>;
 
 type DndGridCoreComponent = (<TData = unknown>(
   props: React.PropsWithoutRef<DndGridCoreProps<TData>> &
-    React.RefAttributes<DndGridCoreHandle<TData>>,
+    React.RefAttributes<DndGridCoreHandle<TData>>
 ) => React.ReactElement | null) & {
   displayName?: string;
 };
@@ -16,7 +16,7 @@ type DndGridCoreComponent = (<TData = unknown>(
 const DndGridCore = React.forwardRef(
   <TData,>(
     incomingProps: DndGridCoreProps<TData>,
-    ref: React.ForwardedRef<DndGridCoreHandle<TData>>,
+    ref: React.ForwardedRef<DndGridCoreHandle<TData>>
   ) => {
     const { gridProps, itemProps, liveRegionElement, api } =
       useDndGrid<TData>(incomingProps);
@@ -25,7 +25,9 @@ const DndGridCore = React.forwardRef(
 
     const children = React.Children.map(incomingProps.children, (child) => {
       const childProps = itemProps.getItemProps(child);
-      if (!childProps) return null;
+      if (!childProps) {
+        return null;
+      }
       return <GridItem {...childProps} />;
     });
     const droppingProps = itemProps.getDroppingItemProps();
@@ -39,7 +41,7 @@ const DndGridCore = React.forwardRef(
         {placeholderProps && <GridItem {...placeholderProps} />}
       </div>
     );
-  },
+  }
 ) as unknown as DndGridCoreComponent;
 
 DndGridCore.displayName = "DndGridCore";

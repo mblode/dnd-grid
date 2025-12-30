@@ -18,7 +18,9 @@ export function LocalStorageExample() {
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
+    if (!saved) {
+      return;
+    }
     try {
       setLayout(JSON.parse(saved));
     } catch {
@@ -38,18 +40,18 @@ export function LocalStorageExample() {
 
   return (
     <div>
-      <button type="button" onClick={resetLayout}>
+      <button onClick={resetLayout} type="button">
         Reset Layout
       </button>
 
       <DndGrid
-        layout={layout}
         cols={12}
-        rowHeight={50}
+        layout={layout}
         onLayoutChange={handleLayoutChange}
+        rowHeight={50}
       >
         {layout.map((item) => (
-          <div key={item.id} className="grid-item">
+          <div className="grid-item" key={item.id}>
             {item.id}
           </div>
         ))}

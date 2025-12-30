@@ -4,7 +4,7 @@ export function ExamplePlaceholder({ title, description }) {
   return (
     <ExampleFrame>
       <div className="space-y-2">
-        <div className="text-sm font-semibold text-zinc-900 dark:text-white">
+        <div className="font-semibold text-sm text-zinc-900 dark:text-white">
           {title}
         </div>
         {description ? (

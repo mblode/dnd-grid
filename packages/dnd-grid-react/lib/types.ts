@@ -46,15 +46,15 @@ export type {
 } from "@dnd-grid/core";
 
 // util
-export type ReactRef<T extends HTMLElement> = {
+export interface ReactRef<T extends HTMLElement> {
   readonly current: T | null;
-};
+}
 
 export type ResizeHandle =
   | ReactElement
   | ((
       resizeHandleAxis: ResizeHandleAxis,
-      ref: ReactRef<HTMLElement>,
+      ref: ReactRef<HTMLElement>
     ) => ReactElement);
 
 export enum AutoScrollActivator {
@@ -67,12 +67,12 @@ export enum TraversalOrder {
   ReversedTreeOrder = 1,
 }
 
-export type CallbackThrottleOptions = {
+export interface CallbackThrottleOptions {
   drag?: number;
   resize?: number;
-};
+}
 
-export type AutoScrollOptions = {
+export interface AutoScrollOptions {
   acceleration?: number;
   activator?: AutoScrollActivator;
   canScroll?: (element: Element) => boolean;
@@ -89,17 +89,17 @@ export type AutoScrollOptions = {
     x: number;
     y: number;
   };
-};
+}
 
 /**
  * State of a grid item during interactions
  */
-export type ItemState = {
+export interface ItemState {
   dragging: boolean;
   resizing: boolean;
   settling: boolean;
   disabled: boolean;
-};
+}
 
 /**
  * Slot props for customizing internal elements
@@ -115,7 +115,7 @@ type HandleSlotStyle =
   | CSSProperties
   | ((axis: ResizeHandleAxis, state?: ItemState) => CSSProperties);
 
-export type SlotProps<TData = unknown> = {
+export interface SlotProps<TData = unknown> {
   item?: {
     className?: SlotClassName<LayoutItem<TData>>;
     style?: SlotStyle<LayoutItem<TData>>;
@@ -128,18 +128,18 @@ export type SlotProps<TData = unknown> = {
     className?: HandleSlotClassName;
     style?: HandleSlotStyle;
   };
-};
+}
 
 export type ReducedMotionSetting = "system" | "always" | "never";
 
-export type LiveRegionSettings = {
+export interface LiveRegionSettings {
   role?: AriaRole;
   ariaLive?: AriaAttributes["aria-live"];
   ariaAtomic?: boolean;
   ariaRelevant?: AriaAttributes["aria-relevant"];
-};
+}
 
-export type LiveAnnouncementContext<TData = unknown> = {
+export interface LiveAnnouncementContext<TData = unknown> {
   item: LayoutItem<TData> | null | undefined;
   previousItem?: LayoutItem<TData> | null | undefined;
   node?: HTMLElement | null;
@@ -149,45 +149,45 @@ export type LiveAnnouncementContext<TData = unknown> = {
   rowHeight: number;
   getItemLabel: (
     item: LayoutItem<TData> | null | undefined,
-    node?: HTMLElement | null,
+    node?: HTMLElement | null
   ) => string;
-};
+}
 
-export type LiveAnnouncements<TData = unknown> = {
+export interface LiveAnnouncements<TData = unknown> {
   onDragStart?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
   onDrag?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
   onDragEnd?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
   onResizeStart?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
   onResize?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
   onResizeEnd?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
   onFocus?: (
-    context: LiveAnnouncementContext<TData>,
+    context: LiveAnnouncementContext<TData>
   ) => string | null | undefined;
-};
+}
 
-export type LiveAnnouncementsOptions<TData = unknown> = {
+export interface LiveAnnouncementsOptions<TData = unknown> {
   enabled?: boolean;
   announcements?: Partial<LiveAnnouncements<TData>>;
   getItemLabel?: (
     item: LayoutItem<TData> | null | undefined,
-    node?: HTMLElement | null,
+    node?: HTMLElement | null
   ) => string;
   liveRegion?: LiveRegionSettings;
-};
+}
 
-export type Props<TData = unknown> = {
+export interface Props<TData = unknown> {
   className: string;
   style: CSSProperties;
   "aria-label"?: string;
@@ -250,24 +250,24 @@ export type Props<TData = unknown> = {
   onDrop?: (
     layout: Layout<TData>,
     item: LayoutItem<TData> | null | undefined,
-    e: Event,
+    e: Event
   ) => void;
   children?: ReactNode;
   innerRef?: Ref<HTMLDivElement>;
-};
+}
 
 export type DefaultProps<TData = unknown> = Omit<
   Props<TData>,
   "children" | "width"
 >;
 
-export type DroppingPosition = {
+export interface DroppingPosition {
   left: number;
   top: number;
   e: DraggableEvent | Event;
-};
+}
 
-export type GridItemDragEvent = {
+export interface GridItemDragEvent {
   id: string;
   x: number;
   y: number;
@@ -276,9 +276,9 @@ export type GridItemDragEvent = {
   newPosition: PartialPosition;
   deltaX?: number;
   deltaY?: number;
-};
+}
 
-export type GridItemResizeEvent = {
+export interface GridItemResizeEvent {
   id: string;
   w: number;
   h: number;
@@ -286,7 +286,7 @@ export type GridItemResizeEvent = {
   node: HTMLElement;
   size: Size;
   handle: ResizeHandleAxis;
-};
+}
 
 export type DragOverEvent = MouseEvent & {
   nativeEvent: Event & {

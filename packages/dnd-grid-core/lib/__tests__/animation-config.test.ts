@@ -15,7 +15,7 @@ describe("resolveAnimationConfig", () => {
     expect(config.springs.rotation.damping).toBe(SPRING_DEFAULTS.damping);
     expect(config.springs.scale.stiffness).toBe(SCALE_SPRING_CONFIG.stiffness);
     expect(config.springs.position.stiffness).toBe(
-      POSITION_SPRING_CONFIG.stiffness,
+      POSITION_SPRING_CONFIG.stiffness
     );
     expect(config.springs.scale.restDistance).toBe(0.001);
     expect(config.shadow.dragStartDuration).toBe(200);

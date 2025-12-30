@@ -7,7 +7,7 @@ import type { BlockKind } from "./types";
 const blockCardClassName =
   "relative size-full overflow-hidden rounded-[calc(var(--radius-widget)*var(--dnd-grid-scale,1))] bg-(--widget-background) text-foreground shadow-(--widget-shadow) transition-shadow";
 
-type Props = {
+interface Props {
   kind: BlockKind;
   title: string;
   isSelected?: boolean;
@@ -15,7 +15,7 @@ type Props = {
   isPalette?: boolean;
   className?: string;
   style?: CSSProperties;
-};
+}
 
 export const BlockCard = ({
   kind,
@@ -32,14 +32,14 @@ export const BlockCard = ({
     <div
       className={cn(
         blockCardClassName,
-        isSelected && "outline outline-ring shadow-(--widget-shadow-hover)",
-        showHoverRing && "ring-1 ring-ring/40 shadow-(--widget-shadow-hover)",
-        className,
+        isSelected && "shadow-(--widget-shadow-hover) outline outline-ring",
+        showHoverRing && "shadow-(--widget-shadow-hover) ring-1 ring-ring/40",
+        className
       )}
       style={style}
     >
       {isPalette && (
-        <div className="pointer-events-none absolute right-fluid-2 top-fluid-2 z-10 flex size-6 items-center justify-center rounded-full border border-border bg-card/90 text-muted-foreground shadow-xs">
+        <div className="pointer-events-none absolute top-fluid-2 right-fluid-2 z-10 flex size-6 items-center justify-center rounded-full border border-border bg-card/90 text-muted-foreground shadow-xs">
           <GripVertical className="size-3" />
         </div>
       )}

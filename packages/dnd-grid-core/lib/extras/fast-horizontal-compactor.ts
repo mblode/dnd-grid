@@ -23,9 +23,11 @@ const canPlaceAt = <TData>(
   x: number,
   y: number,
   staticItems: LayoutItem<TData>[],
-  cols: number,
+  cols: number
 ): boolean => {
-  if (x + item.w > cols) return false;
+  if (x + item.w > cols) {
+    return false;
+  }
 
   for (const staticItem of staticItems) {
     if (
@@ -43,24 +45,36 @@ const canPlaceAt = <TData>(
 const compactHorizontalFast = <TData>(
   layout: LayoutItem<TData>[],
   cols: number,
-  allowOverlap: boolean,
+  allowOverlap: boolean
 ): void => {
   const numItems = layout.length;
-  if (numItems === 0) return;
+  if (numItems === 0) {
+    return;
+  }
 
   layout.sort((a, b) => {
-    if (a.x !== b.x) return a.x - b.x;
-    if (a.y !== b.y) return a.y - b.y;
-    if (a.static !== b.static) return a.static ? -1 : 1;
+    if (a.x !== b.x) {
+      return a.x - b.x;
+    }
+    if (a.y !== b.y) {
+      return a.y - b.y;
+    }
+    if (a.static !== b.static) {
+      return a.static ? -1 : 1;
+    }
     return 0;
   });
 
   let maxRow = 0;
   for (let i = 0; i < numItems; i++) {
     const item = layout[i];
-    if (!item) continue;
+    if (!item) {
+      continue;
+    }
     const bottom = item.y + item.h;
-    if (bottom > maxRow) maxRow = bottom;
+    if (bottom > maxRow) {
+      maxRow = bottom;
+    }
   }
 
   const tide: number[] = new Array(maxRow).fill(0);
@@ -108,7 +122,7 @@ const compactHorizontalFast = <TData>(
             ) {
               maxStaticRight = Math.max(
                 maxStaticRight,
-                staticItem.x + staticItem.w,
+                staticItem.x + staticItem.w
               );
               foundCollision = true;
             }
@@ -138,7 +152,7 @@ const compactHorizontalFast = <TData>(
         if (typeof console !== "undefined" && console.warn) {
           console.warn(
             `Fast horizontal compactor: Item "${item.id}" exceeded max row limit (${targetY}). ` +
-              "This may indicate a layout that cannot be compacted within grid bounds.",
+              "This may indicate a layout that cannot be compacted within grid bounds."
           );
         }
         targetX = 0;
@@ -175,7 +189,7 @@ export const fastHorizontalCompactor: Compactor = {
     item: LayoutItem<TLayoutData>,
     x: number,
     y: number,
-    _cols: number,
+    _cols: number
   ) {
     return simpleOnMove(layout, item, x, y);
   },

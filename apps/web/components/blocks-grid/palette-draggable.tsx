@@ -5,17 +5,17 @@ import { useDragSwing } from "@/hooks/use-drag-swing";
 import { BlockCard } from "./block-card";
 import type { PaletteItem } from "./types";
 
-type Props = {
+interface Props {
   item: PaletteItem;
   previewHeight: number;
   style?: CSSProperties;
   onClick?: (item: PaletteItem) => void;
-};
+}
 
-type PaletteDragSwingOverlayProps = {
+interface PaletteDragSwingOverlayProps {
   item: PaletteItem;
   style: CSSProperties;
-};
+}
 
 export const PaletteDraggable = ({
   item,
@@ -41,14 +41,16 @@ export const PaletteDraggable = ({
       type="button"
       {...listeners}
       {...attributes}
+      className="block w-full cursor-grab text-left outline-none active:cursor-grabbing"
       onClick={() => {
-        if (isDragging) return;
+        if (isDragging) {
+          return;
+        }
         onClick?.(item);
       }}
-      className="block w-full cursor-grab text-left outline-none active:cursor-grabbing"
       style={previewStyle}
     >
-      <BlockCard kind={item.kind} title={item.title} isPalette />
+      <BlockCard isPalette kind={item.kind} title={item.title} />
     </button>
   );
 };
@@ -61,7 +63,7 @@ export const PaletteDragSwingOverlay = ({
 
   const measureRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(
-    null,
+    null
   );
 
   useLayoutEffect(() => {
@@ -99,16 +101,16 @@ export const PaletteDragSwingOverlay = ({
           }}
         >
           <div
-            ref={measureRef}
-            data-overlay-card
-            style={style}
             className="rounded-[calc(var(--radius-widget)*var(--dnd-grid-scale,1))]"
+            data-overlay-card
+            ref={measureRef}
+            style={style}
           >
             <BlockCard
-              kind={item.kind}
-              title={item.title}
               className="cursor-grabbing shadow-(--widget-shadow-hover)"
               isPalette
+              kind={item.kind}
+              title={item.title}
             />
           </div>
         </div>

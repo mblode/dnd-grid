@@ -22,7 +22,9 @@ function mergeRefs<T>(
 ): React.RefCallback<T> {
   return (node) => {
     refs.forEach((ref) => {
-      if (!ref) return;
+      if (!ref) {
+        return;
+      }
       if (typeof ref === "function") {
         ref(node);
       } else {
@@ -34,14 +36,14 @@ function mergeRefs<T>(
 
 function mergeProps<T extends HTMLElement>(
   childProps: AnyProps,
-  slotProps: DOMMotionProps<T>,
+  slotProps: DOMMotionProps<T>
 ): AnyProps {
   const merged: AnyProps = { ...childProps, ...slotProps };
 
   if (childProps.className || slotProps.className) {
     merged.className = cn(
       childProps.className as string,
-      slotProps.className as string,
+      slotProps.className as string
     );
   }
 
@@ -72,10 +74,12 @@ function Slot<T extends HTMLElement = HTMLElement>({
       isAlreadyMotion
         ? (elementType as React.ElementType)
         : motion.create(elementType as React.ElementType),
-    [isAlreadyMotion, elementType],
+    [isAlreadyMotion, elementType]
   );
 
-  if (!childElement) return null;
+  if (!childElement) {
+    return null;
+  }
 
   const { ref: childRef, ...childProps } = childElement.props as AnyProps;
 

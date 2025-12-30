@@ -23,15 +23,15 @@ import {
   withLayoutItem,
 } from "./utils";
 
-export type LayoutState<TData = unknown> = {
+export interface LayoutState<TData = unknown> {
   layout: Layout<TData>;
-};
+}
 
 export type LayoutStateUpdater<TData = unknown> =
   | LayoutState<TData>
   | ((prev: LayoutState<TData>) => LayoutState<TData>);
 
-export type LayoutEngineOptions<TData = unknown> = {
+export interface LayoutEngineOptions<TData = unknown> {
   cols: number;
   maxRows: number;
   rowHeight: number;
@@ -45,7 +45,7 @@ export type LayoutEngineOptions<TData = unknown> = {
   onStateChange?: (updater: LayoutStateUpdater<TData>) => void;
   plugins?: LayoutEnginePlugin<TData>[];
   validation?: boolean;
-};
+}
 
 export type LayoutCommand<TData = unknown> =
   | { type: "move"; id: string; x: number; y: number; isUserAction?: boolean }
@@ -66,61 +66,61 @@ export type LayoutCommand<TData = unknown> =
     }
   | { type: "reflow"; layout?: Layout<TData> };
 
-export type LayoutEngine<TData = unknown> = {
+export interface LayoutEngine<TData = unknown> {
   getState: () => LayoutState<TData>;
   setState: (updater: LayoutStateUpdater<TData>) => LayoutState<TData>;
   setOptions: (
     updater:
       | LayoutEngineOptions<TData>
-      | ((prev: LayoutEngineOptions<TData>) => LayoutEngineOptions<TData>),
+      | ((prev: LayoutEngineOptions<TData>) => LayoutEngineOptions<TData>)
   ) => LayoutEngineOptions<TData>;
   subscribe: (listener: (state: LayoutState<TData>) => void) => () => void;
   commands: {
     move: (
-      cmd: Extract<LayoutCommand<TData>, { type: "move" }>,
+      cmd: Extract<LayoutCommand<TData>, { type: "move" }>
     ) => LayoutState<TData>;
     resize: (
-      cmd: Extract<LayoutCommand<TData>, { type: "resize" }>,
+      cmd: Extract<LayoutCommand<TData>, { type: "resize" }>
     ) => LayoutState<TData>;
     compact: (
-      cmd?: Extract<LayoutCommand<TData>, { type: "compact" }>,
+      cmd?: Extract<LayoutCommand<TData>, { type: "compact" }>
     ) => LayoutState<TData>;
     resolveCollisions: (
-      cmd: Extract<LayoutCommand<TData>, { type: "resolveCollisions" }>,
+      cmd: Extract<LayoutCommand<TData>, { type: "resolveCollisions" }>
     ) => LayoutState<TData>;
     reflow: (
-      cmd?: Extract<LayoutCommand<TData>, { type: "reflow" }>,
+      cmd?: Extract<LayoutCommand<TData>, { type: "reflow" }>
     ) => LayoutState<TData>;
   };
   selectors: {
     getLayout: () => Layout<TData>;
     getItem: (id: string) => LayoutItem<TData> | undefined;
   };
-};
+}
 
-export type LayoutEnginePluginContext<TData = unknown> = {
+export interface LayoutEnginePluginContext<TData = unknown> {
   state: Readonly<LayoutState<TData>>;
   options: Readonly<LayoutEngineOptions<TData>>;
-};
+}
 
-export type LayoutEnginePlugin<TData = unknown> = {
+export interface LayoutEnginePlugin<TData = unknown> {
   name: string;
   onInit?: (engine: LayoutEngine<TData>) => void;
   onCommand?: (
     command: LayoutCommand<TData>,
-    context: LayoutEnginePluginContext<TData>,
+    context: LayoutEnginePluginContext<TData>
   ) => void;
   onStateChange?: (
     nextState: LayoutState<TData>,
     prevState: LayoutState<TData>,
-    context: LayoutEnginePluginContext<TData>,
+    context: LayoutEnginePluginContext<TData>
   ) => void;
   onOptionsChange?: (
     nextOptions: LayoutEngineOptions<TData>,
     prevOptions: LayoutEngineOptions<TData>,
-    context: LayoutEnginePluginContext<TData>,
+    context: LayoutEnginePluginContext<TData>
   ) => void;
-};
+}
 
 type ResolvedLayoutEngineOptions<TData = unknown> = Omit<
   LayoutEngineOptions<TData>,
@@ -219,7 +219,9 @@ const formatZodError = (error: z.ZodError): string => {
 };
 
 const getNodeEnv = (): string | undefined => {
-  if (typeof globalThis === "undefined") return undefined;
+  if (typeof globalThis === "undefined") {
+    return undefined;
+  }
   const globalProcess = (
     globalThis as { process?: { env?: { NODE_ENV?: string } } }
   ).process;
@@ -227,7 +229,7 @@ const getNodeEnv = (): string | undefined => {
 };
 
 const isValidationEnabled = <TData>(
-  options: LayoutEngineOptions<TData>,
+  options: LayoutEngineOptions<TData>
 ): boolean => {
   if (typeof options.validation === "boolean") {
     return options.validation;
@@ -239,19 +241,21 @@ const maybeValidate = (
   enabled: boolean,
   schema: z.ZodTypeAny,
   value: unknown,
-  label: string,
+  label: string
 ) => {
-  if (!enabled) return;
+  if (!enabled) {
+    return;
+  }
   const result = schema.safeParse(value);
   if (!result.success) {
     throw new Error(
-      `${label} validation failed: ${formatZodError(result.error)}`,
+      `${label} validation failed: ${formatZodError(result.error)}`
     );
   }
 };
 
 const resolveOptions = <TData>(
-  options: LayoutEngineOptions<TData>,
+  options: LayoutEngineOptions<TData>
 ): ResolvedLayoutEngineOptions<TData> => ({
   ...options,
   compactor: resolveCompactor(options.compactor),
@@ -261,7 +265,7 @@ const resolveOptions = <TData>(
 
 const createConstraintContext = <TData>(
   options: ResolvedLayoutEngineOptions<TData>,
-  layout: Layout<TData>,
+  layout: Layout<TData>
 ): ConstraintContext<TData> => ({
   cols: options.cols,
   maxRows: options.maxRows,
@@ -277,7 +281,7 @@ const applyUpdater = <T>(updater: T | ((prev: T) => T), prev: T): T =>
   typeof updater === "function" ? (updater as (prev: T) => T)(prev) : updater;
 
 export const createLayoutEngine = <TData = unknown>(
-  options: LayoutEngineOptions<TData>,
+  options: LayoutEngineOptions<TData>
 ): LayoutEngine<TData> => {
   let currentOptions = resolveOptions(options);
   let validationEnabled = isValidationEnabled(currentOptions);
@@ -285,7 +289,7 @@ export const createLayoutEngine = <TData = unknown>(
     validationEnabled,
     layoutEngineOptionsSchema,
     currentOptions,
-    "LayoutEngineOptions",
+    "LayoutEngineOptions"
   );
 
   let currentState: LayoutState<TData> = currentOptions.state ?? {
@@ -306,7 +310,7 @@ export const createLayoutEngine = <TData = unknown>(
     currentOptions.state ?? currentState;
 
   const getPluginContext = (
-    state: LayoutState<TData>,
+    state: LayoutState<TData>
   ): LayoutEnginePluginContext<TData> => ({
     state,
     options: currentOptions,
@@ -328,7 +332,9 @@ export const createLayoutEngine = <TData = unknown>(
   };
 
   const notifyCommand = (command: LayoutCommand<TData>) => {
-    if (currentOptions.plugins.length === 0) return;
+    if (currentOptions.plugins.length === 0) {
+      return;
+    }
     const context = getPluginContext(getState());
     for (const plugin of currentOptions.plugins) {
       plugin.onCommand?.(command, context);
@@ -337,9 +343,11 @@ export const createLayoutEngine = <TData = unknown>(
 
   const notifyStateChange = (
     nextState: LayoutState<TData>,
-    prevState: LayoutState<TData>,
+    prevState: LayoutState<TData>
   ) => {
-    if (currentOptions.plugins.length === 0) return;
+    if (currentOptions.plugins.length === 0) {
+      return;
+    }
     const context = getPluginContext(nextState);
     for (const plugin of currentOptions.plugins) {
       plugin.onStateChange?.(nextState, prevState, context);
@@ -348,9 +356,11 @@ export const createLayoutEngine = <TData = unknown>(
 
   const notifyOptionsChange = (
     nextOptions: ResolvedLayoutEngineOptions<TData>,
-    prevOptions: ResolvedLayoutEngineOptions<TData>,
+    prevOptions: ResolvedLayoutEngineOptions<TData>
   ) => {
-    if (nextOptions.plugins.length === 0) return;
+    if (nextOptions.plugins.length === 0) {
+      return;
+    }
     const context: LayoutEnginePluginContext<TData> = {
       state: getState(),
       options: nextOptions,
@@ -367,7 +377,7 @@ export const createLayoutEngine = <TData = unknown>(
       validationEnabled,
       layoutStateSchema,
       nextState,
-      "LayoutState",
+      "LayoutState"
     );
     currentOptions.onStateChange?.(updater);
 
@@ -383,7 +393,7 @@ export const createLayoutEngine = <TData = unknown>(
   const setOptions = (
     updater:
       | LayoutEngineOptions<TData>
-      | ((prev: LayoutEngineOptions<TData>) => LayoutEngineOptions<TData>),
+      | ((prev: LayoutEngineOptions<TData>) => LayoutEngineOptions<TData>)
   ): LayoutEngineOptions<TData> => {
     const prevOptions = currentOptions;
     const prevState = getState();
@@ -393,7 +403,7 @@ export const createLayoutEngine = <TData = unknown>(
       nextValidationEnabled,
       layoutEngineOptionsSchema,
       nextOptions,
-      "LayoutEngineOptions",
+      "LayoutEngineOptions"
     );
 
     currentOptions = nextOptions;
@@ -419,7 +429,7 @@ export const createLayoutEngine = <TData = unknown>(
   const compactLayout = (
     layout: Layout<TData>,
     compactor: Compactor<TData>,
-    cols: number,
+    cols: number
   ): Layout<TData> => {
     const nextLayout = cloneLayout(layout);
     return compactor.allowOverlap
@@ -430,7 +440,7 @@ export const createLayoutEngine = <TData = unknown>(
   const reflowLayout = (
     layout: Layout<TData>,
     compactor: Compactor<TData>,
-    cols: number,
+    cols: number
   ): Layout<TData> => {
     const nextLayout = correctBounds(cloneLayout(layout), { cols });
     return compactor.allowOverlap
@@ -445,7 +455,9 @@ export const createLayoutEngine = <TData = unknown>(
       const { compactor, constraints, cols } = currentOptions;
       const layout = cloneLayout(getState().layout);
       const item = getLayoutItem(layout, cmd.id);
-      if (!item) return getState();
+      if (!item) {
+        return getState();
+      }
 
       const context = createConstraintContext(currentOptions, layout);
       const constrained = applyPositionConstraints(
@@ -453,7 +465,7 @@ export const createLayoutEngine = <TData = unknown>(
         item,
         cmd.x,
         cmd.y,
-        context,
+        context
       );
 
       const nextLayout = moveElement(
@@ -463,7 +475,7 @@ export const createLayoutEngine = <TData = unknown>(
         constrained.y,
         cmd.isUserAction ?? true,
         compactor,
-        cols,
+        cols
       );
 
       const updatedLayout = compactor.allowOverlap
@@ -478,7 +490,7 @@ export const createLayoutEngine = <TData = unknown>(
         validationEnabled,
         resizeCommandSchema,
         cmd,
-        "ResizeCommand",
+        "ResizeCommand"
       );
       notifyCommand(cmd);
       const { compactor, constraints, cols } = currentOptions;
@@ -499,7 +511,7 @@ export const createLayoutEngine = <TData = unknown>(
           nextW,
           nextH,
           handle,
-          context,
+          context
         );
 
         nextW = constrainedSize.w;
@@ -544,7 +556,9 @@ export const createLayoutEngine = <TData = unknown>(
         return l;
       });
 
-      if (!item) return getState();
+      if (!item) {
+        return getState();
+      }
       let finalLayout = nextLayout;
 
       if (shouldMoveItem && nextX !== undefined && nextY !== undefined) {
@@ -555,7 +569,7 @@ export const createLayoutEngine = <TData = unknown>(
           nextY,
           true,
           compactor,
-          cols,
+          cols
         );
       }
 
@@ -572,7 +586,7 @@ export const createLayoutEngine = <TData = unknown>(
           validationEnabled,
           compactCommandSchema,
           cmd,
-          "CompactCommand",
+          "CompactCommand"
         );
       }
       const command: LayoutCommand<TData> = cmd ?? { type: "compact" };
@@ -584,19 +598,21 @@ export const createLayoutEngine = <TData = unknown>(
     },
 
     resolveCollisions(
-      cmd: Extract<LayoutCommand<TData>, { type: "resolveCollisions" }>,
+      cmd: Extract<LayoutCommand<TData>, { type: "resolveCollisions" }>
     ) {
       maybeValidate(
         validationEnabled,
         resolveCollisionsCommandSchema,
         cmd,
-        "ResolveCollisionsCommand",
+        "ResolveCollisionsCommand"
       );
       notifyCommand(cmd);
       const { compactor, constraints, cols } = currentOptions;
       const layout = cloneLayout(getState().layout);
       const item = getLayoutItem(layout, cmd.id);
-      if (!item) return getState();
+      if (!item) {
+        return getState();
+      }
 
       const context = createConstraintContext(currentOptions, layout);
       const constrained = applyPositionConstraints(
@@ -604,7 +620,7 @@ export const createLayoutEngine = <TData = unknown>(
         item,
         cmd.x,
         cmd.y,
-        context,
+        context
       );
 
       const nextLayout = moveElement(
@@ -614,7 +630,7 @@ export const createLayoutEngine = <TData = unknown>(
         constrained.y,
         cmd.isUserAction ?? true,
         compactor,
-        cols,
+        cols
       );
 
       return commitLayout(nextLayout);
@@ -626,7 +642,7 @@ export const createLayoutEngine = <TData = unknown>(
           validationEnabled,
           reflowCommandSchema,
           cmd,
-          "ReflowCommand",
+          "ReflowCommand"
         );
       }
       const command: LayoutCommand<TData> = cmd ?? { type: "reflow" };
@@ -635,7 +651,7 @@ export const createLayoutEngine = <TData = unknown>(
       const updatedLayout = reflowLayout(
         layout,
         currentOptions.compactor,
-        currentOptions.cols,
+        currentOptions.cols
       );
       return commitLayout(updatedLayout);
     },

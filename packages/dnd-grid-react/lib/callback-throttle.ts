@@ -1,8 +1,8 @@
-export type CallbackThrottle<T> = {
+export interface CallbackThrottle<T> {
   run: (callback: (event: T) => void, event: T, intervalMs: number) => void;
   flush: (callback: (event: T) => void) => void;
   cancel: () => void;
-};
+}
 
 export const createCallbackThrottle = <T>(): CallbackThrottle<T> => {
   let lastCall = Number.NEGATIVE_INFINITY;
@@ -10,7 +10,9 @@ export const createCallbackThrottle = <T>(): CallbackThrottle<T> => {
   let pending: T | null = null;
 
   const clearTimer = () => {
-    if (timeoutId === null) return;
+    if (timeoutId === null) {
+      return;
+    }
     clearTimeout(timeoutId);
     timeoutId = null;
   };
@@ -30,12 +32,16 @@ export const createCallbackThrottle = <T>(): CallbackThrottle<T> => {
     }
 
     pending = event;
-    if (timeoutId !== null) return;
+    if (timeoutId !== null) {
+      return;
+    }
 
     const delay = Math.max(intervalMs - elapsed, 0);
     timeoutId = setTimeout(() => {
       timeoutId = null;
-      if (!pending) return;
+      if (!pending) {
+        return;
+      }
       const next = pending;
       pending = null;
       lastCall = Date.now();
@@ -45,7 +51,9 @@ export const createCallbackThrottle = <T>(): CallbackThrottle<T> => {
 
   const flush = (callback: (event: T) => void) => {
     clearTimer();
-    if (!pending) return;
+    if (!pending) {
+      return;
+    }
     const next = pending;
     pending = null;
     lastCall = Date.now();

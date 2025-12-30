@@ -7,10 +7,14 @@ import type {
 } from "./types";
 
 const isSpacingObject = (
-  value: Spacing | ResponsiveSpacing,
+  value: Spacing | ResponsiveSpacing
 ): value is SpacingObject => {
-  if (!value || typeof value !== "object") return false;
-  if (Array.isArray(value)) return false;
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return false;
+  }
   return (
     "top" in value || "right" in value || "bottom" in value || "left" in value
   );
@@ -22,7 +26,7 @@ export const normalizeSpacing = (value: Spacing): SpacingArray => {
   }
   if (Array.isArray(value)) {
     throw new Error(
-      "DndGrid: gap/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }.",
+      "DndGrid: gap/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }."
     );
   }
 
@@ -31,11 +35,11 @@ export const normalizeSpacing = (value: Spacing): SpacingArray => {
 
 export const resolveResponsiveSpacing = <B extends Breakpoint>(
   value: ResponsiveSpacing<B>,
-  breakpoint: B,
+  breakpoint: B
 ): Spacing => {
   if (Array.isArray(value)) {
     throw new Error(
-      "DndGrid: responsive spacing does not accept arrays. Use numbers or { top, right, bottom, left }.",
+      "DndGrid: responsive spacing does not accept arrays. Use numbers or { top, right, bottom, left }."
     );
   }
   if (typeof value === "number" || isSpacingObject(value)) {

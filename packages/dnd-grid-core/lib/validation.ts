@@ -60,5 +60,5 @@ export const layoutSchema = z
   });
 
 export const validateLayout = <TData = unknown>(
-  layout: unknown,
+  layout: unknown
 ): Layout<TData> => layoutSchema.parse(layout) as Layout<TData>;

@@ -24,15 +24,15 @@ export default defineConfig(({ mode }) => {
           // Copy CSS files
           copyFileSync(
             resolve(__dirname, "lib/styles/base.css"),
-            resolve(__dirname, "dist/styles/base.css"),
+            resolve(__dirname, "dist/styles/base.css")
           );
           copyFileSync(
             resolve(__dirname, "lib/styles/theme.css"),
-            resolve(__dirname, "dist/styles/theme.css"),
+            resolve(__dirname, "dist/styles/theme.css")
           );
           copyFileSync(
             resolve(__dirname, "lib/styles/index.css"),
-            resolve(__dirname, "dist/styles/index.css"),
+            resolve(__dirname, "dist/styles/index.css")
           );
         },
       },

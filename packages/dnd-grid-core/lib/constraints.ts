@@ -12,7 +12,7 @@ export const gridBounds: LayoutConstraint = {
     item: LayoutItem,
     x: number,
     y: number,
-    { cols, maxRows }: ConstraintContext,
+    { cols, maxRows }: ConstraintContext
   ): { x: number; y: number } {
     return {
       x: clamp(x, 0, Math.max(0, cols - item.w)),
@@ -24,7 +24,7 @@ export const gridBounds: LayoutConstraint = {
     w: number,
     h: number,
     handle: ResizeHandleAxis,
-    { cols, maxRows }: ConstraintContext,
+    { cols, maxRows }: ConstraintContext
   ): { w: number; h: number } {
     const maxW =
       handle === "w" || handle === "nw" || handle === "sw"
@@ -46,7 +46,7 @@ export const minMaxSize: LayoutConstraint = {
   constrainSize(
     item: LayoutItem,
     w: number,
-    h: number,
+    h: number
   ): { w: number; h: number } {
     return {
       w: clamp(w, item.minW ?? 1, item.maxW ?? Number.POSITIVE_INFINITY),
@@ -68,7 +68,7 @@ export const containerBounds: LayoutConstraint = {
       rowHeight,
       gap,
       containerPadding,
-    }: ConstraintContext,
+    }: ConstraintContext
   ): { x: number; y: number } {
     const paddingY = containerPadding[0] + containerPadding[2];
     const availableHeight =
@@ -90,7 +90,7 @@ export const boundedX: LayoutConstraint = {
     item: LayoutItem,
     x: number,
     y: number,
-    { cols }: ConstraintContext,
+    { cols }: ConstraintContext
   ): { x: number; y: number } {
     return {
       x: clamp(x, 0, Math.max(0, cols - item.w)),
@@ -105,7 +105,7 @@ export const boundedY: LayoutConstraint = {
     item: LayoutItem,
     x: number,
     y: number,
-    { maxRows }: ConstraintContext,
+    { maxRows }: ConstraintContext
   ): { x: number; y: number } {
     return {
       x,
@@ -121,7 +121,7 @@ export const aspectRatio = (ratio: number): LayoutConstraint => ({
     w: number,
     _h: number,
     _handle: ResizeHandleAxis,
-    context: ConstraintContext,
+    context: ConstraintContext
   ): { w: number; h: number } {
     const { cols, containerWidth, rowHeight, gap, containerPadding } = context;
     const colWidth = calcGridColWidth({
@@ -136,7 +136,7 @@ export const aspectRatio = (ratio: number): LayoutConstraint => ({
     const pixelHeight = pixelWidth / ratio;
     const h = Math.max(
       1,
-      Math.round((pixelHeight + gap[0]) / (rowHeight + gap[0])),
+      Math.round((pixelHeight + gap[0]) / (rowHeight + gap[0]))
     );
     return { w, h };
   },
@@ -144,11 +144,11 @@ export const aspectRatio = (ratio: number): LayoutConstraint => ({
 
 export const snapToGrid = (
   stepX: number,
-  stepY: number = stepX,
+  stepY: number = stepX
 ): LayoutConstraint => {
   if (stepX <= 0 || stepY <= 0) {
     throw new Error(
-      `snapToGrid: step values must be positive (got stepX=${stepX}, stepY=${stepY})`,
+      `snapToGrid: step values must be positive (got stepX=${stepX}, stepY=${stepY})`
     );
   }
 
@@ -157,7 +157,7 @@ export const snapToGrid = (
     constrainPosition(
       _item: LayoutItem,
       x: number,
-      y: number,
+      y: number
     ): { x: number; y: number } {
       return {
         x: Math.round(x / stepX) * stepX,
@@ -172,7 +172,7 @@ export const minSize = (minW: number, minH: number): LayoutConstraint => ({
   constrainSize(
     _item: LayoutItem,
     w: number,
-    h: number,
+    h: number
   ): { w: number; h: number } {
     return {
       w: Math.max(minW, w),
@@ -186,7 +186,7 @@ export const maxSize = (maxW: number, maxH: number): LayoutConstraint => ({
   constrainSize(
     _item: LayoutItem,
     w: number,
-    h: number,
+    h: number
   ): { w: number; h: number } {
     return {
       w: Math.min(maxW, w),
@@ -201,7 +201,7 @@ export const getDefaultConstraints = <TData>(): LayoutConstraint<TData>[] =>
   defaultConstraints;
 
 export const resolveConstraints = <TData>(
-  constraints?: LayoutConstraint<TData>[],
+  constraints?: LayoutConstraint<TData>[]
 ): LayoutConstraint<TData>[] => constraints ?? getDefaultConstraints<TData>();
 
 export const applyPositionConstraints = <TData>(
@@ -209,7 +209,7 @@ export const applyPositionConstraints = <TData>(
   item: LayoutItem<TData>,
   x: number,
   y: number,
-  context: ConstraintContext<TData>,
+  context: ConstraintContext<TData>
 ): { x: number; y: number } => {
   let result = { x, y };
 
@@ -226,7 +226,7 @@ export const applyPositionConstraints = <TData>(
           item,
           result.x,
           result.y,
-          context,
+          context
         );
       }
     }
@@ -241,7 +241,7 @@ export const applySizeConstraints = <TData>(
   w: number,
   h: number,
   handle: ResizeHandleAxis,
-  context: ConstraintContext<TData>,
+  context: ConstraintContext<TData>
 ): { w: number; h: number } => {
   let result = { w, h };
 
@@ -252,7 +252,7 @@ export const applySizeConstraints = <TData>(
         result.w,
         result.h,
         handle,
-        context,
+        context
       );
     }
   }
@@ -265,7 +265,7 @@ export const applySizeConstraints = <TData>(
           result.w,
           result.h,
           handle,
-          context,
+          context
         );
       }
     }

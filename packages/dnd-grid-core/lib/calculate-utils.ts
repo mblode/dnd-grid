@@ -2,7 +2,9 @@ import type { Position, PositionParams } from "./types";
 
 export const calcGridColWidth = (positionParams: PositionParams): number => {
   const { gap, containerPadding, containerWidth, cols } = positionParams;
-  if (cols <= 0) return 0;
+  if (cols <= 0) {
+    return 0;
+  }
   return (
     (containerWidth -
       gap[1] * (cols - 1) -
@@ -15,11 +17,13 @@ export const calcGridColWidth = (positionParams: PositionParams): number => {
 export const calcGridItemWHPx = (
   gridUnits: number,
   colOrRowSize: number,
-  marginPx: number,
+  marginPx: number
 ): number => {
-  if (!Number.isFinite(gridUnits)) return gridUnits;
+  if (!Number.isFinite(gridUnits)) {
+    return gridUnits;
+  }
   return Math.round(
-    colOrRowSize * gridUnits + Math.max(0, gridUnits - 1) * marginPx,
+    colOrRowSize * gridUnits + Math.max(0, gridUnits - 1) * marginPx
   );
 };
 
@@ -45,7 +49,7 @@ export const calcGridItemPosition = (
         };
       }
     | null
-    | undefined,
+    | undefined
 ): Position => {
   const { gap, containerPadding, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
@@ -84,10 +88,10 @@ export const calcGridItemPosition = (
     out.deg = rotation;
   }
 
-  if (!state?.dragging && !state?.resizing) {
+  if (!(state?.dragging || state?.resizing)) {
     if (Number.isFinite(w)) {
       const siblingLeft = Math.round(
-        (colWidth + gap[1]) * (x + w) + containerPadding[3],
+        (colWidth + gap[1]) * (x + w) + containerPadding[3]
       );
       const actualMarginRight = siblingLeft - out.left - out.width;
       if (actualMarginRight !== gap[1]) {
@@ -97,7 +101,7 @@ export const calcGridItemPosition = (
 
     if (Number.isFinite(h)) {
       const siblingTop = Math.round(
-        (rowHeight + gap[0]) * (y + h) + containerPadding[0],
+        (rowHeight + gap[0]) * (y + h) + containerPadding[0]
       );
       const actualMarginBottom = siblingTop - out.top - out.height;
       if (actualMarginBottom !== gap[0]) {
@@ -112,7 +116,7 @@ export const calcGridItemPosition = (
 export const calcXYRaw = (
   positionParams: PositionParams,
   top: number,
-  left: number,
+  left: number
 ): {
   x: number;
   y: number;
@@ -129,7 +133,7 @@ export const calcXY = (
   top: number,
   left: number,
   w: number,
-  h: number,
+  h: number
 ): {
   x: number;
   y: number;
@@ -147,7 +151,7 @@ export const calcXY = (
 export const calcWHRaw = (
   positionParams: PositionParams,
   width: number,
-  height: number,
+  height: number
 ): {
   w: number;
   h: number;
@@ -162,7 +166,7 @@ export const calcWHRaw = (
 export const clamp = (
   num: number,
   lowerBound: number,
-  upperBound: number,
+  upperBound: number
 ): number => {
   return Math.max(Math.min(num, upperBound), lowerBound);
 };

@@ -17,6 +17,16 @@ export default {
         return await fetch(request);
       }
 
+      // Proxy OpenGraph image requests to landing page
+      if (urlObject.pathname === "/opengraph-image.png") {
+        const landingUrl = new URL(request.url);
+        landingUrl.hostname = landingHost;
+        return await fetch(landingUrl, {
+          method: request.method,
+          headers: request.headers,
+        });
+      }
+
       // Proxy requests to /docs path to Mintlify
       if (urlObject.pathname.startsWith("/docs")) {
         const url = new URL(request.url);

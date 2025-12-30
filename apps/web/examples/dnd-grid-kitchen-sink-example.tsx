@@ -690,9 +690,17 @@ export function KitchenSinkExample() {
             </div>
           ) : (
             selectedItem && (
-              <label style={{ display: "grid", gap: 4 }}>
+<<<<<<< Updated upstream
+              <label
+                htmlFor="kitchen-sink-title-input"
+                style={{ display: "grid", gap: 4 }}
+              >
+=======
+              <label htmlFor="kitchen-sink-title-input" style={{ display: "grid", gap: 4 }}>
+>>>>>>> Stashed changes
                 <div style={{ fontSize: 10, color: "#6b7280" }}>Title</div>
                 <input
+                  id="kitchen-sink-title-input"
                   onChange={(event) =>
                     setItems((prev) =>
                       prev.map((item) =>

@@ -88,8 +88,9 @@ export const BlocksGridPanel = ({
         selectedItem && (
           <div className="space-y-fluid-3">
             <div className="space-y-1">
-              <Label>Title</Label>
+              <Label htmlFor="block-title-input">Title</Label>
               <Input
+                id="block-title-input"
                 onChange={(event) =>
                   onTitleChange(selectedItem.id, event.target.value)
                 }

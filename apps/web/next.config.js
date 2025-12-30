@@ -58,6 +58,42 @@ const nextConfig = {
         ],
       },
       {
+        source: "/twitter-image.png",
+        headers: [
+          ...securityHeaders.filter(
+            (h) => h.key !== "Cross-Origin-Resource-Policy"
+          ),
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+      },
+      {
+        source: "/web-app-manifest-:size.png",
+        headers: [
+          ...securityHeaders.filter(
+            (h) => h.key !== "Cross-Origin-Resource-Policy"
+          ),
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+      },
+      {
+        source: "/images/:path*",
+        headers: [
+          ...securityHeaders.filter(
+            (h) => h.key !== "Cross-Origin-Resource-Policy"
+          ),
+          { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+        ],
+      },
+      {
+        source: "/fonts/:path*",
+        headers: [
+          ...securityHeaders.filter(
+            (h) => h.key !== "Cross-Origin-Resource-Policy"
+          ),
+          { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: securityHeaders,
       },

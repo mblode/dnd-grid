@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { deepEqual } from "fast-equals";
 import type { ReactElement } from "react";
-import * as React from "react";
+import React from "react";
 import { resolveAnimationConfig } from "./animation-config";
 import { calcGridColWidth, calcGridItemWHPx, calcXY } from "./calculate-utils";
 import { createCallbackThrottle } from "./callback-throttle";
@@ -200,6 +200,7 @@ const defaultLiveRegion: Required<LiveRegionSettings> = {
 };
 const isDevelopment =
   typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
+const WHITESPACE_REGEX = /\s+/;
 let isFirefox = false;
 
 const resolveCallbackThrottleMs = (
@@ -253,7 +254,7 @@ const resolveNodeLabel = (node?: HTMLElement | null): string => {
   const ariaLabelledBy = node.getAttribute("aria-labelledby");
   if (ariaLabelledBy && typeof document !== "undefined") {
     const label = ariaLabelledBy
-      .split(/\s+/)
+      .split(WHITESPACE_REGEX)
       .map((id) => document.getElementById(id)?.textContent?.trim())
       .filter(Boolean)
       .join(" ")
@@ -811,7 +812,7 @@ export const useDndGrid = <TData = unknown>(
       event: React.KeyboardEvent<HTMLElement>,
       id: string,
       keyboardState: { isPressed: boolean; isResizing: boolean }
-    ) => {
+    ) /* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: keyboard navigation requires multiple guard clauses. */ => {
       if (event.currentTarget !== event.target) {
         return;
       }
@@ -987,49 +988,56 @@ export const useDndGrid = <TData = unknown>(
       let finalLayout: Layout<TData> = layout;
       let x: number | undefined;
       let y: number | undefined;
+      let nextW = w;
+      let nextH = h;
       const handle = options?.handle ?? "se";
-      const [newLayout, l] = withLayoutItem(layout, id, (l) => {
-        x = l.x;
-        y = l.y;
+      const [newLayout, l] = withLayoutItem(
+        layout,
+        id,
+        // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: resizing logic coordinates collision handling and callbacks.
+        (l) => {
+          x = l.x;
+          y = l.y;
 
-        if (["sw", "w", "nw", "n", "ne"].indexOf(handle) !== -1) {
-          if (["sw", "nw", "w"].indexOf(handle) !== -1) {
-            x = l.x + (l.w - w);
-            w = l.x !== x && x < 0 ? l.w : w;
-            x = x < 0 ? 0 : x;
+          if (["sw", "w", "nw", "n", "ne"].indexOf(handle) !== -1) {
+            if (["sw", "nw", "w"].indexOf(handle) !== -1) {
+              x = l.x + (l.w - nextW);
+              nextW = l.x !== x && x < 0 ? l.w : nextW;
+              x = x < 0 ? 0 : x;
+            }
+
+            if (["ne", "n", "nw"].indexOf(handle) !== -1) {
+              y = l.y + (l.h - nextH);
+              nextH = l.y !== y && y < 0 ? l.h : nextH;
+              y = y < 0 ? 0 : y;
+            }
+
+            shouldMoveItem = true;
           }
 
-          if (["ne", "n", "nw"].indexOf(handle) !== -1) {
-            y = l.y + (l.h - h);
-            h = l.y !== y && y < 0 ? l.h : h;
-            y = y < 0 ? 0 : y;
+          if (preventCollision && !allowOverlap) {
+            const collisions = getAllCollisions(layout, {
+              ...l,
+              w: nextW,
+              h: nextH,
+              x: x ?? l.x,
+              y: y ?? l.y,
+            }).filter((layoutItem) => layoutItem.id !== l.id);
+
+            if (collisions.length > 0) {
+              y = l.y;
+              nextH = l.h;
+              x = l.x;
+              nextW = l.w;
+              shouldMoveItem = false;
+            }
           }
 
-          shouldMoveItem = true;
+          l.w = nextW;
+          l.h = nextH;
+          return l;
         }
-
-        if (preventCollision && !allowOverlap) {
-          const collisions = getAllCollisions(layout, {
-            ...l,
-            w,
-            h,
-            x: x ?? l.x,
-            y: y ?? l.y,
-          }).filter((layoutItem) => layoutItem.id !== l.id);
-
-          if (collisions.length > 0) {
-            y = l.y;
-            h = l.h;
-            x = l.x;
-            w = l.w;
-            shouldMoveItem = false;
-          }
-        }
-
-        l.w = w;
-        l.h = h;
-        return l;
-      });
+      );
       if (!l) {
         return layout;
       }
@@ -1336,48 +1344,53 @@ export const useDndGrid = <TData = unknown>(
       let finalLayout: Layout<TData> = layout;
       let x: number | undefined;
       let y: number | undefined;
-      const [newLayout, l] = withLayoutItem(layout, id, (l) => {
-        x = l.x;
-        y = l.y;
+      const [newLayout, l] = withLayoutItem(
+        layout,
+        id,
+        // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: resize events must reconcile collisions and layout updates.
+        (l) => {
+          x = l.x;
+          y = l.y;
 
-        if (["sw", "w", "nw", "n", "ne"].indexOf(handle) !== -1) {
-          if (["sw", "nw", "w"].indexOf(handle) !== -1) {
-            x = l.x + (l.w - w);
-            w = l.x !== x && x < 0 ? l.w : w;
-            x = x < 0 ? 0 : x;
+          if (["sw", "w", "nw", "n", "ne"].indexOf(handle) !== -1) {
+            if (["sw", "nw", "w"].indexOf(handle) !== -1) {
+              x = l.x + (l.w - w);
+              w = l.x !== x && x < 0 ? l.w : w;
+              x = x < 0 ? 0 : x;
+            }
+
+            if (["ne", "n", "nw"].indexOf(handle) !== -1) {
+              y = l.y + (l.h - h);
+              h = l.y !== y && y < 0 ? l.h : h;
+              y = y < 0 ? 0 : y;
+            }
+
+            shouldMoveItem = true;
           }
 
-          if (["ne", "n", "nw"].indexOf(handle) !== -1) {
-            y = l.y + (l.h - h);
-            h = l.y !== y && y < 0 ? l.h : h;
-            y = y < 0 ? 0 : y;
+          if (preventCollision && !allowOverlap) {
+            const collisions = getAllCollisions(layout, {
+              ...l,
+              w,
+              h,
+              x: x ?? l.x,
+              y: y ?? l.y,
+            }).filter((layoutItem) => layoutItem.id !== l.id);
+
+            if (collisions.length > 0) {
+              y = l.y;
+              h = l.h;
+              x = l.x;
+              w = l.w;
+              shouldMoveItem = false;
+            }
           }
 
-          shouldMoveItem = true;
+          l.w = w;
+          l.h = h;
+          return l;
         }
-
-        if (preventCollision && !allowOverlap) {
-          const collisions = getAllCollisions(layout, {
-            ...l,
-            w,
-            h,
-            x: x ?? l.x,
-            y: y ?? l.y,
-          }).filter((layoutItem) => layoutItem.id !== l.id);
-
-          if (collisions.length > 0) {
-            y = l.y;
-            h = l.h;
-            x = l.x;
-            w = l.w;
-            shouldMoveItem = false;
-          }
-        }
-
-        l.w = w;
-        l.h = h;
-        return l;
-      });
+      );
       if (!l) {
         return;
       }
@@ -1719,16 +1732,16 @@ export const useDndGrid = <TData = unknown>(
 
       const coordinates = resolveExternalCoordinates(update);
       const eventType = type === "drop" ? "drop" : "dragover";
-      const event =
-        "event" in update && update.event
-          ? update.event
-          : coordinates
-            ? createPointerEvent(
-                eventType,
-                coordinates.clientX,
-                coordinates.clientY
-              )
-            : undefined;
+      let event: Event | undefined;
+      if ("event" in update && update.event) {
+        event = update.event;
+      } else if (coordinates) {
+        event = createPointerEvent(
+          eventType,
+          coordinates.clientX,
+          coordinates.clientY
+        );
+      }
 
       if (type === "drop") {
         if (event) {
@@ -1894,9 +1907,9 @@ export const useDndGrid = <TData = unknown>(
     );
     const setSize = indexableItems.length;
     const posInSetById = new Map<string, number>();
-    indexableItems.forEach((item, index) => {
+    for (const [index, item] of indexableItems.entries()) {
       posInSetById.set(item.id, index + 1);
-    });
+    }
 
     const indices = new Map<
       string,
@@ -1907,9 +1920,9 @@ export const useDndGrid = <TData = unknown>(
         setSize?: number;
       }
     >();
-    sortedItems.forEach((item) => {
+    for (const item of sortedItems) {
       if (!childKeys.has(item.id)) {
-        return;
+        continue;
       }
       const posInSet = posInSetById.get(item.id);
       indices.set(item.id, {
@@ -1918,7 +1931,7 @@ export const useDndGrid = <TData = unknown>(
         posInSet,
         setSize: posInSet ? setSize : undefined,
       });
-    });
+    }
     return indices;
   }, [state.layout, compactor, childKeys]);
 
@@ -1933,6 +1946,7 @@ export const useDndGrid = <TData = unknown>(
   const activeItemId = state.activeItemId ?? focusableItemIds[0] ?? null;
 
   const getItemProps = React.useCallback(
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: item props combine layout, accessibility, and event wiring.
     (child: React.ReactNode, options?: UseDndGridItemOptions) => {
       if (!React.isValidElement(child) || child.key == null) {
         return null;
@@ -1983,7 +1997,10 @@ export const useDndGrid = <TData = unknown>(
       const itemBounded = itemDraggable && gridBounded && l.bounded !== false;
       const ariaIndices = ariaItemIndices.get(l.id);
       const isFocusable = focusableItemIdSet.has(l.id);
-      const tabIndex = isFocusable ? (l.id === activeItemId ? 0 : -1) : -1;
+      let tabIndex = -1;
+      if (isFocusable) {
+        tabIndex = l.id === activeItemId ? 0 : -1;
+      }
       return {
         containerWidth: width,
         cols: cols as number,

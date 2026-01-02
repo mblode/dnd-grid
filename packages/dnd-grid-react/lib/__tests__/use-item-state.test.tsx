@@ -7,6 +7,9 @@ import {
   useOptionalDndGridItemState,
 } from "../use-item-state";
 
+const missingItemStateErrorRegex =
+  /useDndGridItemState must be used within a DndGrid item/i;
+
 const TestConsumer = () => {
   const { item, state } = useDndGridItemState();
   return (
@@ -44,10 +47,8 @@ describe("useDndGridItemState", () => {
   it("throws when used outside provider", () => {
     const consoleError = vi
       .spyOn(console, "error")
-      .mockImplementation(() => {});
-    expect(() => render(<TestConsumer />)).toThrow(
-      /useDndGridItemState must be used within a DndGrid item/i
-    );
+      .mockImplementation(() => undefined);
+    expect(() => render(<TestConsumer />)).toThrow(missingItemStateErrorRegex);
     consoleError.mockRestore();
   });
 

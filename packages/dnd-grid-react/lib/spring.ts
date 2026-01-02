@@ -5,6 +5,7 @@ export type {
 } from "@dnd-grid/core";
 
 /** @knipignore */
+// biome-ignore lint/performance/noBarrelFile: public re-export of core spring helpers.
 export {
   calculateRotationWeight,
   calculateVelocityFromHistory,

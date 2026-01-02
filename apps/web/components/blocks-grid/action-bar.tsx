@@ -21,6 +21,7 @@ export const ActionBar = ({ w, x, children }: Props) => {
     event.stopPropagation();
 
   return (
+    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: stops event propagation to grid
     // biome-ignore lint/a11y/noStaticElementInteractions: stops event propagation to grid
     <div
       className={cn(

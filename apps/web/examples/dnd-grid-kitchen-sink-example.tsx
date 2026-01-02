@@ -63,12 +63,13 @@ const findEmptyPosition = ({
   newItemHeight: number;
   gridWidth: number;
   gridHeight: number;
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Grid space finding algorithm requires nested loops
 }): { x: number; y: number } => {
   const grid = Array.from({ length: gridHeight }, () =>
     Array.from({ length: gridWidth }, () => false)
   );
 
-  layouts.forEach((item) => {
+  for (const item of layouts) {
     for (let x = item.x; x < item.x + item.w; x += 1) {
       for (let y = item.y; y < item.y + item.h; y += 1) {
         if (grid[y] && grid[y][x] !== undefined) {
@@ -76,7 +77,7 @@ const findEmptyPosition = ({
         }
       }
     }
-  });
+  }
 
   for (let y = 0; y <= gridHeight - newItemHeight; y += 1) {
     for (let x = 0; x <= gridWidth - newItemWidth; x += 1) {

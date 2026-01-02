@@ -21,10 +21,12 @@ interface ClientRect {
   height: number;
 }
 
-enum Direction {
-  Forward = 1,
-  Backward = -1,
-}
+const Direction = {
+  Forward: 1,
+  Backward: -1,
+} as const;
+
+type Direction = (typeof Direction)[keyof typeof Direction];
 
 interface ScrollIntent {
   x: Record<Direction, boolean>;
@@ -49,6 +51,8 @@ const defaultScrollIntent: ScrollIntent = {
 
 const canUseDOM =
   typeof window !== "undefined" && typeof document !== "undefined";
+
+const OVERFLOW_REGEX = /(auto|scroll|overlay)/;
 
 const scheduleFrame = (callback: FrameRequestCallback): FrameHandle | null => {
   if (!canUseDOM) {
@@ -105,11 +109,10 @@ const isScrollable = (
   element: Element,
   computedStyle = getWindow(element).getComputedStyle(element)
 ): boolean => {
-  const overflowRegex = /(auto|scroll|overlay)/;
   const properties = ["overflow", "overflowX", "overflowY"];
   return properties.some((property) => {
     const value = computedStyle[property as keyof CSSStyleDeclaration];
-    return typeof value === "string" ? overflowRegex.test(value) : false;
+    return typeof value === "string" ? OVERFLOW_REGEX.test(value) : false;
   });
 };
 
@@ -511,6 +514,7 @@ export const useEdgeScroll = (
     []
   );
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Auto-scroll logic requires complex scroll boundary and state calculations
   const updateAutoScroll = useCallback(() => {
     const options = optionsRef.current;
     const enabled = options.enabled !== false;

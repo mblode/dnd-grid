@@ -144,6 +144,8 @@ const renderGrid = (ui: React.ReactElement) => {
   };
 };
 
+const heightPxRegex = /\d+px/;
+
 // Mock GridItem to simplify testing
 vi.mock("../grid-item", () => ({
   GridItem: ({
@@ -166,6 +168,7 @@ vi.mock("../grid-item", () => ({
     onItemKeyDown,
     registerItemRef,
   }: MockGridItemProps) => (
+    // biome-ignore lint/a11y/useSemanticElements: mock uses div to keep DOM structure aligned with grid layout.
     <div
       className={className}
       data-aria-colindex={ariaColIndex}
@@ -521,7 +524,7 @@ describe("DndGrid", () => {
         </DndGrid>
       );
       const grid = document.querySelector(".dnd-grid") as HTMLElement;
-      expect(grid.style.height).toMatch(/\d+px/);
+      expect(grid.style.height).toMatch(heightPxRegex);
     });
 
     it("does not set height when autoSize is false", () => {

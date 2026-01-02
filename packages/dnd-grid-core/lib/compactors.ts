@@ -120,15 +120,13 @@ export const verticalCompactor: Compactor = {
     const out: LayoutItem<TLayoutData>[] = new Array(layout.length);
     const indexByItem = new Map<LayoutItem<TLayoutData>, number>();
 
-    for (let i = 0; i < layout.length; i++) {
-      const item = layout[i];
+    for (const [index, item] of layout.entries()) {
       if (item) {
-        indexByItem.set(item, i);
+        indexByItem.set(item, index);
       }
     }
 
-    for (let i = 0; i < sorted.length; i++) {
-      const sortedItem = sorted[i];
+    for (const sortedItem of sorted) {
       if (sortedItem === undefined) {
         continue;
       }
@@ -173,15 +171,13 @@ export const horizontalCompactor: Compactor = {
     const out: LayoutItem<TLayoutData>[] = new Array(layout.length);
     const indexByItem = new Map<LayoutItem<TLayoutData>, number>();
 
-    for (let i = 0; i < layout.length; i++) {
-      const item = layout[i];
+    for (const [index, item] of layout.entries()) {
       if (item) {
-        indexByItem.set(item, i);
+        indexByItem.set(item, index);
       }
     }
 
-    for (let i = 0; i < sorted.length; i++) {
-      const sortedItem = sorted[i];
+    for (const sortedItem of sorted) {
       if (sortedItem === undefined) {
         continue;
       }

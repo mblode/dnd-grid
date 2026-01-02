@@ -71,6 +71,8 @@ const defaultProps = {
   id: "test-item",
 };
 
+const pxRegex = /\d+px/;
+
 interface ResizeCallbackData {
   node: HTMLElement;
   size: Size;
@@ -218,8 +220,8 @@ describe("GridItem", () => {
       render(<GridItem {...defaultProps} />);
       const element = screen.getByTestId("child");
       const style = element.style;
-      expect(style.width).toMatch(/\d+px/);
-      expect(style.height).toMatch(/\d+px/);
+      expect(style.width).toMatch(pxRegex);
+      expect(style.height).toMatch(pxRegex);
     });
 
     it("calculates position based on grid coordinates", () => {
@@ -428,7 +430,9 @@ describe("GridItem", () => {
       );
 
       const handle = getHandle(ref);
-      vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
+      vi.spyOn(handle, "startSpringAnimation").mockImplementation(
+        () => undefined
+      );
       const node = screen.getByTestId("child");
       act(() => {
         handle.onDragStart(new MouseEvent("mousedown"), createDragData(node));
@@ -487,7 +491,9 @@ describe("GridItem", () => {
         </div>
       );
       const handle = getHandle(ref);
-      vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
+      vi.spyOn(handle, "startSpringAnimation").mockImplementation(
+        () => undefined
+      );
 
       const grid = screen.getByTestId("grid");
       Object.defineProperty(grid, "clientHeight", { value: 200 });
@@ -525,7 +531,9 @@ describe("GridItem", () => {
         </div>
       );
       const handle = getHandle(ref);
-      vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
+      vi.spyOn(handle, "startSpringAnimation").mockImplementation(
+        () => undefined
+      );
 
       const node = screen.getByTestId("child");
       act(() => {
@@ -554,7 +562,9 @@ describe("GridItem", () => {
         </div>
       );
       const handle = getHandle(ref);
-      vi.spyOn(handle, "startSpringAnimation").mockImplementation(() => {});
+      vi.spyOn(handle, "startSpringAnimation").mockImplementation(
+        () => undefined
+      );
 
       const node = screen.getByTestId("child");
       act(() => {

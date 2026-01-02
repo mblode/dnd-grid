@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: Re-exporting calculation utilities for convenience
 export {
   calcGridColWidth,
   calcGridItemPosition,

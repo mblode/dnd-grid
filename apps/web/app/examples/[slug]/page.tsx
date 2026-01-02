@@ -4,13 +4,15 @@ import { examples, examplesBySlug } from "@/examples/manifest";
 import { cn } from "@/lib/utils";
 
 const siteUrl = "https://dnd-grid.com";
+const EXAMPLE_SUFFIX_REGEX = /-example$/;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams?: Promise<{ embed?: string }>;
 }
 
-const docsSlugFromExample = (slug: string) => slug.replace(/-example$/, "");
+const docsSlugFromExample = (slug: string) =>
+  slug.replace(EXAMPLE_SUFFIX_REGEX, "");
 
 const resolveExample = (slug?: string | null) => {
   if (!slug) {

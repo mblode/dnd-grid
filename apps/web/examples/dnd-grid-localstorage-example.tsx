@@ -24,12 +24,16 @@ const normalizeLayout = (value: unknown): Layout | null => {
     }
     const record = item as Record<string, unknown>;
     const candidate = record.id ?? record.i ?? record.key;
-    const id =
-      typeof candidate === "string" && candidate.trim().length > 0
-        ? candidate
-        : typeof candidate === "number" && Number.isFinite(candidate)
-          ? candidate.toString()
-          : `item-${index}`;
+
+    let id: string;
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      id = candidate;
+    } else if (typeof candidate === "number" && Number.isFinite(candidate)) {
+      id = candidate.toString();
+    } else {
+      id = `item-${index}`;
+    }
+
     return {
       ...record,
       id,

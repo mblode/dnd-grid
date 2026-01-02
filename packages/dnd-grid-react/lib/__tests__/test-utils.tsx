@@ -14,4 +14,5 @@ export function createLayoutItem(
   };
 }
 
+// biome-ignore lint/performance/noBarrelFile: Re-exporting testing utilities for convenience in tests
 export * from "@testing-library/react";

@@ -501,6 +501,7 @@ export const createLayoutEngine = <TData = unknown>(
       let nextX: number | undefined;
       let nextY: number | undefined;
 
+      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Layout resize requires complex constraint and collision handling
       const [nextLayout, item] = withLayoutItem(layout, cmd.id, (l) => {
         let nextW = cmd.w;
         let nextH = cmd.h;

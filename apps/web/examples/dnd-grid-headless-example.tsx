@@ -6,7 +6,7 @@ import {
   useContainerWidth,
   useDndGrid,
 } from "@dnd-grid/react";
-import * as React from "react";
+import { Children, type MutableRefObject, useCallback, useState } from "react";
 
 const initialLayout: Layout = [
   { id: "a", x: 0, y: 0, w: 3, h: 2 },
@@ -15,7 +15,7 @@ const initialLayout: Layout = [
 ];
 
 export function HeadlessExample() {
-  const [layout, setLayout] = React.useState(initialLayout);
+  const [layout, setLayout] = useState(initialLayout);
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: true,
   });
@@ -35,7 +35,7 @@ export function HeadlessExample() {
   });
 
   const { ref: gridRef, ...restGridProps } = gridProps;
-  const setGridRef = React.useCallback(
+  const setGridRef = useCallback(
     (node: HTMLDivElement | null) => {
       containerRef.current = node;
       if (typeof gridRef === "function") {
@@ -43,8 +43,7 @@ export function HeadlessExample() {
         return;
       }
       if (gridRef) {
-        (gridRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        (gridRef as MutableRefObject<HTMLDivElement | null>).current = node;
       }
     },
     [containerRef, gridRef]
@@ -60,7 +59,7 @@ export function HeadlessExample() {
         {mounted && (
           <>
             {liveRegionElement}
-            {React.Children.map(children, (child) => {
+            {Children.map(children, (child) => {
               const props = itemProps.getItemProps(child);
               return props ? <GridItem {...props} /> : null;
             })}

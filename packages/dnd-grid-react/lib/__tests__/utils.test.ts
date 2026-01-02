@@ -170,7 +170,7 @@ describe("utils", () => {
     it("warns once for missing layout items", () => {
       const consoleWarn = vi
         .spyOn(console, "warn")
-        .mockImplementation(() => {});
+        .mockImplementation(() => undefined);
       const warnings = {
         missingLayoutItems: new Set<string>(),
         unusedLayoutItems: new Set<string>(),
@@ -205,13 +205,13 @@ describe("utils", () => {
     it("warns once for unused layout items", () => {
       const consoleWarn = vi
         .spyOn(console, "warn")
-        .mockImplementation(() => {});
+        .mockImplementation(() => undefined);
       const warnings = {
         missingLayoutItems: new Set<string>(),
         unusedLayoutItems: new Set<string>(),
       };
       const initialLayout = [createLayoutItem({ id: "a", x: 1, y: 2 })];
-      const children = null;
+      const children: React.ReactNode = null;
       synchronizeLayoutWithChildren(
         initialLayout,
         children,

@@ -1,20 +1,15 @@
 import type { Compactor, Layout, LayoutItem, Position } from "@dnd-grid/core";
 import {
   bottom,
-  cloneLayout,
   cloneLayoutItem,
   correctBounds,
-  getAllCollisions,
   getLayoutItem,
-  moveElement,
-  resizeItemInDirection,
-  sortLayoutItems,
-  withLayoutItem,
 } from "@dnd-grid/core";
 import { deepEqual } from "fast-equals";
 import type { ReactNode } from "react";
 import React from "react";
 
+// biome-ignore lint/performance/noBarrelFile: Re-exporting utilities for convenience
 export {
   bottom,
   cloneLayout,
@@ -25,7 +20,7 @@ export {
   resizeItemInDirection,
   sortLayoutItems,
   withLayoutItem,
-};
+} from "@dnd-grid/core";
 
 export interface LayoutSyncWarnings {
   missingLayoutItems: Set<string>;
@@ -100,18 +95,18 @@ export const synchronizeLayoutWithChildren = <TData>(
   });
   if (layoutSyncWarnings) {
     const { unusedLayoutItems } = layoutSyncWarnings;
-    initial.forEach((item) => {
+    for (const item of initial) {
       if (childKeys.has(item.id)) {
-        return;
+        continue;
       }
       if (unusedLayoutItems.has(item.id)) {
-        return;
+        continue;
       }
       unusedLayoutItems.add(item.id);
       console.warn(
         `DndGrid: Layout item "${item.id}" has no matching child and will be ignored.`
       );
-    });
+    }
   }
   // Correct the layout.
   const correctedLayout = correctBounds(layout, { cols });
@@ -138,4 +133,5 @@ export const setTransform = (
   };
 };
 
+// biome-ignore lint/suspicious/noEmptyBlockStatements: Intentional no-op function
 export const noop = () => {};

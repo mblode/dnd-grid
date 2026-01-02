@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import * as React from "react";
+import { type MouseEvent, useCallback } from "react";
 
 import {
   Button as ButtonPrimitive,
@@ -68,8 +68,8 @@ function CopyButton({
     onChange: onCopiedChange,
   });
 
-  const handleCopy = React.useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCopy = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
       onClick?.(e);
       if (copied) {
         return;

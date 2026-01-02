@@ -7,7 +7,7 @@ import type {
   RefAttributes,
   RefObject,
 } from "react";
-import * as React from "react";
+import React from "react";
 import {
   DraggableCore,
   type DraggableData,
@@ -314,7 +314,7 @@ const GridItem = React.forwardRef(
   <TData,>(
     incomingProps: GridItemProps<TData>,
     ref: React.ForwardedRef<GridItemHandle>
-  ) => {
+  ) /* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: component wires complex drag/resize interactions. */ => {
     const props = { ...defaultProps, ...incomingProps } as Props<TData>;
     const [state, setState] = React.useState<State>(() => ({
       allowedToDrag: false,
@@ -568,9 +568,9 @@ const GridItem = React.forwardRef(
 
     const removeChildEvents = React.useCallback(() => {
       if (elementRef.current) {
-        childEventsRef.current.forEach(({ type, event }) => {
+        for (const { type, event } of childEventsRef.current) {
           elementRef.current?.removeEventListener(type, event, false);
-        });
+        }
         childEventsRef.current = [];
       }
     }, []);
@@ -780,6 +780,7 @@ const GridItem = React.forwardRef(
       const MAX_SETTLE_FRAMES = 120;
       const MAX_SETTLE_DURATION_MS = 2000;
 
+      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: spring animation loop manages multiple animation states.
       const animate = () => {
         const now = performance.now();
         if (isSettlingRef.current && !isDraggingRef.current) {
@@ -916,6 +917,7 @@ const GridItem = React.forwardRef(
      * onDragStart event handler
      */
     const onDragStart: DraggableEventHandler = React.useCallback(
+      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: drag start handles multiple input and state paths.
       (e, { node }) => {
         const { onDragStart, transformScale, dragTouchDelayDuration } =
           propsRef.current;
@@ -1164,6 +1166,7 @@ const GridItem = React.forwardRef(
      * onDragEnd event handler
      */
     const onDragEnd: DraggableEventHandler = React.useCallback(
+      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: drag end reconciles animation, layout, and callbacks.
       (e, { node }) => {
         resetDelayTimeout();
         const { onDragEnd } = propsRef.current;

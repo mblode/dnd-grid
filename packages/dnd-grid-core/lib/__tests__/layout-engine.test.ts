@@ -8,6 +8,8 @@ import {
 } from "../layout-engine";
 import type { Layout } from "../types";
 
+const VALIDATION_ERROR_REGEX = /LayoutEngineOptions validation failed/;
+
 const baseOptions: LayoutEngineOptions = {
   cols: 12,
   maxRows: 100,
@@ -105,8 +107,6 @@ describe("createLayoutEngine", () => {
 
   it("throws on invalid options when validation is enabled", () => {
     const options = { ...baseOptions, cols: -1 };
-    expect(() => createLayoutEngine(options)).toThrow(
-      /LayoutEngineOptions validation failed/
-    );
+    expect(() => createLayoutEngine(options)).toThrow(VALIDATION_ERROR_REGEX);
   });
 });

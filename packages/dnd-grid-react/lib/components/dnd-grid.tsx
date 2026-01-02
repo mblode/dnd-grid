@@ -1,4 +1,11 @@
-import * as React from "react";
+import type {
+  ForwardedRef,
+  HTMLAttributes,
+  PropsWithoutRef,
+  ReactElement,
+  RefAttributes,
+} from "react";
+import { forwardRef } from "react";
 import { useContainerWidth } from "../use-container-width";
 import {
   defaultProps,
@@ -27,16 +34,16 @@ export type DndGridProps<TData = unknown> = Omit<
   /**
    * Props applied to the measurement container.
    */
-  containerProps?: Omit<React.HTMLAttributes<HTMLDivElement>, "children">;
+  containerProps?: Omit<HTMLAttributes<HTMLDivElement>, "children">;
 };
 
 export type DndGridHandle<TData = unknown> = UseDndGridApi<TData>;
 export type DndGrid<TData = unknown> = DndGridHandle<TData>;
 
 type DndGridComponent = (<TData = unknown>(
-  props: React.PropsWithoutRef<DndGridProps<TData>> &
-    React.RefAttributes<DndGridHandle<TData>>
-) => React.ReactElement | null) & {
+  props: PropsWithoutRef<DndGridProps<TData>> &
+    RefAttributes<DndGridHandle<TData>>
+) => ReactElement | null) & {
   defaultProps?: typeof defaultProps;
   displayName?: string;
   getDerivedStateFromProps: typeof getDerivedStateFromProps;
@@ -45,7 +52,7 @@ type DndGridComponent = (<TData = unknown>(
 /**
  * A reactive, fluid grid layout with draggable, resizable components.
  */
-const DndGrid = React.forwardRef(
+const DndGrid = forwardRef(
   <TData,>(
     {
       containerProps,
@@ -54,7 +61,7 @@ const DndGrid = React.forwardRef(
       width: widthProp,
       ...gridProps
     }: DndGridProps<TData>,
-    ref: React.ForwardedRef<DndGridHandle<TData>>
+    ref: ForwardedRef<DndGridHandle<TData>>
   ) => {
     const shouldMeasure = widthProp === undefined;
     const {

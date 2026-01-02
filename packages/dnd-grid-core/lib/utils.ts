@@ -179,7 +179,7 @@ export const moveElement = <TData>(
   y: number | null | undefined,
   isUserAction: boolean | null | undefined,
   compactor: Compactor<TData>,
-  cols: number
+  cols: number // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Grid element movement requires complex collision detection and compaction logic
 ): LayoutItem<TData>[] => {
   if (l.static && l.draggable !== true) {
     return [...layout];
@@ -201,12 +201,13 @@ export const moveElement = <TData>(
   l.moved = true;
 
   let sorted = [...sortLayoutItems(layout, compactor)];
-  const movingUp =
-    compactorType === "vertical" && typeof y === "number"
-      ? oldY >= y
-      : compactorType === "horizontal" && typeof x === "number"
-        ? oldX >= x
-        : false;
+  let movingUp = false;
+  if (compactorType === "vertical" && typeof y === "number") {
+    movingUp = oldY >= y;
+  } else if (compactorType === "horizontal" && typeof x === "number") {
+    movingUp = oldX >= x;
+  }
+
   if (movingUp) {
     sorted = sorted.reverse();
   }
@@ -260,15 +261,16 @@ export const moveElementAwayFromCollision = <TData>(
   itemToMove: LayoutItem<TData>,
   isUserAction: boolean | null | undefined,
   compactor: Compactor<TData>,
-  cols: number
+  cols: number // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Collision resolution requires complex conditional logic for all edge cases
 ): LayoutItem<TData>[] => {
   const compactorType = compactor.type;
   const compactH = compactorType === "horizontal";
   const compactV = compactorType === "vertical";
   const preventCollision = collidesWith.static;
 
-  if (isUserAction) {
-    isUserAction = false;
+  let userAction = isUserAction;
+  if (userAction) {
+    userAction = false;
     const fakeItem: LayoutItem<TData> = {
       x: compactH ? Math.max(collidesWith.x - itemToMove.w, 0) : itemToMove.x,
       y: compactV ? Math.max(collidesWith.y - itemToMove.h, 0) : itemToMove.y,
@@ -290,7 +292,7 @@ export const moveElementAwayFromCollision = <TData>(
         itemToMove,
         compactH ? fakeItem.x : undefined,
         compactV ? fakeItem.y : undefined,
-        isUserAction,
+        userAction,
         { ...compactor, preventCollision },
         cols
       );
@@ -301,7 +303,7 @@ export const moveElementAwayFromCollision = <TData>(
         itemToMove,
         undefined,
         itemToMove.y + 1,
-        isUserAction,
+        userAction,
         { ...compactor, preventCollision },
         cols
       );
@@ -317,7 +319,7 @@ export const moveElementAwayFromCollision = <TData>(
         collidesWith,
         itemToMove.x,
         undefined,
-        isUserAction,
+        userAction,
         { ...compactor, preventCollision },
         cols
       );
@@ -336,7 +338,7 @@ export const moveElementAwayFromCollision = <TData>(
     itemToMove,
     newX,
     newY,
-    isUserAction,
+    userAction,
     { ...compactor, preventCollision },
     cols
   );

@@ -43,6 +43,8 @@ const TestComponent = ({
   );
 };
 
+const responsiveLayoutMissingRegex = /Responsive layout.*missing/i;
+
 describe("useDndGridResponsiveLayout", () => {
   it("returns layout for the active breakpoint", () => {
     const layouts: ResponsiveLayouts = {
@@ -114,7 +116,7 @@ describe("useDndGridResponsiveLayout", () => {
     };
     const consoleError = vi
       .spyOn(console, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => undefined);
 
     expect(() =>
       render(
@@ -125,7 +127,7 @@ describe("useDndGridResponsiveLayout", () => {
           width={800}
         />
       )
-    ).toThrow(/Responsive layout.*missing/i);
+    ).toThrow(responsiveLayoutMissingRegex);
 
     consoleError.mockRestore();
   });

@@ -1,4 +1,11 @@
-import * as React from "react";
+import type {
+  ForwardedRef,
+  HTMLAttributes,
+  PropsWithoutRef,
+  ReactElement,
+  RefAttributes,
+} from "react";
+import { forwardRef } from "react";
 import type { DefaultBreakpoints } from "../responsive-utils";
 import type { Breakpoint, Compactor } from "../types";
 import { useContainerWidth } from "../use-container-width";
@@ -40,7 +47,7 @@ export type ResponsiveDndGridProps<
     width?: number;
     measureBeforeMount?: boolean;
     initialWidth?: number;
-    containerProps?: Omit<React.HTMLAttributes<HTMLDivElement>, "children">;
+    containerProps?: Omit<HTMLAttributes<HTMLDivElement>, "children">;
   };
 
 export type ResponsiveDndGridHandle<TData = unknown> = DndGridCoreHandle<TData>;
@@ -50,16 +57,16 @@ type ResponsiveDndGridComponent = (<
   TData = unknown,
   B extends Breakpoint = DefaultBreakpoints,
 >(
-  props: React.PropsWithoutRef<ResponsiveDndGridProps<B, TData>> &
-    React.RefAttributes<ResponsiveDndGridHandle<TData>>
-) => React.ReactElement | null) & {
+  props: PropsWithoutRef<ResponsiveDndGridProps<B, TData>> &
+    RefAttributes<ResponsiveDndGridHandle<TData>>
+) => ReactElement | null) & {
   displayName?: string;
 };
 
 /**
  * Responsive grid layout with breakpoint-aware layouts.
  */
-const ResponsiveDndGrid = React.forwardRef(
+const ResponsiveDndGrid = forwardRef(
   <TData, B extends Breakpoint = DefaultBreakpoints>(
     {
       layouts,
@@ -81,7 +88,7 @@ const ResponsiveDndGrid = React.forwardRef(
       children,
       ...gridProps
     }: ResponsiveDndGridProps<B, TData>,
-    ref: React.ForwardedRef<ResponsiveDndGridHandle<TData>>
+    ref: ForwardedRef<ResponsiveDndGridHandle<TData>>
   ) => {
     const shouldMeasure = widthProp === undefined;
     const {

@@ -1,4 +1,5 @@
 /** @knipignore */
+// biome-ignore lint/performance/noBarrelFile: public re-export of core constraints.
 export {
   applyPositionConstraints,
   applySizeConstraints,

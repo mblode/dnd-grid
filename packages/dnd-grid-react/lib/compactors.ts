@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: Re-exporting compactors for convenience
 export {
   compactItemHorizontal,
   compactItemVertical,

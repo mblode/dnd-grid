@@ -1,5 +1,6 @@
 import "./styles/index.css";
 
+// biome-ignore lint/performance/noBarrelFile: public entrypoint re-exports.
 export {
   compactItemHorizontal,
   compactItemVertical,

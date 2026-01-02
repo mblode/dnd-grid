@@ -8,10 +8,14 @@ const docsExamplesDir = path.join(root, "apps/docs/examples");
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
 const items = registry.items ?? [];
 const siteUrl = "https://dnd-grid.com";
+const EXAMPLE_SUFFIX_REGEX = /-example$/;
+const FRONTMATTER_REGEX = /^---[\s\S]*?---\s*/;
+const CODE_BLOCK_REGEX =
+  /```tsx title="components\/dnd-grid-[^"]+"\n[\s\S]*?\n```/;
 
 const updateMdx = (item) => {
   const slug = item.name;
-  const docsSlug = slug.replace(/-example$/, "");
+  const docsSlug = slug.replace(EXAMPLE_SUFFIX_REGEX, "");
   const file = item.files?.[0];
   if (!file) {
     throw new Error(`No files listed for ${slug}`);
@@ -26,7 +30,7 @@ const updateMdx = (item) => {
   }
 
   const mdx = fs.readFileSync(mdxPath, "utf8");
-  const frontmatterMatch = mdx.match(/^---[\s\S]*?---\s*/);
+  const frontmatterMatch = mdx.match(FRONTMATTER_REGEX);
   if (!frontmatterMatch) {
     throw new Error(`Missing frontmatter in ${mdxPath}`);
   }
@@ -58,15 +62,13 @@ const updateMdx = (item) => {
     .slice(installationIndex)
     .trimStart()}`;
 
-  const codeBlockRegex =
-    /```tsx title="components\/dnd-grid-[^"]+"\n[\s\S]*?\n```/;
   const codeBlock = `\`\`\`tsx title="components/dnd-grid-${slug}.tsx"\n${exampleContent}\n\`\`\``;
 
-  if (!codeBlockRegex.test(updatedIntro)) {
+  if (!CODE_BLOCK_REGEX.test(updatedIntro)) {
     throw new Error(`Missing component code block in ${mdxPath}`);
   }
 
-  const updated = updatedIntro.replace(codeBlockRegex, codeBlock);
+  const updated = updatedIntro.replace(CODE_BLOCK_REGEX, codeBlock);
   fs.writeFileSync(mdxPath, `${updated}\n`);
 };
 

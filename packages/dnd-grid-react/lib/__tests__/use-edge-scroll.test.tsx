@@ -116,7 +116,7 @@ describe("useEdgeScroll", () => {
       />
     );
 
-    act(() => {});
+    act(() => undefined);
     if (!handlers) {
       throw new Error("Edge scroll handlers were not initialized.");
     }
@@ -176,7 +176,7 @@ describe("useEdgeScroll", () => {
       />
     );
 
-    act(() => {});
+    act(() => undefined);
     if (!handlers) {
       throw new Error("Edge scroll handlers were not initialized.");
     }
@@ -243,7 +243,7 @@ describe("useEdgeScroll", () => {
       />
     );
 
-    act(() => {});
+    act(() => undefined);
     if (!handlers) {
       throw new Error("Edge scroll handlers were not initialized.");
     }

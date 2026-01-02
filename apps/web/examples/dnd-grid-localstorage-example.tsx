@@ -41,7 +41,7 @@ const normalizeLayout = (value: unknown): Layout | null => {
   }
 
   const parsed = layoutSchema.safeParse(normalized);
-  return parsed.success ? parsed.data : null;
+  return parsed.success ? (parsed.data as Layout) : null;
 };
 
 export function LocalStorageExample() {

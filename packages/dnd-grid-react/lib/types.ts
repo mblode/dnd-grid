@@ -57,15 +57,21 @@ export type ResizeHandle =
       ref: ReactRef<HTMLElement>
     ) => ReactElement);
 
-export enum AutoScrollActivator {
-  Pointer = 0,
-  DraggableRect = 1,
-}
+export const AutoScrollActivator = {
+  Pointer: 0,
+  DraggableRect: 1,
+} as const;
 
-export enum TraversalOrder {
-  TreeOrder = 0,
-  ReversedTreeOrder = 1,
-}
+export type AutoScrollActivator =
+  (typeof AutoScrollActivator)[keyof typeof AutoScrollActivator];
+
+export const TraversalOrder = {
+  TreeOrder: 0,
+  ReversedTreeOrder: 1,
+} as const;
+
+export type TraversalOrder =
+  (typeof TraversalOrder)[keyof typeof TraversalOrder];
 
 export interface CallbackThrottleOptions {
   drag?: number;

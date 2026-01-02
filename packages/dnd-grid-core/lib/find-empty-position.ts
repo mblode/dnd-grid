@@ -11,8 +11,7 @@ const hasCollision = <TData>(
   w: number,
   h: number
 ): boolean => {
-  for (let i = 0; i < layout.length; i += 1) {
-    const item = layout[i];
+  for (const item of layout) {
     if (x + w <= item.x) {
       continue;
     }
@@ -38,8 +37,8 @@ const getFiniteBottom = <TData>(layout: Layout<TData>): number => {
   }
 
   let max = 0;
-  for (let i = 0; i < layout.length; i += 1) {
-    const itemBottom = layout[i].y + layout[i].h;
+  for (const item of layout) {
+    const itemBottom = item.y + item.h;
     if (!Number.isFinite(itemBottom)) {
       continue;
     }

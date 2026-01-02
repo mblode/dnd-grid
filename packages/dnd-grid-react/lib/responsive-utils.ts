@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: public re-export of core responsive utilities.
 export {
   DEFAULT_BREAKPOINTS,
   DEFAULT_COLS,

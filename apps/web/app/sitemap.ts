@@ -5,6 +5,7 @@ const siteUrl = "https://dnd-grid.com";
 const staticRoutes = ["", "docs"];
 const exampleRoutes = registry.items.map((item) => `examples/${item.name}`);
 const routes = Array.from(new Set([...staticRoutes, ...exampleRoutes]));
+const TRAILING_SLASH_REGEX = /\/$/;
 
 const getChangeFrequency = (route: string) =>
   route === "" || route === "docs" ? "weekly" : "monthly";
@@ -23,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 
   return routes.map((route) => ({
-    url: `${siteUrl}/${route}`.replace(/\/$/, ""),
+    url: `${siteUrl}/${route}`.replace(TRAILING_SLASH_REGEX, ""),
     lastModified,
     changeFrequency: getChangeFrequency(route),
     priority: getPriority(route),

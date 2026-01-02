@@ -97,6 +97,7 @@ export const useKeyboardMove = ({
   }, [setPressed, setResizing]);
 
   const onKeyDown = useCallback(
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Keyboard event handling requires multiple conditional branches
     (e: React.KeyboardEvent) => {
       const node = nodeRef.current;
       if (!node) {

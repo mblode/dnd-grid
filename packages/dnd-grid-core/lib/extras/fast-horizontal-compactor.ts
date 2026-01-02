@@ -46,6 +46,7 @@ const compactHorizontalFast = <TData>(
   layout: LayoutItem<TData>[],
   cols: number,
   allowOverlap: boolean
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Compaction algorithm requires nested loops and conditional logic
 ): void => {
   const numItems = layout.length;
   if (numItems === 0) {

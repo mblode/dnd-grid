@@ -16,10 +16,11 @@ const writeFile = (filePath, content) => {
 
 const registry = readJson(registryPath);
 const items = registry.items ?? [];
+const EXPORT_NAME_REGEX = /export\s+(?:function|const)\s+([A-Za-z0-9_]+)/;
 
 const readExampleExport = (filePath) => {
   const content = fs.readFileSync(filePath, "utf8");
-  const match = content.match(/export\s+(?:function|const)\s+([A-Za-z0-9_]+)/);
+  const match = content.match(EXPORT_NAME_REGEX);
   if (!match) {
     throw new Error(`Could not find export in ${filePath}`);
   }

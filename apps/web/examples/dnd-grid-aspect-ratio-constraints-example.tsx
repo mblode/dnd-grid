@@ -9,7 +9,7 @@ import {
   type Layout,
   useContainerWidth,
 } from "@dnd-grid/react";
-import * as React from "react";
+import { useEffect, useState } from "react";
 
 const COLS = 12;
 const ROW_HEIGHT = 50;
@@ -66,10 +66,10 @@ export function AspectRatioConstraintsExample() {
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: true,
   });
-  const [layout, setLayout] = React.useState<Layout>(baseLayout);
-  const [ready, setReady] = React.useState(false);
+  const [layout, setLayout] = useState<Layout>(baseLayout);
+  const [ready, setReady] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted || width <= 0 || ready) {
       return;
     }

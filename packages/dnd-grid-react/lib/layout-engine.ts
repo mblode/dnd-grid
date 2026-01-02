@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: public re-export of core layout engine.
 export {
   createLayoutEngine,
   type LayoutCommand,

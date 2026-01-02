@@ -43,9 +43,9 @@ const setupMatchMedia = (initial: boolean) => {
   return {
     emit(nextMatches: boolean) {
       matches = nextMatches;
-      listeners.forEach((listener) => {
+      for (const listener of listeners) {
         listener({ matches: nextMatches } as MediaQueryListEvent);
-      });
+      }
     },
   };
 };

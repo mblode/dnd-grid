@@ -58,9 +58,9 @@ class Listeners {
   }
 
   removeAll = () => {
-    this.listeners.forEach((listener) => {
+    for (const listener of this.listeners) {
       this.target?.removeEventListener(...listener);
-    });
+    }
   };
 }
 
@@ -95,15 +95,15 @@ const hasExceededDistance = (
   return false;
 };
 
-enum EventName {
-  Click = "click",
-  DragStart = "dragstart",
-  Keydown = "keydown",
-  ContextMenu = "contextmenu",
-  Resize = "resize",
-  SelectionChange = "selectionchange",
-  VisibilityChange = "visibilitychange",
-}
+const EventName = {
+  Click: "click",
+  DragStart: "dragstart",
+  Keydown: "keydown",
+  ContextMenu: "contextmenu",
+  Resize: "resize",
+  SelectionChange: "selectionchange",
+  VisibilityChange: "visibilitychange",
+} as const;
 
 const preventDefault = (event: Event) => {
   event.preventDefault();
@@ -363,6 +363,7 @@ export class TrackedTouchSensor extends TrackedPointerSensor {
       window.removeEventListener(touchEvents.move.name, noop);
     };
 
+    // biome-ignore lint/suspicious/noEmptyBlockStatements: Empty function used as no-op event handler
     function noop() {}
   }
 

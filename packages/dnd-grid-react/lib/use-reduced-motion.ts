@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useSyncExternalStore } from "react";
 import type { ReducedMotionSetting } from "./types";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -18,6 +18,7 @@ const getSnapshot = (): boolean => getMediaQueryList()?.matches ?? false;
 const subscribe = (onStoreChange: () => void): (() => void) => {
   const mediaQueryList = getMediaQueryList();
   if (!mediaQueryList) {
+    // biome-ignore lint/suspicious/noEmptyBlockStatements: Empty function intentionally used as no-op cleanup
     return () => {};
   }
   const handler = () => onStoreChange();
@@ -30,7 +31,7 @@ const subscribe = (onStoreChange: () => void): (() => void) => {
 };
 
 export const useReducedMotion = (): boolean =>
-  React.useSyncExternalStore(subscribe, getSnapshot, () => false);
+  useSyncExternalStore(subscribe, getSnapshot, () => false);
 
 export const resolveReducedMotion = (
   setting: ReducedMotionSetting | boolean | undefined,

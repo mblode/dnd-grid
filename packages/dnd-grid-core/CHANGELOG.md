@@ -1,5 +1,11 @@
 # @dnd-grid/core
 
+## 1.1.7
+
+### Patch Changes
+
+- ea5c3ad: Fix responsive layout prop sync: use shape-preserving snapshot with deepEqual to correctly detect in-place layout mutations
+
 ## 1.1.6
 
 ### Patch Changes

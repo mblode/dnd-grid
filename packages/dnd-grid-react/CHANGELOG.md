@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.6
+
+### Patch Changes
+
+- 08e09ec: fix swing physics
+- Updated dependencies [08e09ec]
+  - @dnd-grid/core@1.1.6
+
 ## 1.1.5
 
 ### Patch Changes

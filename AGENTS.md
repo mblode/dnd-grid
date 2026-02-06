@@ -1,44 +1,52 @@
-# Repository Guidelines
+# dnd-grid
 
-This repo is a Turborepo monorepo for the `@dnd-grid/react` library, its web site, and docs tooling. Use npm workspaces and Node >= 18 as declared in `package.json`.
+Turborepo monorepo for the `@dnd-grid/react` drag-and-drop grid layout library, its docs, and web site.
 
-## Project Structure & Module Organization
+## Project Structure
 
-- `apps/web` - Next.js app for the public site and examples (runs on port 3000 in dev).
-- `apps/docs` - MDX content and assets for documentation (API reference, guides, examples).
-- `apps/docs-worker` - Cloudflare Worker used to serve docs.
-- `packages/dnd-grid-react` - Library source under `lib/` with build output in `dist/`.
-- Root configs: `biome.json` (format/lint), `turbo.json` (task graph), `tsconfig.json` (shared TS settings).
+- `packages/dnd-grid-core` — Headless layout engine (pure TS, no React dependency)
+- `packages/dnd-grid-react` — React bindings (`lib/` source, `dist/` output)
+- `apps/web` — Next.js site and examples (port 3000)
+- `apps/docs` — MDX content and example source for documentation
+- `apps/docs-worker` — Cloudflare Worker serving docs
 
-## Build, Test, and Development Commands
+## Commands
 
-- `npm run dev` - Run `turbo run dev` across workspaces.
-- `npm run dev --workspace=web` - Start the Next.js dev server on port 3000.
-- `npm run build` - Build all workspaces; outputs `.next/` and `dist/`.
-- `npm run check-types` - Typecheck across packages/apps.
-- `npm run lint` / `npm run lint:fix` / `npm run format` - Biome linting and formatting.
-- `npm run test --workspace=@dnd-grid/react` - Run Vitest for the library (`test:watch`, `test:coverage` also available).
-- `npm run workers:dev` / `npm run workers:deploy` - Run or deploy the docs worker via Wrangler.
+```bash
+npm install                          # bootstrap (npm workspaces, Node >= 18)
+npm run dev                          # turbo dev across all workspaces
+npm run build                        # turbo build (core must build before react)
+npm run check-types                  # typecheck all packages/apps
 
-## Coding Style & Naming Conventions
+# Lint & format (Biome via Ultracite)
+npm run lint                         # biome check .
+npm run lint:fix                     # biome check --write .
+npm run format                       # biome format --write .
+npm exec -- ultracite fix            # auto-fix all Biome issues
 
-- Formatting and linting are enforced by Biome with 2-space indentation and organized imports.
-- TypeScript + ESM modules are standard across the repo.
-- File names use kebab-case (e.g., `resize-handle.tsx`), and tests use `.test.ts` or `.test.tsx`.
-- React components are PascalCase; hooks follow the `useX` naming pattern.
+# Tests (Vitest)
+npm run test --workspace=@dnd-grid/core    # run core tests
+npm run test --workspace=@dnd-grid/react   # run react tests
 
-## Testing Guidelines
+# Docs worker
+npm run workers:dev                  # local wrangler dev
+npm run workers:deploy               # deploy to Cloudflare
+```
 
-- Frameworks: Vitest + Testing Library with `jsdom`.
-- Tests live in `packages/dnd-grid-react/lib/**` alongside sources.
-- Add or update tests for layout logic, drag/resize behavior, and utility functions; run `test:coverage` before releases.
+## Gotchas
 
-## Commit & Pull Request Guidelines
+- **IMPORTANT: Pre-commit hook** — husky + lint-staged runs `npx ultracite fix` on staged files. If the hook fails, fix the lint issues and re-commit — do not bypass with `--no-verify`.
+- **Build order matters** — `@dnd-grid/core` must build before `@dnd-grid/react` (turbo handles this via `dependsOn: ["^build"]`). If react types break after core changes, rebuild core first.
+- **Tests live alongside source** — test files (`*.test.ts`, `*.test.tsx`) are colocated in `packages/dnd-grid-react/lib/` and `packages/dnd-grid-core/`, not in a separate `__tests__/` directory.
+- **CSS exports** — `@dnd-grid/react` exports `styles.css`, `base.css`, and `theme.css` via package.json `exports`. When adding new styles, update the export map.
+- **Changesets for releases** — use `npm run changeset` to create a changeset before publishing. `npm run changeset:version` bumps versions, `npm run release` publishes.
 
-- Commit history favors short, one-line summaries; a `ci:` prefix appears for workflow changes. Keep messages concise and imperative.
-- PRs should include a clear summary, testing notes, and linked issues. Add screenshots for UI changes in `apps/web` and note doc updates in `apps/docs`.
+## Conventions
 
-## Environment & Configuration
-
-- `.env*` files are recognized by Turbo inputs; document any new variables and defaults.
-- Keep secrets out of the repo and use local env files for developer-only configuration.
+- File names: kebab-case (`resize-handle.tsx`). Tests: `*.test.ts` / `*.test.tsx`.
+- React components: PascalCase. Hooks: `useX` pattern.
+- TypeScript + ESM throughout. Biome enforces formatting (2-space indent, organized imports).
+- Use `const` by default, `let` only when reassignment is needed, never `var`.
+- Use `unknown` over `any`. Prefer type narrowing over assertions.
+- React 19+: use ref as a prop, not `React.forwardRef`.
+- Next.js: use `<Image>` component, App Router metadata API, Server Components for data fetching.

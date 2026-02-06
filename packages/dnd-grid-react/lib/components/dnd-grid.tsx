@@ -8,7 +8,6 @@ import type {
 import { forwardRef } from "react";
 import { useContainerWidth } from "../use-container-width";
 import {
-  defaultProps,
   getDerivedStateFromProps,
   type UseDndGridApi,
   type UseDndGridOptions,
@@ -44,7 +43,6 @@ type DndGridComponent = (<TData = unknown>(
   props: PropsWithoutRef<DndGridProps<TData>> &
     RefAttributes<DndGridHandle<TData>>
 ) => ReactElement | null) & {
-  defaultProps?: typeof defaultProps;
   displayName?: string;
   getDerivedStateFromProps: typeof getDerivedStateFromProps;
 };
@@ -89,7 +87,6 @@ const DndGrid = forwardRef(
 ) as unknown as DndGridComponent;
 
 DndGrid.displayName = "DndGrid";
-DndGrid.defaultProps = defaultProps;
 DndGrid.getDerivedStateFromProps = getDerivedStateFromProps;
 
 export { DndGrid };

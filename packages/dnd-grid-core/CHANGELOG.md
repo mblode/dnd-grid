@@ -1,5 +1,11 @@
 # @dnd-grid/core
 
+## 1.1.8
+
+### Patch Changes
+
+- 1914eac: This patch release includes minor internal maintenance updates with no functional changes to the dnd-grid package.
+
 ## 1.1.7
 
 ### Patch Changes

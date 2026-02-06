@@ -32,7 +32,7 @@ jobs:
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
-          publish: npx turbo run build --filter=@dnd-grid/core --filter=@dnd-grid/react && npm run release
+          publish: npm run release:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"

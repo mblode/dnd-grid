@@ -8,6 +8,7 @@
   .dnd-grid-item {
     position: absolute;
     box-sizing: border-box;
+    overflow: visible;
     transition: transform var(--dnd-grid-transition-duration, 200ms)
       var(--dnd-grid-transition-easing, cubic-bezier(0.2, 0, 0, 1));
     --dnd-grid-radius-value: var(--dnd-grid-radius, 24px);
@@ -217,6 +218,11 @@
   }
 
   .react-draggable-transparent-selection {
+    user-select: none;
+  }
+
+  body.dnd-grid-no-select {
+    -webkit-user-select: none;
     user-select: none;
   }
 

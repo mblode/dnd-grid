@@ -181,7 +181,7 @@ const getFirstScrollableAncestor = (
 };
 
 const isDocumentScrollingElement = (element: Element): boolean =>
-  canUseDOM && element === document.scrollingElement;
+  canUseDOM && element === (element.ownerDocument ?? document).scrollingElement;
 
 const getScrollEventTarget = (
   element: Element
@@ -198,8 +198,9 @@ const getScrollEventTarget = (
 const getScrollPosition = (scrollContainer: Element) => {
   const minScroll = { x: 0, y: 0 };
   const scrollElement = scrollContainer as HTMLElement;
+  const win = getWindow(scrollElement);
   const dimensions = isDocumentScrollingElement(scrollElement)
-    ? { height: window.innerHeight, width: window.innerWidth }
+    ? { height: win.innerHeight, width: win.innerWidth }
     : { height: scrollElement.clientHeight, width: scrollElement.clientWidth };
   const maxScroll = {
     x: scrollElement.scrollWidth - dimensions.width,
@@ -229,8 +230,8 @@ const getRectDelta = (
 };
 
 const getScrollElementRect = (element: Element): ClientRect => {
-  if (element === document.scrollingElement) {
-    const { innerWidth, innerHeight } = window;
+  if (isDocumentScrollingElement(element)) {
+    const { innerWidth, innerHeight } = getWindow(element);
     return {
       top: 0,
       left: 0,

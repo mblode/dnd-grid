@@ -69,52 +69,76 @@ const dragShadow =
   "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)";
 const getResizeCursor = (handle?: ResizeHandleAxis) =>
   handle ? `${handle}-resize` : defaultResizeCursor;
-const activeDragItems = new Set<symbol>();
-const activeResizeItems = new Map<symbol, string>();
-const getActiveResizeCursor = () => {
+interface GlobalInteractionState {
+  dragItems: Set<symbol>;
+  resizeItems: Map<symbol, string>;
+}
+const globalStateByDoc = new WeakMap<Document, GlobalInteractionState>();
+const getGlobalState = (doc: Document): GlobalInteractionState => {
+  let state = globalStateByDoc.get(doc);
+  if (!state) {
+    state = { dragItems: new Set(), resizeItems: new Map() };
+    globalStateByDoc.set(doc, state);
+  }
+  return state;
+};
+const getActiveResizeCursor = (state: GlobalInteractionState) => {
   let cursor = defaultResizeCursor;
-  for (const value of activeResizeItems.values()) {
+  for (const value of state.resizeItems.values()) {
     cursor = value;
   }
   return cursor;
 };
-const updateGlobalInteractionState = () => {
-  if (typeof document === "undefined") {
+const updateGlobalInteractionState = (doc?: Document) => {
+  if (!doc) {
     return;
   }
-  const { body } = document;
-  if (activeDragItems.size > 0) {
+  const state = getGlobalState(doc);
+  const { body } = doc;
+  if (state.dragItems.size > 0) {
     body.classList.add("dnd-grid-dragging");
   } else {
     body.classList.remove("dnd-grid-dragging");
   }
-  if (activeResizeItems.size > 0) {
+  if (state.resizeItems.size > 0) {
     body.classList.add("dnd-grid-resizing");
-    body.style.setProperty("--dnd-grid-resize-cursor", getActiveResizeCursor());
+    body.style.setProperty(
+      "--dnd-grid-resize-cursor",
+      getActiveResizeCursor(state)
+    );
   } else {
     body.classList.remove("dnd-grid-resizing");
     body.style.removeProperty("--dnd-grid-resize-cursor");
   }
 };
-const setGlobalDragActive = (id: symbol, active: boolean) => {
-  if (active) {
-    activeDragItems.add(id);
-  } else {
-    activeDragItems.delete(id);
+const setGlobalDragActive = (id: symbol, active: boolean, doc?: Document) => {
+  if (!doc) {
+    return;
   }
-  updateGlobalInteractionState();
+  const state = getGlobalState(doc);
+  if (active) {
+    state.dragItems.add(id);
+  } else {
+    state.dragItems.delete(id);
+  }
+  updateGlobalInteractionState(doc);
 };
 const setGlobalResizeActive = (
   id: symbol,
   active: boolean,
+  doc?: Document,
   cursor?: string
 ) => {
-  if (active) {
-    activeResizeItems.set(id, cursor ?? defaultResizeCursor);
-  } else {
-    activeResizeItems.delete(id);
+  if (!doc) {
+    return;
   }
-  updateGlobalInteractionState();
+  const state = getGlobalState(doc);
+  if (active) {
+    state.resizeItems.set(id, cursor ?? defaultResizeCursor);
+  } else {
+    state.resizeItems.delete(id);
+  }
+  updateGlobalInteractionState(doc);
 };
 
 interface PartialPosition {
@@ -302,7 +326,6 @@ type GridItemComponent = (<TData = unknown>(
   props: React.PropsWithoutRef<GridItemProps<TData>> &
     React.RefAttributes<GridItemHandle>
 ) => React.ReactElement | null) & {
-  defaultProps?: DefaultProps;
   displayName?: string;
 };
 
@@ -350,6 +373,12 @@ const GridItem = React.forwardRef(
     reducedMotionRef.current = reducedMotion;
 
     const elementRef = React.useRef<HTMLDivElement>(null);
+    const getOwnerDocument = React.useCallback(
+      (): Document | undefined =>
+        elementRef.current?.ownerDocument ??
+        (typeof document !== "undefined" ? document : undefined),
+      []
+    );
     const draggableCoreRef = React.useRef<DraggableCore | null>(null);
     const springAnimationFrameRef = React.useRef<number | null>(null);
     const isSettlingRef = React.useRef(false);
@@ -589,13 +618,9 @@ const GridItem = React.forwardRef(
       }));
       removeChildEvents();
 
-      if (
-        document.body.style.userSelect === "none" ||
-        document.body.style.webkitUserSelect === "none"
-      ) {
-        document.body.style.webkitUserSelect = "";
-        document.body.style.userSelect = "";
-      }
+      elementRef.current?.ownerDocument?.body.classList.remove(
+        "dnd-grid-no-select"
+      );
     }, [removeChildEvents]);
 
     /**
@@ -625,13 +650,9 @@ const GridItem = React.forwardRef(
     const startDragDelayTimeout = React.useCallback(
       (e: Event) => {
         // Prevent text selection while dragging.
-        if (
-          document.body.style.userSelect === "" ||
-          document.body.style.webkitUserSelect === ""
-        ) {
-          document.body.style.webkitUserSelect = "none";
-          document.body.style.userSelect = "none";
-        }
+        elementRef.current?.ownerDocument?.body.classList.add(
+          "dnd-grid-no-select"
+        );
 
         if (!stateRef.current.allowedToDrag) {
           /**
@@ -1007,7 +1028,7 @@ const GridItem = React.forwardRef(
         }
 
         // Set grabbing cursor on body during drag
-        setGlobalDragActive(interactionIdRef.current, true);
+        setGlobalDragActive(interactionIdRef.current, true, getOwnerDocument());
 
         // Animate shadow on drag start
         if (elementRef.current) {
@@ -1053,6 +1074,7 @@ const GridItem = React.forwardRef(
       },
       [
         getGridContainer,
+        getOwnerDocument,
         getPositionParams,
         getConstraintItem,
         getConstraintContext,
@@ -1196,7 +1218,11 @@ const GridItem = React.forwardRef(
           positionHistoryRef.current = [];
           lastPointerRef.current = null;
           lastSampleTimeRef.current = null;
-          setGlobalDragActive(interactionIdRef.current, false);
+          setGlobalDragActive(
+            interactionIdRef.current,
+            false,
+            getOwnerDocument()
+          );
 
           if (elementRef.current) {
             const { shadow } = animationConfigRef.current;
@@ -1295,7 +1321,11 @@ const GridItem = React.forwardRef(
         lastSampleTimeRef.current = null;
 
         // Remove grabbing cursor from body
-        setGlobalDragActive(interactionIdRef.current, false);
+        setGlobalDragActive(
+          interactionIdRef.current,
+          false,
+          getOwnerDocument()
+        );
 
         // Animate shadow off on drag stop
         if (elementRef.current) {
@@ -1337,6 +1367,7 @@ const GridItem = React.forwardRef(
         return;
       },
       [
+        getOwnerDocument,
         getPositionParams,
         getConstraintItem,
         getConstraintContext,
@@ -1468,10 +1499,11 @@ const GridItem = React.forwardRef(
         setGlobalResizeActive(
           interactionIdRef.current,
           true,
+          getOwnerDocument(),
           getResizeCursor(handle)
         );
       },
-      []
+      [getOwnerDocument]
     );
 
     const clearResizeCursorActive = React.useCallback(() => {
@@ -1479,8 +1511,12 @@ const GridItem = React.forwardRef(
         return;
       }
       resizeActiveRef.current = false;
-      setGlobalResizeActive(interactionIdRef.current, false);
-    }, []);
+      setGlobalResizeActive(
+        interactionIdRef.current,
+        false,
+        getOwnerDocument()
+      );
+    }, [getOwnerDocument]);
 
     /**
      * onResizeEnd event handler
@@ -1504,7 +1540,11 @@ const GridItem = React.forwardRef(
         setResizeCursorActive(callbackData.handle);
         if (isDraggingRef.current) {
           isDraggingRef.current = false;
-          setGlobalDragActive(interactionIdRef.current, false);
+          setGlobalDragActive(
+            interactionIdRef.current,
+            false,
+            getOwnerDocument()
+          );
         }
         dragPositionRef.current = null;
         positionHistoryRef.current = [];
@@ -1516,7 +1556,12 @@ const GridItem = React.forwardRef(
         }));
         onResizeHandler(e, callbackData, position, "onResizeStart");
       },
-      [onResizeHandler, resetSpringState, setResizeCursorActive]
+      [
+        getOwnerDocument,
+        onResizeHandler,
+        resetSpringState,
+        setResizeCursorActive,
+      ]
     );
 
     // onResize event handler
@@ -1710,11 +1755,19 @@ const GridItem = React.forwardRef(
           cancelAnimationFrame(springAnimationFrameRef.current);
           springAnimationFrameRef.current = null;
         }
-        setGlobalDragActive(interactionIdRef.current, false);
-        setGlobalResizeActive(interactionIdRef.current, false);
+        setGlobalDragActive(
+          interactionIdRef.current,
+          false,
+          getOwnerDocument()
+        );
+        setGlobalResizeActive(
+          interactionIdRef.current,
+          false,
+          getOwnerDocument()
+        );
         resizeActiveRef.current = false;
       };
-    }, [removeChildEvents]);
+    }, [getOwnerDocument, removeChildEvents]);
 
     if (!handleRef.current) {
       const handle = {
@@ -1962,6 +2015,5 @@ const GridItem = React.forwardRef(
 ) as GridItemComponent;
 
 GridItem.displayName = "GridItem";
-GridItem.defaultProps = defaultProps;
 
 export { GridItem };

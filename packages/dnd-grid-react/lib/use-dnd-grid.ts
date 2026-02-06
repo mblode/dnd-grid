@@ -231,9 +231,13 @@ const getFocusableItemIds = <TData>(
   children: React.ReactNode
 ): string[] => {
   const childKeys = getChildKeys(children);
-  return sortLayoutItems(layout, compactor)
-    .filter((item) => !item.static && childKeys.has(item.id))
-    .map((item) => item.id);
+  const ids: string[] = [];
+  for (const item of sortLayoutItems(layout, compactor)) {
+    if (!item.static && childKeys.has(item.id)) {
+      ids.push(item.id);
+    }
+  }
+  return ids;
 };
 
 // Try...catch will protect from navigator not existing (e.g. node) or a bad implementation of navigator
@@ -252,10 +256,11 @@ const resolveNodeLabel = (node?: HTMLElement | null): string => {
     return ariaLabel;
   }
   const ariaLabelledBy = node.getAttribute("aria-labelledby");
-  if (ariaLabelledBy && typeof document !== "undefined") {
+  const ownerDoc = node.ownerDocument;
+  if (ariaLabelledBy && ownerDoc) {
     const label = ariaLabelledBy
       .split(WHITESPACE_REGEX)
-      .map((id) => document.getElementById(id)?.textContent?.trim())
+      .map((labelId) => ownerDoc.getElementById(labelId)?.textContent?.trim())
       .filter(Boolean)
       .join(" ")
       .trim();
@@ -1817,6 +1822,13 @@ export const useDndGrid = <TData = unknown>(
   );
 
   const layoutState = state.layout;
+  const layoutById = React.useMemo(() => {
+    const map = new Map<string, LayoutItem<TData>>();
+    for (const item of layoutState) {
+      map.set(item.id, item);
+    }
+    return map;
+  }, [layoutState]);
   const droppingPositionState = state.droppingPosition;
   const activeDrag = state.activeDrag;
   const resizing = state.resizing;
@@ -1952,7 +1964,7 @@ export const useDndGrid = <TData = unknown>(
         return null;
       }
       const childKey = String(child.key);
-      const l = getLayoutItem(layoutState, childKey);
+      const l = layoutById.get(childKey);
       if (!l) {
         if (isDevelopment) {
           const warnedKeys = missingLayoutItemWarningsRef.current;
@@ -2068,6 +2080,7 @@ export const useDndGrid = <TData = unknown>(
       onSettleComplete,
       reducedMotion,
       registerItemRef,
+      layoutById,
       layoutState,
       droppingPositionState,
     ]

@@ -4,12 +4,15 @@ import { AspectRatioConstraintsExample } from "./dnd-grid-aspect-ratio-constrain
 import { BasicExample } from "./dnd-grid-basic-example";
 import { BoundedExample } from "./dnd-grid-bounded-example";
 import { CompactorShowcaseExample } from "./dnd-grid-compactor-showcase-example";
+import { CompositionExample } from "./dnd-grid-composition-example";
 import { ConstraintsExample } from "./dnd-grid-constraints-example";
 import { DragFromOutsideExample } from "./dnd-grid-drag-from-outside-example";
 import { DynamicAddRemoveExample } from "./dnd-grid-dynamic-add-remove-example";
 import { HeadlessExample } from "./dnd-grid-headless-example";
 import { KitchenSinkExample } from "./dnd-grid-kitchen-sink-example";
 import { LocalStorageExample } from "./dnd-grid-localstorage-example";
+import { MultipleInstancesExample } from "./dnd-grid-multiple-instances-example";
+import { PortalExample } from "./dnd-grid-portal-example";
 import { ResizableHandlesExample } from "./dnd-grid-resizable-handles-example";
 import { ResponsiveExample } from "./dnd-grid-responsive-example";
 import { ScaleExample } from "./dnd-grid-scale-example";
@@ -55,6 +58,12 @@ export const examples: ExampleEntry[] = [
     Component: CompactorShowcaseExample,
   },
   {
+    slug: "composition-example",
+    title: "Composition",
+    description: "Items use useDndGridItemState() for state-aware content.",
+    Component: CompositionExample,
+  },
+  {
     slug: "constraints-example",
     title: "Constraints",
     description: "Plug in constraints and custom rules.",
@@ -90,6 +99,18 @@ export const examples: ExampleEntry[] = [
     title: "Local storage",
     description: "Persist layout to local storage and restore on load.",
     Component: LocalStorageExample,
+  },
+  {
+    slug: "multiple-instances-example",
+    title: "Multiple instances",
+    description: "Two independent grids on one page.",
+    Component: MultipleInstancesExample,
+  },
+  {
+    slug: "portal-example",
+    title: "Portal",
+    description: "Grid rendered via createPortal into a separate container.",
+    Component: PortalExample,
   },
   {
     slug: "resizable-handles-example",

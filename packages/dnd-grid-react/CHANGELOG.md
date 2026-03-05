@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.9
+
+### Patch Changes
+
+- 3d5505c: Fix stacking order for interactive grid items by ensuring active drag layers are deterministic and adding a regression test for z-index precedence. Also pin the external drag overlay z-index in the web example to avoid overlay regressions.
+
 ## 1.1.8
 
 ### Patch Changes

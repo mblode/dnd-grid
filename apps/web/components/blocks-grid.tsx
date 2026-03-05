@@ -53,6 +53,14 @@ const DEFAULT_GRID_HEIGHT =
   (DEFAULT_GRID_ROWS - 1) * BLOCK_GAP +
   BLOCK_GAP * 2;
 const DESKTOP_MEDIA_QUERY = "(min-width: 1024px)";
+const GRID_ITEM_Z_INDEX = {
+  hovered: 70,
+  resizing: 60,
+  dragging: 50,
+  selected: 40,
+  settling: 20,
+} as const;
+const DRAG_OVERLAY_Z_INDEX = 1200;
 
 const useMediaQuery = (query: string) => {
   const [matches, setMatches] = useState(false);
@@ -825,6 +833,28 @@ export const BlocksGrid = () => {
                 ref={gridApiRef}
                 resizeHandles={["ne", "nw", "se", "sw"]}
                 rowHeight={rowHeight}
+                slotProps={{
+                  item: {
+                    style: (layoutItem, state) => {
+                      if (hoveredId === layoutItem.id) {
+                        return { zIndex: GRID_ITEM_Z_INDEX.hovered };
+                      }
+                      if (state.resizing) {
+                        return { zIndex: GRID_ITEM_Z_INDEX.resizing };
+                      }
+                      if (state.dragging) {
+                        return { zIndex: GRID_ITEM_Z_INDEX.dragging };
+                      }
+                      if (selectedId === layoutItem.id) {
+                        return { zIndex: GRID_ITEM_Z_INDEX.selected };
+                      }
+                      if (state.settling) {
+                        return { zIndex: GRID_ITEM_Z_INDEX.settling };
+                      }
+                      return {};
+                    },
+                  },
+                }}
               >
                 {items.map((item) => (
                   <BlocksGridItem
@@ -894,7 +924,7 @@ export const BlocksGrid = () => {
         </MobilePaletteSheet>
       </div>
 
-      <DragOverlay dropAnimation={null}>
+      <DragOverlay dropAnimation={null} zIndex={DRAG_OVERLAY_Z_INDEX}>
         {activePaletteItem && dragOverlayStyle ? (
           <PaletteDragSwingOverlay
             item={activePaletteItem}

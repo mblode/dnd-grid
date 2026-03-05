@@ -47,7 +47,6 @@ export const BlocksGridItem = forwardRef<HTMLDivElement, Props>(
         className={cn(
           "relative size-full overflow-visible",
           isActive && "is-hovered",
-          isHovered && "z-[1]",
           className
         )}
         onPointerEnter={(event) => {

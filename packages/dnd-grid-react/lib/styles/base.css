@@ -30,7 +30,7 @@
 
   .dnd-grid-item.dnd-draggable-dragging {
     transition: none;
-    z-index: 3;
+    z-index: 4;
     will-change: transform;
   }
 

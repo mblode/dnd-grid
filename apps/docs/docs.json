@@ -12,7 +12,7 @@
     "groups": [
       {
         "group": "Start",
-        "pages": ["introduction", "installation"]
+        "pages": ["index", "installation"]
       },
       {
         "group": "Concepts",

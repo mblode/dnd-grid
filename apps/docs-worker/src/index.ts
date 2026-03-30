@@ -7,7 +7,7 @@ interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
-      const docsUrl = env?.DOCS_URL ?? "matthewblode.mintlify.dev";
+      const docsUrl = env?.DOCS_URL ?? "dnd-grid.blode.md";
       const customUrl = env?.CUSTOM_URL ?? "dnd-grid.com";
       const landingHost = env?.LANDING_URL ?? "landing.dnd-grid.com";
       const urlObject = new URL(request.url);
@@ -27,7 +27,7 @@ export default {
         });
       }
 
-      // Proxy requests to /docs path to Mintlify
+      // Proxy requests to /docs path to Blode docs
       if (urlObject.pathname.startsWith("/docs")) {
         const url = new URL(request.url);
         url.hostname = docsUrl;

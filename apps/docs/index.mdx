@@ -1,0 +1,48 @@
+---
+title: Introduction
+description: Drag-and-drop grid layout for React.
+---
+
+## Usage
+
+```tsx
+import { DndGrid } from "@dnd-grid/react";
+import "@dnd-grid/react/styles.css";
+
+export default function Dashboard() {
+  return (
+    <DndGrid
+      cols={12}
+      rowHeight={50}
+      layout={[
+        { id: "a", x: 0, y: 0, w: 4, h: 2 },
+        { id: "b", x: 4, y: 0, w: 4, h: 2 },
+      ]}
+    >
+      <div key="a">Item A</div>
+      <div key="b">Item B</div>
+    </DndGrid>
+  );
+}
+```
+
+## Key features
+
+- **Drag and resize:** Configurable handles and smooth interactions.
+- **Responsive layouts:** Helpers for breakpoints and container width.
+- **Compaction and constraints:** Control packing, collisions, and bounds.
+- **Styling hooks:** CSS variables, data attributes, and item state helpers.
+
+## Core engine vs React adapter
+
+`@dnd-grid/core` is the headless layout engine. It owns the layout math,
+compaction, constraints, and the command-based `createLayoutEngine` API with no
+DOM or React dependencies. `@dnd-grid/react` is the adapter that handles DOM
+measurements, drag/resize events, transforms, focus/a11y, and styling.
+
+Use `@dnd-grid/core` if you want to build a custom adapter for another runtime.
+Otherwise, consume `@dnd-grid/react` for the full React experience.
+
+## Acknowledgements
+
+Inspired by [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed (STRML).

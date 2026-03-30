@@ -40,12 +40,12 @@ import {
 
 | Component | Description |
 |-----------|-------------|
-| [`DndGrid`](/api-reference/dnd-grid) | Main grid layout component |
-| [`ResponsiveDndGrid`](/api-reference/responsive-dnd-grid) | Breakpoint-aware responsive grid |
+| [`DndGrid`](dnd-grid) | Main grid layout component |
+| [`ResponsiveDndGrid`](responsive-dnd-grid) | Breakpoint-aware responsive grid |
 
 Most apps should start with `DndGrid` for single-layout grids and
 `ResponsiveDndGrid` for breakpoint layouts. Use
-[`useDndGrid`](/hooks/use-dnd-grid) when you need a custom wrapper or want to
+[`useDndGrid`](../hooks/use-dnd-grid) when you need a custom wrapper or want to
 control rendering.
 Both components measure their container width automatically (or accept a
 `width` prop when you already know it).
@@ -56,18 +56,18 @@ Also exported: `GridItem` and `ResizeHandle`.
 
 | Hook | Description |
 |------|-------------|
-| [`useContainerWidth`](/hooks/use-container-width) | Measure container width with ResizeObserver |
-| [`useDndGrid`](/hooks/use-dnd-grid) | Headless hook for building custom grid wrappers |
-| [`useDndGridResponsiveLayout`](/hooks/use-dnd-grid-responsive-layout) | Manage responsive breakpoints + layout state |
-| [`useDndGridItemState`](/hooks/use-dnd-grid-item-state) | Access item layout and interaction state |
-| [`useEdgeScroll`](/hooks/use-edge-scroll) | Auto-scroll while dragging near scroll edges |
+| [`useContainerWidth`](../hooks/use-container-width) | Measure container width with ResizeObserver |
+| [`useDndGrid`](../hooks/use-dnd-grid) | Headless hook for building custom grid wrappers |
+| [`useDndGridResponsiveLayout`](../hooks/use-dnd-grid-responsive-layout) | Manage responsive breakpoints + layout state |
+| [`useDndGridItemState`](../hooks/use-dnd-grid-item-state) | Access item layout and interaction state |
+| [`useEdgeScroll`](../hooks/use-edge-scroll) | Auto-scroll while dragging near scroll edges |
 
 ## Types
 
 | Type | Description |
 |------|-------------|
-| [`Layout`](/api-reference/layout-item#layout) | Array of layout items (`LayoutItem[]`) |
-| [`LayoutItem`](/api-reference/layout-item) | Position and size of a single grid item |
+| [`Layout`](layout-item#layout) | Array of layout items (`LayoutItem[]`) |
+| [`LayoutItem`](layout-item) | Position and size of a single grid item |
 | `ResponsiveLayouts` | Breakpoint → layout map |
 | `Compactor` | Pluggable compaction strategy |
 | `LayoutConstraint` | Drag/resize constraint definition |

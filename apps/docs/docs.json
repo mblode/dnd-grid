@@ -7,7 +7,7 @@
     "light": "#38E4B2",
     "dark": "#0B5E48"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "favicon.svg",
   "navigation": {
     "groups": [
       {
@@ -72,8 +72,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "logo/light.svg",
+    "dark": "logo/dark.svg"
   },
   "navbar": {
     "links": [
@@ -90,11 +90,6 @@
       "type": "button",
       "label": "Homepage",
       "href": "https://dnd-grid.com"
-    }
-  },
-  "integrations": {
-    "ga4": {
-      "measurementId": "G-H2PKLJ0615"
     }
   }
 }

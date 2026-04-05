@@ -6,20 +6,14 @@ import type React from "react";
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
 
-const albra = localFont({
+const glide = localFont({
   src: [
-    {
-      path: "../public/fonts/albra-light.woff2",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/albra-regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
+    { path: "../public/glide-variable.woff2", style: "normal" },
+    { path: "../public/glide-variable-italic.woff2", style: "italic" },
   ],
-  variable: "--font-albra",
+  variable: "--font-glide",
+  weight: "400 900",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -69,7 +63,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${albra.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}
+      className={`${glide.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}
       lang="en"
     >
       <body className="flex min-h-screen flex-col">

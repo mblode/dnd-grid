@@ -4,7 +4,7 @@
 @theme inline {
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
-  --font-serif: var(--font-albra);
+  --font-sans: var(--font-glide);
   --font-mono: var(--font-geist-mono);
   /* Fluid type - scales with --dnd-grid-scale */
   --text-fluid-xxs: calc(8px * var(--dnd-grid-scale, 1));

@@ -65,7 +65,7 @@ export const BlocksGridPanel = ({
         </div>
       )}
 
-      <div className="mb-3 font-serif text-lg">
+      <div className="mb-3 font-sans text-lg">
         {isEditPanel ? selectedItem?.name : "Add block"}
       </div>
 

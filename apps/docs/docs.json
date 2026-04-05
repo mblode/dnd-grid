@@ -1,12 +1,6 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "almond",
+  "$schema": "https://blode.md/docs.json",
   "name": "dnd-grid",
-  "colors": {
-    "primary": "#0F9D78",
-    "light": "#38E4B2",
-    "dark": "#0B5E48"
-  },
   "favicon": "favicon.svg",
   "navigation": {
     "groups": [

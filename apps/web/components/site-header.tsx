@@ -8,7 +8,7 @@ export function SiteHeader() {
       <div className="container-wrapper">
         <div className="flex items-center justify-between">
           <Link
-            className="flex items-center gap-2 font-serif text-lg underline-offset-2 hover:underline"
+            className="flex items-center gap-2 font-sans text-lg underline-offset-2 hover:underline"
             href="/"
           >
             <Logo className="h-6 w-6 text-foreground" />

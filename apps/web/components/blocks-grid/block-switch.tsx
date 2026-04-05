@@ -49,11 +49,11 @@ export const BlockSwitch = ({ kind, title }: Props) => {
         <div className="flex h-full flex-col gap-fluid-2 p-fluid-3">
           <div
             aria-hidden="true"
-            className="font-serif text-fluid-5xl text-muted-foreground/70 leading-none"
+            className="font-sans text-fluid-5xl text-muted-foreground/70 leading-none"
           >
             &ldquo;
           </div>
-          <div className="font-serif text-fluid-2xl text-muted-foreground">
+          <div className="font-sans text-fluid-2xl text-muted-foreground">
             {title}
           </div>
         </div>

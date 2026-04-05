@@ -164,9 +164,9 @@ const run = async () => {
     // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
     assert.match(html, /"contentUrl":"\/docs\/introduction\.mdx"/);
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
     assert.match(
       html,
+      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
       /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/introduction">/
     );
   } finally {

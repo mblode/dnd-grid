@@ -43,13 +43,6 @@ const DOCS_PAGE_PATHS = [
   "/examples/scale",
 ] as const;
 const DOCS_PAGE_PATH_SET = new Set<string>(DOCS_PAGE_PATHS);
-const DOCS_SECTION_PREFIXES = [
-  "/concepts",
-  "/api-reference",
-  "/hooks",
-  "/patterns",
-  "/examples",
-] as const;
 
 const isDocsPath = (pathname: string): boolean =>
   pathname === DOCS_PREFIX || pathname.startsWith(`${DOCS_PREFIX}/`);
@@ -70,14 +63,9 @@ const isKnownDocsPagePath = (pathname: string): boolean => {
     ? pathname.slice(0, -".mdx".length)
     : pathname;
 
-  if (DOCS_PAGE_PATH_SET.has(normalizedPath)) {
-    return true;
-  }
-
-  return DOCS_SECTION_PREFIXES.some(
-    (prefix) =>
-      normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`)
-  );
+  // Only redirect exact matches from the known docs page paths
+  // Don't wildcard-match section prefixes (e.g., /examples/basic-example should NOT redirect)
+  return DOCS_PAGE_PATH_SET.has(normalizedPath);
 };
 
 const getDocsRedirectPath = (

@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { siteConfig } from "@/lib/config";
 
 export const SiteFooter = () => (
@@ -9,14 +7,16 @@ export const SiteFooter = () => (
       <a
         className="flex items-center gap-2 rounded-full py-1.5 pr-2.5 pl-1.5 transition-colors hover:text-foreground"
         href={siteConfig.links.author}
-        rel="noopener noreferrer"
+        rel="author noopener"
         target="_blank"
       >
-        <Image
-          alt="Avatar of Matthew Blode"
+        {/* biome-ignore lint/performance/noImgElement: external avatar, next/image not used for off-domain attribution */}
+        <img
+          alt="Matthew Blode"
           className="rounded-full"
           height={20}
-          src="/matthew-blode-profile.jpg"
+          loading="lazy"
+          src="https://matthewblode.com/avatar-sm.png"
           width={20}
         />
         Matthew Blode

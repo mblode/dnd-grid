@@ -17,7 +17,6 @@ export const SiteFooter = () => (
           className="rounded-full"
           height={20}
           src="/matthew-blode-profile.jpg"
-          unoptimized
           width={20}
         />
         Matthew Blode

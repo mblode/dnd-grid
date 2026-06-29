@@ -25,14 +25,15 @@ const GA_MEASUREMENT_ID = "G-H2PKLJ0615";
 const siteUrl = "https://dnd-grid.com";
 const siteTitle = "dnd-grid - React grid layout";
 const siteDescription =
-  "A drag-and-drop (DnD), resizable grid layout for React";
+  "dnd-grid is a lightweight drag-and-drop, resizable grid layout library for React with collision handling, compaction, responsive breakpoints, and constraints.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: siteTitle,
   description: siteDescription,
   alternates: {
-    canonical: "/",
+    // Absolute, no trailing slash, to match the sitemap and og:url exactly.
+    canonical: siteUrl,
   },
   openGraph: {
     type: "website",

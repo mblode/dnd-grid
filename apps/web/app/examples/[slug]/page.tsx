@@ -14,27 +14,22 @@ interface PageProps {
 const docsSlugFromExample = (slug: string) =>
   slug.replace(EXAMPLE_SUFFIX_REGEX, "");
 
-const resolveExample = (slug?: string | null) => {
-  if (!slug) {
-    return null;
-  }
-  if (examplesBySlug[slug]) {
-    return examplesBySlug[slug];
-  }
-  if (!slug.endsWith("-example")) {
-    return examplesBySlug[`${slug}-example`] ?? null;
-  }
-  return null;
-};
+// Resolve only exact canonical (`-example`) slugs. Bare slugs are
+// non-canonical duplicates and must 404 instead of serving the same content
+// under a second URL.
+const resolveExample = (slug?: string | null) =>
+  slug ? (examplesBySlug[slug] ?? null) : null;
+
+// Bare docs slugs are redirected by the worker and unknown slugs should 404,
+// so only the canonical slugs generated below are allowed to render.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
-  const params = examples.flatMap((example) => {
-    const docsSlug = docsSlugFromExample(example.slug);
-    return docsSlug === example.slug
-      ? [{ slug: example.slug }]
-      : [{ slug: example.slug }, { slug: docsSlug }];
-  });
-  return params;
+  // Only pre-render the canonical `-example` slugs. The bare docs slugs
+  // (e.g. `basic`) are non-canonical duplicates: the Cloudflare worker
+  // redirects them to the docs site, so generating them here just creates
+  // duplicate, non-canonical pages.
+  return examples.map((example) => ({ slug: example.slug }));
 }
 
 export async function generateMetadata({
@@ -46,14 +41,31 @@ export async function generateMetadata({
     return {};
   }
 
+  const title = `${example.title} - dnd-grid`;
+
   return {
-    title: `${example.title} - dnd-grid`,
+    title,
     description: example.description,
     alternates: { canonical: `/examples/${example.slug}` },
     openGraph: {
-      title: `${example.title} - dnd-grid`,
+      type: "website",
+      title,
       description: example.description,
       url: `${siteUrl}/examples/${example.slug}`,
+      images: [
+        {
+          url: "/opengraph-image.png",
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: example.description,
+      images: ["/opengraph-image.png"],
     },
   };
 }

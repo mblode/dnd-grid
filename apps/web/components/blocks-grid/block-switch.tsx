@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import type { BlockKind } from "./types";
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
 
 export const BlockSwitch = ({ kind, title }: Props) => {
   switch (kind) {
-    case "text":
+    case "text": {
       return (
         <div className="flex h-full items-center justify-center p-fluid-3 text-center">
           <div className="font-semibold text-fluid-2xl text-foreground">
@@ -16,7 +17,8 @@ export const BlockSwitch = ({ kind, title }: Props) => {
           </div>
         </div>
       );
-    case "media":
+    }
+    case "media": {
       return (
         <div className="flex h-full flex-col gap-fluid-2">
           <div className="relative flex-1 overflow-hidden rounded-[calc(var(--dnd-grid-radius)*var(--dnd-grid-scale))] bg-muted/70">
@@ -44,7 +46,8 @@ export const BlockSwitch = ({ kind, title }: Props) => {
           </div>
         </div>
       );
-    case "quote":
+    }
+    case "quote": {
       return (
         <div className="flex h-full flex-col gap-fluid-2 p-fluid-3">
           <div
@@ -58,11 +61,13 @@ export const BlockSwitch = ({ kind, title }: Props) => {
           </div>
         </div>
       );
-    default:
+    }
+    default: {
       return (
         <div className="flex h-full items-center justify-center text-fluid-xs text-muted-foreground">
           {title}
         </div>
       );
+    }
   }
 };

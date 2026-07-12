@@ -1,5 +1,6 @@
 import { deepEqual } from "fast-equals";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { resolveCompactor } from "./compactors";
 import {
   DEFAULT_BREAKPOINTS,
@@ -27,7 +28,7 @@ import { cloneLayout } from "./utils";
 declare const process: { env?: { NODE_ENV?: string } };
 
 const isDevelopment =
-  typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
+  process !== undefined && process.env?.NODE_ENV !== "production";
 
 export interface UseDndGridResponsiveLayoutOptions<
   B extends Breakpoint = DefaultBreakpoints,

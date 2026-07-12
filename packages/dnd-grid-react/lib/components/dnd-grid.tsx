@@ -6,6 +6,7 @@ import type {
   RefAttributes,
 } from "react";
 import { forwardRef } from "react";
+
 import { useContainerWidth } from "../use-container-width";
 import {
   getDerivedStateFromProps,

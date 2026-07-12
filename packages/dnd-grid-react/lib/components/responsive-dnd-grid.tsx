@@ -6,6 +6,7 @@ import type {
   RefAttributes,
 } from "react";
 import { forwardRef } from "react";
+
 import type { DefaultBreakpoints } from "../responsive-utils";
 import type { Breakpoint, Compactor } from "../types";
 import { useContainerWidth } from "../use-container-width";

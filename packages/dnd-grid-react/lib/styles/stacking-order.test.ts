@@ -1,14 +1,15 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 const BASE_CSS = readFileSync(
   resolve(process.cwd(), "lib/styles/base.css"),
-  "utf8"
+  "utf-8"
 );
 
 const escapeForRegex = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const zIndexFor = (selector: string) => {
   const pattern = new RegExp(

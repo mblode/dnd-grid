@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+
 import worker from "../src/index.ts";
 
 const env = {

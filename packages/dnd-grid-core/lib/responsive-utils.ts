@@ -98,9 +98,9 @@ export const findOrGenerateResponsiveLayout = <B extends Breakpoint, TData>(
   const breakpointsSorted = sortBreakpoints(breakpoints);
   const breakpointIndex = breakpointsSorted.indexOf(breakpoint);
   const breakpointsAbove =
-    breakpointIndex >= 0
-      ? breakpointsSorted.slice(breakpointIndex)
-      : breakpointsSorted;
+    breakpointIndex === -1
+      ? breakpointsSorted
+      : breakpointsSorted.slice(breakpointIndex);
 
   for (const b of breakpointsAbove) {
     if (b === undefined) {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { resolveAnimationConfig } from "../animation-config";
 import {
   POSITION_SPRING_CONFIG,

@@ -1,7 +1,9 @@
 import { useDraggable } from "@dnd-kit/core";
 import type { CSSProperties } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
+
 import { useDragSwing } from "@/hooks/use-drag-swing";
+
 import { BlockCard } from "./block-card";
 import type { PaletteItem } from "./types";
 

@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+
 import type { ItemState, LayoutItem } from "./types";
 
 interface ItemContext<TData = unknown> {
@@ -34,7 +35,7 @@ export const useOptionalDndGridItemState = <
  * };
  * ```
  */
-export const useDndGridItemState = <TData = unknown>(): ItemContext<TData> => {
+export const useDndGridItemState = <TData = unknown,>(): ItemContext<TData> => {
   const context = useOptionalDndGridItemState<TData>();
   if (!context) {
     throw new Error(

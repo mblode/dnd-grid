@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { deepEqual } from "fast-equals";
 import type { ReactElement } from "react";
 import React from "react";
+
 import { resolveAnimationConfig } from "./animation-config";
 import { calcGridColWidth, calcGridItemWHPx, calcXY } from "./calculate-utils";
 import { createCallbackThrottle } from "./callback-throttle";
@@ -199,7 +200,7 @@ const defaultLiveRegion: Required<LiveRegionSettings> = {
   ariaRelevant: "additions text",
 };
 const isDevelopment =
-  typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
+  process !== undefined && process.env?.NODE_ENV !== "production";
 const WHITESPACE_REGEX = /\s+/;
 let isFirefox = false;
 
@@ -208,7 +209,7 @@ const resolveCallbackThrottleMs = (
   type: "drag" | "resize"
 ) => {
   if (typeof throttle === "number") {
-    return throttle > 0 ? throttle : 0;
+    return Math.max(throttle, 0);
   }
   const value = throttle?.[type];
   return typeof value === "number" && value > 0 ? value : 0;
@@ -243,7 +244,7 @@ const getFocusableItemIds = <TData>(
 // Try...catch will protect from navigator not existing (e.g. node) or a bad implementation of navigator
 try {
   isFirefox = /firefox/i.test(navigator.userAgent);
-} catch (_e) {
+} catch {
   /* Ignore */
 }
 
@@ -260,7 +261,9 @@ const resolveNodeLabel = (node?: HTMLElement | null): string => {
   if (ariaLabelledBy && ownerDoc) {
     const label = ariaLabelledBy
       .split(WHITESPACE_REGEX)
-      .map((labelId) => ownerDoc.getElementById(labelId)?.textContent?.trim())
+      .map((labelId) =>
+        ownerDoc.querySelector(`#${labelId}`)?.textContent?.trim()
+      )
       .filter(Boolean)
       .join(" ")
       .trim();
@@ -268,7 +271,7 @@ const resolveNodeLabel = (node?: HTMLElement | null): string => {
       return label;
     }
   }
-  const dataLabel = node.getAttribute("data-dnd-grid-label");
+  const dataLabel = node.dataset.dndGridLabel;
   if (dataLabel) {
     return dataLabel;
   }
@@ -658,12 +661,13 @@ export const useDndGrid = <TData = unknown>(
   } | null>(null);
   const lastFocusAnnouncementRef = React.useRef<string | null>(null);
 
-  React.useEffect(() => {
-    return () => {
+  React.useEffect(
+    () => () => {
       dragCallbackThrottleRef.current.cancel();
       resizeCallbackThrottleRef.current.cancel();
-    };
-  }, []);
+    },
+    []
+  );
 
   const announce = React.useCallback((message?: string | null) => {
     if (!message) {
@@ -682,7 +686,7 @@ export const useDndGrid = <TData = unknown>(
     }
     const announcements: LiveAnnouncements<TData> = {
       ...createDefaultLiveAnnouncements<TData>(),
-      ...(liveAnnouncements?.announcements ?? {}),
+      ...liveAnnouncements?.announcements,
     };
     const getItemLabel: LiveAnnouncementContext<TData>["getItemLabel"] =
       liveAnnouncements?.getItemLabel ?? defaultGetItemLabel;
@@ -764,7 +768,7 @@ export const useDndGrid = <TData = unknown>(
     }
     try {
       node.focus({ preventScroll: true });
-    } catch (_e) {
+    } catch {
       node.focus();
     }
   }, []);
@@ -1008,13 +1012,13 @@ export const useDndGrid = <TData = unknown>(
             if (["sw", "nw", "w"].indexOf(handle) !== -1) {
               x = l.x + (l.w - nextW);
               nextW = l.x !== x && x < 0 ? l.w : nextW;
-              x = x < 0 ? 0 : x;
+              x = Math.max(0, x);
             }
 
             if (["ne", "n", "nw"].indexOf(handle) !== -1) {
               y = l.y + (l.h - nextH);
               nextH = l.y !== y && y < 0 ? l.h : nextH;
-              y = y < 0 ? 0 : y;
+              y = Math.max(0, y);
             }
 
             shouldMoveItem = true;
@@ -1361,13 +1365,13 @@ export const useDndGrid = <TData = unknown>(
             if (["sw", "nw", "w"].indexOf(handle) !== -1) {
               x = l.x + (l.w - w);
               w = l.x !== x && x < 0 ? l.w : w;
-              x = x < 0 ? 0 : x;
+              x = Math.max(0, x);
             }
 
             if (["ne", "n", "nw"].indexOf(handle) !== -1) {
               y = l.y + (l.h - h);
               h = l.y !== y && y < 0 ? l.h : h;
-              y = y < 0 ? 0 : y;
+              y = Math.max(0, y);
             }
 
             shouldMoveItem = true;

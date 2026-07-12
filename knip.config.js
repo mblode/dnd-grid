@@ -2,7 +2,7 @@ const fencedCodeBlockMatcher = /```[\s\S]*?```/g;
 const importMatcher = /import[^'"]+['"][^'"]+['"]/g;
 
 const mdxCompiler = (text) =>
-  Array.from(text.replace(fencedCodeBlockMatcher, "").matchAll(importMatcher))
+  [...text.replace(fencedCodeBlockMatcher, "").matchAll(importMatcher)]
     .map((match) => match[0])
     .join("\n");
 

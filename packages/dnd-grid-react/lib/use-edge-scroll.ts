@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import type { AutoScrollOptions } from "./types";
 import { AutoScrollActivator, TraversalOrder } from "./types";
 
@@ -64,7 +65,7 @@ const scheduleFrame = (callback: FrameRequestCallback): FrameHandle | null => {
   return {
     id: window.setTimeout(
       () =>
-        callback(typeof performance !== "undefined" ? performance.now() : 0),
+        callback(typeof performance === "undefined" ? 0 : performance.now()),
       16
     ),
     type: "timeout",
@@ -101,8 +102,8 @@ const isHTMLElement = (node: Node | null | undefined): node is HTMLElement =>
 const isSVGElement = (node: Node | null | undefined): node is SVGElement =>
   Boolean(
     node &&
-      node.nodeType === Node.ELEMENT_NODE &&
-      (node as Element).namespaceURI === "http://www.w3.org/2000/svg"
+    node.nodeType === Node.ELEMENT_NODE &&
+    (node as Element).namespaceURI === "http://www.w3.org/2000/svg"
   );
 
 const isScrollable = (

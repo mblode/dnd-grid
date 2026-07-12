@@ -349,17 +349,13 @@ const constrainWidth = (
   currentWidth: number,
   newWidth: number,
   containerWidth: number
-) => {
-  return left + newWidth > containerWidth ? currentWidth : newWidth;
-};
+) => (left + newWidth > containerWidth ? currentWidth : newWidth);
 
 const constrainHeight = (
   top: number,
   currentHeight: number,
   newHeight: number
-) => {
-  return top < 0 ? currentHeight : newHeight;
-};
+) => (top < 0 ? currentHeight : newHeight);
 
 const constrainLeft = (left: number) => Math.max(0, left);
 
@@ -511,13 +507,13 @@ export const sortLayoutItems = <TData>(
   if (compactorType === "vertical") {
     return sortLayoutItemsByRowCol(layout);
   }
-  return layout.slice(0);
+  return [...layout];
 };
 
 export const sortLayoutItemsByRowCol = <TData>(
   layout: Layout<TData>
 ): Layout<TData> =>
-  layout.slice(0).sort((a, b) => {
+  [...layout].sort((a, b) => {
     if (a.y !== b.y) {
       return a.y - b.y;
     }
@@ -527,7 +523,7 @@ export const sortLayoutItemsByRowCol = <TData>(
 export const sortLayoutItemsByColRow = <TData>(
   layout: Layout<TData>
 ): Layout<TData> =>
-  layout.slice(0).sort((a, b) => {
+  [...layout].sort((a, b) => {
     if (a.x !== b.x) {
       return a.x - b.x;
     }

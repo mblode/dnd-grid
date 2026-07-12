@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import type React from "react";
+
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
 

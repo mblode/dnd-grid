@@ -3,6 +3,7 @@
 import { makeAutoObservable } from "mobx";
 import { isHydrated, makePersistable } from "mobx-persist-store";
 import { createContext, useContext } from "react";
+
 import { type DragSwingSettings, getDragSwingDefaults } from "@/lib/spring";
 import type { BlockData, DropPosition } from "@/types/block";
 
@@ -83,7 +84,7 @@ export class Store {
     makePersistable(this, {
       name: "perfect-dnd-store",
       properties: ["blocksData", "dragSwingSettings"],
-      storage: typeof window !== "undefined" ? window.localStorage : undefined,
+      storage: typeof window === "undefined" ? undefined : window.localStorage,
     });
   }
 

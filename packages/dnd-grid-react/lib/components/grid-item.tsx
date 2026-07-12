@@ -15,6 +15,7 @@ import {
   type DraggableEventHandler,
 } from "react-draggable";
 import { Resizable, type ResizableProps } from "react-resizable";
+
 import { resolveAnimationConfig } from "../animation-config";
 import {
   calcGridColWidth,
@@ -95,11 +96,7 @@ const updateGlobalInteractionState = (doc?: Document) => {
   }
   const state = getGlobalState(doc);
   const { body } = doc;
-  if (state.dragItems.size > 0) {
-    body.classList.add("dnd-grid-dragging");
-  } else {
-    body.classList.remove("dnd-grid-dragging");
-  }
+  body.classList.toggle("dnd-grid-dragging", state.dragItems.size > 0);
   if (state.resizeItems.size > 0) {
     body.classList.add("dnd-grid-resizing");
     body.style.setProperty(
@@ -269,9 +266,9 @@ type ResizableWithResizeEndProps = Omit<ResizableProps, "onResizeStop"> & {
 const ResizableWithResizeEnd = ({
   onResizeEnd,
   ...props
-}: ResizableWithResizeEndProps) => {
-  return <Resizable {...props} onResizeStop={onResizeEnd} />;
-};
+}: ResizableWithResizeEndProps) => (
+  <Resizable {...props} onResizeStop={onResizeEnd} />
+);
 
 interface GridItemHandle {
   state: State;
@@ -376,7 +373,7 @@ const GridItem = React.forwardRef(
     const getOwnerDocument = React.useCallback(
       (): Document | undefined =>
         elementRef.current?.ownerDocument ??
-        (typeof document !== "undefined" ? document : undefined),
+        (typeof document === "undefined" ? undefined : document),
       []
     );
     const draggableCoreRef = React.useRef<DraggableCore | null>(null);
@@ -1590,10 +1587,9 @@ const GridItem = React.forwardRef(
         return (
           <DraggableCore
             allowMobileScroll={delayedDragEnabled}
-            cancel={
-              ".react-resizable-handle" +
-              (propsRef.current.cancel ? `,${propsRef.current.cancel}` : "")
-            }
+            cancel={`.react-resizable-handle${
+              propsRef.current.cancel ? `,${propsRef.current.cancel}` : ""
+            }`}
             disabled={!draggable}
             handle={propsRef.current.handle}
             nodeRef={elementRef}
@@ -1742,8 +1738,8 @@ const GridItem = React.forwardRef(
       };
     }, [props.id, props.registerItemRef]);
 
-    React.useEffect(() => {
-      return () => {
+    React.useEffect(
+      () => () => {
         // Clean up event listeners and timeouts to prevent memory leaks
         removeChildEvents();
         if (dragDelayTimeoutRef.current) {
@@ -1766,8 +1762,9 @@ const GridItem = React.forwardRef(
           getOwnerDocument()
         );
         resizeActiveRef.current = false;
-      };
-    }, [getOwnerDocument, removeChildEvents]);
+      },
+      [getOwnerDocument, removeChildEvents]
+    );
 
     if (!handleRef.current) {
       const handle = {

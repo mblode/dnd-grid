@@ -17,10 +17,10 @@ export function ScaleExample() {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const [scale, setScale] = useState(1);
 
-  const scaledStyle: CSSProperties = {
+  const scaledStyle: CSSProperties & Record<"--dnd-grid-scale", number> = {
     transform: `scale(${scale})`,
     transformOrigin: "top left",
-    ["--dnd-grid-scale" as string]: scale,
+    "--dnd-grid-scale": scale,
   };
 
   return (

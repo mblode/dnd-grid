@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSingletonHighlighter } from "shiki";
+
 import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
 import { BlocksGrid } from "@/components/blocks-grid";
 import { SiteFooter } from "@/components/site-footer";

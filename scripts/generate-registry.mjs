@@ -8,7 +8,7 @@ const publicItemsDir = path.join(root, "apps/web/public/r");
 const examplesDir = path.join(root, "apps/web/examples");
 const manifestPath = path.join(examplesDir, "manifest.ts");
 
-const readJson = (filePath) => JSON.parse(fs.readFileSync(filePath, "utf8"));
+const readJson = (filePath) => JSON.parse(fs.readFileSync(filePath, "utf-8"));
 const writeFile = (filePath, content) => {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content);
@@ -19,7 +19,7 @@ const items = registry.items ?? [];
 const EXPORT_NAME_REGEX = /export\s+(?:function|const)\s+([A-Za-z0-9_]+)/;
 
 const readExampleExport = (filePath) => {
-  const content = fs.readFileSync(filePath, "utf8");
+  const content = fs.readFileSync(filePath, "utf-8");
   const match = content.match(EXPORT_NAME_REGEX);
   if (!match) {
     throw new Error(`Could not find export in ${filePath}`);

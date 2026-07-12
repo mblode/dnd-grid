@@ -8,9 +8,9 @@ afterEach(() => {
 });
 
 // Mock requestAnimationFrame for spring animations
-global.requestAnimationFrame = vi.fn((callback) => {
-  return setTimeout(callback, 16) as unknown as number;
-});
+global.requestAnimationFrame = vi.fn(
+  (callback) => setTimeout(callback, 16) as unknown as number
+);
 
 global.cancelAnimationFrame = vi.fn((id) => {
   clearTimeout(id);

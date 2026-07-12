@@ -1,6 +1,8 @@
 import { GripVertical } from "lucide-react";
 import type { CSSProperties } from "react";
+
 import { cn } from "@/lib/utils";
+
 import { BlockSwitch } from "./block-switch";
 import type { BlockKind } from "./types";
 

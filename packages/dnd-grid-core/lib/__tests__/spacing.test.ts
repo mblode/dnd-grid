@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { normalizeSpacing, resolveResponsiveSpacing } from "../spacing";
 import type { Spacing } from "../types";
 

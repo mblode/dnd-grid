@@ -5,7 +5,7 @@ const root = process.cwd();
 const registryPath = path.join(root, "apps/web/registry.json");
 const docsExamplesDir = path.join(root, "apps/docs/examples");
 
-const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+const registry = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
 const items = registry.items ?? [];
 const siteUrl = "https://dnd-grid.com";
 const EXAMPLE_SUFFIX_REGEX = /-example$/;
@@ -22,14 +22,14 @@ const updateMdx = (item) => {
   }
 
   const examplePath = path.join(root, "apps/web", file.path);
-  const exampleContent = fs.readFileSync(examplePath, "utf8").trimEnd();
+  const exampleContent = fs.readFileSync(examplePath, "utf-8").trimEnd();
   const mdxPath = path.join(docsExamplesDir, `${docsSlug}.mdx`);
 
   if (!fs.existsSync(mdxPath)) {
     throw new Error(`Missing MDX file for ${slug}`);
   }
 
-  const mdx = fs.readFileSync(mdxPath, "utf8");
+  const mdx = fs.readFileSync(mdxPath, "utf-8");
   const frontmatterMatch = mdx.match(FRONTMATTER_REGEX);
   if (!frontmatterMatch) {
     throw new Error(`Missing frontmatter in ${mdxPath}`);

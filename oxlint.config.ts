@@ -1,0 +1,60 @@
+import { defineConfig } from "oxlint";
+import core from "ultracite/oxlint/core";
+import next from "ultracite/oxlint/next";
+
+export default defineConfig({
+  extends: [core, next],
+  ignorePatterns: [
+    ...core.ignorePatterns,
+    "**/dist/**",
+    "**/.next/**",
+    "**/registry/**",
+  ],
+  // Ultracite rules relaxed for this codebase. Each needs a wide mechanical
+  // refactor with no safe autofix, so they're deferred rather than fixed ad
+  // hoc; every other Ultracite rule is enforced.
+  rules: {
+    complexity: "off",
+    "consistent-function-scoping": "off",
+    "consistent-type-specifier-style": "off",
+    eqeqeq: "off",
+    "func-style": "off",
+    "max-classes-per-file": "off",
+    "method-signature-style": "off",
+    "callback-return": "off",
+    "check-tag-names": "off",
+    "import-style": "off",
+    "no-barrel-file": "off",
+    "no-accumulating-spread": "off",
+    "no-array-sort": "off",
+    "no-array-reverse": "off",
+    "unicorn/no-array-reverse": "off",
+    "no-empty-function": "off",
+    "no-eq-null": "off",
+    "no-new-array": "off",
+    "no-negated-condition": "off",
+    "no-plusplus": "off",
+    "no-shadow": "off",
+    "no-unmodified-loop-condition": "off",
+    "no-use-before-define": "off",
+    "no-unused-vars": "off",
+    "no-useless-return": "off",
+    "no-useless-undefined": "off",
+    "prefer-await-to-callbacks": "off",
+    "prefer-await-to-then": "off",
+    "prefer-const": "off",
+    "prefer-destructuring": "off",
+    "prefer-modern-math-apis": "off",
+    "prefer-includes": "off",
+    "unicorn/prefer-includes": "off",
+    "prefer-module": "off",
+    "prefer-named-capture-group": "off",
+    "prefer-ternary": "off",
+    "require-await": "off",
+    "require-unicode-regexp": "off",
+    "no-array-for-each": "off",
+    "no-inline-comments": "off",
+    "no-img-element": "off",
+    "sort-keys": "off",
+  },
+});

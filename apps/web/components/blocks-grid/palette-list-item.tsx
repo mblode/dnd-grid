@@ -1,6 +1,8 @@
 import { Plus } from "lucide-react";
 import type { CSSProperties } from "react";
+
 import { Button } from "@/components/ui/button";
+
 import { PaletteDraggable } from "./palette-draggable";
 import type { PaletteItem } from "./types";
 

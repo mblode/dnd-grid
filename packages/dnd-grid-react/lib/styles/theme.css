@@ -7,8 +7,7 @@
     --dnd-grid-handle-size: 16px;
     --dnd-grid-handle-bg: rgb(255, 255, 255);
     --dnd-grid-handle-shadow:
-      0 0 1px 1px rgba(0, 0, 0, 0.06),
-      0 9px 9px rgba(0, 0, 0, 0.04),
+      0 0 1px 1px rgba(0, 0, 0, 0.06), 0 9px 9px rgba(0, 0, 0, 0.04),
       0 5.83333px 5.27083px rgba(0, 0, 0, 0.03),
       0 3.46667px 2.86667px rgba(0, 0, 0, 0.024),
       0 1.8px 1.4625px rgba(0, 0, 0, 0.02),

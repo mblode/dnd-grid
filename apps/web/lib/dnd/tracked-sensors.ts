@@ -17,6 +17,7 @@ import type {
   MouseEvent as ReactMouseEvent,
   TouchEvent as ReactTouchEvent,
 } from "react";
+
 import {
   clearPointerPosition,
   setPointerEvent,

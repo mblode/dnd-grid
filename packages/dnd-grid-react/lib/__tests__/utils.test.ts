@@ -1,5 +1,6 @@
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
+
 import { verticalCompactor, verticalOverlapCompactor } from "../compactors";
 import type { Position } from "../types";
 import {

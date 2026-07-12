@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { findEmptyPosition } from "../find-empty-position";
 import { complexLayout, emptyLayout } from "./fixtures/layouts";
 import { createLayout } from "./test-utils";

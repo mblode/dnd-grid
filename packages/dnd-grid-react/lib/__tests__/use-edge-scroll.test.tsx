@@ -1,6 +1,7 @@
 import { act, render } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import type { AutoScrollOptions } from "../types";
 import { AutoScrollActivator, TraversalOrder } from "../types";
 import { type EdgeScrollHandlers, useEdgeScroll } from "../use-edge-scroll";
@@ -87,8 +88,8 @@ const createScrollableContainer = () => {
       y: 10,
       toJSON: () => "",
     }) as DOMRect;
-  container.appendChild(node);
-  document.body.appendChild(container);
+  container.append(node);
+  document.body.append(container);
 
   return { container, node };
 };

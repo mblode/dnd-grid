@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
+
 import { GridItem } from "../grid-item";
 
 // Mock react-draggable
@@ -29,12 +30,11 @@ vi.mock("react-resizable", () => ({
   }: {
     children: React.ReactElement<{ className?: string }>;
     className?: string;
-  }) => {
-    return React.cloneElement(children, {
+  }) =>
+    React.cloneElement(children, {
       "data-resizable": true,
       className: `${children.props.className || ""} ${className || ""}`.trim(),
-    } as React.HTMLAttributes<HTMLElement>);
-  },
+    } as React.HTMLAttributes<HTMLElement>),
 }));
 
 const defaultProps = {

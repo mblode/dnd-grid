@@ -167,6 +167,4 @@ export const clamp = (
   num: number,
   lowerBound: number,
   upperBound: number
-): number => {
-  return Math.max(Math.min(num, upperBound), lowerBound);
-};
+): number => Math.max(Math.min(num, upperBound), lowerBound);

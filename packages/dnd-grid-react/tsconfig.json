@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": ".",
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "paths": {
       "@dnd-grid/core": ["../dnd-grid-core/dist/index.d.ts"],
       "@dnd-grid/core/*": ["../dnd-grid-core/dist/*"]

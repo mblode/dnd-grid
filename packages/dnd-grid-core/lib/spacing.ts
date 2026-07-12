@@ -25,7 +25,7 @@ export const normalizeSpacing = (value: Spacing): SpacingArray => {
     return [value, value, value, value];
   }
   if (Array.isArray(value)) {
-    throw new Error(
+    throw new TypeError(
       "DndGrid: gap/containerPadding no longer accept arrays. Use a number or { top, right, bottom, left }."
     );
   }
@@ -38,7 +38,7 @@ export const resolveResponsiveSpacing = <B extends Breakpoint>(
   breakpoint: B
 ): Spacing => {
   if (Array.isArray(value)) {
-    throw new Error(
+    throw new TypeError(
       "DndGrid: responsive spacing does not accept arrays. Use numbers or { top, right, bottom, left }."
     );
   }

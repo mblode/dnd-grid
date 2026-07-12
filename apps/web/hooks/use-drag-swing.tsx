@@ -8,6 +8,7 @@ import type {
 import { useDndMonitor } from "@dnd-kit/core";
 import { autorun } from "mobx";
 import { useCallback, useEffect, useRef } from "react";
+
 import { getPointerPosition } from "@/lib/dnd/pointer-tracker";
 import {
   calculateVelocityFromHistory,
@@ -441,14 +442,15 @@ export function useDragSwing(): UseDragSwingReturn {
   );
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (springAnimationFrameRef.current) {
         cancelAnimationFrame(springAnimationFrameRef.current);
         springAnimationFrameRef.current = null;
       }
-    };
-  }, []);
+    },
+    []
+  );
 
   useDndMonitor({
     onDragStart: handleDragStart,

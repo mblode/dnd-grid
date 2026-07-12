@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+
 import registry from "@/registry.json";
 
 const siteUrl = "https://dnd-grid.com";
 const staticRoutes = ["", "docs"];
 const exampleRoutes = registry.items.map((item) => `examples/${item.name}`);
-const routes = Array.from(new Set([...staticRoutes, ...exampleRoutes]));
+const routes = [...new Set([...staticRoutes, ...exampleRoutes])];
 const TRAILING_SLASH_REGEX = /\/$/;
 
 const getChangeFrequency = (route: string) =>

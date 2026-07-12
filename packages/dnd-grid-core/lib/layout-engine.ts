@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { resolveCompactor } from "./compactors";
 import {
   applyPositionConstraints,
@@ -209,14 +210,13 @@ const reflowCommandSchema = z.object({
   layout: layoutSchema.optional(),
 });
 
-const formatZodError = (error: z.ZodError): string => {
-  return error.issues
+const formatZodError = (error: z.ZodError): string =>
+  error.issues
     .map((issue) => {
       const path = issue.path.join(".") || "root";
       return `${path}: ${issue.message}`;
     })
     .join("; ");
-};
 
 const getNodeEnv = (): string | undefined => {
   if (typeof globalThis === "undefined") {

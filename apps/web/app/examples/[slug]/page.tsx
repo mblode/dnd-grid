@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
 import { examples, examplesBySlug } from "@/examples/manifest";
 import { cn } from "@/lib/utils";
 

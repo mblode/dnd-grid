@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+
 import type { ReducedMotionSetting } from "./types";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -44,11 +45,14 @@ export const resolveReducedMotion = (
     return false;
   }
   switch (setting) {
-    case "always":
+    case "always": {
       return true;
-    case "never":
+    }
+    case "never": {
       return false;
-    default:
+    }
+    default: {
       return prefersReducedMotion;
+    }
   }
 };

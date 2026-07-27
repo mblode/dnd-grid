@@ -5,6 +5,6 @@ export const siteConfig = {
   links: {
     github: "https://github.com/mblode/dnd-grid",
     docs: "https://dnd-grid.com/docs",
-    author: "https://matthewblode.com",
+    author: "https://blode.co",
   },
 };

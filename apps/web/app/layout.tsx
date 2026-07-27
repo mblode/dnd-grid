@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
-const GA_MEASUREMENT_ID = "G-H2PKLJ0615";
+const GA_MEASUREMENT_ID = "G-DZD6C8C6HT";
 const siteUrl = "https://dnd-grid.com";
 const siteTitle = "dnd-grid - React grid layout";
 const siteDescription =

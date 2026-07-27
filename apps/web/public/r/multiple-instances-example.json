@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "multiple-instances-example",
+  "type": "registry:component",
+  "title": "Multiple instances",
+  "description": "Run several independent grids on one page.",
+  "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+  "css": {
+    "@import \"@dnd-grid/react/styles.css\"": {}
+  },
+  "files": [
+    {
+      "path": "examples/dnd-grid-multiple-instances-example.tsx",
+      "type": "registry:component",
+      "content": "\"use client\";\n\nimport { DndGrid, type Layout } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst initialLayoutA: Layout = [\n  { id: \"a1\", x: 0, y: 0, w: 3, h: 2 },\n  { id: \"a2\", x: 3, y: 0, w: 3, h: 2 },\n  { id: \"a3\", x: 6, y: 0, w: 3, h: 2 },\n];\n\nconst initialLayoutB: Layout = [\n  { id: \"b1\", x: 0, y: 0, w: 4, h: 2 },\n  { id: \"b2\", x: 4, y: 0, w: 4, h: 2 },\n  { id: \"b3\", x: 8, y: 0, w: 4, h: 2 },\n];\n\nexport function MultipleInstancesExample() {\n  const [layoutA, setLayoutA] = useState<Layout>(initialLayoutA);\n  const [layoutB, setLayoutB] = useState<Layout>(initialLayoutB);\n\n  return (\n    <div className=\"space-y-6\">\n      <div>\n        <div className=\"mb-2 text-xs text-zinc-500\">Grid A</div>\n        <DndGrid\n          cols={12}\n          layout={layoutA}\n          onLayoutChange={setLayoutA}\n          rowHeight={50}\n        >\n          {layoutA.map((item) => (\n            <div className=\"grid-item\" key={item.id}>\n              {item.id}\n            </div>\n          ))}\n        </DndGrid>\n      </div>\n      <div>\n        <div className=\"mb-2 text-xs text-zinc-500\">Grid B</div>\n        <DndGrid\n          cols={12}\n          layout={layoutB}\n          onLayoutChange={setLayoutB}\n          rowHeight={50}\n        >\n          {layoutB.map((item) => (\n            <div className=\"grid-item\" key={item.id}>\n              {item.id}\n            </div>\n          ))}\n        </DndGrid>\n      </div>\n    </div>\n  );\n}\n"
+    }
+  ]
+}

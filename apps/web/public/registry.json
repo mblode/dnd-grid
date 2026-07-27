@@ -84,6 +84,22 @@
       ]
     },
     {
+      "name": "composition-example",
+      "type": "registry:component",
+      "title": "Composition",
+      "description": "Render state-aware item content with useDndGridItemState.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-composition-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "constraints-example",
       "type": "registry:component",
       "title": "Constraints",
@@ -180,6 +196,38 @@
       "files": [
         {
           "path": "examples/dnd-grid-localstorage-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "multiple-instances-example",
+      "type": "registry:component",
+      "title": "Multiple instances",
+      "description": "Run several independent grids on one page.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-multiple-instances-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "portal-example",
+      "type": "registry:component",
+      "title": "Portal",
+      "description": "Render the grid into a portal container.",
+      "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+      "css": {
+        "@import \"@dnd-grid/react/styles.css\"": {}
+      },
+      "files": [
+        {
+          "path": "examples/dnd-grid-portal-example.tsx",
           "type": "registry:component"
         }
       ]

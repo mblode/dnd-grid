@@ -170,6 +170,53 @@ const run = async () => {
       // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
       /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/introduction">/
     );
+
+    // Absolute upstream URLs (canonical, og:url, og:image) are pointed back at
+    // the custom domain so proxied pages stay indexable
+    requests.length = 0;
+    nextResponse = new Response(
+      `<html><head><link rel="canonical" href="https://docs.example.com/docs/patterns/ssr"><meta property="og:url" content="https://docs.example.com/docs/patterns/ssr"><meta property="og:image" content="https://docs.example.com/opengraph-image.png"></head></html>`,
+      {
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+        },
+      }
+    );
+    const absoluteUrlRes = await worker.fetch(
+      new Request("https://dnd-grid.com/docs/patterns/ssr"),
+      env
+    );
+    const absoluteUrlHtml = await absoluteUrlRes.text();
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(absoluteUrlHtml.includes(env.DOCS_URL), false);
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.match(
+      absoluteUrlHtml,
+      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
+      /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/patterns\/ssr">/
+    );
+    // Shared assets live outside /docs on the custom domain
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.match(
+      absoluteUrlHtml,
+      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
+      /content="https:\/\/dnd-grid\.com\/opengraph-image\.png"/
+    );
+
+    // Crawlers omit Referer, so docs chunks must still resolve after the
+    // landing app reports that it has no such asset
+    requests.length = 0;
+    nextResponse = new Response("not found", { status: 404 });
+    const assetRes = await worker.fetch(
+      new Request("https://dnd-grid.com/_next/static/chunks/docs-only.js"),
+      env
+    );
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(requests.length, 2);
+    assertHost(requests[0], env.LANDING_URL);
+    assertHost(requests[1], env.DOCS_URL);
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(assetRes.status, 200);
   } finally {
     globalThis.fetch = originalFetch;
   }

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "composition-example",
+  "type": "registry:component",
+  "title": "Composition",
+  "description": "Render state-aware item content with useDndGridItemState.",
+  "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
+  "css": {
+    "@import \"@dnd-grid/react/styles.css\"": {}
+  },
+  "files": [
+    {
+      "path": "examples/dnd-grid-composition-example.tsx",
+      "type": "registry:component",
+      "content": "\"use client\";\n\nimport { DndGrid, type Layout, useDndGridItemState } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst initialLayout: Layout = [\n  { id: \"c1\", x: 0, y: 0, w: 3, h: 2 },\n  { id: \"c2\", x: 3, y: 0, w: 3, h: 2 },\n  { id: \"c3\", x: 6, y: 0, w: 3, h: 2 },\n  { id: \"c4\", x: 9, y: 0, w: 3, h: 2 },\n];\n\nfunction StateAwareContent() {\n  const { item, state } = useDndGridItemState();\n  let label = item.id;\n  if (state.dragging) {\n    label = \"Dragging\";\n  } else if (state.resizing) {\n    label = \"Resizing\";\n  }\n\n  return (\n    <div className=\"grid-item\">\n      <span>{label}</span>\n      {state.dragging && (\n        <span className=\"block text-xs text-zinc-500\">\n          {item.x},{item.y}\n        </span>\n      )}\n    </div>\n  );\n}\n\nexport function CompositionExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n\n  return (\n    <div className=\"space-y-4\">\n      <div className=\"text-xs text-zinc-500\">\n        Items use useDndGridItemState() to render state-aware content.\n      </div>\n      <DndGrid\n        cols={12}\n        layout={layout}\n        onLayoutChange={setLayout}\n        rowHeight={50}\n      >\n        {layout.map((item) => (\n          <StateAwareContent key={item.id} />\n        ))}\n      </DndGrid>\n    </div>\n  );\n}\n"
+    }
+  ]
+}

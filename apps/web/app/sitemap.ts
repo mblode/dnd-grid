@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
 
-import registry from "@/registry.json";
+import { examples } from "@/examples/manifest";
 
 const siteUrl = "https://dnd-grid.com";
 const staticRoutes = ["", "docs"];
-const exampleRoutes = registry.items.map((item) => `examples/${item.name}`);
+// Sourced from the manifest, not the shadcn registry: the registry only covers
+// examples that are installable via the CLI, so registry-driven sitemaps drop
+// the pages that exist on the site but ship no registry item.
+const exampleRoutes = examples.map((example) => `examples/${example.slug}`);
 const routes = [...new Set([...staticRoutes, ...exampleRoutes])];
 const TRAILING_SLASH_REGEX = /\/$/;
 

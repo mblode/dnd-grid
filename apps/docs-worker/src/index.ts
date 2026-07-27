@@ -41,6 +41,9 @@ const DOCS_PAGE_PATHS = [
   "/examples/constraints",
   "/examples/aspect-ratio-constraints",
   "/examples/scale",
+  "/examples/composition",
+  "/examples/multiple-instances",
+  "/examples/portal",
 ] as const;
 const DOCS_PAGE_PATH_SET = new Set<string>(DOCS_PAGE_PATHS);
 
@@ -85,6 +88,27 @@ const getDocsRedirectPath = (
   }
 
   return isKnownDocsPagePath(pathname) ? toDocsPath(pathname) : null;
+};
+
+// biome-ignore lint/performance/useTopLevelRegex: Hoisted for reuse per call
+const REGEXP_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
+
+const escapeRegExp = (value: string): string =>
+  value.replace(REGEXP_SPECIAL_CHARS, "\\$&");
+
+// Absolute upstream URLs may point at a docs page (`/introduction`), a page
+// that already carries the prefix (`/docs/introduction`), or a shared asset
+// such as `/opengraph-image.png` that lives outside `/docs` on this domain.
+const normalizeDocsUrlPath = (path: string): string => {
+  if (path === "" || path === "/") {
+    return DOCS_PREFIX;
+  }
+
+  if (isDocsPath(path) || !isKnownDocsPagePath(path)) {
+    return path;
+  }
+
+  return toDocsPath(path);
 };
 
 const shouldProxyAssetToDocs = (
@@ -175,26 +199,77 @@ const rewriteDocsHtml = (
     );
   }
 
-  const canonicalHosts = [`https://${docsUrl}`, `https://${customUrl}`];
-  for (const host of canonicalHosts) {
-    rewrittenHtml = rewrittenHtml.replaceAll(
-      `rel="canonical" href="${host}"`,
-      `rel="canonical" href="https://${customUrl}${DOCS_PREFIX}"`
-    );
-    rewrittenHtml = rewrittenHtml.replaceAll(
-      `rel="canonical" href="${host}/"`,
-      `rel="canonical" href="https://${customUrl}${DOCS_PREFIX}"`
+  // The docs origin emits absolute URLs to itself (canonical, og:url, og:image,
+  // .md content URLs). Left alone they point search engines at the upstream
+  // host, which makes every proxied page non-canonical and non-indexable.
+  const docsOriginPattern = new RegExp(
+    `https://${escapeRegExp(docsUrl)}(/[^"'\\\\\\s)]*)?`,
+    "g"
+  );
+  rewrittenHtml = rewrittenHtml.replace(
+    docsOriginPattern,
+    (_match, path: string | undefined) =>
+      `https://${customUrl}${normalizeDocsUrlPath(path ?? "")}`
+  );
+
+  return rewrittenHtml;
+};
+
+const proxyToDocs = async (
+  request: Request,
+  urlObject: URL,
+  docsUrl: string,
+  customUrl: string
+): Promise<Response> => {
+  const url = new URL(request.url);
+  url.hostname = docsUrl;
+
+  const proxyRequest = new Request(url, request);
+  proxyRequest.headers.set("Host", docsUrl);
+  proxyRequest.headers.set("X-Forwarded-Host", customUrl);
+  proxyRequest.headers.set("X-Forwarded-Proto", "https");
+
+  const clientIP = request.headers.get("CF-Connecting-IP");
+  if (clientIP) {
+    proxyRequest.headers.set("CF-Connecting-IP", clientIP);
+  }
+
+  const docsResponse = await fetch(proxyRequest);
+  const location = docsResponse.headers.get("Location");
+  if (location) {
+    const rewrittenLocation = rewriteDocsLocation(
+      location,
+      urlObject,
+      docsUrl,
+      customUrl
     );
 
-    for (const path of DOCS_PAGE_PATHS) {
-      rewrittenHtml = rewrittenHtml.replaceAll(
-        `rel="canonical" href="${host}${path}"`,
-        `rel="canonical" href="https://${customUrl}${toDocsPath(path)}"`
-      );
+    if (rewrittenLocation) {
+      const headers = new Headers(docsResponse.headers);
+      headers.set("Location", rewrittenLocation);
+      return new Response(docsResponse.body, {
+        headers,
+        status: docsResponse.status,
+        statusText: docsResponse.statusText,
+      });
     }
   }
 
-  return rewrittenHtml;
+  const contentType = docsResponse.headers.get("content-type") ?? "";
+  if (!contentType.includes("text/html")) {
+    return docsResponse;
+  }
+
+  const rewrittenHtml = rewriteDocsHtml(
+    await docsResponse.text(),
+    customUrl,
+    docsUrl
+  );
+  return new Response(rewrittenHtml, {
+    headers: docsResponse.headers,
+    status: docsResponse.status,
+    statusText: docsResponse.statusText,
+  });
 };
 
 export default {
@@ -239,65 +314,30 @@ export default {
           request.headers.get("Referer")
         )
       ) {
-        const url = new URL(request.url);
-        url.hostname = docsUrl;
-
-        const proxyRequest = new Request(url, request);
-        proxyRequest.headers.set("Host", docsUrl);
-        proxyRequest.headers.set("X-Forwarded-Host", customUrl);
-        proxyRequest.headers.set("X-Forwarded-Proto", "https");
-
-        const clientIP = request.headers.get("CF-Connecting-IP");
-        if (clientIP) {
-          proxyRequest.headers.set("CF-Connecting-IP", clientIP);
-        }
-
-        const docsResponse = await fetch(proxyRequest);
-        const location = docsResponse.headers.get("Location");
-        if (location) {
-          const rewrittenLocation = rewriteDocsLocation(
-            location,
-            urlObject,
-            docsUrl,
-            customUrl
-          );
-
-          if (rewrittenLocation) {
-            const headers = new Headers(docsResponse.headers);
-            headers.set("Location", rewrittenLocation);
-            return new Response(docsResponse.body, {
-              headers,
-              status: docsResponse.status,
-              statusText: docsResponse.statusText,
-            });
-          }
-        }
-
-        const contentType = docsResponse.headers.get("content-type") ?? "";
-        if (!contentType.includes("text/html")) {
-          return docsResponse;
-        }
-
-        const rewrittenHtml = rewriteDocsHtml(
-          await docsResponse.text(),
-          customUrl,
-          docsUrl
-        );
-        return new Response(rewrittenHtml, {
-          headers: docsResponse.headers,
-          status: docsResponse.status,
-          statusText: docsResponse.statusText,
-        });
+        return await proxyToDocs(request, urlObject, docsUrl, customUrl);
       }
 
       // Route all other traffic to landing page
       const landingUrl = new URL(request.url);
       landingUrl.hostname = landingHost;
-      return await fetch(landingUrl, {
+      const landingResponse = await fetch(landingUrl, {
         method: request.method,
         headers: request.headers,
         body: request.body,
       });
+
+      // Both apps serve build output under /_next/, and the Referer header is
+      // the only hint about which one a chunk belongs to. Crawlers omit it, so
+      // fall back to the docs origin when the landing app has no such asset.
+      if (
+        landingResponse.status === 404 &&
+        isNextInternalPath(urlObject.pathname) &&
+        (request.method === "GET" || request.method === "HEAD")
+      ) {
+        return await proxyToDocs(request, urlObject, docsUrl, customUrl);
+      }
+
+      return landingResponse;
     } catch {
       return await fetch(request);
     }

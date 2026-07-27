@@ -60,7 +60,10 @@
           "examples/compactor-showcase",
           "examples/constraints",
           "examples/aspect-ratio-constraints",
-          "examples/scale"
+          "examples/scale",
+          "examples/composition",
+          "examples/multiple-instances",
+          "examples/portal"
         ]
       }
     ]

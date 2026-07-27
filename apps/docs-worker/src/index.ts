@@ -220,26 +220,33 @@ const rewriteDocsHtml = (
 };
 
 // Every docs request is two sequential hops (client -> worker -> docs origin),
-// which is what pushed some pages past a 7s TTTB. Chunk filenames are
-// content-hashed so they can be held indefinitely; pages get a short TTL and
-// are served stale while the edge refreshes them in the background.
+// which is what pushed some pages past a 7s TTFB. Chunk filenames are
+// content-hashed so they can be held indefinitely; pages are refreshed in the
+// background once they age past PAGE_FRESH_SECONDS.
+const PAGE_FRESH_SECONDS = 300;
 const ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
-const PAGE_CACHE_CONTROL =
-  "public, max-age=0, s-maxage=300, stale-while-revalidate=86400";
+const PAGE_CACHE_CONTROL = `public, max-age=0, s-maxage=${PAGE_FRESH_SECONDS}, stale-while-revalidate=86400`;
+// stale-while-revalidate above is advisory for downstream caches only. This
+// worker reads the cache itself, so nothing would ever revalidate a stored
+// entry without an explicit age check — hence the timestamp.
+const CACHED_AT_HEADER = "x-docs-cached-at";
 
 // The Cache API only exists on Workers. Falling back to a miss keeps the proxy
 // exercisable under plain Node in the smoke test.
 const getEdgeCache = (): Cache | null =>
   typeof caches === "undefined" ? null : caches.default;
 
-const withCacheControl = (response: Response, value: string): Response => {
-  const headers = new Headers(response.headers);
-  headers.set("Cache-Control", value);
-  return new Response(response.body, {
-    headers,
-    status: response.status,
-    statusText: response.statusText,
-  });
+const isStalePage = (cached: Response, pathname: string, now: number) => {
+  if (isNextInternalPath(pathname)) {
+    return false;
+  }
+
+  const cachedAt = Number(cached.headers.get(CACHED_AT_HEADER));
+  if (!Number.isFinite(cachedAt)) {
+    return true;
+  }
+
+  return now - cachedAt > PAGE_FRESH_SECONDS * 1000;
 };
 
 const fetchFromDocs = async (
@@ -299,6 +306,36 @@ const fetchFromDocs = async (
   });
 };
 
+// Returns the response to serve, and the same response tagged for storage when
+// it is worth caching. Only 200s qualify: redirects are rewritten per-request
+// and an error would otherwise sit in front of every visitor until it expired.
+const fetchForCache = async (
+  request: Request,
+  urlObject: URL,
+  docsUrl: string,
+  customUrl: string,
+  now: number
+): Promise<Response> => {
+  const response = await fetchFromDocs(request, urlObject, docsUrl, customUrl);
+  if (response.status !== 200) {
+    return response;
+  }
+
+  const headers = new Headers(response.headers);
+  headers.set(
+    "Cache-Control",
+    isNextInternalPath(urlObject.pathname)
+      ? ASSET_CACHE_CONTROL
+      : PAGE_CACHE_CONTROL
+  );
+  headers.set(CACHED_AT_HEADER, String(now));
+  return new Response(response.body, {
+    headers,
+    status: response.status,
+    statusText: response.statusText,
+  });
+};
+
 const proxyToDocs = async (
   request: Request,
   urlObject: URL,
@@ -308,27 +345,36 @@ const proxyToDocs = async (
 ): Promise<Response> => {
   const cache = request.method === "GET" ? getEdgeCache() : null;
   const cacheKey = new Request(request.url, { method: "GET" });
+  const now = Date.now();
 
   const hit = await cache?.match(cacheKey);
-  if (hit) {
+  if (hit && cache) {
+    if (isStalePage(hit, urlObject.pathname, now)) {
+      ctx?.waitUntil(
+        fetchForCache(request, urlObject, docsUrl, customUrl, now).then(
+          (fresh) =>
+            fresh.status === 200
+              ? cache.put(cacheKey, fresh)
+              : Promise.resolve()
+        )
+      );
+    }
+
     return hit;
   }
 
-  const response = await fetchFromDocs(request, urlObject, docsUrl, customUrl);
-  // Only 200s are worth holding. Redirects are rewritten per-request and
-  // errors would pin a broken page in front of every visitor for the TTL.
-  if (!(cache && response.status === 200)) {
-    return response;
+  const response = await fetchForCache(
+    request,
+    urlObject,
+    docsUrl,
+    customUrl,
+    now
+  );
+  if (cache && response.status === 200) {
+    ctx?.waitUntil(cache.put(cacheKey, response.clone()));
   }
 
-  const cacheable = withCacheControl(
-    response,
-    isNextInternalPath(urlObject.pathname)
-      ? ASSET_CACHE_CONTROL
-      : PAGE_CACHE_CONTROL
-  );
-  ctx?.waitUntil(cache.put(cacheKey, cacheable.clone()));
-  return cacheable;
+  return response;
 };
 
 export default {

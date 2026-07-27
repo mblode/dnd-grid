@@ -1,7 +1,3 @@
-import { deepEqual } from "fast-equals";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import { resolveCompactor } from "./compactors";
 import {
   DEFAULT_BREAKPOINTS,
   DEFAULT_COLS,
@@ -9,9 +5,13 @@ import {
   findOrGenerateResponsiveLayout,
   getBreakpointFromWidth,
   getColsFromBreakpoint,
+  resolveCompactor,
+  resolveResponsiveSpacing,
   sortBreakpoints,
-} from "./responsive-utils";
-import { resolveResponsiveSpacing } from "./spacing";
+} from "@dnd-grid/core";
+import { deepEqual } from "fast-equals";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import type {
   Breakpoint,
   BreakpointCols,

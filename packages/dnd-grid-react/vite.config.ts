@@ -15,7 +15,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      dts({ include: ["lib"] }),
+      dts({
+        include: ["lib"],
+        // Mirror tsconfig.build.json so test declarations stay out of dist.
+        exclude: ["lib/**/*.test.*", "lib/__tests__/**"],
+      }),
       {
         name: "copy-styles",
         closeBundle() {

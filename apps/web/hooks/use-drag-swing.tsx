@@ -186,7 +186,6 @@ export function useDragSwing(): UseDragSwingReturn {
     const MAX_SETTLE_FRAMES = 120;
     const MAX_SETTLE_DURATION_MS = 2000;
 
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex animation logic requires sequential state management
     const animate = () => {
       const now = performance.now();
       if (isSettlingRef.current) {
@@ -295,7 +294,6 @@ export function useDragSwing(): UseDragSwingReturn {
   }, [startSpringAnimation, updateRotation, updateScale]);
 
   const handleDragStart = useCallback(
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex drag start logic requires multiple conditional checks
     (event: DragStartEvent) => {
       const activatorEvent = event.activatorEvent;
 

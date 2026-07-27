@@ -1,4 +1,9 @@
 import {
+  horizontalCompactor,
+  verticalCompactor,
+  verticalOverlapCompactor,
+} from "@dnd-grid/core";
+import {
   act,
   fireEvent,
   render as rtlRender,
@@ -7,11 +12,6 @@ import {
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  horizontalCompactor,
-  verticalCompactor,
-  verticalOverlapCompactor,
-} from "../../compactors";
 import type {
   AnimationConfig,
   GridItemDragEvent,
@@ -169,7 +169,6 @@ vi.mock("../grid-item", () => ({
     onItemKeyDown,
     registerItemRef,
   }: MockGridItemProps) => (
-    // biome-ignore lint/a11y/useSemanticElements: mock uses div to keep DOM structure aligned with grid layout.
     <div
       className={className}
       data-aria-colindex={ariaColIndex}

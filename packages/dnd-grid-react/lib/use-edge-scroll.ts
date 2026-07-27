@@ -516,7 +516,6 @@ export const useEdgeScroll = (
     []
   );
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Auto-scroll logic requires complex scroll boundary and state calculations
   const updateAutoScroll = useCallback(() => {
     const options = optionsRef.current;
     const enabled = options.enabled !== false;

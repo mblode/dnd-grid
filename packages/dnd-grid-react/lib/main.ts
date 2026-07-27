@@ -1,16 +1,55 @@
 import "./styles/index.css";
 
-// biome-ignore lint/performance/noBarrelFile: public entrypoint re-exports.
+export type {
+  LayoutCommand,
+  LayoutEngine,
+  LayoutEngineOptions,
+  LayoutEnginePlugin,
+  LayoutEnginePluginContext,
+  LayoutState,
+  PointWithTimestamp,
+  SpringConfig,
+  SpringState,
+} from "@dnd-grid/core";
 export {
+  applyPositionConstraints,
+  applySizeConstraints,
+  aspectRatio,
+  boundedX,
+  boundedY,
+  calculateRotationWeight,
+  calculateVelocityFromHistory,
   compactItemHorizontal,
   compactItemVertical,
+  containerBounds,
+  createLayoutEngine,
+  createLiveSpring,
+  defaultConstraints,
+  fastHorizontalCompactor,
+  fastHorizontalOverlapCompactor,
+  fastVerticalCompactor,
+  fastVerticalOverlapCompactor,
+  findEmptyPosition,
+  gridBounds,
   horizontalCompactor,
   horizontalOverlapCompactor,
+  layoutItemSchema,
+  layoutSchema,
+  MAX_ROTATION,
+  maxSize,
+  minMaxSize,
+  minSize,
   noCompactor,
   resolveCompactionCollision,
+  snapToGrid,
+  SPRING_DEFAULTS,
+  validateLayout,
+  VELOCITY_SCALE,
+  VELOCITY_WINDOW_MS,
+  velocityToRotation,
   verticalCompactor,
   verticalOverlapCompactor,
-} from "./compactors";
+} from "@dnd-grid/core";
 export {
   DndGrid,
   type DndGridHandle,
@@ -24,47 +63,6 @@ export {
   type ResponsiveDndGridHandle,
   type ResponsiveDndGridProps,
 } from "./components/responsive-dnd-grid";
-export {
-  applyPositionConstraints,
-  applySizeConstraints,
-  aspectRatio,
-  boundedX,
-  boundedY,
-  containerBounds,
-  defaultConstraints,
-  gridBounds,
-  maxSize,
-  minMaxSize,
-  minSize,
-  snapToGrid,
-} from "./constraints";
-export {
-  fastHorizontalCompactor,
-  fastHorizontalOverlapCompactor,
-  fastVerticalCompactor,
-  fastVerticalOverlapCompactor,
-} from "./extras";
-export { findEmptyPosition } from "./find-empty-position";
-export type {
-  LayoutCommand,
-  LayoutEngine,
-  LayoutEngineOptions,
-  LayoutEnginePlugin,
-  LayoutEnginePluginContext,
-  LayoutState,
-} from "./layout-engine";
-export { createLayoutEngine } from "./layout-engine";
-export type { PointWithTimestamp, SpringConfig, SpringState } from "./spring";
-export {
-  calculateRotationWeight,
-  calculateVelocityFromHistory,
-  createLiveSpring,
-  MAX_ROTATION,
-  SPRING_DEFAULTS,
-  VELOCITY_SCALE,
-  VELOCITY_WINDOW_MS,
-  velocityToRotation,
-} from "./spring";
 export type {
   AnimationConfig,
   AnimationSpringConfig,
@@ -128,4 +126,3 @@ export {
   useOptionalDndGridItemState,
 } from "./use-item-state";
 export { useReducedMotion } from "./use-reduced-motion";
-export { layoutItemSchema, layoutSchema, validateLayout } from "./validation";

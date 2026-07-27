@@ -179,7 +179,7 @@ export const moveElement = <TData>(
   y: number | null | undefined,
   isUserAction: boolean | null | undefined,
   compactor: Compactor<TData>,
-  cols: number // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Grid element movement requires complex collision detection and compaction logic
+  cols: number
 ): LayoutItem<TData>[] => {
   if (l.static && l.draggable !== true) {
     return [...layout];
@@ -261,7 +261,7 @@ export const moveElementAwayFromCollision = <TData>(
   itemToMove: LayoutItem<TData>,
   isUserAction: boolean | null | undefined,
   compactor: Compactor<TData>,
-  cols: number // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Collision resolution requires complex conditional logic for all edge cases
+  cols: number
 ): LayoutItem<TData>[] => {
   const compactorType = compactor.type;
   const compactH = compactorType === "horizontal";

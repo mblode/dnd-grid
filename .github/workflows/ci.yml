@@ -33,8 +33,11 @@ jobs:
       - name: Typecheck
         run: npm run check-types
 
-      - name: Test Library
-        run: npm run test --workspace=@dnd-grid/react
+      - name: Test
+        run: npm run test
+
+      - name: Dead code
+        run: npm run knip
 
       - name: Build
         run: npm run build

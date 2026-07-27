@@ -1,3 +1,4 @@
+import type { DefaultBreakpoints } from "@dnd-grid/core";
 import type {
   ForwardedRef,
   HTMLAttributes,
@@ -7,7 +8,6 @@ import type {
 } from "react";
 import { forwardRef } from "react";
 
-import type { DefaultBreakpoints } from "../responsive-utils";
 import type { Breakpoint, Compactor } from "../types";
 import { useContainerWidth } from "../use-container-width";
 import type { UseDndGridOptions } from "../use-dnd-grid";

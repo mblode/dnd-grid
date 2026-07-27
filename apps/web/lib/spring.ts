@@ -1,66 +1,38 @@
 /**
- * Bento-style Spring Physics Implementation
- * Exact physics from bento-example.min.js for swing/tilt animations
+ * Drag-swing physics for the block palette.
+ *
+ * This is a deliberate fork of the spring helpers in `@dnd-grid/core`: the
+ * library's versions hardcode the tuning constants, while the swing overlay
+ * drives them at runtime from the MobX settings panel (`setConfig`, and the
+ * `windowMs`/`velocityScale`/`maxRotation` parameters below). The constants
+ * themselves are imported rather than copied so they cannot drift.
  */
+import {
+  MAX_ROTATION,
+  type PointWithTimestamp,
+  type SpringConfig,
+  SPRING_DEFAULTS,
+  VELOCITY_SCALE,
+  VELOCITY_WINDOW_MS,
+} from "@dnd-grid/react";
 
-// ============================================================================
-// Constants (Exact Bento Values)
-// ============================================================================
+export type { PointWithTimestamp } from "@dnd-grid/react";
 
-/** Velocity calculation window in milliseconds */
-export const VELOCITY_WINDOW_MS = 100;
-
-/** Converts velocity (px/s) to rotation (degrees) */
-export const VELOCITY_SCALE = 0.005;
-
-/** Maximum rotation in degrees */
-export const MAX_ROTATION = 45;
-
-/** Default spring configuration for rotation - creates underdamped oscillation */
-export const SPRING_DEFAULTS = {
-  stiffness: 100,
-  damping: 10,
-  mass: 1,
-};
-
-/** Scale spring configuration - snappier response (from swing-card.tsx lines 29-33) */
-export const SCALE_SPRING_CONFIG = {
+/** Snappier than the grid's own scale spring; not re-exported by the library. */
+const SCALE_SPRING_CONFIG = {
   stiffness: 550,
   damping: 30,
   restSpeed: 10,
 };
 
-/** Position spring config - subtle underdamped bounce (zeta=0.7, ~5% overshoot) */
-export const POSITION_SPRING_CONFIG = {
-  stiffness: 200,
-  damping: 20,
-  restSpeed: 1,
-  restDistance: 0.5,
-};
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface SpringConfig {
-  stiffness?: number;
-  damping?: number;
-  mass?: number;
-  from?: number;
-  to?: number;
-  velocity?: number;
-  restSpeed?: number;
-  restDistance?: number;
-}
-
-export type RotationSpringSettings = Required<
+type RotationSpringSettings = Required<
   Pick<
     SpringConfig,
     "stiffness" | "damping" | "mass" | "restSpeed" | "restDistance"
   >
 >;
 
-export type ScaleSpringSettings = Required<
+type ScaleSpringSettings = Required<
   Pick<SpringConfig, "stiffness" | "damping" | "restSpeed" | "restDistance">
 >;
 
@@ -73,20 +45,7 @@ export interface DragSwingSettings {
   scaleSpring: ScaleSpringSettings;
 }
 
-export interface SpringState {
-  done: boolean;
-  hasReachedTarget: boolean;
-  current: number;
-  target: number;
-}
-
-export interface PointWithTimestamp {
-  x: number;
-  y: number;
-  timestamp: number;
-}
-
-export const DRAG_SWING_DEFAULTS: DragSwingSettings = {
+const DRAG_SWING_DEFAULTS: DragSwingSettings = {
   velocityWindowMs: VELOCITY_WINDOW_MS,
   velocityScale: VELOCITY_SCALE,
   maxRotation: MAX_ROTATION,

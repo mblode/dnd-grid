@@ -10,7 +10,7 @@ import type { UseDndGridApi, UseDndGridOptions } from "../use-dnd-grid";
 import { useDndGrid } from "../use-dnd-grid";
 import { GridItem } from "./grid-item";
 
-export type DndGridCoreProps<TData = unknown> = UseDndGridOptions<TData>;
+type DndGridCoreProps<TData = unknown> = UseDndGridOptions<TData>;
 export type DndGridCoreHandle<TData = unknown> = UseDndGridApi<TData>;
 
 type DndGridCoreComponent = (<TData = unknown>(

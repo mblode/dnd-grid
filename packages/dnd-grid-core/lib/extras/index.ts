@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: This is a library entry point that provides a convenient public API
 export {
   fastHorizontalCompactor,
   fastHorizontalOverlapCompactor,

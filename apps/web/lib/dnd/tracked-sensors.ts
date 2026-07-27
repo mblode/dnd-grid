@@ -364,7 +364,6 @@ export class TrackedTouchSensor extends TrackedPointerSensor {
       window.removeEventListener(touchEvents.move.name, noop);
     };
 
-    // biome-ignore lint/suspicious/noEmptyBlockStatements: Empty function used as no-op event handler
     function noop() {}
   }
 

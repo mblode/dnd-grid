@@ -108,7 +108,6 @@ const findEmptyPosition = ({
   newItemHeight: number;
   gridWidth: number;
   gridHeight: number;
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Grid space finding algorithm requires nested loops
 }): { x: number; y: number } => {
   const grid = Array.from({ length: gridHeight }, () =>
     Array.from({ length: gridWidth }, () => false)

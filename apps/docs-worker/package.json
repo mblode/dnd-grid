@@ -12,7 +12,6 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260712.1",
     "tsx": "^4.23.0",
-    "ultracite": "7.9.3",
     "wrangler": "^4.110.0"
   }
 }

@@ -3,10 +3,6 @@
   "compilerOptions": {
     "outDir": "./dist",
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
-    "paths": {
-      "@dnd-grid/core": ["../dnd-grid-core/dist/index.d.ts"],
-      "@dnd-grid/core/*": ["../dnd-grid-core/dist/*"]
-    },
     "strictNullChecks": true
   },
   "include": ["lib"]

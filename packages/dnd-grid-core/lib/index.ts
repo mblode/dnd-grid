@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: This is the main library entry point that provides the public API
 export * from "./animation-config";
 export * from "./calculate-utils";
 export * from "./compactors";

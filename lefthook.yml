@@ -1,7 +1,14 @@
 pre-commit:
   parallel: true
   jobs:
+    # oxlint has no JSON/CSS linter and exits non-zero when handed nothing it
+    # can lint, so a commit touching only those files would fail the hook.
+    # Format them on their own and reserve the lint pass for source files.
+    - name: format
+      glob: "*.{json,jsonc,css}"
+      run: npx oxfmt {staged_files}
+      stage_fixed: true
     - name: ultracite
-      glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
+      glob: "*.{js,jsx,mjs,cjs,ts,tsx}"
       run: npx ultracite fix {staged_files}
       stage_fixed: true

@@ -69,7 +69,9 @@ const updateMdx = (item) => {
   }
 
   const updated = updatedIntro.replace(CODE_BLOCK_REGEX, codeBlock);
-  fs.writeFileSync(mdxPath, `${updated}\n`);
+  // trimEnd keeps repeat runs idempotent: `updated` already ends in a newline,
+  // so appending one unconditionally grows the file by a blank line each time.
+  fs.writeFileSync(mdxPath, `${updated.trimEnd()}\n`);
 };
 
 for (const item of items) {

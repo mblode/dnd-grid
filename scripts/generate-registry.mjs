@@ -7,6 +7,10 @@ const publicRegistryPath = path.join(root, "apps/web/public/registry.json");
 const publicItemsDir = path.join(root, "apps/web/public/r");
 const examplesDir = path.join(root, "apps/web/examples");
 const manifestPath = path.join(examplesDir, "manifest.ts");
+// The registry description is the one-line blurb the shadcn CLI prints. Example
+// pages need a longer, keyword-bearing meta description, so they live here
+// instead of overloading the registry field with page copy.
+const descriptionsPath = path.join(examplesDir, "descriptions.json");
 
 const readJson = (filePath) => JSON.parse(fs.readFileSync(filePath, "utf-8"));
 const writeFile = (filePath, content) => {
@@ -16,6 +20,7 @@ const writeFile = (filePath, content) => {
 
 const registry = readJson(registryPath);
 const items = registry.items ?? [];
+const pageDescriptions = readJson(descriptionsPath);
 const EXPORT_NAME_REGEX = /export\s+(?:function|const)\s+([A-Za-z0-9_]+)/;
 
 const readExampleExport = (filePath) => {
@@ -36,10 +41,17 @@ const buildManifest = () => {
     const examplePath = path.join(root, "apps/web", file.path);
     const { exportName } = readExampleExport(examplePath);
 
+    const description = pageDescriptions[item.name];
+    if (!description) {
+      throw new Error(
+        `Missing page description for ${item.name} in apps/web/examples/descriptions.json`
+      );
+    }
+
     return {
       slug: item.name,
       title: item.title ?? item.name,
-      description: item.description ?? "",
+      description,
       filePath: file.path,
       exportName,
     };
@@ -64,15 +76,16 @@ const buildManifest = () => {
     ].join("\n")
   );
 
-  const fileContents = `${importLines.join("\n")}
-import type { ComponentType } from "react";
+  const fileContents = `import type { ComponentType } from "react";
 
-export type ExampleEntry = {
+${importLines.join("\n")}
+
+export interface ExampleEntry {
   slug: string;
   title: string;
   description: string;
   Component: ComponentType;
-};
+}
 
 export const examples: ExampleEntry[] = [
 ${exampleLines.join("\n")}

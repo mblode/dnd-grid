@@ -12,7 +12,7 @@
     {
       "path": "examples/dnd-grid-bounded-example.tsx",
       "type": "registry:component",
-      "content": "\"use client\";\n\nimport { DndGrid, type Layout } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({\n  id: i.toString(),\n  x: (i * 2) % 12,\n  y: Math.floor(i / 6) * 2,\n  w: 2,\n  h: 2,\n}));\n\nexport function BoundedExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n\n  return (\n    <DndGrid\n      layout={layout}\n      cols={12}\n      rowHeight={50}\n      bounded\n      onLayoutChange={setLayout}\n    >\n      {layout.map((item) => (\n        <div key={item.id} className=\"grid-item\">\n          {item.id}\n        </div>\n      ))}\n    </DndGrid>\n  );\n}\n"
+      "content": "\"use client\";\n\nimport { DndGrid, type Layout } from \"@dnd-grid/react\";\nimport { useState } from \"react\";\n\nconst initialLayout: Layout = [0, 1, 2, 3, 4, 5].map((i) => ({\n  id: i.toString(),\n  x: (i * 2) % 12,\n  y: Math.floor(i / 6) * 2,\n  w: 2,\n  h: 2,\n}));\n\nexport function BoundedExample() {\n  const [layout, setLayout] = useState<Layout>(initialLayout);\n\n  return (\n    <DndGrid\n      bounded\n      cols={12}\n      layout={layout}\n      onLayoutChange={setLayout}\n      rowHeight={50}\n    >\n      {layout.map((item) => (\n        <div className=\"grid-item\" key={item.id}>\n          {item.id}\n        </div>\n      ))}\n    </DndGrid>\n  );\n}\n"
     }
   ]
 }

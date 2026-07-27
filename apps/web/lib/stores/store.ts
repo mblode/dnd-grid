@@ -3,7 +3,7 @@
 import { makeAutoObservable } from "mobx";
 import { isHydrated, makePersistable } from "mobx-persist-store";
 
-import { type DragSwingSettings, getDragSwingDefaults } from "@/lib/spring";
+import { type DragSwingSettings, getDragSwingDefaults } from "@/lib/drag-swing";
 import type { BlockData, DropPosition } from "@/types/block";
 
 // Mock data for demo

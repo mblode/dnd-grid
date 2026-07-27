@@ -9,7 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "changeset": "changeset",
-    "changeset:version": "changeset version",
+    "changeset:version": "changeset version && npm install --package-lock-only",
     "release": "changeset publish",
     "release:publish": "turbo run build --filter=@dnd-grid/core --filter=@dnd-grid/react && changeset publish",
     "dev": "turbo run dev",

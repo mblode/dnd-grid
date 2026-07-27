@@ -1,13 +1,15 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+// Resolved against this file, not the cwd, so the suite works from the repo root.
 const BASE_CSS = readFileSync(
-  resolve(process.cwd(), "lib/styles/base.css"),
+  join(import.meta.dirname, "../styles/base.css"),
   "utf-8"
 );
 
+// RegExp.escape needs lib es2025; this repo targets es2022.
 const escapeForRegex = (value: string) =>
   value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

@@ -19,7 +19,6 @@ const getSnapshot = (): boolean => getMediaQueryList()?.matches ?? false;
 const subscribe = (onStoreChange: () => void): (() => void) => {
   const mediaQueryList = getMediaQueryList();
   if (!mediaQueryList) {
-    // biome-ignore lint/suspicious/noEmptyBlockStatements: Empty function intentionally used as no-op cleanup
     return () => {};
   }
   const handler = () => onStoreChange();

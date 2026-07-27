@@ -5,6 +5,7 @@
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "changeset": "changeset",
@@ -20,19 +21,23 @@
     "examples:sync-docs": "node scripts/sync-docs-examples.mjs",
     "examples:build-registry": "node scripts/generate-registry.mjs",
     "workers:dev": "npm run dev --workspace=docs-worker",
-    "workers:deploy": "npm run deploy --workspace=docs-worker"
+    "workers:deploy": "npm run deploy --workspace=docs-worker",
+    "test": "turbo run test",
+    "knip": "knip",
+    "check": "npm run lint && npm run check-types",
+    "verify": "npm run check && npm run test && npm run knip"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
     "@types/node": "^26.1.1",
     "@typescript/typescript6": "^6.0.2",
+    "knip": "^6.29.0",
     "lefthook": "^2.1.10",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
     "turbo": "^2.10.4",
     "typescript": "7.0.2",
-    "ultracite": "7.9.3",
-    "vitest": "^4.1.10"
+    "ultracite": "7.9.3"
   },
   "engines": {
     "node": ">=24"

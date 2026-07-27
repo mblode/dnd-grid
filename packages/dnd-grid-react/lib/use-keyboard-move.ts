@@ -1,7 +1,7 @@
+import { calcGridColWidth, calcGridItemPosition } from "@dnd-grid/core";
 import { useCallback, useRef, useState } from "react";
 import type { DraggableEventHandler } from "react-draggable";
 
-import { calcGridColWidth, calcGridItemPosition } from "./calculate-utils";
 import type { Position, PositionParams, ResizeHandleAxis } from "./types";
 
 const keyboardResizeHandle: ResizeHandleAxis = "se";
@@ -98,7 +98,6 @@ export const useKeyboardMove = ({
   }, [setPressed, setResizing]);
 
   const onKeyDown = useCallback(
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Keyboard event handling requires multiple conditional branches
     (e: React.KeyboardEvent) => {
       const node = nodeRef.current;
       if (!node) {

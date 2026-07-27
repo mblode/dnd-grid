@@ -94,7 +94,6 @@ const getDocsRedirectPath = (
   return isKnownDocsPagePath(pathname) ? toDocsPath(pathname) : null;
 };
 
-// biome-ignore lint/performance/useTopLevelRegex: Hoisted for reuse per call
 const REGEXP_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
 
 const escapeRegExp = (value: string): string =>

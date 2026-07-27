@@ -33,7 +33,6 @@ const ctx = {
 
 const assertHost = (request: Request, expectedHost: string) => {
   const { hostname } = new URL(request.url);
-  // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
   assert.equal(hostname, expectedHost);
 };
 
@@ -41,10 +40,8 @@ const run = async () => {
   try {
     requests.length = 0;
     await worker.fetch(new Request("https://dnd-grid.com/docs"), env, ctx);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
     assertHost(requests[0], env.DOCS_URL);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
 
     requests.length = 0;
@@ -57,15 +54,12 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
     assertHost(requests[0], env.DOCS_URL);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
 
     requests.length = 0;
     await worker.fetch(new Request("https://dnd-grid.com/"), env, ctx);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
     assertHost(requests[0], env.LANDING_URL);
 
@@ -75,7 +69,6 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
     assertHost(requests[0], "dnd-grid.com");
 
@@ -86,14 +79,11 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(leakedDocsPathRes.status, 308);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(
       leakedDocsPathRes.headers.get("Location"),
       "https://dnd-grid.com/docs/introduction?ref=test"
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 0);
 
     requests.length = 0;
@@ -102,14 +92,11 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(compactorsRes.status, 308);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(
       compactorsRes.headers.get("Location"),
       "https://dnd-grid.com/docs/concepts/compactors"
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 0);
 
     // Root requests from inside docs normalize to the docs home instead of landing page
@@ -123,14 +110,11 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(docsHomeRes.status, 308);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(
       docsHomeRes.headers.get("Location"),
       "https://dnd-grid.com/docs"
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 0);
 
     // Upstream redirects that leak the root path are rewritten back under /docs
@@ -146,9 +130,7 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(docsRedirectRes.status, 307);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(
       docsRedirectRes.headers.get("Location"),
       "https://dnd-grid.com/docs/installation"
@@ -170,22 +152,12 @@ const run = async () => {
       ctx
     );
     const html = await docsHtmlRes.text();
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
     assert.match(html, /href="\/docs"/);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
     assert.match(html, /href="\/docs\/installation"/);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
     assert.match(html, /"href":"\/docs\/hooks\/use-dnd-grid"/);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
     assert.match(html, /"contentUrl":"\/docs\/introduction\.mdx"/);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.match(
       html,
-      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
       /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/introduction">/
     );
 
@@ -206,19 +178,14 @@ const run = async () => {
       ctx
     );
     const absoluteUrlHtml = await absoluteUrlRes.text();
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(absoluteUrlHtml.includes(env.DOCS_URL), false);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.match(
       absoluteUrlHtml,
-      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
       /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/patterns\/ssr">/
     );
     // Shared assets live outside /docs on the custom domain
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.match(
       absoluteUrlHtml,
-      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
       /content="https:\/\/dnd-grid\.com\/opengraph-image\.png"/
     );
 
@@ -231,11 +198,9 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 2);
     assertHost(requests[0], env.LANDING_URL);
     assertHost(requests[1], env.DOCS_URL);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(assetRes.status, 200);
 
     // A second request for the same docs page is served from the edge cache
@@ -262,14 +227,8 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    assert.match(
-      firstRes.headers.get("Cache-Control") ?? "",
-      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
-      /s-maxage=300/
-    );
+    assert.match(firstRes.headers.get("Cache-Control") ?? "", /s-maxage=300/);
     await Promise.all(waited);
 
     requests.length = 0;
@@ -278,9 +237,7 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 0);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(secondRes.status, 200);
 
     // Content-hashed chunks are held far longer than pages
@@ -294,12 +251,7 @@ const run = async () => {
       env,
       ctx
     );
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
-    assert.match(
-      chunkRes.headers.get("Cache-Control") ?? "",
-      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
-      /immutable/
-    );
+    assert.match(chunkRes.headers.get("Cache-Control") ?? "", /immutable/);
 
     // An entry older than the fresh window is still served immediately, but a
     // background refresh replaces it — without this the worker would happily
@@ -331,12 +283,9 @@ const run = async () => {
     });
     const staleRes = await worker.fetch(new Request(stalePath), env, ctx);
     // Served instantly from cache, refresh happens behind it
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.match(await staleRes.text(), /old/);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(waited.length, 1);
     await Promise.all(waited);
-    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.match(
       await (store.get(stalePath) as Response).clone().text(),
       /new/
@@ -357,5 +306,4 @@ const main = async () => {
   }
 };
 
-// biome-ignore lint/complexity/noVoid: Standard fire-and-forget pattern
 void main();

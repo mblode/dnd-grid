@@ -22,8 +22,6 @@ export const ActionBar = ({ w, x, children }: Props) => {
     event.stopPropagation();
 
   return (
-    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: stops event propagation to grid
-    // biome-ignore lint/a11y/noStaticElementInteractions: stops event propagation to grid
     <div
       className={cn(
         "kitchen-sink-action pointer-events-auto absolute bottom-0 left-1/2 z-20 translate-y-full pt-2",

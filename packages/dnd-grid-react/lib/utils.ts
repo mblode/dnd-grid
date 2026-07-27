@@ -9,7 +9,6 @@ import { deepEqual } from "fast-equals";
 import type { ReactNode } from "react";
 import React from "react";
 
-// biome-ignore lint/performance/noBarrelFile: Re-exporting utilities for convenience
 export {
   bottom,
   cloneLayout,
@@ -133,5 +132,4 @@ export const setTransform = (
   };
 };
 
-// biome-ignore lint/suspicious/noEmptyBlockStatements: Intentional no-op function
 export const noop = () => {};

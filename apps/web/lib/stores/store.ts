@@ -2,7 +2,6 @@
 
 import { makeAutoObservable } from "mobx";
 import { isHydrated, makePersistable } from "mobx-persist-store";
-import { createContext, useContext } from "react";
 
 import { type DragSwingSettings, getDragSwingDefaults } from "@/lib/spring";
 import type { BlockData, DropPosition } from "@/types/block";
@@ -180,20 +179,9 @@ export class Store {
   }
 }
 
-// Singleton instance
+// One grid on the site, so no provider and no per-tree scoping.
 const store = new Store();
 
-// Context
-export const StoreContext = createContext<Store>(store);
-
-// Hook
 export function useStore(): Store {
-  return useContext(StoreContext);
-}
-
-// Provider
-export function StoreProvider({ children }: React.PropsWithChildren) {
-  return (
-    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
-  );
+  return store;
 }

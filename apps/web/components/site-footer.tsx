@@ -10,7 +10,7 @@ export const SiteFooter = () => (
         rel="author noopener"
         target="_blank"
       >
-        {/* biome-ignore lint/performance/noImgElement: self-hosted 20px avatar, plain img avoids next/image overhead */}
+        {/* self-hosted 20px avatar, plain img avoids next/image overhead */}
         <img
           alt="Matthew Blode"
           className="rounded-full"

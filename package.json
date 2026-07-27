@@ -25,7 +25,9 @@
     "test": "turbo run test",
     "knip": "knip",
     "check": "npm run lint && npm run check-types",
-    "verify": "npm run check && npm run test && npm run knip"
+    "verify": "npm run check && npm run test && npm run knip",
+    "check-package-types": "npm run build && node scripts/check-package-types.mjs",
+    "verify:full": "npm run verify && npm run check-package-types"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

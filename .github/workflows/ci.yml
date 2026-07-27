@@ -42,5 +42,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Packs both packages and type-checks a consumer against them. The
+      # in-repo typecheck resolves @dnd-grid/core through the workspace
+      # symlink, so it cannot see a broken published declaration.
+      - name: Check published types
+        run: node scripts/check-package-types.mjs
+
       - name: Smoke Test Docs Worker
         run: npm run smoke --workspace=docs-worker

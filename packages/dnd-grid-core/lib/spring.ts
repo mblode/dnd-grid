@@ -54,13 +54,15 @@ export const createLiveSpring = (
     restDistance?: number;
   } = {}
 ) => {
-  const {
-    stiffness = SPRING_DEFAULTS.stiffness,
-    damping = SPRING_DEFAULTS.damping,
-    mass = SPRING_DEFAULTS.mass,
-    restSpeed = 2,
-    restDistance = 0.5,
-  } = config;
+  // Held in a mutable record rather than destructured consts so `setConfig`
+  // can retune a running spring without discarding its current motion.
+  const settings = {
+    stiffness: config.stiffness ?? SPRING_DEFAULTS.stiffness,
+    damping: config.damping ?? SPRING_DEFAULTS.damping,
+    mass: config.mass ?? SPRING_DEFAULTS.mass,
+    restSpeed: config.restSpeed ?? 2,
+    restDistance: config.restDistance ?? 0.5,
+  };
 
   let currentValue = 0;
   let currentVelocity = 0;
@@ -88,17 +90,17 @@ export const createLiveSpring = (
       lastTime = now;
 
       const displacement = currentValue - targetValue;
-      const springForce = -stiffness * displacement;
-      const dampingForce = -damping * currentVelocity;
-      const acceleration = (springForce + dampingForce) / mass;
+      const springForce = -settings.stiffness * displacement;
+      const dampingForce = -settings.damping * currentVelocity;
+      const acceleration = (springForce + dampingForce) / settings.mass;
 
       const dt = deltaTime / 1000;
       currentVelocity += acceleration * dt;
       currentValue += currentVelocity * dt;
 
       const isAtRest =
-        Math.abs(currentVelocity) < restSpeed &&
-        Math.abs(currentValue - targetValue) < restDistance;
+        Math.abs(currentVelocity) < settings.restSpeed &&
+        Math.abs(currentValue - targetValue) < settings.restDistance;
 
       if (isAtRest) {
         currentValue = targetValue;
@@ -119,6 +121,25 @@ export const createLiveSpring = (
       lastTime = null;
     },
 
+    /** Retune a running spring. Omitted fields keep their current value. */
+    setConfig(nextConfig: SpringConfig) {
+      if (typeof nextConfig.stiffness === "number") {
+        settings.stiffness = nextConfig.stiffness;
+      }
+      if (typeof nextConfig.damping === "number") {
+        settings.damping = nextConfig.damping;
+      }
+      if (typeof nextConfig.mass === "number") {
+        settings.mass = nextConfig.mass;
+      }
+      if (typeof nextConfig.restSpeed === "number") {
+        settings.restSpeed = nextConfig.restSpeed;
+      }
+      if (typeof nextConfig.restDistance === "number") {
+        settings.restDistance = nextConfig.restDistance;
+      }
+    },
+
     getValue() {
       return currentValue;
     },
@@ -130,7 +151,8 @@ export const createLiveSpring = (
 };
 
 export const calculateVelocityFromHistory = (
-  history: PointWithTimestamp[]
+  history: PointWithTimestamp[],
+  windowMs: number = VELOCITY_WINDOW_MS
 ): { x: number; y: number } => {
   if (history.length < 2) {
     return { x: 0, y: 0 };
@@ -145,7 +167,7 @@ export const calculateVelocityFromHistory = (
 
   while (i >= 0) {
     oldestSample = history[i];
-    if (latest.timestamp - oldestSample.timestamp > VELOCITY_WINDOW_MS) {
+    if (latest.timestamp - oldestSample.timestamp > windowMs) {
       break;
     }
     i--;
@@ -176,9 +198,13 @@ export const calculateVelocityFromHistory = (
   return velocity;
 };
 
-export const velocityToRotation = (velocityX: number): number => {
-  const rawRotation = -velocityX * VELOCITY_SCALE;
-  return Math.sign(rawRotation) * Math.min(Math.abs(rawRotation), MAX_ROTATION);
+export const velocityToRotation = (
+  velocityX: number,
+  velocityScale: number = VELOCITY_SCALE,
+  maxRotation: number = MAX_ROTATION
+): number => {
+  const rawRotation = -velocityX * velocityScale;
+  return Math.sign(rawRotation) * Math.min(Math.abs(rawRotation), maxRotation);
 };
 
 export const calculateRotationWeight = (

@@ -18,8 +18,9 @@ Unchanged and appropriate for the size: `packages/` for the two published librar
 |---|---|---|
 | Framework-agnostic logic lives in `@dnd-grid/core` | The react package holds components and hooks only | Review + AGENTS.md; no lint rule yet (see deferred) |
 | No local re-export shims | Import `@dnd-grid/core` at the use site, never through a forwarding module | `knip` flags the orphan; `no-duplicate-imports` merges the resulting `import` clauses (it does not fire on `export … from`, so entry-point clauses need merging by hand) |
-| No `paths` mapping for `@dnd-grid/core` | TypeScript bakes resolved paths into emitted `.d.ts` | Documented gotcha with a grep that re-proves it |
-| Published output excludes tests | `vite-plugin-dts` mirrors `tsconfig.build.json` excludes | Build output check |
+| No `paths` mapping for `@dnd-grid/core` | TypeScript bakes resolved paths into emitted `.d.ts` | `npm run check-package-types` |
+| Published output excludes tests | `vite-plugin-dts` mirrors `tsconfig.build.json` excludes | `npm run check-package-types` |
+| Physics stays in `@dnd-grid/core` | Apps parameterise the engine; they never copy it | `knip` flags a fork's exports as unused |
 
 Ten modules in `packages/dnd-grid-react/lib/` (`compactors`, `constraints`, `spring`, `layout-engine`, …) existed only to re-export `@dnd-grid/core`. They were pass-throughs by the deletion test: removing them moved no complexity, it only removed a hop. Collapsed into direct imports; all 110 public exports verified byte-identical before and after.
 
@@ -36,6 +37,7 @@ Ten modules in `packages/dnd-grid-react/lib/` (`compactors`, `constraints`, `spr
 | Types | `npm run check-types` | CI |
 | Tests (core + react) | `npm run test` | CI |
 | Dead code, exports, deps | `npm run knip` | CI |
+| Published types resolve for consumers | `npm run check-package-types` | CI |
 
 Verification tiers are published in AGENTS.md so an agent runs the narrowest check that covers its change: `check` (lint + types), `verify` (lint, types, tests, dead code). CI additionally runs `changeset status`, `build`, and the docs-worker smoke test, so a green `verify` is not a green CI.
 
@@ -59,7 +61,7 @@ Ranked by leverage. Each was scoped and deliberately not done in this pass.
 
 1. **`use-dnd-grid.ts` (2288 lines) and `grid-item.tsx` (2009 lines).** One hook and one component hold ~1700 lines of body each. Highest remaining leverage and the main traversal cost in the repo. Needs its own slice with a named seam (drag lifecycle, resize lifecycle, a11y announcements) rather than a mechanical split; deferred because the risk is concentrated in the least-covered interaction code.
 2. **No file-size cap.** The natural guardrail for item 1, but it fails on those two files today, so it needs the baseline-and-ratchet shape (cap at ~400, commit the two exceptions, shrink only) rather than a flat rule.
-3. **`apps/web/lib/spring.ts` duplicates core's spring physics.** Same integrator and constants, but the web copy adds runtime parameterisation (`setConfig`, per-call `windowMs`/`velocityScale`/`maxRotation`) that the MobX settings panel drives and core does not expose. Collapsing it means widening core's public API, so it is a library decision, not a cleanup. The shared constants are now imported from `@dnd-grid/react` rather than copied, so only the parameterised function bodies are forked.
+3. ~~**`apps/web/lib/spring.ts` duplicates core's spring physics.**~~ Resolved. The library decision was taken in favour of widening core's API: `createLiveSpring` now exposes `setConfig`, and `calculateVelocityFromHistory`/`velocityToRotation` take the tuning constants as optional arguments defaulting to the previous values. That removed the reason for the fork, so `apps/web/lib/spring.ts` is gone and `lib/drag-swing.ts` holds only the site's own tuning. Exposing tuning parameters is what a headless engine is for, and the fork's own `SCALE_SPRING_CONFIG` was still a hand-copied literal, so "the constants cannot drift" only held for the ones the library happened to re-export.
 4. **Two block models in `apps/web`.** `types/block.ts` has `BlockData.type: "link" | "header" | "text"`; `components/blocks-grid/types.ts` has `BlockKind: "text" | "media" | "quote"`. One concept, two vocabularies, overlapping only on `text`. Naming divergence to resolve before either grows.
 5. **42 oxlint rules disabled** with one blanket rationale. Some (`no-unused-vars`, `prefer-const`) are cheap to re-enable now that the tree is clean; each should earn its `off` individually.
 6. **The pinned TypeScript version is not the one that runs.** Every package pins `typescript: 7.0.2` (`apps/web` pins 6.0.3), but `@typescript/typescript6` drags in `@typescript/old`, whose `tsc` wins the bin link, so every `build` and `check-types` compiles with 6.0.3. Either drop `@typescript/typescript6` and take TS 7 (expect new diagnostics), or pin 6.0.3 honestly. Left alone here because switching compilers is not a cleanup.

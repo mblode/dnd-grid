@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  calculateVelocityFromHistory,
+  createLiveSpring,
+  type PointWithTimestamp,
+  velocityToRotation,
+} from "@dnd-grid/core";
 import type {
   DragEndEvent,
   DragMoveEvent,
@@ -10,13 +16,7 @@ import { autorun } from "mobx";
 import { useCallback, useEffect, useRef } from "react";
 
 import { getPointerPosition } from "@/lib/dnd/pointer-tracker";
-import {
-  calculateVelocityFromHistory,
-  createLiveSpring,
-  type DragSwingSettings,
-  type PointWithTimestamp,
-  velocityToRotation,
-} from "@/lib/spring";
+import type { DragSwingSettings } from "@/lib/drag-swing";
 import { useStore } from "@/lib/stores/store";
 
 interface UseDragSwingReturn {

@@ -12,6 +12,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@dnd-grid/core": "*",
     "@dnd-grid/react": "*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/utilities": "^3.2.2",

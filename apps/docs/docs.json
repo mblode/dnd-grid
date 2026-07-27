@@ -1,6 +1,9 @@
 {
   "$schema": "https://blode.md/docs.json",
   "name": "dnd-grid",
+  "seo": {
+    "siteUrl": "https://dnd-grid.com/docs"
+  },
   "favicon": "favicon.svg",
   "navigation": {
     "groups": [

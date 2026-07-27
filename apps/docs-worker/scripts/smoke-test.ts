@@ -301,6 +301,47 @@ const run = async () => {
       /immutable/
     );
 
+    // An entry older than the fresh window is still served immediately, but a
+    // background refresh replaces it — without this the worker would happily
+    // serve a day-old page, since nothing else revalidates the Cache API.
+    requests.length = 0;
+    waited.length = 0;
+    const stalePath = "https://dnd-grid.com/docs/concepts/compactors";
+    nextResponse = new Response("<html><head>old</head></html>", {
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+    await worker.fetch(new Request(stalePath), env, ctx);
+    await Promise.all(waited);
+
+    const stored = store.get(stalePath);
+    if (!stored) {
+      throw new Error("expected the page to be cached");
+    }
+    const aged = new Headers(stored.headers);
+    aged.set("x-docs-cached-at", String(Date.now() - 10 * 60 * 1000));
+    store.set(
+      stalePath,
+      new Response(await stored.clone().text(), { headers: aged })
+    );
+
+    requests.length = 0;
+    waited.length = 0;
+    nextResponse = new Response("<html><head>new</head></html>", {
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+    const staleRes = await worker.fetch(new Request(stalePath), env, ctx);
+    // Served instantly from cache, refresh happens behind it
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.match(await staleRes.text(), /old/);
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(waited.length, 1);
+    await Promise.all(waited);
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.match(
+      await (store.get(stalePath) as Response).clone().text(),
+      /new/
+    );
+
     (globalThis as { caches?: unknown }).caches = undefined;
   } finally {
     globalThis.fetch = originalFetch;

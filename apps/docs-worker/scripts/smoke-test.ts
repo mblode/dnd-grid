@@ -20,6 +20,17 @@ globalThis.fetch = (input, init) => {
   return Promise.resolve(response.clone());
 };
 
+const waited: Promise<unknown>[] = [];
+const ctx = {
+  waitUntil: (promise: Promise<unknown>) => {
+    waited.push(promise);
+  },
+  passThroughOnException: () => {
+    // no-op
+  },
+  props: {},
+} as unknown as ExecutionContext;
+
 const assertHost = (request: Request, expectedHost: string) => {
   const { hostname } = new URL(request.url);
   // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
@@ -29,7 +40,7 @@ const assertHost = (request: Request, expectedHost: string) => {
 const run = async () => {
   try {
     requests.length = 0;
-    await worker.fetch(new Request("https://dnd-grid.com/docs"), env);
+    await worker.fetch(new Request("https://dnd-grid.com/docs"), env, ctx);
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
     assertHost(requests[0], env.DOCS_URL);
@@ -43,7 +54,8 @@ const run = async () => {
           Referer: "https://dnd-grid.com/docs",
         },
       }),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
@@ -52,7 +64,7 @@ const run = async () => {
     assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
 
     requests.length = 0;
-    await worker.fetch(new Request("https://dnd-grid.com/"), env);
+    await worker.fetch(new Request("https://dnd-grid.com/"), env, ctx);
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
     assertHost(requests[0], env.LANDING_URL);
@@ -60,7 +72,8 @@ const run = async () => {
     requests.length = 0;
     await worker.fetch(
       new Request("https://dnd-grid.com/.well-known/test"),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 1);
@@ -70,7 +83,8 @@ const run = async () => {
     requests.length = 0;
     const leakedDocsPathRes = await worker.fetch(
       new Request("https://dnd-grid.com/introduction?ref=test"),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(leakedDocsPathRes.status, 308);
@@ -85,7 +99,8 @@ const run = async () => {
     requests.length = 0;
     const compactorsRes = await worker.fetch(
       new Request("https://dnd-grid.com/concepts/compactors"),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(compactorsRes.status, 308);
@@ -105,7 +120,8 @@ const run = async () => {
           Referer: "https://dnd-grid.com/docs/introduction",
         },
       }),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(docsHomeRes.status, 308);
@@ -127,7 +143,8 @@ const run = async () => {
     });
     const docsRedirectRes = await worker.fetch(
       new Request("https://dnd-grid.com/docs/introduction"),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(docsRedirectRes.status, 307);
@@ -149,7 +166,8 @@ const run = async () => {
     );
     const docsHtmlRes = await worker.fetch(
       new Request("https://dnd-grid.com/docs/introduction"),
-      env
+      env,
+      ctx
     );
     const html = await docsHtmlRes.text();
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
@@ -184,7 +202,8 @@ const run = async () => {
     );
     const absoluteUrlRes = await worker.fetch(
       new Request("https://dnd-grid.com/docs/patterns/ssr"),
-      env
+      env,
+      ctx
     );
     const absoluteUrlHtml = await absoluteUrlRes.text();
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
@@ -209,7 +228,8 @@ const run = async () => {
     nextResponse = new Response("not found", { status: 404 });
     const assetRes = await worker.fetch(
       new Request("https://dnd-grid.com/_next/static/chunks/docs-only.js"),
-      env
+      env,
+      ctx
     );
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(requests.length, 2);
@@ -217,6 +237,71 @@ const run = async () => {
     assertHost(requests[1], env.DOCS_URL);
     // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
     assert.equal(assetRes.status, 200);
+
+    // A second request for the same docs page is served from the edge cache
+    // instead of making a second trip to the docs origin
+    const store = new Map<string, Response>();
+    (globalThis as { caches?: unknown }).caches = {
+      default: {
+        match: (key: Request) =>
+          Promise.resolve(store.get(key.url)?.clone() ?? undefined),
+        put: (key: Request, response: Response) => {
+          store.set(key.url, response);
+          return Promise.resolve();
+        },
+      },
+    };
+
+    requests.length = 0;
+    waited.length = 0;
+    nextResponse = new Response("<html><head></head></html>", {
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+    const firstRes = await worker.fetch(
+      new Request("https://dnd-grid.com/docs/concepts/layout"),
+      env,
+      ctx
+    );
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(requests.length, 1);
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.match(
+      firstRes.headers.get("Cache-Control") ?? "",
+      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
+      /s-maxage=300/
+    );
+    await Promise.all(waited);
+
+    requests.length = 0;
+    const secondRes = await worker.fetch(
+      new Request("https://dnd-grid.com/docs/concepts/layout"),
+      env,
+      ctx
+    );
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(requests.length, 0);
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.equal(secondRes.status, 200);
+
+    // Content-hashed chunks are held far longer than pages
+    requests.length = 0;
+    waited.length = 0;
+    nextResponse = new Response("chunk", {
+      headers: { "content-type": "application/javascript" },
+    });
+    const chunkRes = await worker.fetch(
+      new Request("https://dnd-grid.com/docs/_next/static/chunks/a.js"),
+      env,
+      ctx
+    );
+    // biome-ignore lint/suspicious/noMisplacedAssertion: This is a smoke test script, not a test framework
+    assert.match(
+      chunkRes.headers.get("Cache-Control") ?? "",
+      // biome-ignore lint/performance/useTopLevelRegex: Smoke test runs once
+      /immutable/
+    );
+
+    (globalThis as { caches?: unknown }).caches = undefined;
   } finally {
     globalThis.fetch = originalFetch;
   }

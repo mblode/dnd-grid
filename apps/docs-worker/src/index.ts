@@ -50,8 +50,12 @@ const DOCS_PAGE_PATH_SET = new Set<string>(DOCS_PAGE_PATHS);
 const isDocsPath = (pathname: string): boolean =>
   pathname === DOCS_PREFIX || pathname.startsWith(`${DOCS_PREFIX}/`);
 
+// Docs build output is referenced from the root today, but the same files are
+// reachable under the /docs prefix, and both forms are content-hashed assets
+// rather than pages.
 const isNextInternalPath = (pathname: string): boolean =>
-  pathname.startsWith("/_next/");
+  pathname.startsWith("/_next/") ||
+  pathname.startsWith(`${DOCS_PREFIX}/_next/`);
 
 const toDocsPath = (pathname: string): string => {
   if (isDocsPath(pathname)) {
@@ -215,7 +219,30 @@ const rewriteDocsHtml = (
   return rewrittenHtml;
 };
 
-const proxyToDocs = async (
+// Every docs request is two sequential hops (client -> worker -> docs origin),
+// which is what pushed some pages past a 7s TTTB. Chunk filenames are
+// content-hashed so they can be held indefinitely; pages get a short TTL and
+// are served stale while the edge refreshes them in the background.
+const ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
+const PAGE_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=300, stale-while-revalidate=86400";
+
+// The Cache API only exists on Workers. Falling back to a miss keeps the proxy
+// exercisable under plain Node in the smoke test.
+const getEdgeCache = (): Cache | null =>
+  typeof caches === "undefined" ? null : caches.default;
+
+const withCacheControl = (response: Response, value: string): Response => {
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", value);
+  return new Response(response.body, {
+    headers,
+    status: response.status,
+    statusText: response.statusText,
+  });
+};
+
+const fetchFromDocs = async (
   request: Request,
   urlObject: URL,
   docsUrl: string,
@@ -272,8 +299,44 @@ const proxyToDocs = async (
   });
 };
 
+const proxyToDocs = async (
+  request: Request,
+  urlObject: URL,
+  docsUrl: string,
+  customUrl: string,
+  ctx?: ExecutionContext
+): Promise<Response> => {
+  const cache = request.method === "GET" ? getEdgeCache() : null;
+  const cacheKey = new Request(request.url, { method: "GET" });
+
+  const hit = await cache?.match(cacheKey);
+  if (hit) {
+    return hit;
+  }
+
+  const response = await fetchFromDocs(request, urlObject, docsUrl, customUrl);
+  // Only 200s are worth holding. Redirects are rewritten per-request and
+  // errors would pin a broken page in front of every visitor for the TTL.
+  if (!(cache && response.status === 200)) {
+    return response;
+  }
+
+  const cacheable = withCacheControl(
+    response,
+    isNextInternalPath(urlObject.pathname)
+      ? ASSET_CACHE_CONTROL
+      : PAGE_CACHE_CONTROL
+  );
+  ctx?.waitUntil(cache.put(cacheKey, cacheable.clone()));
+  return cacheable;
+};
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<Response> {
     try {
       const docsUrl = env?.DOCS_URL ?? "dnd-grid.blode.md";
       const customUrl = env?.CUSTOM_URL ?? "dnd-grid.com";
@@ -314,7 +377,7 @@ export default {
           request.headers.get("Referer")
         )
       ) {
-        return await proxyToDocs(request, urlObject, docsUrl, customUrl);
+        return await proxyToDocs(request, urlObject, docsUrl, customUrl, ctx);
       }
 
       // Route all other traffic to landing page
@@ -334,7 +397,7 @@ export default {
         isNextInternalPath(urlObject.pathname) &&
         (request.method === "GET" || request.method === "HEAD")
       ) {
-        return await proxyToDocs(request, urlObject, docsUrl, customUrl);
+        return await proxyToDocs(request, urlObject, docsUrl, customUrl, ctx);
       }
 
       return landingResponse;

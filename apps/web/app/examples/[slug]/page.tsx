@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { exampleDetails } from "@/examples/details";
 import { examples, examplesBySlug } from "@/examples/manifest";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +89,10 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
   )}`;
   const githubUrl = `https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-${example.slug}.tsx`;
   const frame = <Component />;
+  const detail = exampleDetails[example.slug];
+  const relatedExamples = (detail?.related ?? [])
+    .map((slug) => examplesBySlug[slug])
+    .filter((related) => related !== undefined);
 
   return (
     <main className={cn({ "py-8": !isEmbed })}>
@@ -118,6 +124,48 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
       )}
 
       <div className={cn({ "container-wrapper": !isEmbed })}>{frame}</div>
+
+      {!isEmbed && detail && (
+        <div className="container-wrapper">
+          <div className="mt-12 max-w-2xl space-y-10">
+            <section className="space-y-3">
+              <h2 className="font-semibold text-foreground text-xl tracking-tight">
+                How it works
+              </h2>
+              {detail.body.map((paragraph) => (
+                <p
+                  className="text-base text-muted-foreground leading-relaxed"
+                  key={paragraph}
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-semibold text-foreground text-xl tracking-tight">
+                Related examples
+              </h2>
+              <ul className="space-y-2">
+                {relatedExamples.map((related) => (
+                  <li key={related.slug}>
+                    <Link
+                      className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+                      href={`/examples/${related.slug}`}
+                    >
+                      {related.title}
+                    </Link>
+                    <span className="text-muted-foreground">
+                      {" — "}
+                      {related.description}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

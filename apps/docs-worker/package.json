@@ -2,16 +2,16 @@
   "name": "docs-worker",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "smoke": "tsx scripts/smoke-test.ts",
+    "smoke": "node scripts/smoke-test.ts",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260712.1",
-    "tsx": "^4.23.0",
     "wrangler": "^4.110.0"
   }
 }

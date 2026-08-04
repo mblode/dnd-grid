@@ -32,9 +32,6 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   experimental: {
     // Enable filesystem caching for `next dev`
     turbopackFileSystemCacheForDev: true,

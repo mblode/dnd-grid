@@ -1,45 +1,36 @@
+<div align="center">
+
+# [dnd-grid](https://dnd-grid.com)
+
+**A draggable and resizable grid layout for React, with weighted drag physics and a headless layout engine**
+
+Give users a dashboard they can rearrange, and get the new layout back as JSON.
+
 <p align="center">
-  <a href="https://dnd-grid.com">
-    <img alt="dnd-grid – A drag-and-drop, resizable grid layout for React" src=".github/assets/banner.png">
+  <a href="https://www.npmjs.com/package/@dnd-grid/react">
+    <img src="https://img.shields.io/npm/v/@dnd-grid/react?style=flat&colorA=000000&colorB=000000" />
+  </a>
+  <a href="https://github.com/mblode/dnd-grid/blob/main/LICENSE.md">
+    <img src="https://img.shields.io/github/license/mblode/dnd-grid?style=flat&colorA=000000&colorB=000000" />
   </a>
 </p>
 
-<p>
-  <a href="https://www.npmjs.com/package/@dnd-grid/react"><img src="https://img.shields.io/npm/v/@dnd-grid/react.svg" alt="npm version"></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT Licence"></a>
-</p>
-
-- **Drag + resize:** smooth interactions with weighted drag physics and configurable handles.
-- **Responsive layouts:** breakpoint helpers and automatic container width measurement.
-- **Compaction + constraints:** packing strategies, collision handling, and bounds control.
-- **Edge auto-scroll:** keep dragging near scroll boundaries.
-- **Touch-friendly:** configurable touch drag delay.
-- **Styling defaults + hooks:** `base.css`/`theme.css`, CSS variables, data attributes, and item state hook.
-- **Accessible grid:** grid semantics plus configurable aria-live announcements.
-- **Headless core engine:** `@dnd-grid/core` handles layout math with a React adapter on top.
-- **Layout persistence:** add/remove widgets and serialize/restore layouts.
-
-## Documentation
-
-To learn how to get started with **dnd-grid**, visit the official documentation website for API docs, guides, and examples.
-
-<p>
-<a href="https://dnd-grid.com/docs">
-<img alt="Visit dnd-grid documentation" src=".github/assets/documentation.svg" width="200" />
-</a>
-</p>
+</div>
 
 ## Demo
 
-Try the live demo.
+Drag, resize, and drop across every example on the site, or read the API reference in the docs.
 
 <p>
 <a href="https://dnd-grid.com">
-<img alt="View dnd-grid demo" src=".github/assets/demo.svg" width="200" />
+<img alt="View demo" src=".github/assets/demo.svg" width="200" />
+</a>
+<a href="https://dnd-grid.com/docs">
+<img alt="Read the docs" src=".github/assets/documentation.svg" width="200" />
 </a>
 </p>
 
-## Installation
+## Install
 
 ```bash
 npm install @dnd-grid/react
@@ -51,25 +42,49 @@ Add the styles to your global CSS:
 @import "@dnd-grid/react/styles.css";
 ```
 
-## Usage
+## Quickstart
 
 ```tsx
 import { DndGrid, type Layout } from "@dnd-grid/react";
+import { useState } from "react";
 
-<DndGrid layout={layout} cols={12} rowHeight={50} onLayoutChange={setLayout}>
-  {layout.map((item) => (
-    <div key={item.id}>{item.id}</div>
-  ))}
-</DndGrid>;
+const initialLayout: Layout = [
+  { id: "a", x: 0, y: 0, w: 3, h: 2 },
+  { id: "b", x: 3, y: 0, w: 3, h: 2 },
+  { id: "c", x: 6, y: 0, w: 6, h: 2 },
+];
+
+export function Dashboard() {
+  const [layout, setLayout] = useState<Layout>(initialLayout);
+
+  return (
+    <DndGrid cols={12} layout={layout} onLayoutChange={setLayout} rowHeight={50}>
+      {layout.map((item) => (
+        <div key={item.id}>{item.id}</div>
+      ))}
+    </DndGrid>
+  );
+}
 ```
 
-## Acknowledgements
+## What you can do
 
-Based on [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed (STRML). Differences: weighted drag physics, better styling defaults (`base.css`/`theme.css`, CSS vars, data attributes), touch drag delay, edge auto-scroll, item state hook.
+- **Drag and resize:** weighted drag physics, configurable resize handles, edge auto-scroll, and a touch drag delay so page scrolling still works.
+- **Go responsive:** breakpoint column maps, with container width measured automatically.
+- **Control packing:** vertical, horizontal, and overlap compactors, plus position, size, and aspect-ratio constraints.
+- **Persist layouts:** add and remove items, then serialize the layout and restore it later.
+- **Theme it:** `base.css` and `theme.css` split apart, CSS variables, and data attributes on every item.
+- **Announce changes:** grid semantics with configurable aria-live announcements.
 
-## Licence
+## Notes
 
-[MIT](LICENSE.md)
+- Works with React 17, 18, and 19.
+- `@dnd-grid/core` is the same layout engine with no React dependency, for building an adapter to another framework.
+- Based on [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) by Samuel Reed, adding weighted drag physics, edge auto-scroll, touch drag delay, and stronger styling defaults.
+
+## License
+
+MIT
 
 ---
 

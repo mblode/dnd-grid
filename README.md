@@ -23,7 +23,7 @@ Drag, resize, and drop across every example on the site, or read the API referen
 
 <p>
 <a href="https://dnd-grid.com">
-<img alt="View demo" src=".github/assets/demo.svg" width="200" />
+<img alt="View the demo" src=".github/assets/demo.svg" width="200" />
 </a>
 <a href="https://dnd-grid.com/docs">
 <img alt="Read the docs" src=".github/assets/documentation.svg" width="200" />

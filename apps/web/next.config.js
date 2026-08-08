@@ -11,8 +11,9 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-  // Docs on dnd-grid.com embed /examples/?embed=1 iframes after the zone move.
-  "frame-ancestors 'self' https://dnd-grid.com https://blode.co",
+  // Docs on dnd-grid.blode.md (and the apex/zone cutover hosts) embed
+  // /examples/?embed=1 iframes.
+  "frame-ancestors 'self' https://dnd-grid.com https://blode.co https://dnd-grid.blode.md",
   "upgrade-insecure-requests",
 ].join("; ");
 
@@ -58,7 +59,29 @@ const nextConfig = {
     ],
   },
   redirects() {
-    return redirectHosts.flatMap((host) => {
+    // Apex worker 301s /docs → blode.co/dnd-grid/docs for GSC; forward to the
+    // real docs host so users don't land on a zone 404. Canonical docs paths
+    // omit the /docs prefix (see dnd-grid.blode.md sitemap).
+    // statusCode 301 (not permanent:true/308) — GSC change-of-address samples prefer 301.
+    const docsHostRedirects = [
+      {
+        destination: "https://dnd-grid.blode.md",
+        source: "/docs",
+        statusCode: 301,
+      },
+      {
+        destination: "https://dnd-grid.blode.md/:path*",
+        source: "/docs/:path*",
+        statusCode: 301,
+      },
+      {
+        destination: "https://dnd-grid.blode.md/_docs/:path*",
+        source: "/_docs/:path*",
+        statusCode: 301,
+      },
+    ];
+
+    const apexRedirects = redirectHosts.flatMap((host) => {
       const has = [{ type: "host", value: host }];
       return [
         {
@@ -91,6 +114,8 @@ const nextConfig = {
         },
       ];
     });
+
+    return [...docsHostRedirects, ...apexRedirects];
   },
   async headers() {
     return [

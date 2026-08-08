@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getSingletonHighlighter } from "shiki";
 
 import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
@@ -6,7 +5,6 @@ import { BlocksGrid } from "@/components/blocks-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
-import { examples } from "@/examples/manifest";
 import { siteConfig } from "@/lib/config";
 
 const INSTALL_COMMAND = "npm install @dnd-grid/react";
@@ -176,29 +174,6 @@ export default async function Home() {
                         }}
                       />
                     </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h2 className="font-sans font-semibold text-2xl text-foreground tracking-tight">
-                      Examples
-                    </h2>
-                    <ul className="grid gap-3 sm:grid-cols-2">
-                      {examples.map((example) => (
-                        <li key={example.slug}>
-                          <Link
-                            className="block rounded-2xl bg-muted/50 p-4 transition-colors hover:bg-muted"
-                            href={`/examples/${example.slug}`}
-                          >
-                            <span className="font-medium text-foreground">
-                              {example.title}
-                            </span>
-                            <span className="mt-1 block text-muted-foreground text-sm">
-                              {example.description}
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
                 </div>
               </div>

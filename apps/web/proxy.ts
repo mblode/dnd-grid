@@ -64,6 +64,10 @@ const toPassthroughHeaders = (
             /https:\/\/[^>\s]+\/files\/logo\/(light|dark)\.svg/g,
             `${basePath}/logo/$1.svg`
           )
+          .replaceAll(
+            /https:\/\/[^>\s]+\/files\/favicon\.svg/g,
+            `${basePath}/logo/favicon.svg`
+          )
       );
       return;
     }

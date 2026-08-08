@@ -96,81 +96,60 @@ const nextConfig = {
     });
   },
   async headers() {
-    // Proxied docs load logos from Vercel Blob and analytics from r.blode.co.
-    // The marketing CSP must not be stamped onto /docs — browsers intersect
-    // multiple CSP headers, so ours would keep blocking those hosts.
-    const docsHeaders = securityHeaders.filter(
+    // Marketing CSP is allowlisted onto product routes only. Proxied docs (and
+    // their same-origin logos) must never inherit it — browsers intersect
+    // multiple CSP headers, so a catch-all bleed would keep blocking Blob /
+    // analytics hosts even after the proxy rewrites asset URLs.
+    const baseSecurityHeaders = securityHeaders.filter(
       (h) => h.key !== "Content-Security-Policy"
     );
+    const withCorp = (corp) => [
+      ...baseSecurityHeaders.filter(
+        (h) => h.key !== "Cross-Origin-Resource-Policy"
+      ),
+      { key: "Cross-Origin-Resource-Policy", value: corp },
+    ];
 
     return [
       {
         source: "/opengraph-image.png",
-        headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
-          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
-        ],
+        headers: withCorp("cross-origin"),
       },
       {
         source: "/twitter-image.png",
-        headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
-          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
-        ],
+        headers: withCorp("cross-origin"),
       },
       {
         source: "/web-app-manifest-:size.png",
-        headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
-          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
-        ],
+        headers: withCorp("cross-origin"),
       },
       {
         source: "/images/:path*",
-        headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
-          { key: "Cross-Origin-Resource-Policy", value: "same-site" },
-        ],
+        headers: withCorp("same-site"),
       },
       {
         source: "/fonts/:path*",
-        headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
-          { key: "Cross-Origin-Resource-Policy", value: "same-site" },
-        ],
+        headers: withCorp("same-site"),
       },
       {
-        // basePath:false + full zone paths — a catch-all of /((?!docs)...) is
-        // matched against /dnd-grid/docs when Next does not strip the basePath
-        // from the tested URL, which would re-apply the marketing CSP.
         basePath: false,
         source: `${basePath}/docs`,
-        headers: docsHeaders,
+        headers: baseSecurityHeaders,
       },
       {
         basePath: false,
         source: `${basePath}/docs/:path*`,
-        headers: docsHeaders,
+        headers: baseSecurityHeaders,
       },
       {
         basePath: false,
         source: `${basePath}/_docs/:path*`,
-        headers: docsHeaders,
+        headers: baseSecurityHeaders,
       },
       {
         basePath: false,
         source: `${basePath}/logo/:path*`,
-        headers: docsHeaders,
+        headers: baseSecurityHeaders,
       },
       {
         basePath: false,
@@ -179,7 +158,12 @@ const nextConfig = {
       },
       {
         basePath: false,
-        source: `${basePath}/((?!docs(?:/|$)|_docs(?:/|$)|logo(?:/|$)).*)`,
+        source: `${basePath}/examples`,
+        headers: securityHeaders,
+      },
+      {
+        basePath: false,
+        source: `${basePath}/examples/:path*`,
         headers: securityHeaders,
       },
     ];

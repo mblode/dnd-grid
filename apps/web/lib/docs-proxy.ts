@@ -230,11 +230,28 @@ export const rewriteDocsHtml = (html: string): string => {
       `https://blode.co${publicPathFromUpstreamAbsolute(path ?? "")}`
   );
 
-  // Serve brand logos from this app's public/ so img-src 'self' (or a stale
+  // Serve brand assets from this app's public/ so img-src 'self' (or a stale
   // marketing CSP) cannot block Vercel Blob. Matches HTML attrs and RSC JSON.
   rewrittenHtml = rewrittenHtml.replaceAll(
     /https:\/\/[^"'\\\s]+\/files\/logo\/(light|dark)\.svg/g,
     `${basePath}/logo/$1.svg`
+  );
+  rewrittenHtml = rewrittenHtml.replaceAll(
+    /https:\/\/[^"'\\\s]+\/files\/favicon\.svg/g,
+    `${basePath}/logo/favicon.svg`
+  );
+  // Drop Blob preconnect once brand assets are same-origin (HTML + RSC JSON).
+  rewrittenHtml = rewrittenHtml.replaceAll(
+    /<link rel="preconnect" href="https:\/\/(?:[^"'\\\s]+\.)?public\.blob\.vercel-storage\.com"\/?>/g,
+    ""
+  );
+  rewrittenHtml = rewrittenHtml.replaceAll(
+    /\["\$","link",null,\{"rel":"preconnect","href":"https:\/\/(?:[^"\\]+\.)?public\.blob\.vercel-storage\.com"\}\]/g,
+    ""
+  );
+  rewrittenHtml = rewrittenHtml.replaceAll(
+    /\[\\"\$\\",\\"link\\",null,\{\\"rel\\":\\"preconnect\\",\\"href\\":\\"https:\/\/(?:[^"\\]+\.)?public\.blob\.vercel-storage\.com\\"\}\]/g,
+    ""
   );
 
   return rewrittenHtml;

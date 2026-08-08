@@ -53,8 +53,14 @@ const isDocsPath = (pathname: string): boolean =>
 // Docs build output is referenced from the root today, but the same files are
 // reachable under the /docs prefix, and both forms are content-hashed assets
 // rather than pages.
+//
+// `/_docs/_next/` is the platform's own assetPrefix, added so its chunks stop
+// colliding with the marketing build's. It sits at the root of this domain
+// rather than under /docs, so without this branch every stylesheet and script
+// falls through to the landing app and 404s, and the docs render unstyled.
 const isNextInternalPath = (pathname: string): boolean =>
   pathname.startsWith("/_next/") ||
+  pathname.startsWith("/_docs/") ||
   pathname.startsWith(`${DOCS_PREFIX}/_next/`);
 
 const toDocsPath = (pathname: string): string => {

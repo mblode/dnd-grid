@@ -25,7 +25,7 @@ Drag, resize, and drop across every example on the site, or read the API referen
 <a href="https://blode.co/dnd-grid">
 <img alt="View the demo" src=".github/assets/demo.svg" width="200" />
 </a>
-<a href="https://dnd-grid.blode.md">
+<a href="https://blode.co/dnd-grid/docs">
 <img alt="Read the docs" src=".github/assets/documentation.svg" width="200" />
 </a>
 </p>

@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "ultracite check",
     "format": "ultracite fix",
-    "check-types": "next typegen && tsc --noEmit"
+    "check-types": "next typegen && tsc --noEmit",
+    "smoke:docs-proxy": "node --experimental-strip-types scripts/docs-proxy-smoke.ts"
   },
   "dependencies": {
     "@dnd-grid/core": "*",

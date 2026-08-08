@@ -9,7 +9,6 @@ import { siteConfig } from "@/lib/config";
 const host = "https://blode.co";
 
 export const schemaId = {
-  breadcrumb: `${siteConfig.url}/#breadcrumb`,
   organization: `${host}/#organization`,
   person: `${host}/#person`,
   software: `${siteConfig.url}/#software`,
@@ -24,7 +23,6 @@ export const siteGraph = {
       "@id": schemaId.webPage,
       "@type": "WebPage",
       about: { "@id": schemaId.software },
-      breadcrumb: { "@id": schemaId.breadcrumb },
       description: siteConfig.description,
       inLanguage: "en-US",
       isPartOf: { "@id": schemaId.website },
@@ -53,25 +51,6 @@ export const siteGraph = {
       publisher: { "@id": schemaId.organization },
       runtimePlatform: "React",
       url: siteConfig.links.npm,
-    },
-    {
-      "@id": schemaId.breadcrumb,
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", item: `${host}/`, name: "Home", position: 1 },
-        {
-          "@type": "ListItem",
-          item: `${host}/projects`,
-          name: "Projects",
-          position: 2,
-        },
-        {
-          "@type": "ListItem",
-          item: siteConfig.url,
-          name: siteConfig.name,
-          position: 3,
-        },
-      ],
     },
   ],
 };

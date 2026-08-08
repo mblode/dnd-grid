@@ -3,9 +3,7 @@ import assert from "node:assert/strict";
 import worker from "../src/index.ts";
 
 const env = {
-  DOCS_URL: "docs.example.com",
   CUSTOM_URL: "dnd-grid.com",
-  LANDING_URL: "landing.example.com",
 };
 
 const requests: Request[] = [];
@@ -20,10 +18,9 @@ globalThis.fetch = (input, init) => {
   return Promise.resolve(response.clone());
 };
 
-const waited: Promise<unknown>[] = [];
 const ctx = {
-  waitUntil: (promise: Promise<unknown>) => {
-    waited.push(promise);
+  waitUntil: () => {
+    // no-op
   },
   passThroughOnException: () => {
     // no-op
@@ -31,267 +28,68 @@ const ctx = {
   props: {},
 } as unknown as ExecutionContext;
 
-const assertHost = (request: Request, expectedHost: string) => {
-  const { hostname } = new URL(request.url);
-  assert.equal(hostname, expectedHost);
+const assertRedirect = async (
+  path: string,
+  expectedLocation: string,
+  init?: RequestInit
+) => {
+  requests.length = 0;
+  const res = await worker.fetch(
+    new Request(`https://dnd-grid.com${path}`, init),
+    env,
+    ctx
+  );
+  assert.equal(res.status, 301);
+  assert.equal(res.headers.get("Location"), expectedLocation);
+  assert.equal(requests.length, 0);
 };
 
 const run = async () => {
   try {
-    requests.length = 0;
-    await worker.fetch(new Request("https://dnd-grid.com/docs"), env, ctx);
-    assert.equal(requests.length, 1);
-    assertHost(requests[0], env.DOCS_URL);
-    assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
+    // Homepage
+    await assertRedirect("/", "https://blode.co/dnd-grid");
 
-    requests.length = 0;
-    await worker.fetch(
-      new Request("https://dnd-grid.com/_next/static/chunks/main.js", {
-        headers: {
-          Referer: "https://dnd-grid.com/docs",
-        },
-      }),
-      env,
-      ctx
+    // Marketing / examples preserve path
+    await assertRedirect(
+      "/examples/toolbox-example",
+      "https://blode.co/dnd-grid/examples/toolbox-example"
     );
-    assert.equal(requests.length, 1);
-    assertHost(requests[0], env.DOCS_URL);
-    assert.equal(requests[0].headers.get("X-Forwarded-Host"), env.CUSTOM_URL);
 
-    requests.length = 0;
-    await worker.fetch(new Request("https://dnd-grid.com/"), env, ctx);
-    assert.equal(requests.length, 1);
-    assertHost(requests[0], env.LANDING_URL);
+    // Docs under /docs preserve path (GSC sample URLs)
+    await assertRedirect(
+      "/docs/introduction",
+      "https://blode.co/dnd-grid/docs/introduction"
+    );
+    await assertRedirect(
+      "/docs/concepts/layout",
+      "https://blode.co/dnd-grid/docs/concepts/layout"
+    );
+    await assertRedirect("/docs", "https://blode.co/dnd-grid/docs");
+    await assertRedirect(
+      "/docs/introduction?ref=test",
+      "https://blode.co/dnd-grid/docs/introduction?ref=test"
+    );
 
+    // Root-level Mintlify leaks normalize under /docs on the zone
+    await assertRedirect(
+      "/introduction?ref=test",
+      "https://blode.co/dnd-grid/docs/introduction?ref=test"
+    );
+    await assertRedirect(
+      "/concepts/compactors",
+      "https://blode.co/dnd-grid/docs/concepts/compactors"
+    );
+
+    // Verification paths still pass through
     requests.length = 0;
+    nextResponse = new Response("ok");
     await worker.fetch(
       new Request("https://dnd-grid.com/.well-known/test"),
       env,
       ctx
     );
     assert.equal(requests.length, 1);
-    assertHost(requests[0], "dnd-grid.com");
-
-    // Root-level docs page requests normalize back to /docs/*
-    requests.length = 0;
-    const leakedDocsPathRes = await worker.fetch(
-      new Request("https://dnd-grid.com/introduction?ref=test"),
-      env,
-      ctx
-    );
-    assert.equal(leakedDocsPathRes.status, 308);
-    assert.equal(
-      leakedDocsPathRes.headers.get("Location"),
-      "https://dnd-grid.com/docs/introduction?ref=test"
-    );
-    assert.equal(requests.length, 0);
-
-    requests.length = 0;
-    const compactorsRes = await worker.fetch(
-      new Request("https://dnd-grid.com/concepts/compactors"),
-      env,
-      ctx
-    );
-    assert.equal(compactorsRes.status, 308);
-    assert.equal(
-      compactorsRes.headers.get("Location"),
-      "https://dnd-grid.com/docs/concepts/compactors"
-    );
-    assert.equal(requests.length, 0);
-
-    // Root requests from inside docs normalize to the docs home instead of landing page
-    requests.length = 0;
-    const docsHomeRes = await worker.fetch(
-      new Request("https://dnd-grid.com/", {
-        headers: {
-          Referer: "https://dnd-grid.com/docs/introduction",
-        },
-      }),
-      env,
-      ctx
-    );
-    assert.equal(docsHomeRes.status, 308);
-    assert.equal(
-      docsHomeRes.headers.get("Location"),
-      "https://dnd-grid.com/docs"
-    );
-    assert.equal(requests.length, 0);
-
-    // Upstream redirects that leak the root path are rewritten back under /docs
-    requests.length = 0;
-    nextResponse = new Response(null, {
-      headers: {
-        Location: "/installation",
-      },
-      status: 307,
-    });
-    const docsRedirectRes = await worker.fetch(
-      new Request("https://dnd-grid.com/docs/introduction"),
-      env,
-      ctx
-    );
-    assert.equal(docsRedirectRes.status, 307);
-    assert.equal(
-      docsRedirectRes.headers.get("Location"),
-      "https://dnd-grid.com/docs/installation"
-    );
-
-    // Root-relative docs links and canonicals in proxied HTML are rewritten under /docs
-    requests.length = 0;
-    nextResponse = new Response(
-      `<html><head><link rel="canonical" href="https://docs.example.com/introduction"></head><body><a href="/">Home</a><a href="/installation">Installation</a><script>const page={"href":"/hooks/use-dnd-grid","contentUrl":"/introduction.mdx"}</script></body></html>`,
-      {
-        headers: {
-          "content-type": "text/html; charset=utf-8",
-        },
-      }
-    );
-    const docsHtmlRes = await worker.fetch(
-      new Request("https://dnd-grid.com/docs/introduction"),
-      env,
-      ctx
-    );
-    const html = await docsHtmlRes.text();
-    assert.match(html, /href="\/docs"/);
-    assert.match(html, /href="\/docs\/installation"/);
-    assert.match(html, /"href":"\/docs\/hooks\/use-dnd-grid"/);
-    assert.match(html, /"contentUrl":"\/docs\/introduction\.mdx"/);
-    assert.match(
-      html,
-      /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/introduction">/
-    );
-
-    // Absolute upstream URLs (canonical, og:url, og:image) are pointed back at
-    // the custom domain so proxied pages stay indexable
-    requests.length = 0;
-    nextResponse = new Response(
-      `<html><head><link rel="canonical" href="https://docs.example.com/docs/patterns/ssr"><meta property="og:url" content="https://docs.example.com/docs/patterns/ssr"><meta property="og:image" content="https://docs.example.com/opengraph-image.png"></head></html>`,
-      {
-        headers: {
-          "content-type": "text/html; charset=utf-8",
-        },
-      }
-    );
-    const absoluteUrlRes = await worker.fetch(
-      new Request("https://dnd-grid.com/docs/patterns/ssr"),
-      env,
-      ctx
-    );
-    const absoluteUrlHtml = await absoluteUrlRes.text();
-    assert.equal(absoluteUrlHtml.includes(env.DOCS_URL), false);
-    assert.match(
-      absoluteUrlHtml,
-      /<link rel="canonical" href="https:\/\/dnd-grid\.com\/docs\/patterns\/ssr">/
-    );
-    // Shared assets live outside /docs on the custom domain
-    assert.match(
-      absoluteUrlHtml,
-      /content="https:\/\/dnd-grid\.com\/opengraph-image\.png"/
-    );
-
-    // Crawlers omit Referer, so docs chunks must still resolve after the
-    // landing app reports that it has no such asset
-    requests.length = 0;
-    nextResponse = new Response("not found", { status: 404 });
-    const assetRes = await worker.fetch(
-      new Request("https://dnd-grid.com/_next/static/chunks/docs-only.js"),
-      env,
-      ctx
-    );
-    assert.equal(requests.length, 2);
-    assertHost(requests[0], env.LANDING_URL);
-    assertHost(requests[1], env.DOCS_URL);
-    assert.equal(assetRes.status, 200);
-
-    // A second request for the same docs page is served from the edge cache
-    // instead of making a second trip to the docs origin
-    const store = new Map<string, Response>();
-    (globalThis as { caches?: unknown }).caches = {
-      default: {
-        match: (key: Request) =>
-          Promise.resolve(store.get(key.url)?.clone() ?? undefined),
-        put: (key: Request, response: Response) => {
-          store.set(key.url, response);
-          return Promise.resolve();
-        },
-      },
-    };
-
-    requests.length = 0;
-    waited.length = 0;
-    nextResponse = new Response("<html><head></head></html>", {
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
-    const firstRes = await worker.fetch(
-      new Request("https://dnd-grid.com/docs/concepts/layout"),
-      env,
-      ctx
-    );
-    assert.equal(requests.length, 1);
-    assert.match(firstRes.headers.get("Cache-Control") ?? "", /s-maxage=300/);
-    await Promise.all(waited);
-
-    requests.length = 0;
-    const secondRes = await worker.fetch(
-      new Request("https://dnd-grid.com/docs/concepts/layout"),
-      env,
-      ctx
-    );
-    assert.equal(requests.length, 0);
-    assert.equal(secondRes.status, 200);
-
-    // Content-hashed chunks are held far longer than pages
-    requests.length = 0;
-    waited.length = 0;
-    nextResponse = new Response("chunk", {
-      headers: { "content-type": "application/javascript" },
-    });
-    const chunkRes = await worker.fetch(
-      new Request("https://dnd-grid.com/docs/_next/static/chunks/a.js"),
-      env,
-      ctx
-    );
-    assert.match(chunkRes.headers.get("Cache-Control") ?? "", /immutable/);
-
-    // An entry older than the fresh window is still served immediately, but a
-    // background refresh replaces it — without this the worker would happily
-    // serve a day-old page, since nothing else revalidates the Cache API.
-    requests.length = 0;
-    waited.length = 0;
-    const stalePath = "https://dnd-grid.com/docs/concepts/compactors";
-    nextResponse = new Response("<html><head>old</head></html>", {
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
-    await worker.fetch(new Request(stalePath), env, ctx);
-    await Promise.all(waited);
-
-    const stored = store.get(stalePath);
-    if (!stored) {
-      throw new Error("expected the page to be cached");
-    }
-    const aged = new Headers(stored.headers);
-    aged.set("x-docs-cached-at", String(Date.now() - 10 * 60 * 1000));
-    store.set(
-      stalePath,
-      new Response(await stored.clone().text(), { headers: aged })
-    );
-
-    requests.length = 0;
-    waited.length = 0;
-    nextResponse = new Response("<html><head>new</head></html>", {
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
-    const staleRes = await worker.fetch(new Request(stalePath), env, ctx);
-    // Served instantly from cache, refresh happens behind it
-    assert.match(await staleRes.text(), /old/);
-    assert.equal(waited.length, 1);
-    await Promise.all(waited);
-    assert.match(
-      await (store.get(stalePath) as Response).clone().text(),
-      /new/
-    );
-
-    (globalThis as { caches?: unknown }).caches = undefined;
+    assert.equal(new URL(requests[0].url).hostname, "dnd-grid.com");
   } finally {
     globalThis.fetch = originalFetch;
   }

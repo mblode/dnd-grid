@@ -45,7 +45,7 @@ function MyGrid() {
 control item rendering, use the headless `useDndGrid` hook and render
 `GridItem` manually.
 
-Docs: https://dnd-grid.com/docs/hooks/use-dnd-grid
+Docs: https://dnd-grid.blode.md/hooks/use-dnd-grid
 
 ## Auto width by default
 

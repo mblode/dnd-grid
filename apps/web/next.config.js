@@ -59,29 +59,9 @@ const nextConfig = {
     ],
   },
   redirects() {
-    // Apex worker 301s /docs → blode.co/dnd-grid/docs for GSC; forward to the
-    // real docs host so users don't land on a zone 404. Canonical docs paths
-    // omit the /docs prefix (see dnd-grid.blode.md sitemap).
-    // statusCode 301 (not permanent:true/308) — GSC change-of-address samples prefer 301.
-    const docsHostRedirects = [
-      {
-        destination: "https://dnd-grid.blode.md",
-        source: "/docs",
-        statusCode: 301,
-      },
-      {
-        destination: "https://dnd-grid.blode.md/:path*",
-        source: "/docs/:path*",
-        statusCode: 301,
-      },
-      {
-        destination: "https://dnd-grid.blode.md/_docs/:path*",
-        source: "/_docs/:path*",
-        statusCode: 301,
-      },
-    ];
-
-    const apexRedirects = redirectHosts.flatMap((host) => {
+    // Apex + vanity hosts 301 onto the blode.co zone. Docs under /docs are
+    // proxied in proxy.ts (not redirected) so blode.co/dnd-grid/docs stays.
+    return redirectHosts.flatMap((host) => {
       const has = [{ type: "host", value: host }];
       return [
         {
@@ -114,8 +94,6 @@ const nextConfig = {
         },
       ];
     });
-
-    return [...docsHostRedirects, ...apexRedirects];
   },
   async headers() {
     return [

@@ -12,8 +12,8 @@ export const siteConfig = {
   url: siteUrl,
   links: {
     github: "https://github.com/mblode/dnd-grid",
-    // Docs remain on Mintlify; apex only 301s to blode.co for GSC.
-    docs: "https://dnd-grid.blode.md",
+    // Docs are proxied onto the zone at /dnd-grid/docs (see apps/web/proxy.ts).
+    docs: "https://blode.co/dnd-grid/docs",
     author: "https://blode.co",
     projects: "https://blode.co/projects",
     npm: "https://www.npmjs.com/package/@dnd-grid/react",

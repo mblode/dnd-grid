@@ -50,3 +50,6 @@ jobs:
 
       - name: Smoke Test Docs Worker
         run: npm run smoke --workspace=docs-worker
+
+      - name: Smoke Test Docs Proxy
+        run: npm run smoke:docs-proxy --workspace=web

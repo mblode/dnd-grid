@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 import { examples } from "@/examples/manifest";
 import { siteUrl } from "@/lib/config";
 
-// Zone sitemap lists blode.co URLs only. Docs live on dnd-grid.blode.md and
-// are out of scope for this sitemap.
+// Zone sitemap lists marketing + example URLs only. Docs are proxied under
+// /docs from the blode.md tenant and keep their own sitemap upstream.
 const staticRoutes = [""];
 const exampleRoutes = examples.map((example) => `examples/${example.slug}`);
 const routes = [...staticRoutes, ...exampleRoutes];

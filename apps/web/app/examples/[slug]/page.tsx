@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 
 import { exampleDetails } from "@/examples/details";
 import { examples, examplesBySlug } from "@/examples/manifest";
+import { siteConfig, siteUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
-const siteUrl = "https://dnd-grid.com";
 const EXAMPLE_SUFFIX_REGEX = /-example$/;
 
 interface PageProps {
@@ -49,7 +49,7 @@ export async function generateMetadata({
   return {
     title,
     description: example.description,
-    alternates: { canonical: `/examples/${example.slug}` },
+    alternates: { canonical: `${siteUrl}/examples/${example.slug}` },
     openGraph: {
       type: "website",
       title,
@@ -57,7 +57,7 @@ export async function generateMetadata({
       url: `${siteUrl}/examples/${example.slug}`,
       images: [
         {
-          url: "/opengraph-image.png",
+          url: `${siteUrl}/opengraph-image.png`,
           width: 1200,
           height: 630,
           alt: title,
@@ -68,7 +68,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description: example.description,
-      images: ["/opengraph-image.png"],
+      images: [`${siteUrl}/opengraph-image.png`],
     },
   };
 }
@@ -84,7 +84,7 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
   const isEmbed =
     resolvedSearchParams.embed === "1" || resolvedSearchParams.embed === "true";
   const Component = example.Component;
-  const sourceUrl = `${siteUrl}/docs/examples/${docsSlugFromExample(
+  const sourceUrl = `${siteConfig.links.docs}/examples/${docsSlugFromExample(
     example.slug
   )}`;
   const githubUrl = `https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-${example.slug}.tsx`;

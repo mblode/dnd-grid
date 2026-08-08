@@ -1,6 +1,6 @@
 <div align="center">
 
-# [dnd-grid](https://dnd-grid.com)
+# [dnd-grid](https://blode.co/dnd-grid)
 
 **A draggable and resizable grid layout for React, with weighted drag physics and a headless layout engine**
 
@@ -22,7 +22,7 @@ Give users a dashboard they can rearrange, and get the new layout back as JSON.
 Drag, resize, and drop across every example on the site, or read the API reference in the docs.
 
 <p>
-<a href="https://dnd-grid.com">
+<a href="https://blode.co/dnd-grid">
 <img alt="View the demo" src=".github/assets/demo.svg" width="200" />
 </a>
 <a href="https://dnd-grid.com/docs">

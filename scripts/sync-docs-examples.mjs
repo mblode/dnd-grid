@@ -7,7 +7,7 @@ const docsExamplesDir = path.join(root, "apps/docs/examples");
 
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
 const items = registry.items ?? [];
-const siteUrl = "https://dnd-grid.com";
+const siteUrl = "https://blode.co/dnd-grid";
 const EXAMPLE_SUFFIX_REGEX = /-example$/;
 const FRONTMATTER_REGEX = /^---[\s\S]*?---\s*/;
 const CODE_BLOCK_REGEX =

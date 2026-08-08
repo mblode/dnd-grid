@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = "https://dnd-grid.com";
+import { siteUrl } from "@/lib/config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,6 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
+    // Host-level robots for blode.co is authoritative; this only helps when the
+    // zone origin is crawled directly.
+    host: "https://blode.co",
     sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

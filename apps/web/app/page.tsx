@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { examples } from "@/examples/manifest";
+import { siteConfig } from "@/lib/config";
 
 const INSTALL_COMMAND = "npm install @dnd-grid/react";
 const STYLE_IMPORT = '@import "@dnd-grid/react/styles.css";';
@@ -77,11 +78,11 @@ export default async function Home() {
 
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                   <Button asChild size="lg">
-                    <a href="https://dnd-grid.com/docs">Get started</a>
+                    <a href={siteConfig.links.docs}>Get started</a>
                   </Button>
 
                   <Button asChild size="lg" variant="outline">
-                    <a href="https://github.com/mblode/dnd-grid">GitHub</a>
+                    <a href={siteConfig.links.github}>GitHub</a>
                   </Button>
                 </div>
 

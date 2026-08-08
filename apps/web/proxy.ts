@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { basePath } from "@/lib/config";
 import {
   buildUpstreamUrl,
   isDocsAssetPath,
@@ -23,7 +24,10 @@ const HOP_BY_HOP_HEADERS = new Set([
   "upgrade",
 ]);
 
-const toPassthroughHeaders = (upstream: Headers): Headers => {
+const toPassthroughHeaders = (
+  upstream: Headers,
+  { isHtml }: { isHtml: boolean }
+): Headers => {
   const headers = new Headers();
   upstream.forEach((value, key) => {
     const lower = key.toLowerCase();
@@ -34,6 +38,21 @@ const toPassthroughHeaders = (upstream: Headers): Headers => {
     if (lower === "x-matched-path" || lower.startsWith("x-vercel-")) {
       return;
     }
+    // Never inherit a tenant/CDN CSP or long-lived HTML cache — the zone proxy
+    // rewrites asset URLs and must not keep a stale CSP from an earlier deploy.
+    if (
+      lower === "content-security-policy" ||
+      lower === "content-security-policy-report-only" ||
+      (isHtml &&
+        (lower === "age" ||
+          lower === "cdn-cache-control" ||
+          lower === "cache-control" ||
+          lower === "expires" ||
+          lower === "etag" ||
+          lower === "last-modified"))
+    ) {
+      return;
+    }
     if (lower === "link") {
       headers.set(
         key,
@@ -41,11 +60,20 @@ const toPassthroughHeaders = (upstream: Headers): Headers => {
           .replaceAll("/_docs/", `${PUBLIC_ASSET_PREFIX}/`)
           .replaceAll("</docs/", `<${PUBLIC_DOCS_BASE}/`)
           .replaceAll("</llms", `<${PUBLIC_DOCS_BASE}/llms`)
+          .replaceAll(
+            /https:\/\/[^>\s]+\/files\/logo\/(light|dark)\.svg/g,
+            `${basePath}/logo/$1.svg`
+          )
       );
       return;
     }
     headers.set(key, value);
   });
+
+  if (isHtml) {
+    headers.set("Cache-Control", "private, no-cache, must-revalidate");
+  }
+
   return headers;
 };
 
@@ -88,7 +116,9 @@ const proxyDocsRequest = async (
   if (location) {
     const rewrittenLocation = rewriteDocsLocation(location, request.nextUrl);
     if (rewrittenLocation) {
-      const headers = toPassthroughHeaders(upstreamResponse.headers);
+      const headers = toPassthroughHeaders(upstreamResponse.headers, {
+        isHtml: false,
+      });
       headers.set("Location", rewrittenLocation);
       return new Response(upstreamResponse.body, {
         headers,
@@ -101,7 +131,9 @@ const proxyDocsRequest = async (
   const contentType = upstreamResponse.headers.get("content-type") ?? "";
   if (!contentType.includes("text/html")) {
     return new Response(upstreamResponse.body, {
-      headers: toPassthroughHeaders(upstreamResponse.headers),
+      headers: toPassthroughHeaders(upstreamResponse.headers, {
+        isHtml: false,
+      }),
       status: upstreamResponse.status,
       statusText: upstreamResponse.statusText,
     });
@@ -109,7 +141,7 @@ const proxyDocsRequest = async (
 
   const rewrittenHtml = rewriteDocsHtml(await upstreamResponse.text());
   return new Response(rewrittenHtml, {
-    headers: toPassthroughHeaders(upstreamResponse.headers),
+    headers: toPassthroughHeaders(upstreamResponse.headers, { isHtml: true }),
     status: upstreamResponse.status,
     statusText: upstreamResponse.statusText,
   });

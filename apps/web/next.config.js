@@ -150,19 +150,36 @@ const nextConfig = {
         ],
       },
       {
-        source: "/docs",
+        // basePath:false + full zone paths — a catch-all of /((?!docs)...) is
+        // matched against /dnd-grid/docs when Next does not strip the basePath
+        // from the tested URL, which would re-apply the marketing CSP.
+        basePath: false,
+        source: `${basePath}/docs`,
         headers: docsHeaders,
       },
       {
-        source: "/docs/:path*",
+        basePath: false,
+        source: `${basePath}/docs/:path*`,
         headers: docsHeaders,
       },
       {
-        source: "/_docs/:path*",
+        basePath: false,
+        source: `${basePath}/_docs/:path*`,
         headers: docsHeaders,
       },
       {
-        source: "/((?!docs(?:/|$)|_docs(?:/|$)).*)",
+        basePath: false,
+        source: `${basePath}/logo/:path*`,
+        headers: docsHeaders,
+      },
+      {
+        basePath: false,
+        source: basePath,
+        headers: securityHeaders,
+      },
+      {
+        basePath: false,
+        source: `${basePath}/((?!docs(?:/|$)|_docs(?:/|$)|logo(?:/|$)).*)`,
         headers: securityHeaders,
       },
     ];

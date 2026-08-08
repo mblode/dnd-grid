@@ -6,7 +6,7 @@ description: A full-featured builder with external drag, selection, action bar, 
 <div className="not-prose my-6 rounded-lg border border-zinc-200/70 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
   <iframe
     title="Kitchen sink preview"
-    src="https://dnd-grid.com/examples/kitchen-sink-example?embed=1"
+    src="https://blode.co/dnd-grid/examples/kitchen-sink-example?embed=1"
     className="h-[640px] w-full"
     loading="lazy"
   />
@@ -20,7 +20,7 @@ description: A full-featured builder with external drag, selection, action bar, 
 <Tab title="CLI">
 
 ```bash
-npx shadcn@latest add https://dnd-grid.com/r/kitchen-sink-example.json
+npx shadcn@latest add https://blode.co/dnd-grid/r/kitchen-sink-example.json
 ```
 
 </Tab>
@@ -100,7 +100,6 @@ const findEmptyPosition = ({
   newItemHeight: number;
   gridWidth: number;
   gridHeight: number;
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Grid space finding algorithm requires nested loops
 }): { x: number; y: number } => {
   const grid = Array.from({ length: gridHeight }, () =>
     Array.from({ length: gridWidth }, () => false)

@@ -4,6 +4,10 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import type React from "react";
 
+import { JsonLd } from "@/components/json-ld";
+import { siteConfig, siteUrl } from "@/lib/config";
+import { siteGraph } from "@/lib/schema";
+
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
 
@@ -23,13 +27,12 @@ const geistMono = Geist_Mono({
 });
 
 const GA_MEASUREMENT_ID = "G-DZD6C8C6HT";
-const siteUrl = "https://dnd-grid.com";
 const siteTitle = "dnd-grid - React grid layout";
 const siteDescription =
   "dnd-grid is a lightweight drag-and-drop, resizable grid layout library for React with collision handling, compaction, responsive breakpoints, and constraints.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL("https://blode.co"),
   title: siteTitle,
   description: siteDescription,
   alternates: {
@@ -38,12 +41,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
+    siteName: siteConfig.name,
     url: siteUrl,
     title: siteTitle,
     description: siteDescription,
     images: [
       {
-        url: "/opengraph-image.png",
+        url: `${siteUrl}/opengraph-image.png`,
         width: 1200,
         height: 630,
         alt: siteTitle,
@@ -54,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteTitle,
     description: siteDescription,
-    images: ["/opengraph-image.png"],
+    images: [`${siteUrl}/opengraph-image.png`],
   },
 };
 
@@ -69,6 +73,7 @@ export default function RootLayout({
       lang="en"
     >
       <body className="flex min-h-screen flex-col">
+        <JsonLd data={siteGraph} />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"

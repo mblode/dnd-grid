@@ -1,7 +1,6 @@
 interface Env {
   DOCS_URL?: string;
   CUSTOM_URL?: string;
-  LANDING_URL?: string;
 }
 
 const DOCS_PREFIX = "/docs";
@@ -391,7 +390,6 @@ export default {
     try {
       const docsUrl = env?.DOCS_URL ?? "dnd-grid.blode.md";
       const customUrl = env?.CUSTOM_URL ?? "dnd-grid.com";
-      const landingHost = env?.LANDING_URL ?? "landing.dnd-grid.com";
       const urlObject = new URL(request.url);
 
       // Allow Vercel/Let's Encrypt verification paths to pass through
@@ -410,16 +408,6 @@ export default {
         return Response.redirect(redirectUrl.toString(), 308);
       }
 
-      // Proxy OpenGraph image requests to landing page
-      if (urlObject.pathname === "/opengraph-image.png") {
-        const landingUrl = new URL(request.url);
-        landingUrl.hostname = landingHost;
-        return await fetch(landingUrl, {
-          method: request.method,
-          headers: request.headers,
-        });
-      }
-
       // Proxy requests to /docs path to Blode docs
       if (
         isDocsPath(urlObject.pathname) ||
@@ -431,27 +419,20 @@ export default {
         return await proxyToDocs(request, urlObject, docsUrl, customUrl, ctx);
       }
 
-      // Route all other traffic to landing page
-      const landingUrl = new URL(request.url);
-      landingUrl.hostname = landingHost;
-      const landingResponse = await fetch(landingUrl, {
-        method: request.method,
-        headers: request.headers,
-        body: request.body,
-      });
-
-      // Both apps serve build output under /_next/, and the Referer header is
-      // the only hint about which one a chunk belongs to. Crawlers omit it, so
-      // fall back to the docs origin when the landing app has no such asset.
+      // Orphan /_next/* on the apex (no Referer) — keep serving docs assets.
+      // Marketing HTML no longer lives here; it 301s to the blode.co zone below.
       if (
-        landingResponse.status === 404 &&
         isNextInternalPath(urlObject.pathname) &&
         (request.method === "GET" || request.method === "HEAD")
       ) {
         return await proxyToDocs(request, urlObject, docsUrl, customUrl, ctx);
       }
 
-      return landingResponse;
+      // Apex marketing → blode.co/dnd-grid (Next host redirects also cover this
+      // when traffic hits Vercel directly; the worker owns dnd-grid.com today).
+      const zonePath = urlObject.pathname === "/" ? "" : urlObject.pathname;
+      const zoneUrl = `https://blode.co/dnd-grid${zonePath}${urlObject.search}`;
+      return Response.redirect(zoneUrl, 301);
     } catch {
       return await fetch(request);
     }

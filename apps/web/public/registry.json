@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "dnd-grid",
-  "homepage": "https://dnd-grid.com",
+  "homepage": "https://blode.co/dnd-grid",
   "items": [
     {
       "name": "allow-overlap-example",

@@ -1,3 +1,5 @@
+import { basePath } from "./lib/config.ts";
+
 /** @type {import('next').NextConfig} */
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -9,14 +11,15 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-  "frame-ancestors 'self'",
+  // Docs on dnd-grid.com embed /examples/?embed=1 iframes after the zone move.
+  "frame-ancestors 'self' https://dnd-grid.com https://blode.co",
   "upgrade-insecure-requests",
 ].join("; ");
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  // X-Frame-Options cannot list multiple origins; CSP frame-ancestors owns this.
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
   {
@@ -31,7 +34,15 @@ const securityHeaders = [
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
 ];
 
+// Apex + www stay attached to this Vercel project during cutover. The public
+// *.blode.co vanity host also 301s here. The zone origin
+// (dnd-grid.zone.blode.co) must not appear — blode.co proxies through it and a
+// redirect would loop.
+const redirectHosts = ["dnd-grid.com", "www.dnd-grid.com", "dnd-grid.blode.co"];
+
 const nextConfig = {
+  assetPrefix: basePath,
+  basePath,
   experimental: {
     // Enable filesystem caching for `next dev`
     turbopackFileSystemCacheForDev: true,
@@ -45,6 +56,41 @@ const nextConfig = {
         hostname: "images.unsplash.com",
       },
     ],
+  },
+  redirects() {
+    return redirectHosts.flatMap((host) => {
+      const has = [{ type: "host", value: host }];
+      return [
+        {
+          basePath: false,
+          destination: `https://blode.co${basePath}`,
+          has,
+          permanent: true,
+          source: basePath,
+        },
+        {
+          basePath: false,
+          destination: `https://blode.co${basePath}/:path*`,
+          has,
+          permanent: true,
+          source: `${basePath}/:path*`,
+        },
+        {
+          basePath: false,
+          destination: `https://blode.co${basePath}`,
+          has,
+          permanent: true,
+          source: "/",
+        },
+        {
+          basePath: false,
+          destination: `https://blode.co${basePath}/:path*`,
+          has,
+          permanent: true,
+          source: "/:path*",
+        },
+      ];
+    });
   },
   async headers() {
     return [

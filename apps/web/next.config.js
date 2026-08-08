@@ -96,6 +96,13 @@ const nextConfig = {
     });
   },
   async headers() {
+    // Proxied docs load logos from Vercel Blob and analytics from r.blode.co.
+    // The marketing CSP must not be stamped onto /docs — browsers intersect
+    // multiple CSP headers, so ours would keep blocking those hosts.
+    const docsHeaders = securityHeaders.filter(
+      (h) => h.key !== "Content-Security-Policy"
+    );
+
     return [
       {
         source: "/opengraph-image.png",
@@ -143,7 +150,19 @@ const nextConfig = {
         ],
       },
       {
-        source: "/(.*)",
+        source: "/docs",
+        headers: docsHeaders,
+      },
+      {
+        source: "/docs/:path*",
+        headers: docsHeaders,
+      },
+      {
+        source: "/_docs/:path*",
+        headers: docsHeaders,
+      },
+      {
+        source: "/((?!docs(?:/|$)|_docs(?:/|$)).*)",
         headers: securityHeaders,
       },
     ];

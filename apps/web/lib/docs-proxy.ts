@@ -230,6 +230,13 @@ export const rewriteDocsHtml = (html: string): string => {
       `https://blode.co${publicPathFromUpstreamAbsolute(path ?? "")}`
   );
 
+  // Serve brand logos from this app's public/ so img-src 'self' (or a stale
+  // marketing CSP) cannot block Vercel Blob. Matches HTML attrs and RSC JSON.
+  rewrittenHtml = rewrittenHtml.replaceAll(
+    /https:\/\/[^"'\\\s]+\/files\/logo\/(light|dark)\.svg/g,
+    `${basePath}/logo/$1.svg`
+  );
+
   return rewrittenHtml;
 };
 

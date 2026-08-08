@@ -36,6 +36,7 @@ const rewritten = rewriteDocsHtml(
     '<a href="/">Home</a>',
     '<link href="/_docs/_next/static/chunk.css"/>',
     '<link rel="preload" href="/llms.txt"/>',
+    '<img src="https://qelocskl2rtewqhr.public.blob.vercel-storage.com/deployments/dnd-grid/x/files/logo/dark.svg"/>',
   ].join("")
 );
 
@@ -53,6 +54,8 @@ assert.match(
   new RegExp(`href="${PUBLIC_ASSET_PREFIX}/_next/static/chunk.css"`)
 );
 assert.match(rewritten, new RegExp(`href="${PUBLIC_DOCS_BASE}/llms.txt"`));
+assert.match(rewritten, /src="\/dnd-grid\/logo\/dark\.svg"/);
+assert.equal(rewritten.includes("blob.vercel-storage.com"), false);
 assert.equal(rewritten.includes('href="/examples/basic"'), false);
 assert.equal(rewritten.includes('href="/_docs/'), false);
 

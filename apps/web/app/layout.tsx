@@ -27,21 +27,34 @@ const geistMono = Geist_Mono({
 });
 
 const GA_MEASUREMENT_ID = "G-DZD6C8C6HT";
-const siteTitle = "dnd-grid - React grid layout";
+// "Product: what it does", colon and not a hyphen, under 60 characters so the
+// SERP does not truncate it. Rule 8 of
+// blode-co/apps/web/.claude/knowledge/zone-conventions.md.
+const siteTitle = "dnd-grid: a drag-and-drop, resizable grid for React";
 const siteDescription =
   "dnd-grid is a lightweight drag-and-drop, resizable grid layout library for React with collision handling, compaction, responsive breakpoints, and constraints.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://blode.co"),
-  title: siteTitle,
+  // Inner pages inherit the template; the root uses `default` as-is.
+  title: {
+    default: siteTitle,
+    template: `%s | ${siteConfig.name}`,
+  },
   description: siteDescription,
+  // Person-level attribution as metadata, not only as footer HTML and JSON-LD.
+  authors: [{ name: "Matthew Blode", url: "https://blode.co" }],
+  creator: "Matthew Blode",
   alternates: {
     // Absolute, no trailing slash, to match the sitemap and og:url exactly.
     canonical: siteUrl,
   },
   openGraph: {
     type: "website",
-    siteName: siteConfig.name,
+    // The person, not the product: every blode.co path is one site, and the
+    // product name is already in og:title. Rule 9 of
+    // blode-co/apps/web/.claude/knowledge/zone-conventions.md.
+    siteName: "Matthew Blode",
     url: siteUrl,
     title: siteTitle,
     description: siteDescription,
@@ -56,6 +69,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    creator: "@mattblode",
     title: siteTitle,
     description: siteDescription,
     images: [`${siteUrl}/opengraph-image.png`],

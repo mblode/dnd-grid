@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { JsonLd } from "@/components/json-ld";
 import { exampleDetails } from "@/examples/details";
 import { examples, examplesBySlug } from "@/examples/manifest";
 import { siteConfig, siteUrl } from "@/lib/config";
+import { exampleGraph } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 
 const EXAMPLE_SUFFIX_REGEX = /-example$/;
@@ -44,7 +46,17 @@ export async function generateMetadata({
     return {};
   }
 
-  const title = `${example.title} - dnd-grid`;
+  // Bare, not `${example.title} - dnd-grid`: the layout's "%s | DnD Grid"
+  // template already appends the product, and the hand-rolled suffix both
+  // duplicated it and used the hyphen Rule 8 bans.
+  // blode-co/apps/web/.claude/knowledge/zone-conventions.md
+  const title = example.title;
+
+  // The layout's title template reaches `<title>` but not `og:title`: Next
+  // resolves the card title against `openGraph.title.template`, which is a
+  // different thing. Without this the card reads "Basic example" and never
+  // names the product.
+  const cardTitle = `${title} | ${siteConfig.name}`;
 
   return {
     title,
@@ -52,7 +64,11 @@ export async function generateMetadata({
     alternates: { canonical: `${siteUrl}/examples/${example.slug}` },
     openGraph: {
       type: "website",
-      title,
+      // A page-level `openGraph` replaces the layout's rather than merging into
+      // it, so omitting this dropped og:site_name from every example page.
+      // Rule 9: always the person, never the product.
+      siteName: "Matthew Blode",
+      title: cardTitle,
       description: example.description,
       url: `${siteUrl}/examples/${example.slug}`,
       images: [
@@ -60,13 +76,14 @@ export async function generateMetadata({
           url: `${siteUrl}/opengraph-image.png`,
           width: 1200,
           height: 630,
-          alt: title,
+          alt: `${example.title} example for ${siteConfig.name}`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      creator: "@mattblode",
+      title: cardTitle,
       description: example.description,
       images: [`${siteUrl}/opengraph-image.png`],
     },
@@ -96,6 +113,17 @@ export default async function ExamplePage({ params, searchParams }: PageProps) {
 
   return (
     <main className={cn({ "py-8": !isEmbed })}>
+      {/* Not in embed mode: this route also renders inside an iframe on the
+          docs site, and a page's structured data does not belong in a frame. */}
+      {!isEmbed && (
+        <JsonLd
+          data={exampleGraph({
+            description: example.description,
+            slug: example.slug,
+            title: example.title,
+          })}
+        />
+      )}
       {!isEmbed && (
         <div className="container-wrapper">
           <div className="mb-8 space-y-3">

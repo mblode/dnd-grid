@@ -2,11 +2,13 @@ import { getSingletonHighlighter } from "shiki";
 
 import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
 import { BlocksGrid } from "@/components/blocks-grid";
+import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { ZoneBreadcrumb } from "@/components/zone-breadcrumb";
 import { siteConfig } from "@/lib/config";
+import { siteGraph } from "@/lib/schema";
 
 const INSTALL_COMMAND = "npm install @dnd-grid/react";
 const STYLE_IMPORT = '@import "@dnd-grid/react/styles.css";';
@@ -61,6 +63,7 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <JsonLd data={siteGraph} />
       <SiteHeader />
 
       <main className="flex flex-1 flex-col">

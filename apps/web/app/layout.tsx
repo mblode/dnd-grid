@@ -4,9 +4,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import type React from "react";
 
-import { JsonLd } from "@/components/json-ld";
 import { siteConfig, siteUrl } from "@/lib/config";
-import { siteGraph } from "@/lib/schema";
 
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
@@ -87,7 +85,9 @@ export default function RootLayout({
       lang="en"
     >
       <body className="flex min-h-screen flex-col">
-        <JsonLd data={siteGraph} />
+        {/* No JSON-LD here: the layout wraps every route, so the zone-root
+            WebPage it used to emit claimed each example page was the site root.
+            Each route emits its own @graph. See lib/schema.ts. */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"

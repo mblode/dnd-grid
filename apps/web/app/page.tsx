@@ -5,6 +5,7 @@ import { BlocksGrid } from "@/components/blocks-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
+import { ZoneBreadcrumb } from "@/components/zone-breadcrumb";
 import { siteConfig } from "@/lib/config";
 
 const INSTALL_COMMAND = "npm install @dnd-grid/react";
@@ -65,6 +66,13 @@ export default async function Home() {
       <main className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col">
           <div className="bg-linear-to-b from-white to-[#f7ecd2] dark:from-background dark:to-card">
+            {/* The edge back to the hub, above the fold and matching the
+                BreadcrumbList in lib/schema.ts exactly. Rule 4 of
+                blode-co/apps/web/.claude/knowledge/zone-conventions.md. */}
+            <div className="container-wrapper pt-4">
+              <ZoneBreadcrumb product={siteConfig.name} />
+            </div>
+
             <section className="py-16 text-center md:py-24">
               <div className="container-wrapper">
                 <h1 className="font-light font-sans text-7xl tracking-tight">

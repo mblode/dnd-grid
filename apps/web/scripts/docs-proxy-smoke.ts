@@ -102,6 +102,26 @@ const titleHtml =
   '<meta property="og:title" content="Introduction · dnd-grid"/>';
 assert.equal(rewriteDocsHtml(titleHtml), titleHtml);
 
+// twitter:creator is absent upstream, so it is added rather than rewritten.
+const HEAD_ONLY = "<html><head><title>x</title></head><body></body></html>";
+const withCreator = rewriteDocsHtml(HEAD_ONLY);
+assert.match(
+  withCreator,
+  /<meta name="twitter:creator" content="@mattblode"\/>/
+);
+assert.equal(
+  (withCreator.match(/twitter:creator/g) ?? []).length,
+  1,
+  "injected twice"
+);
+// Already present upstream: left alone rather than duplicated.
+const ALREADY =
+  '<html><head><meta name="twitter:creator" content="@mattblode"/></head></html>';
+assert.equal(
+  (rewriteDocsHtml(ALREADY).match(/twitter:creator/g) ?? []).length,
+  1
+);
+
 if (process.env.SMOKE_LIVE) {
   // buildUpstreamUrl, not a hand-written path: this upstream serves the docs
   // root at "/", and hardcoding "/docs" fetches its 404 page, whose metadata
@@ -126,6 +146,11 @@ if (process.env.SMOKE_LIVE) {
     `upstream og:site_name "${upstreamName}" survived the rewrite`
   );
   assert.match(out, /property="og:title" content="[^"]*dnd-grid[^"]*"/);
+  assert.match(
+    out,
+    /<meta name="twitter:creator" content="@mattblode"\/>/,
+    "twitter:creator missing from live HTML"
+  );
   console.log(`live upstream og:site_name "${upstreamName}" rewritten`);
 }
 

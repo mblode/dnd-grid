@@ -71,9 +71,11 @@ export async function generateMetadata({
       title: cardTitle,
       description: example.description,
       url: `${siteUrl}/examples/${example.slug}`,
+      // Extensionless: the card is `app/opengraph-image.tsx`. Path without
+      // `/dnd-grid`: `metadataBase` already carries the zone.
       images: [
         {
-          url: `${siteUrl}/opengraph-image.png`,
+          url: "/opengraph-image",
           width: 1200,
           height: 630,
           alt: `${example.title} example for ${siteConfig.name}`,
@@ -85,7 +87,7 @@ export async function generateMetadata({
       creator: "@mattblode",
       title: cardTitle,
       description: example.description,
-      images: [`${siteUrl}/opengraph-image.png`],
+      images: ["/opengraph-image"],
     },
   };
 }

@@ -32,13 +32,6 @@ export const SiteFooter = () => (
       <span aria-hidden="true">·</span>
       <a
         className="text-muted-foreground transition-colors hover:text-foreground"
-        href={siteConfig.links.projects}
-      >
-        All projects
-      </a>
-      <span aria-hidden="true">·</span>
-      <a
-        className="text-muted-foreground transition-colors hover:text-foreground"
         href={siteConfig.links.github}
         rel="noopener noreferrer"
         target="_blank"

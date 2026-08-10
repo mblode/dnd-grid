@@ -162,14 +162,29 @@ export const rewriteDocsLocation = (
 };
 
 /**
- * `og:site_name` on the proxied docs. See the note where these are applied, at
+ * `og:site_name` on the proxied docs. See the note where this is applied, at
  * the end of `rewriteDocsHtml`.
+ *
+ * Matched on `og:site_name` alone, then the `content` attribute is replaced
+ * inside whatever matched. An earlier version required `property` before
+ * `content` in one pattern: if the platform ever emits them the other way the
+ * regex matches nothing, rewrites nothing, and the old value ships while any
+ * assertion phrased as "the new value is present" still passes.
  */
-const HOST_SITE_NAME = "Matthew Blode";
-const OG_SITE_NAME_META =
-  /(<meta[^>]*property="og:site_name"[^>]*content=")[^"]*(")/g;
-const OG_SITE_NAME_FLIGHT =
-  /(\\"og:site_name\\",\\"content\\":\\")[^\\"]*(\\")/g;
+export const HOST_SITE_NAME = "Matthew Blode";
+const OG_SITE_NAME_META = /<meta\b[^>]*\bproperty="og:site_name"[^>]*>/giu;
+const META_CONTENT_ATTR = /\bcontent="[^"]*"/iu;
+const OG_SITE_NAME_FLIGHT = /\{[^{}]*\\"og:site_name\\"[^{}]*\}/gu;
+const FLIGHT_CONTENT_ATTR = /\\"content\\":\\"[^"\\]*\\"/u;
+
+const rewriteOgSiteName = (html: string): string =>
+  html
+    .replace(OG_SITE_NAME_META, (tag) =>
+      tag.replace(META_CONTENT_ATTR, `content="${HOST_SITE_NAME}"`)
+    )
+    .replace(OG_SITE_NAME_FLIGHT, (node) =>
+      node.replace(FLIGHT_CONTENT_ATTR, `\\"content\\":\\"${HOST_SITE_NAME}\\"`)
+    );
 
 export const rewriteDocsHtml = (html: string): string => {
   let rewrittenHtml = html;
@@ -272,9 +287,7 @@ export const rewriteDocsHtml = (html: string): string => {
   // first" section describes. Both copies go: the rendered <meta>, and the one
   // React re-renders from the flight payload on hydration. Stopgap until
   // blode.md grows a `seo.siteName`, which would fix every tenant at once.
-  rewrittenHtml = rewrittenHtml
-    .replace(OG_SITE_NAME_META, `$1${HOST_SITE_NAME}$2`)
-    .replace(OG_SITE_NAME_FLIGHT, `$1${HOST_SITE_NAME}$2`);
+  rewrittenHtml = rewriteOgSiteName(rewrittenHtml);
 
   return rewrittenHtml;
 };

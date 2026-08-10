@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import {
   buildUpstreamUrl,
+  HOST_SITE_NAME,
   PUBLIC_ASSET_PREFIX,
   PUBLIC_DOCS_BASE,
   rewriteDocsHtml,
@@ -70,5 +71,62 @@ assert.equal(
   ),
   `https://blode.co${PUBLIC_DOCS_BASE}/examples/basic`
 );
+
+/*
+ * og:site_name. Every case asserts the product name is GONE rather than that
+ * "Matthew Blode" is present: a rewrite that matches nothing leaves the old
+ * value in place, and a present-tense assertion cannot tell that apart from a
+ * rewrite that worked.
+ *
+ * Both attribute orders are covered because the upstream is a platform we do
+ * not control. A fixture cannot notice the platform changing, which is what the
+ * live check at the bottom is for.
+ */
+const OG_SITE_NAME_CASES = [
+  '<meta property="og:site_name" content="dnd-grid"/>',
+  '<meta content="dnd-grid" property="og:site_name"/>',
+  '<meta data-x="1" property="og:site_name" content="dnd-grid" data-y="2">',
+  String.raw`[\"$\",\"meta\",null,{\"property\":\"og:site_name\",\"content\":\"dnd-grid\"}]`,
+  String.raw`[\"$\",\"meta\",null,{\"content\":\"dnd-grid\",\"property\":\"og:site_name\"}]`,
+];
+
+for (const html of OG_SITE_NAME_CASES) {
+  const out = rewriteDocsHtml(html);
+  assert.equal(out.includes("dnd-grid"), false, `old value survived: ${html}`);
+  assert.equal(out.includes(HOST_SITE_NAME), true, html);
+}
+
+// Rule 8 before Rule 9: og:site_name may only become the person while og:title
+// still names the product, or the card identifies nothing.
+const titleHtml =
+  '<meta property="og:title" content="Introduction · dnd-grid"/>';
+assert.equal(rewriteDocsHtml(titleHtml), titleHtml);
+
+if (process.env.SMOKE_LIVE) {
+  // buildUpstreamUrl, not a hand-written path: this upstream serves the docs
+  // root at "/", and hardcoding "/docs" fetches its 404 page, whose metadata
+  // says something else entirely.
+  const live = await fetch(buildUpstreamUrl("/docs", "")).then((r) => r.text());
+  const upstreamName = live.match(
+    /property="og:site_name"[^>]*content="([^"]*)"/
+  )?.[1];
+  assert.ok(upstreamName, "upstream served no og:site_name to rewrite");
+
+  const out = rewriteDocsHtml(live);
+  assert.equal(
+    new RegExp(`property="og:site_name"[^>]*content="${HOST_SITE_NAME}"`).test(
+      out
+    ),
+    true
+  );
+  assert.equal(
+    out.includes(`content="${upstreamName}"`) &&
+      upstreamName !== HOST_SITE_NAME,
+    false,
+    `upstream og:site_name "${upstreamName}" survived the rewrite`
+  );
+  assert.match(out, /property="og:title" content="[^"]*dnd-grid[^"]*"/);
+  console.log(`live upstream og:site_name "${upstreamName}" rewritten`);
+}
 
 console.log("docs-proxy smoke ok");

@@ -130,11 +130,7 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
-        source: "/opengraph-image.png",
-        headers: crossOriginResourcePolicy("cross-origin"),
-      },
-      {
-        source: "/twitter-image.png",
+        source: "/opengraph-image",
         headers: crossOriginResourcePolicy("cross-origin"),
       },
       {

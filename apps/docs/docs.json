@@ -2,7 +2,11 @@
   "$schema": "https://blode.md/docs.json",
   "name": "dnd-grid",
   "seo": {
-    "siteUrl": "https://blode.co/dnd-grid/docs"
+    "siteUrl": "https://blode.co/dnd-grid/docs",
+    "siteName": "Matthew Blode"
+  },
+  "metadata": {
+    "ogImage": "https://blode.co/dnd-grid/opengraph-image"
   },
   "favicon": "favicon.svg",
   "navigation": {

@@ -1,10 +1,20 @@
 import { basePath } from "./lib/config.ts";
 
+// Analytics is proxied through r.blode.co so tracker blockers do not drop it.
+// Defaulted rather than left empty: an unset var would compile down to
+// `connect-src 'self'`, which is how this policy blocked PostHog outright.
+// `instrumentation-client.ts` has been initialising a client that could never
+// reach its host since this CSP shipped — measured in the browser on
+// blode.co/dnd-grid/examples, where both the fetch and the script tag to
+// r.blode.co were refused while curl fetched the same URLs fine.
+const posthogOrigin =
+  process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://r.blode.co";
+
 /** @type {import('next').NextConfig} */
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
-  "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com",
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com ${posthogOrigin}`,
+  `connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com ${posthogOrigin}`,
   "img-src 'self' data: https://www.google-analytics.com https://images.unsplash.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",

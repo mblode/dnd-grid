@@ -106,75 +106,48 @@ const nextConfig = {
     });
   },
   async headers() {
-    // Marketing CSP is allowlisted onto product routes only. Proxied docs (and
-    // their same-origin logos) must never inherit it — browsers intersect
-    // multiple CSP headers, so a catch-all bleed would keep blocking Blob /
-    // analytics hosts even after the proxy rewrites asset URLs.
-    const baseSecurityHeaders = securityHeaders.filter(
-      (h) => h.key !== "Content-Security-Policy"
-    );
-    const withCorp = (corp) => [
-      ...baseSecurityHeaders.filter(
-        (h) => h.key !== "Cross-Origin-Resource-Policy"
-      ),
-      { key: "Cross-Origin-Resource-Policy", value: corp },
+    /*
+     * Every matching rule applies in array order and a later one wins per
+     * header key, so the catch-all goes FIRST and the CORP overrides after it.
+     *
+     * Pattern is `/:path*` rather than `/(.*)`: with `basePath` set Next
+     * prefixes the source, and `/dnd-grid/(.*)` does not match the bare
+     * `/dnd-grid`. Stratasync uses the same shape.
+     *
+     * CSP is included on proxied docs too. The zone proxy rewrites Blob logo
+     * URLs onto `/logo/*` and `_docs` assets onto the zone prefix, so the
+     * product policy (same allowlist stratasync serves on /docs) does not blank
+     * the page. proxy.ts still drops any upstream CSP so browsers do not
+     * intersect a second, conflicting policy.
+     */
+    const crossOriginResourcePolicy = (value) => [
+      { key: "Cross-Origin-Resource-Policy", value },
     ];
 
     return [
       {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+      {
         source: "/opengraph-image.png",
-        headers: withCorp("cross-origin"),
+        headers: crossOriginResourcePolicy("cross-origin"),
       },
       {
         source: "/twitter-image.png",
-        headers: withCorp("cross-origin"),
+        headers: crossOriginResourcePolicy("cross-origin"),
       },
       {
         source: "/web-app-manifest-:size.png",
-        headers: withCorp("cross-origin"),
+        headers: crossOriginResourcePolicy("cross-origin"),
       },
       {
         source: "/images/:path*",
-        headers: withCorp("same-site"),
+        headers: crossOriginResourcePolicy("same-site"),
       },
       {
         source: "/fonts/:path*",
-        headers: withCorp("same-site"),
-      },
-      {
-        basePath: false,
-        source: `${basePath}/docs`,
-        headers: baseSecurityHeaders,
-      },
-      {
-        basePath: false,
-        source: `${basePath}/docs/:path*`,
-        headers: baseSecurityHeaders,
-      },
-      {
-        basePath: false,
-        source: `${basePath}/_docs/:path*`,
-        headers: baseSecurityHeaders,
-      },
-      {
-        basePath: false,
-        source: `${basePath}/logo/:path*`,
-        headers: baseSecurityHeaders,
-      },
-      {
-        basePath: false,
-        source: basePath,
-        headers: securityHeaders,
-      },
-      {
-        basePath: false,
-        source: `${basePath}/examples`,
-        headers: securityHeaders,
-      },
-      {
-        basePath: false,
-        source: `${basePath}/examples/:path*`,
-        headers: securityHeaders,
+        headers: crossOriginResourcePolicy("same-site"),
       },
     ];
   },

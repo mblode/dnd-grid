@@ -38,8 +38,9 @@ const toPassthroughHeaders = (
     if (lower === "x-matched-path" || lower.startsWith("x-vercel-")) {
       return;
     }
-    // Never inherit a tenant/CDN CSP or long-lived HTML cache — the zone proxy
-    // rewrites asset URLs and must not keep a stale CSP from an earlier deploy.
+    // Drop upstream CSP / long-lived HTML cache. next.config.js headers()
+    // supplies the zone CSP (including on /docs); inheriting a tenant/CDN
+    // policy would intersect it and can blank rewritten asset URLs.
     if (
       lower === "content-security-policy" ||
       lower === "content-security-policy-report-only" ||

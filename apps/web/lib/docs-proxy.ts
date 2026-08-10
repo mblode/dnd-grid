@@ -161,6 +161,16 @@ export const rewriteDocsLocation = (
   return `https://blode.co${path}${resolvedLocation.search}${resolvedLocation.hash}`;
 };
 
+/**
+ * `og:site_name` on the proxied docs. See the note where these are applied, at
+ * the end of `rewriteDocsHtml`.
+ */
+const HOST_SITE_NAME = "Matthew Blode";
+const OG_SITE_NAME_META =
+  /(<meta[^>]*property="og:site_name"[^>]*content=")[^"]*(")/g;
+const OG_SITE_NAME_FLIGHT =
+  /(\\"og:site_name\\",\\"content\\":\\")[^\\"]*(\\")/g;
+
 export const rewriteDocsHtml = (html: string): string => {
   let rewrittenHtml = html;
   const hrefPaths = ["/", ...DOCS_PAGE_PATHS, ...DOCS_ROOT_FILES];
@@ -253,6 +263,18 @@ export const rewriteDocsHtml = (html: string): string => {
     /\[\\"\$\\",\\"link\\",null,\{\\"rel\\":\\"preconnect\\",\\"href\\":\\"https:\/\/(?:[^"\\]+\.)?public\.blob\.vercel-storage\.com\\"\}\]/g,
     ""
   );
+
+  // og:site_name is the person on every blode.co path, and these pages are
+  // blode.co paths behind the rewrite. Not fixed in docs.json because its
+  // `name` also feeds the title suffix: setting it to "Matthew Blode" would
+  // make every page read "Introduction · Matthew Blode" and leave nothing on
+  // the card naming the product, which is the failure Rule 9's "Do Rule 8
+  // first" section describes. Both copies go: the rendered <meta>, and the one
+  // React re-renders from the flight payload on hydration. Stopgap until
+  // blode.md grows a `seo.siteName`, which would fix every tenant at once.
+  rewrittenHtml = rewrittenHtml
+    .replace(OG_SITE_NAME_META, `$1${HOST_SITE_NAME}$2`)
+    .replace(OG_SITE_NAME_FLIGHT, `$1${HOST_SITE_NAME}$2`);
 
   return rewrittenHtml;
 };

@@ -162,31 +162,6 @@ export const rewriteDocsLocation = (
 };
 
 /**
- * `og:site_name` on the proxied docs. See the note where this is applied, at
- * the end of `rewriteDocsHtml`.
- *
- * Matched on `og:site_name` alone, then the `content` attribute is replaced
- * inside whatever matched. An earlier version required `property` before
- * `content` in one pattern: if the platform ever emits them the other way the
- * regex matches nothing, rewrites nothing, and the old value ships while any
- * assertion phrased as "the new value is present" still passes.
- */
-export const HOST_SITE_NAME = "Matthew Blode";
-const OG_SITE_NAME_META = /<meta\b[^>]*\bproperty="og:site_name"[^>]*>/giu;
-const META_CONTENT_ATTR = /\bcontent="[^"]*"/iu;
-const OG_SITE_NAME_FLIGHT = /\{[^{}]*\\"og:site_name\\"[^{}]*\}/gu;
-const FLIGHT_CONTENT_ATTR = /\\"content\\":\\"[^"\\]*\\"/u;
-
-const rewriteOgSiteName = (html: string): string =>
-  html
-    .replace(OG_SITE_NAME_META, (tag) =>
-      tag.replace(META_CONTENT_ATTR, `content="${HOST_SITE_NAME}"`)
-    )
-    .replace(OG_SITE_NAME_FLIGHT, (node) =>
-      node.replace(FLIGHT_CONTENT_ATTR, `\\"content\\":\\"${HOST_SITE_NAME}\\"`)
-    );
-
-/**
  * `twitter:creator` is absent from the upstream entirely: blode.md has no field
  * for it, so unlike `og:site_name` there is nothing to rewrite and the tag has
  * to be added. Rule 10 wants person-level attribution on every blode.co path,
@@ -306,15 +281,11 @@ export const rewriteDocsHtml = (html: string): string => {
     ""
   );
 
-  // og:site_name is the person on every blode.co path, and these pages are
-  // blode.co paths behind the rewrite. Not fixed in docs.json because its
-  // `name` also feeds the title suffix: setting it to "Matthew Blode" would
-  // make every page read "Introduction · Matthew Blode" and leave nothing on
-  // the card naming the product, which is the failure Rule 9's "Do Rule 8
-  // first" section describes. Both copies go: the rendered <meta>, and the one
-  // React re-renders from the flight payload on hydration. Stopgap until
-  // blode.md grows a `seo.siteName`, which would fix every tenant at once.
-  rewrittenHtml = rewriteOgSiteName(rewrittenHtml);
+  // `og:site_name` used to be rewritten here. It now comes from
+  // `apps/docs/docs.json` (`seo.siteName`, plus `metadata.ogImage` for the
+  // card) once the upstream tenant config is refreshed. Until that deploy
+  // lands, upstream may still emit the product name; do not reintroduce the
+  // rewrite — fix the config.
   rewrittenHtml = ensureTwitterCreator(rewrittenHtml);
 
   return rewrittenHtml;

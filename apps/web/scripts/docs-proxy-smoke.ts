@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 
 import {
   buildUpstreamUrl,
-  HOST_SITE_NAME,
   PUBLIC_ASSET_PREFIX,
   PUBLIC_DOCS_BASE,
   rewriteDocsHtml,
@@ -73,14 +72,8 @@ assert.equal(
 );
 
 /*
- * og:site_name. Every case asserts the product name is GONE rather than that
- * "Matthew Blode" is present: a rewrite that matches nothing leaves the old
- * value in place, and a present-tense assertion cannot tell that apart from a
- * rewrite that worked.
- *
- * Both attribute orders are covered because the upstream is a platform we do
- * not control. A fixture cannot notice the platform changing, which is what the
- * live check at the bottom is for.
+ * og:site_name now comes from `apps/docs/docs.json` (`seo.siteName`). The
+ * proxy must pass it through unchanged.
  */
 const OG_SITE_NAME_CASES = [
   '<meta property="og:site_name" content="dnd-grid"/>',
@@ -92,12 +85,9 @@ const OG_SITE_NAME_CASES = [
 
 for (const html of OG_SITE_NAME_CASES) {
   const out = rewriteDocsHtml(html);
-  assert.equal(out.includes("dnd-grid"), false, `old value survived: ${html}`);
-  assert.equal(out.includes(HOST_SITE_NAME), true, html);
+  assert.equal(out, html, `og:site_name was rewritten: ${html}`);
 }
 
-// Rule 8 before Rule 9: og:site_name may only become the person while og:title
-// still names the product, or the card identifies nothing.
 const titleHtml =
   '<meta property="og:title" content="Introduction · dnd-grid"/>';
 assert.equal(rewriteDocsHtml(titleHtml), titleHtml);
@@ -130,20 +120,16 @@ if (process.env.SMOKE_LIVE) {
   const upstreamName = live.match(
     /property="og:site_name"[^>]*content="([^"]*)"/
   )?.[1];
-  assert.ok(upstreamName, "upstream served no og:site_name to rewrite");
+  assert.ok(upstreamName, "upstream served no og:site_name");
 
   const out = rewriteDocsHtml(live);
+  const rewrittenName = out.match(
+    /property="og:site_name"[^>]*content="([^"]*)"/
+  )?.[1];
   assert.equal(
-    new RegExp(`property="og:site_name"[^>]*content="${HOST_SITE_NAME}"`).test(
-      out
-    ),
-    true
-  );
-  assert.equal(
-    out.includes(`content="${upstreamName}"`) &&
-      upstreamName !== HOST_SITE_NAME,
-    false,
-    `upstream og:site_name "${upstreamName}" survived the rewrite`
+    rewrittenName,
+    upstreamName,
+    `og:site_name was rewritten from "${upstreamName}" to "${rewrittenName}"`
   );
   assert.match(out, /property="og:title" content="[^"]*dnd-grid[^"]*"/);
   assert.match(
@@ -151,7 +137,7 @@ if (process.env.SMOKE_LIVE) {
     /<meta name="twitter:creator" content="@mattblode"\/>/,
     "twitter:creator missing from live HTML"
   );
-  console.log(`live upstream og:site_name "${upstreamName}" rewritten`);
+  console.log(`live upstream og:site_name "${upstreamName}" passed through`);
 }
 
 console.log("docs-proxy smoke ok");

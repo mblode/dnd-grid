@@ -64,6 +64,8 @@ const defaultResizeCursor = "se-resize";
 const restShadow = "0 2px 4px rgba(0,0,0,.04)";
 const dragShadow =
   "0 0 1px 1px rgba(0, 0, 0, 0.04), 0 36px 92px rgba(0, 0, 0, 0.06), 0 23.3333px 53.8796px rgba(0, 0, 0, 0.046), 0 13.8667px 29.3037px rgba(0, 0, 0, 0.036), 0 7.2px 14.95px rgba(0, 0, 0, 0.03), 0 2.93333px 7.4963px rgba(0, 0, 0, 0.024), 0 0.666667px 3.62037px rgba(0, 0, 0, 0.014)";
+const isTouchEvent = (event: unknown): event is TouchEvent =>
+  typeof event === "object" && event !== null && "touches" in event;
 const getResizeCursor = (handle?: ResizeHandleAxis) =>
   handle ? `${handle}-resize` : defaultResizeCursor;
 interface GlobalInteractionState {
@@ -694,7 +696,7 @@ const GridItem = React.forwardRef(
     const onMouseDown = React.useCallback(
       (e: Event) => {
         // handle touch events only
-        if (!dragDelayTimeoutRef.current && e instanceof TouchEvent) {
+        if (!dragDelayTimeoutRef.current && isTouchEvent(e)) {
           startDragDelayTimeout(e);
         }
       },
@@ -936,10 +938,10 @@ const GridItem = React.forwardRef(
         const isDroppingItem = Boolean(propsRef.current.droppingPosition);
 
         // For touch events with delay enabled, block if delay hasn't elapsed
-        const isTouchEvent = "touches" in e;
+        const isTouchInput = isTouchEvent(e);
         if (
           !isDroppingItem &&
-          isTouchEvent &&
+          isTouchInput &&
           dragTouchDelayDuration &&
           isTouchCapable() &&
           !stateRef.current.allowedToDrag
@@ -985,7 +987,7 @@ const GridItem = React.forwardRef(
         let startPointer: { x: number; y: number } | null = null;
         if (e instanceof MouseEvent) {
           startPointer = { x: e.clientX, y: e.clientY };
-        } else if (e instanceof TouchEvent && e.touches.length > 0) {
+        } else if (isTouchEvent(e) && e.touches.length > 0) {
           startPointer = {
             x: e.touches[0].clientX,
             y: e.touches[0].clientY,
@@ -1105,7 +1107,7 @@ const GridItem = React.forwardRef(
         if (e instanceof MouseEvent) {
           pointerX = e.clientX;
           pointerY = e.clientY;
-        } else if (e instanceof TouchEvent && e.touches.length > 0) {
+        } else if (isTouchEvent(e) && e.touches.length > 0) {
           pointerX = e.touches[0].clientX;
           pointerY = e.touches[0].clientY;
         } else if ((e as unknown as PointerEvent).clientX !== undefined) {

@@ -128,6 +128,7 @@ describe("GridItem", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe("rendering", () => {
@@ -415,6 +416,7 @@ describe("GridItem", () => {
     });
 
     it("uses pointer coordinates for non-mouse drag events", () => {
+      vi.stubGlobal("TouchEvent", undefined);
       const onDragStart = vi.fn();
       const onDrag = vi.fn();
       const ref = React.createRef<GridItem>();

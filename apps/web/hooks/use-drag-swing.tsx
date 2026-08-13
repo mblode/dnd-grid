@@ -25,6 +25,8 @@ interface UseDragSwingReturn {
 }
 
 const REST_SCALE = 1;
+const isTouchEvent = (event: unknown): event is TouchEvent =>
+  typeof event === "object" && event !== null && "touches" in event;
 
 export function useDragSwing(): UseDragSwingReturn {
   const store = useStore();
@@ -308,7 +310,7 @@ export function useDragSwing(): UseDragSwingReturn {
           pointerX = activatorEvent.clientX;
           pointerY = activatorEvent.clientY;
         } else if (
-          activatorEvent instanceof TouchEvent &&
+          isTouchEvent(activatorEvent) &&
           activatorEvent.touches.length > 0
         ) {
           pointerX = activatorEvent.touches[0].clientX;
@@ -373,7 +375,7 @@ export function useDragSwing(): UseDragSwingReturn {
           pointerX = activatorEvent.clientX;
           pointerY = activatorEvent.clientY;
         } else if (
-          activatorEvent instanceof TouchEvent &&
+          isTouchEvent(activatorEvent) &&
           activatorEvent.touches.length > 0
         ) {
           pointerX = activatorEvent.touches[0].clientX;

@@ -101,14 +101,27 @@ const proxyDocsRequest = async (
   // Ask the tenant host for content. Do not forward blode.co as
   // X-Forwarded-Host — blodemd tenancy treats that as a custom-domain lookup
   // and 404s because blode.co is not registered on this tenant.
-  const proxyHeaders = new Headers({
-    Accept: request.headers.get("Accept") ?? "*/*",
-    "User-Agent":
-      request.headers.get("User-Agent") ?? "dnd-grid-docs-proxy/1.0",
-  });
-  const acceptLanguage = request.headers.get("Accept-Language");
-  if (acceptLanguage) {
-    proxyHeaders.set("Accept-Language", acceptLanguage);
+  const proxyHeaders = new Headers();
+  for (const header of [
+    "accept",
+    "accept-language",
+    "if-modified-since",
+    "if-none-match",
+    "next-router-prefetch",
+    "next-router-segment-prefetch",
+    "next-router-state-tree",
+    "next-url",
+    "range",
+    "rsc",
+    "user-agent",
+  ]) {
+    const value = request.headers.get(header);
+    if (value) {
+      proxyHeaders.set(header, value);
+    }
+  }
+  if (!proxyHeaders.has("user-agent")) {
+    proxyHeaders.set("User-Agent", "dnd-grid-docs-proxy/1.0");
   }
 
   const upstreamResponse = await fetch(upstreamUrl, {
@@ -134,7 +147,10 @@ const proxyDocsRequest = async (
   }
 
   const contentType = upstreamResponse.headers.get("content-type") ?? "";
-  if (!contentType.includes("text/html")) {
+  const isRewritable =
+    contentType.includes("text/html") ||
+    contentType.includes("text/x-component");
+  if (!isRewritable) {
     return new Response(upstreamResponse.body, {
       headers: toPassthroughHeaders(upstreamResponse.headers, {
         isHtml: false,

@@ -63,6 +63,17 @@ assert.equal(rewritten.includes("blob.vercel-storage.com"), false);
 assert.equal(rewritten.includes('href="/examples/basic"'), false);
 assert.equal(rewritten.includes('href="/_docs/'), false);
 
+const flight =
+  '1:{"href":"/examples/basic","asset":"/_docs/_next/static/chunk.js"}';
+const rewrittenFlight = rewriteDocsHtml(flight);
+assert.match(rewrittenFlight, /"href":"\/dnd-grid\/docs\/examples\/basic"/);
+assert.match(
+  rewrittenFlight,
+  /"asset":"\/dnd-grid\/_docs\/_next\/static\/chunk\.js"/
+);
+assert.equal(rewrittenFlight.includes('"/examples/basic"'), false);
+assert.equal(rewrittenFlight.includes('"/_docs/'), false);
+
 assert.equal(
   rewriteDocsLocation(
     "https://dnd-grid.blode.md/examples/basic",

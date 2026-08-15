@@ -1,4 +1,5 @@
 import { renderZoneOgImage } from "@/app/og-image-shared";
+import { OgLogo } from "@/app/og-logo";
 
 export {
   OG_CONTENT_TYPE as contentType,
@@ -22,11 +23,9 @@ export const alt = "DnD Grid";
  */
 export default function OpengraphImage() {
   return renderZoneOgImage({
-    badge: "GRID",
-    eyebrow: "blode.co/dnd-grid",
-    // Shorter than the meta description, which runs long for the SERP. A card
-    // is read in a feed, at a glance.
-    subtitle: "Drag-and-drop, resizable grid layouts for React.",
+    background: "#0f172a",
+    color: "#f8fafc",
+    logo: <OgLogo />,
     title: "DnD Grid",
   });
 }

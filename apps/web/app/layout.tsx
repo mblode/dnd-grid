@@ -9,13 +9,16 @@ import { siteConfig, siteUrl } from "@/lib/config";
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
 
+// Glide 4.0.2 — https://github.com/mblode/glide. One variable file per style
+// covers the whole weight axis, so each declares 100-950 rather than a face per
+// weight.
 const glide = localFont({
   src: [
     { path: "../public/glide-variable.woff2", style: "normal" },
     { path: "../public/glide-variable-italic.woff2", style: "italic" },
   ],
   variable: "--font-glide",
-  weight: "400 900",
+  weight: "100 950",
   display: "swap",
 });
 

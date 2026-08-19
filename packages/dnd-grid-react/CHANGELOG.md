@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- 9803fb5: Avoid relying on the optional `TouchEvent` constructor when detecting touch input.
+- 174030b: Point the package README docs link at the blode.co/dnd-grid/docs zone mount.
+  - @dnd-grid/core@1.3.1
+
 ## 1.3.0
 
 ### Minor Changes

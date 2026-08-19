@@ -8,7 +8,7 @@ import { siteConfig } from "@/lib/config";
  */
 const host = "https://blode.co";
 
-export const schemaId = {
+const schemaId = {
   breadcrumb: `${siteConfig.url}/#breadcrumb`,
   organization: `${host}/#organization`,
   person: `${host}/#person`,

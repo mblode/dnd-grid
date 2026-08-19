@@ -1,6 +1,6 @@
 {
   "name": "@dnd-grid/core",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Headless layout engine for dnd-grid",
   "keywords": [
     "dnd",

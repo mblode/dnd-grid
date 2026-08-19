@@ -24,7 +24,11 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Skipped on the Version Packages PR: that PR consumes the changeset and
+      # applies the version bumps, so `changeset status` there always reports
+      # "packages changed but no changesets found" and fails by construction.
       - name: Changeset Status
+        if: github.head_ref != 'changeset-release/main'
         run: npx --no-install changeset status --since origin/main
 
       - name: Lint

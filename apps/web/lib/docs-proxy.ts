@@ -1,7 +1,7 @@
 import { basePath } from "./config.ts";
 
 /** Upstream docs host (blode.md tenant). */
-export const DOCS_UPSTREAM_HOST = "dnd-grid.blode.md";
+const DOCS_UPSTREAM_HOST = "dnd-grid.blode.md";
 
 /** Public docs mount on the blode.co zone. */
 const DOCS_PREFIX = "/docs";

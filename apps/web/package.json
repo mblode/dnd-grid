@@ -10,6 +10,7 @@
     "lint": "ultracite check",
     "format": "ultracite fix",
     "check-types": "next typegen && tsc --noEmit",
+    "test": "node --experimental-strip-types --test lib/__tests__/posthog-exception-filter.test.ts",
     "smoke:docs-proxy": "node --experimental-strip-types scripts/docs-proxy-smoke.ts"
   },
   "dependencies": {

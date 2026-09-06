@@ -14,6 +14,12 @@ description: Breakpoint layouts based on container width.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-responsive-example.tsx)
 
+## How it works
+
+ResponsiveDndGrid takes a layouts object keyed by breakpoint instead of a single layout array, and picks the right one from the measured container width. Because it measures the container rather than the viewport, a grid inside a sidebar breaks at the sidebar's width.
+
+Each breakpoint keeps its own arrangement, so rearranging on a narrow screen does not disturb the desktop layout. If you need the breakpoint value in your own code, useDndGridResponsiveLayout exposes the same resolution logic.
+
 ## Installation
 
 <Tabs>

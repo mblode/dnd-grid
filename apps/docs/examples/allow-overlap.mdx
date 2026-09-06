@@ -14,6 +14,12 @@ description: Let items stack without collision.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-allow-overlap-example.tsx)
 
+## How it works
+
+Compaction is what stops two grid items occupying the same cell. Swapping the compactor changes that rule: this example toggles between verticalCompactor, which pulls items upward and pushes colliding neighbours out of the way, and verticalOverlapCompactor, which lets items sit on top of one another.
+
+Overlap is useful for canvas-style surfaces where the user is arranging free-floating cards rather than filling a dense dashboard. Because the compactor is just a function passed to the compactor prop, you can flip it at runtime — as the toggle here does — or supply your own to encode a different packing rule.
+
 ## Installation
 
 <Tabs>

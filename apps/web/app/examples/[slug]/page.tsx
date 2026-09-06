@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { exampleDetails } from "@/examples/details";
 import { examples, examplesBySlug } from "@/examples/manifest";
-import { siteConfig, siteUrl } from "@/lib/config";
+import { siteConfig } from "@/lib/config";
 import { exampleGraph } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 
@@ -58,10 +58,21 @@ export async function generateMetadata({
   // names the product.
   const cardTitle = `${title} | ${siteConfig.name}`;
 
+  // This route exists to be framed by the docs page, which covers the same
+  // example with the installation, the source and the usage around it. Two
+  // indexable URLs for one example is what put the docs page in Search Console
+  // as an alternate; the docs page is the one that should survive, so this one
+  // points at it and stays out of the index. `follow` keeps the links here
+  // working as crawl paths.
+  const docsUrl = `${siteConfig.links.docs}/examples/${docsSlugFromExample(
+    example.slug
+  )}`;
+
   return {
     title,
     description: example.description,
-    alternates: { canonical: `${siteUrl}/examples/${example.slug}` },
+    alternates: { canonical: docsUrl },
+    robots: { follow: true, index: false },
     openGraph: {
       type: "website",
       // A page-level `openGraph` replaces the layout's rather than merging into
@@ -70,7 +81,7 @@ export async function generateMetadata({
       siteName: "Matthew Blode",
       title: cardTitle,
       description: example.description,
-      url: `${siteUrl}/examples/${example.slug}`,
+      url: docsUrl,
       // Extensionless: the card is `app/opengraph-image.tsx`. Path without
       // `/dnd-grid`: `metadataBase` already carries the zone.
       images: [

@@ -14,6 +14,12 @@ description: Switch between vertical, horizontal, and none.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-compactor-showcase-example.tsx)
 
+## How it works
+
+A compactor decides where items settle once a drag ends. This example switches between vertical compaction, which pulls everything toward the top, horizontal compaction, which pulls toward the left, and no compaction at all, which leaves items exactly where they were dropped.
+
+Vertical is the right default for feeds and dashboards where gaps look like bugs. Horizontal suits toolbars and timelines. No compaction suits freeform boards. Because the compactor is a prop, you can expose the choice to users as this demo does.
+
 ## Installation
 
 <Tabs>

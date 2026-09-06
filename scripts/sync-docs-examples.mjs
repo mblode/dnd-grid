@@ -1,9 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const registryPath = path.join(root, "apps/web/registry.json");
 const docsExamplesDir = path.join(root, "apps/docs/examples");
+const detailsPath = path.join(root, "apps/web/examples/details.ts");
+
+// The prose that explains each example lives in one place and is rendered on
+// both surfaces from there. The docs page is the canonical one, so it has to
+// carry this text rather than only frame the demo that used to hold it.
+const { exampleDetails } = await import(pathToFileURL(detailsPath).href);
 
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
 const items = registry.items ?? [];
@@ -42,6 +49,11 @@ const updateMdx = (item) => {
     throw new Error(`Missing Installation section in ${mdxPath}`);
   }
 
+  const detail = exampleDetails[slug];
+  if (!detail) {
+    throw new Error(`No details entry for ${slug}`);
+  }
+
   const githubPath = `apps/web/${file.path}`;
   const githubUrl = `https://github.com/mblode/dnd-grid/blob/main/${githubPath}`;
   const iframeBlock = [
@@ -58,7 +70,13 @@ const updateMdx = (item) => {
     "",
   ].join("\n");
 
-  const updatedIntro = `${frontmatter}\n\n${iframeBlock}\n${rest
+  const howItWorksBlock = [
+    "## How it works",
+    "",
+    ...detail.body.flatMap((paragraph) => [paragraph, ""]),
+  ].join("\n");
+
+  const updatedIntro = `${frontmatter}\n\n${iframeBlock}\n${howItWorksBlock}\n${rest
     .slice(installationIndex)
     .trimStart()}`;
 

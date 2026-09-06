@@ -14,6 +14,12 @@ description: Build a custom wrapper with useDndGrid.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-headless-example.tsx)
 
+## How it works
+
+useDndGrid exposes the layout engine without any of the rendering. You get the computed positions and the drag and resize handlers, and you decide what the container and cells actually are — useful when the grid has to be a list, a table, or a custom element.
+
+This example pairs it with useContainerWidth to measure the available space, then positions plain divs itself. Everything the DndGrid component does is built on this hook, so nothing is lost by dropping down a level.
+
 ## Installation
 
 <Tabs>

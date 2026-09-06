@@ -14,6 +14,12 @@ description: Render the grid into a portal container.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-portal-example.tsx)
 
+## How it works
+
+The grid measures its own container, so rendering it through createPortal into a different part of the DOM works as long as that container exists before the grid mounts. This example portals the whole grid into a separate bordered region.
+
+Portals are how you keep a grid inside a modal, a drawer, or a resizable split pane without moving it in the React tree. The mounted flag here avoids rendering the portal during the server pass, when the target ref is still null.
+
 ## Installation
 
 <Tabs>

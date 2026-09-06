@@ -14,6 +14,12 @@ description: Simple draggable and resizable grid.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-basic-example.tsx)
 
+## How it works
+
+The smallest useful dnd-grid setup: a layout array of items with id, x, y, w, and h, a column count, a row height, and an onLayoutChange handler. The grid is controlled, so the layout you pass in is the layout that renders, and every drag or resize hands you a new array to store.
+
+Each child is matched to a layout entry by its key, which means you render your own markup inside every cell and dnd-grid only positions it. Start here, then add the behaviour you need from the other examples.
+
 ## Installation
 
 <Tabs>

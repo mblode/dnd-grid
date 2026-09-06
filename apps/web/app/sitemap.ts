@@ -1,13 +1,11 @@
 import type { MetadataRoute } from "next";
 
-import { examples } from "@/examples/manifest";
 import { siteUrl } from "@/lib/config";
 
-// Zone sitemap lists marketing + example URLs only. Docs are proxied under
-// /docs from the blode.md tenant and keep their own sitemap upstream.
-const staticRoutes = [""];
-const exampleRoutes = examples.map((example) => `examples/${example.slug}`);
-const routes = [...staticRoutes, ...exampleRoutes];
+// The zone root only. Docs are proxied under /docs from the blode.md tenant and
+// keep their own sitemap upstream, and `/examples/*` is `noindex` — it is the
+// frame the docs page embeds, not a second page per example.
+const routes = [""];
 const TRAILING_SLASH_REGEX = /\/$/;
 
 const getChangeFrequency = (route: string) =>

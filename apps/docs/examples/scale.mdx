@@ -14,6 +14,12 @@ description: Keep drag math correct when scaling the grid.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-scale-example.tsx)
 
+## How it works
+
+When a grid sits inside a CSS transform, pointer coordinates no longer match layout coordinates and drags drift away from the cursor. The transformScale prop tells the grid what factor to divide by so the maths lines up again.
+
+Set it to the same scale you applied in CSS. This comes up in zoomable canvases, presentation surfaces, and thumbnail previews of a larger board — anywhere the grid is rendered at something other than its natural size.
+
 ## Installation
 
 <Tabs>

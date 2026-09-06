@@ -14,6 +14,12 @@ description: Static items cannot be moved or resized.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-static-elements-example.tsx)
 
+## How it works
+
+Marking a layout item static: true makes it immovable and unresizable, and other items compact around it rather than through it. The pinned cards in this example stay put no matter how the rest of the grid is rearranged.
+
+Use it for headers, summary tiles, or anything that should hold its position while the user arranges everything else. Static items still participate in collision, so they act as fixed obstacles rather than disappearing from the layout.
+
 ## Installation
 
 <Tabs>

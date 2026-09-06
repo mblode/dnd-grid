@@ -14,6 +14,12 @@ description: Plug in constraints and custom rules.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-constraints-example.tsx)
 
+## How it works
+
+Constraints are functions that inspect a proposed layout change and return a corrected one. They run for both drags and resizes, so a single rule can keep an item out of a reserved region, pin it to a column, or cap how large it may grow.
+
+This example reserves a band at the top of the grid that items cannot enter. Constraints compose — pass an array and each is applied in turn — which lets you build a complex policy out of small, individually testable rules.
+
 ## Installation
 
 <Tabs>

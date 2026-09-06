@@ -14,6 +14,12 @@ description: Persist layout to local storage and restore on load.
 
 [View source on GitHub](https://github.com/mblode/dnd-grid/blob/main/apps/web/examples/dnd-grid-localstorage-example.tsx)
 
+## How it works
+
+Because the grid is controlled, persistence is entirely yours to arrange: serialise the layout you receive from onLayoutChange and hydrate from storage on mount. This example reads and writes localStorage so an arrangement survives a reload.
+
+The one thing to watch is hydration. Reading storage during the first render diverges from what the server produced, so the read happens in an effect and the stored layout is applied afterwards. The SSR guide covers the same problem in more detail.
+
 ## Installation
 
 <Tabs>

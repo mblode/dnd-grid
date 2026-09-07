@@ -72,7 +72,7 @@ export const examples: ExampleEntry[] = [
   },
   {
     slug: "constraints-example",
-    title: "Constraints",
+    title: "Constraints example",
     description:
       "Plug in custom constraints and rules to control where items can move and how far they can resize in this constraint-driven dnd-grid React layout example.",
     Component: ConstraintsExample,

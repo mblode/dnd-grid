@@ -106,7 +106,12 @@ export const toUpstreamPath = (zoneRelativePath: string): string => {
 };
 
 const toPublicDocsPath = (upstreamPath: string): string => {
-  if (upstreamPath === "/" || upstreamPath === "") {
+  if (
+    upstreamPath === "/" ||
+    upstreamPath === "" ||
+    upstreamPath === "/introduction" ||
+    upstreamPath === "/docs/introduction"
+  ) {
     return PUBLIC_DOCS_BASE;
   }
   if (isDocsAssetPath(upstreamPath)) {
@@ -120,7 +125,12 @@ const toPublicDocsPath = (upstreamPath: string): string => {
 
 /** Map a path from an absolute upstream URL onto the public zone docs URL path. */
 const publicPathFromUpstreamAbsolute = (path: string): string => {
-  if (path === "" || path === "/") {
+  if (
+    path === "" ||
+    path === "/" ||
+    path === "/introduction" ||
+    path === "/docs/introduction"
+  ) {
     return PUBLIC_DOCS_BASE;
   }
   if (isDocsAssetPath(path)) {
@@ -301,3 +311,10 @@ export const buildUpstreamUrl = (
     `https://${DOCS_UPSTREAM_HOST}/`
   );
 };
+
+/** Keep only the preferred introduction URL in the tenant's public sitemap. */
+export const rewriteDocsSitemap = (xml: string): string =>
+  xml.replaceAll(
+    /<url>\s*<loc>https:\/\/blode\.co\/dnd-grid\/docs\/introduction\/?<\/loc>[\s\S]*?<\/url>/g,
+    ""
+  );

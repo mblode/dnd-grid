@@ -6,6 +6,7 @@ import {
   PUBLIC_DOCS_BASE,
   rewriteDocsHtml,
   rewriteDocsLocation,
+  rewriteDocsSitemap,
   stripZoneBasePath,
   toUpstreamPath,
 } from "../lib/docs-proxy.ts";
@@ -152,3 +153,25 @@ if (process.env.SMOKE_LIVE) {
 }
 
 console.log("docs-proxy smoke ok");
+
+assert.equal(
+  rewriteDocsHtml('<a href="/introduction">Introduction</a>'),
+  `<a href="${PUBLIC_DOCS_BASE}">Introduction</a>`
+);
+assert.equal(
+  rewriteDocsLocation(
+    "https://dnd-grid.blode.md/introduction",
+    new URL("https://blode.co/dnd-grid/docs")
+  ),
+  `https://blode.co${PUBLIC_DOCS_BASE}`
+);
+const preferredEntry = `<url><loc>https://blode.co${PUBLIC_DOCS_BASE}</loc></url>`;
+const aliasEntry = `<url><loc>https://blode.co${PUBLIC_DOCS_BASE}/introduction</loc><lastmod>2026-09-01</lastmod></url>`;
+assert.equal(
+  rewriteDocsSitemap(`<urlset>${preferredEntry}${aliasEntry}</urlset>`),
+  `<urlset>${preferredEntry}</urlset>`
+);
+assert.equal(
+  rewriteDocsSitemap(`<urlset>${preferredEntry}</urlset>`),
+  `<urlset>${preferredEntry}</urlset>`
+);

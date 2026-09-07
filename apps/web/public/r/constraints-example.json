@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "constraints-example",
   "type": "registry:component",
-  "title": "Constraints",
+  "title": "Constraints example",
   "description": "Plug in constraints and custom rules.",
   "dependencies": ["@dnd-grid/react", "react-draggable", "react-resizable"],
   "css": {

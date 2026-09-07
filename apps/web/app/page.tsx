@@ -1,10 +1,12 @@
+import Link from "next/link";
 import { getSingletonHighlighter } from "shiki";
 
-import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
 import { BlocksGrid } from "@/components/blocks-grid";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { TrackedCopyButton } from "@/components/tracked-copy-button";
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { ZoneBreadcrumb } from "@/components/zone-breadcrumb";
 import { siteConfig } from "@/lib/config";
@@ -78,8 +80,8 @@ export default async function Home() {
 
             <section className="py-16 text-center md:py-24">
               <div className="container-wrapper">
-                <h1 className="font-light font-sans text-7xl tracking-tight">
-                  dnd-grid
+                <h1 className="font-light font-sans text-6xl tracking-tight md:text-7xl">
+                  React drag-and-drop grid
                 </h1>
                 <p className="mx-auto mt-4 max-w-125 text-balance text-center font-sans text-2xl text-foreground/60 md:text-3xl">
                   A drag-and-drop, resizable grid layout for React
@@ -87,11 +89,23 @@ export default async function Home() {
 
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                   <Button asChild size="lg">
-                    <a href={siteConfig.links.docs}>Get started</a>
+                    <TrackedLink
+                      action="open_docs"
+                      href={siteConfig.links.docs}
+                      label="Get started"
+                    >
+                      Get started
+                    </TrackedLink>
                   </Button>
 
                   <Button asChild size="lg" variant="outline">
-                    <a href={siteConfig.links.github}>GitHub</a>
+                    <TrackedLink
+                      action="open_github"
+                      href={siteConfig.links.github}
+                      label="GitHub"
+                    >
+                      GitHub
+                    </TrackedLink>
                   </Button>
                 </div>
 
@@ -99,8 +113,10 @@ export default async function Home() {
                   <div className="max-w-100 truncate">
                     npm install @dnd-grid/react
                   </div>
-                  <CopyButton
+                  <TrackedCopyButton
+                    action="copy_install_command"
                     content="npm install @dnd-grid/react"
+                    label="Copy install command"
                     size="xs"
                     variant="ghost"
                   />
@@ -117,6 +133,48 @@ export default async function Home() {
             </section>
           </div>
 
+          <section className="border-y bg-muted/20 py-16">
+            <div className="container-wrapper">
+              <div className="mx-auto max-w-5xl">
+                <h2 className="font-sans font-semibold text-2xl tracking-tight">
+                  A practical grid for React dashboards and editors
+                </h2>
+                <p className="mt-3 max-w-3xl text-muted-foreground leading-relaxed">
+                  DnD Grid turns React children into draggable and resizable
+                  tiles. You own the layout state; the library handles pointer
+                  and keyboard interaction, collision detection, compaction,
+                  responsive columns, and size constraints.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm">
+                  <Link
+                    className="underline underline-offset-4"
+                    href="/examples/basic"
+                  >
+                    Basic controlled grid
+                  </Link>
+                  <Link
+                    className="underline underline-offset-4"
+                    href="/examples/responsive"
+                  >
+                    Responsive dashboard
+                  </Link>
+                  <Link
+                    className="underline underline-offset-4"
+                    href="/examples/constraints"
+                  >
+                    Constrained resizing
+                  </Link>
+                  <Link
+                    className="underline underline-offset-4"
+                    href="/examples/localstorage"
+                  >
+                    Saved layouts
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section className="pb-16">
             <div className="container-wrapper">
               <div className="mx-auto max-w-5xl">
@@ -126,9 +184,11 @@ export default async function Home() {
                       Installation
                     </h2>
                     <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
-                      <CopyButton
+                      <TrackedCopyButton
+                        action="copy_install_command"
                         className="absolute top-3 right-3"
                         content={INSTALL_COMMAND}
+                        label="Copy install command"
                         size="xs"
                         variant="ghost"
                       />
@@ -142,9 +202,11 @@ export default async function Home() {
                       <code className="text-foreground">globals.css</code>):
                     </p>
                     <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
-                      <CopyButton
+                      <TrackedCopyButton
+                        action="copy_style_import"
                         className="absolute top-3 right-3"
                         content={STYLE_IMPORT}
+                        label="Copy stylesheet import"
                         size="xs"
                         variant="ghost"
                       />
@@ -160,9 +222,11 @@ export default async function Home() {
                       Usage
                     </h2>
                     <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
-                      <CopyButton
+                      <TrackedCopyButton
+                        action="copy_usage_import"
                         className="absolute top-3 right-3"
                         content={USAGE_IMPORT_SNIPPET}
+                        label="Copy usage import"
                         size="xs"
                         variant="ghost"
                       />
@@ -172,9 +236,11 @@ export default async function Home() {
                       />
                     </div>
                     <div className="relative rounded-2xl bg-muted/50 p-4 pr-14 pb-0">
-                      <CopyButton
+                      <TrackedCopyButton
+                        action="copy_usage_example"
                         className="absolute top-3 right-3"
                         content={USAGE_COMPONENT_SNIPPET}
+                        label="Copy React grid example"
                         size="xs"
                         variant="ghost"
                       />

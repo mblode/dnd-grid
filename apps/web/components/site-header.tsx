@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/logo";
+import { TrackedLink } from "@/components/tracked-link";
 import { siteConfig } from "@/lib/config";
 
 export function SiteHeader() {
@@ -16,18 +17,22 @@ export function SiteHeader() {
             <span>dnd-grid</span>
           </Link>
           <nav className="flex items-center gap-6">
-            <a
+            <TrackedLink
+              action="open_docs"
               className="underline-offset-2 hover:underline"
               href={siteConfig.links.docs}
+              label="Docs"
             >
               Docs
-            </a>
-            <a
+            </TrackedLink>
+            <TrackedLink
+              action="open_github"
               className="underline-offset-2 hover:underline"
               href={siteConfig.links.github}
+              label="GitHub"
             >
               GitHub
-            </a>
+            </TrackedLink>
           </nav>
         </div>
       </div>

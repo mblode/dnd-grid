@@ -14,11 +14,8 @@ const getChangeFrequency = (route: string) =>
 const getPriority = (route: string) => (route === "" ? 1 : 0.6);
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
-
   return routes.map((route) => ({
     url: `${siteUrl}/${route}`.replace(TRAILING_SLASH_REGEX, ""),
-    lastModified,
     changeFrequency: getChangeFrequency(route),
     priority: getPriority(route),
   }));

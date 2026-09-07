@@ -10,6 +10,7 @@ import {
   PUBLIC_DOCS_BASE,
   rewriteDocsHtml,
   rewriteDocsLocation,
+  rewriteDocsSitemap,
   stripZoneBasePath,
 } from "@/lib/docs-proxy";
 
@@ -147,6 +148,16 @@ const proxyDocsRequest = async (
   }
 
   const contentType = upstreamResponse.headers.get("content-type") ?? "";
+  if (
+    zoneRelativePath === "/docs/sitemap.xml" &&
+    upstreamResponse.ok &&
+    contentType.includes("xml")
+  ) {
+    return new Response(rewriteDocsSitemap(await upstreamResponse.text()), {
+      headers: toPassthroughHeaders(upstreamResponse.headers, { isHtml: true }),
+      status: upstreamResponse.status,
+    });
+  }
   const isRewritable =
     contentType.includes("text/html") ||
     contentType.includes("text/x-component");

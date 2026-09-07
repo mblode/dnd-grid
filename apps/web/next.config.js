@@ -71,39 +71,42 @@ const nextConfig = {
   redirects() {
     // Apex + vanity hosts 301 onto the blode.co zone. Docs under /docs are
     // proxied in proxy.ts (not redirected) so blode.co/dnd-grid/docs stays.
-    return redirectHosts.flatMap((host) => {
-      const has = [{ type: "host", value: host }];
-      return [
-        {
-          basePath: false,
-          destination: `https://blode.co${basePath}`,
-          has,
-          permanent: true,
-          source: basePath,
-        },
-        {
-          basePath: false,
-          destination: `https://blode.co${basePath}/:path*`,
-          has,
-          permanent: true,
-          source: `${basePath}/:path*`,
-        },
-        {
-          basePath: false,
-          destination: `https://blode.co${basePath}`,
-          has,
-          permanent: true,
-          source: "/",
-        },
-        {
-          basePath: false,
-          destination: `https://blode.co${basePath}/:path*`,
-          has,
-          permanent: true,
-          source: "/:path*",
-        },
-      ];
-    });
+    return [
+      { source: "/docs/introduction", destination: "/docs", permanent: true },
+      ...redirectHosts.flatMap((host) => {
+        const has = [{ type: "host", value: host }];
+        return [
+          {
+            basePath: false,
+            destination: `https://blode.co${basePath}`,
+            has,
+            permanent: true,
+            source: basePath,
+          },
+          {
+            basePath: false,
+            destination: `https://blode.co${basePath}/:path*`,
+            has,
+            permanent: true,
+            source: `${basePath}/:path*`,
+          },
+          {
+            basePath: false,
+            destination: `https://blode.co${basePath}`,
+            has,
+            permanent: true,
+            source: "/",
+          },
+          {
+            basePath: false,
+            destination: `https://blode.co${basePath}/:path*`,
+            has,
+            permanent: true,
+            source: "/:path*",
+          },
+        ];
+      }),
+    ];
   },
   async headers() {
     /*

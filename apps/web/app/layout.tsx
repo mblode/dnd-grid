@@ -31,9 +31,9 @@ const GA_MEASUREMENT_ID = "G-DZD6C8C6HT";
 // "Product: what it does", colon and not a hyphen, under 60 characters so the
 // SERP does not truncate it. Rule 8 of
 // blode-co/apps/web/.claude/knowledge/zone-conventions.md.
-const siteTitle = "dnd-grid: a drag-and-drop, resizable grid for React";
-const siteDescription =
-  "dnd-grid is a lightweight drag-and-drop, resizable grid layout library for React with collision handling, compaction, responsive breakpoints, and constraints.";
+const siteTitle = "dnd-grid: React drag-and-drop resizable grid layout";
+// Same string as JSON-LD: keep SERP and schema descriptions identical.
+const siteDescription = siteConfig.description;
 
 export const metadata: Metadata = {
   // The zone URL, not the bare origin (Rule 11). Only correct because the card

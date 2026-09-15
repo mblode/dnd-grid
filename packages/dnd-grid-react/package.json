@@ -81,7 +81,7 @@
     "ultracite": "7.9.3",
     "vite": "^8.1.4",
     "vite-plugin-dts": "^5.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0 || ^19.0.0",

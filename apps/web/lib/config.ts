@@ -8,7 +8,9 @@ export const siteUrl = `https://blode.co${basePath}`;
 export const siteConfig = {
   name: "DnD Grid",
   version: "0.1.0",
-  description: "A drag-and-drop (DnD), resizable grid layout for React",
+  // SERP meta, Open Graph, Twitter, and JSON-LD share this string (≤160 chars).
+  description:
+    "React drag-and-drop grid with resize, collision handling, compaction, and responsive breakpoints. For dashboards and editors.",
   url: siteUrl,
   links: {
     github: "https://github.com/mblode/dnd-grid",

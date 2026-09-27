@@ -25,7 +25,7 @@
     "lucide-react": "^1.24.0",
     "mobx": "^6.16.1",
     "mobx-persist-store": "^1.1.8",
-    "motion": "^12.42.2",
+    "motion": "^13.4.3",
     "next": "16.3.3",
     "posthog-js": "^1.414.0",
     "react": "19.2.8",

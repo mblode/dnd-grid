@@ -71,7 +71,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-resizable": "^3.0.8",
     "@vitejs/plugin-react": "^6.0.3",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.0",
     "jsdom": "^29.1.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

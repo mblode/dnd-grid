@@ -24,7 +24,8 @@
     "workers:deploy": "npm run deploy --workspace=docs-worker",
     "test": "turbo run test",
     "knip": "knip",
-    "check": "npm run lint && npm run check-types",
+    "check": "npm run lint && npm run check-types && npm run check-action-pins",
+    "check-action-pins": "node scripts/check-action-pins.mjs",
     "verify": "npm run check && npm run test && npm run knip",
     "check-package-types": "npm run build && node scripts/check-package-types.mjs",
     "verify:full": "npm run verify && npm run check-package-types"

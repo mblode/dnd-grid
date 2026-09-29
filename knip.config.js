@@ -20,7 +20,8 @@ export default {
   // Its own bin is `tsc6`, but it depends on `@typescript/old` (typescript@6),
   // which is what actually supplies `node_modules/.bin/tsc`. Nothing imports
   // either, so knip reads it as unused; removing it leaves no `tsc` at all.
-  ignoreDependencies: ["@typescript/typescript6"],
+  // `undici` is a root pin that forces the patched version for jsdom and miniflare.
+  ignoreDependencies: ["@typescript/typescript6", "undici"],
   workspaces: {
     "apps/docs": {
       // Wider than `entry` on purpose, so a non-MDX file here is reported as

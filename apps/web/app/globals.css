@@ -4,8 +4,12 @@
 @theme inline {
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
-  --font-sans: var(--font-glide);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, "SFMono-Regular", "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
   /* Fluid type - scales with --dnd-grid-scale */
   --text-fluid-xxs: calc(8px * var(--dnd-grid-scale, 1));
   --text-fluid-xs: calc(11px * var(--dnd-grid-scale, 1));

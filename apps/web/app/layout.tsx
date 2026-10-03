@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
-import localFont from "next/font/local";
+import { Geist_Mono, Inter } from "next/font/google";
 import Script from "next/script";
 import type React from "react";
 
@@ -9,16 +8,9 @@ import { siteConfig, siteUrl } from "@/lib/config";
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
 
-// Glide 4.0.2 — https://github.com/mblode/glide. One variable file per style
-// covers the whole weight axis, so each declares 100-950 rather than a face per
-// weight.
-const glide = localFont({
-  src: [
-    { path: "../public/glide-variable.woff2", style: "normal" },
-    { path: "../public/glide-variable-italic.woff2", style: "italic" },
-  ],
-  variable: "--font-glide",
-  weight: "100 950",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -82,7 +74,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${glide.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}
+      className={`${inter.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}
       lang="en"
     >
       <body className="flex min-h-screen flex-col">

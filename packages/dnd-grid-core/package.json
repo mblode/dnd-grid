@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "typescript": "7.0.2",
-    "ultracite": "7.9.3",
-    "vitest": "^5.0.0"
+    "ultracite": "7.12.2",
+    "vitest": "^5.0.3"
   }
 }

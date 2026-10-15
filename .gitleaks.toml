@@ -1,0 +1,12 @@
+title = "dnd-grid gitleaks config"
+
+[extend]
+useDefault = true
+
+# The docs started from the Mintlify template, whose API examples send a
+# placeholder key. It is not a credential.
+[[allowlists]]
+description = "Placeholder API keys in docs examples"
+paths = ['''^apps/docs/''']
+regexTarget = "match"
+regexes = ['''(?i)YOUR_API_KEY''']

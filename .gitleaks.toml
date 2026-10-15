@@ -4,9 +4,12 @@ title = "dnd-grid gitleaks config"
 useDefault = true
 
 # The docs started from the Mintlify template, whose API examples send a
-# placeholder key. It is not a credential.
+# placeholder key. It is not a credential. The exemption needs the rule, the
+# path and the placeholder to all match, so real keys in docs are still caught.
 [[allowlists]]
 description = "Placeholder API keys in docs examples"
+condition = "AND"
+targetRules = ["curl-auth-header"]
 paths = ['''^apps/docs/''']
 regexTarget = "match"
-regexes = ['''(?i)YOUR_API_KEY''']
+regexes = ['''YOUR_API_KEY''']

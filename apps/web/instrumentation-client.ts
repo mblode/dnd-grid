@@ -16,7 +16,14 @@ const isLocalHost = () => {
 if (!isLocalHost()) {
   posthog.init("phc_yYatHXysbRxjTyfmyCKSUyMSQpgepJPuxegz2HtpfX35", {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    before_send: (event) => filterExceptionForPosthog(event) ?? null,
+    before_send: (event) => {
+      const kept = filterExceptionForPosthog(event);
+      if (!kept) {
+        return null;
+      }
+      kept.properties.project = "dnd-grid";
+      return kept;
+    },
     defaults: "2026-05-30",
     ui_host: "[REDACTED]",
   });
